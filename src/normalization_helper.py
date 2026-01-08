@@ -1,5 +1,27 @@
 import torch
+import torch.jit
 import numpy as np
+
+
+# JIT-compiled van Genuchten functions for better performance
+@torch.jit.script
+def _Se_tilde_jit(h_tilde: torch.Tensor, alpha_tilde: float, n: float, m: float, tiny: float) -> torch.Tensor:
+    """JIT-compiled effective saturation computation."""
+    abs_h_tilde = torch.abs(h_tilde)
+    denom = (1.0 + (alpha_tilde * abs_h_tilde).pow(n)).pow(m)
+    denom = denom + tiny
+    Se = 1.0 / denom
+    Se = torch.where(h_tilde >= 0.0, torch.ones_like(h_tilde), Se)
+    return torch.clamp(Se, 1e-6, 1.0 - 1e-6)
+
+
+@torch.jit.script
+def _K_tilde_jit(Se: torch.Tensor, h_tilde: torch.Tensor, m: float, l: float) -> torch.Tensor:
+    """JIT-compiled relative conductivity computation."""
+    Se_1m = Se.pow(1.0 / m)
+    kr = (Se.pow(l)) * (1.0 - (1.0 - Se_1m).pow(m)).pow(2)
+    K_tilde = torch.where(h_tilde >= 0.0, torch.ones_like(h_tilde), torch.clamp(kr, 0.0, 1.0))
+    return K_tilde
 
 
 class NormalizationHelper:
@@ -113,40 +135,20 @@ class NormalizationHelper:
         """
         Effective saturation from dimensionless head h̃
         S_e(h̃) = [1 + (α̃|h̃|)^n]^(-m)
+
+        Uses JIT-compiled function for better performance.
         """
-        abs_h_tilde = torch.abs(h_tilde)
-        denom = (1.0 + (self.alpha_tilde * abs_h_tilde).pow(self.n)).pow(self.m)
-        denom = denom + self._tiny
-        Se = 1.0 / denom
+        return _Se_tilde_jit(h_tilde, self.alpha_tilde, self.n, self.m, self._tiny)
 
-        # Se = 1 when h̃ >= 0 (saturated)
-        Se = torch.where(
-            h_tilde >= 0.0,
-            torch.ones_like(h_tilde),
-            Se
-        )
-
-        return torch.clamp(Se, 1e-6, 1.0 - 1e-6)
-    
     def K_tilde(self, h_tilde):
         """
         Dimensionless relative conductivity K̃ = K / K_*
         K̃(h̃) = k_r(S_e) using Mualem model
+
+        Uses JIT-compiled function for better performance.
         """
         Se = self.Se_tilde(h_tilde)
-
-        # Mualem model: k_r = Se^l × [1 - (1 - Se^(1/m))^m]^2
-        Se_1m = Se.pow(1.0 / self.m)
-        kr = (Se.pow(self.l)) * (1.0 - (1.0 - Se_1m).pow(self.m)).pow(2)
-
-        # K̃ = 1 when h̃ >= 0 (saturated)
-        K_tilde = torch.where(
-            h_tilde >= 0.0,
-            torch.ones_like(h_tilde),
-            torch.clamp(kr, 0.0, 1.0)
-        )
-
-        return K_tilde
+        return _K_tilde_jit(Se, h_tilde, self.m, self.l)
     
     def C_tilde(self, h_tilde):
         """

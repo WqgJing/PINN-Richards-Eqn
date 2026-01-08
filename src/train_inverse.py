@@ -25,6 +25,30 @@ from .training_logger_inverse import InverseTrainingLogger
 from .gradient_based_sampling import gradient_based_sampling
 
 
+def _precompute_gradient_weights(times_t, values_t, device, power=2.0):
+    """
+    Precompute gradient-based sampling weights ONCE at start.
+
+    This avoids recomputing gradients every epoch for static data.
+    """
+    times_flat = times_t.flatten()
+
+    dv = torch.diff(values_t)
+    dt = torch.diff(times_flat)
+    gradients = dv / (dt + 1e-12)
+    gradient_magnitude = torch.abs(gradients)
+
+    weights = torch.zeros(len(values_t), device=device)
+    weights[:-1] = gradient_magnitude
+    weights[-1] = gradient_magnitude[-1]
+
+    baseline = weights.max() * 0.1
+    weights = (weights + baseline).pow(power)
+    weights = weights / weights.sum()
+
+    return weights, gradients
+
+
 def train_inverse_pinn_from_config(config, q_surf_data, theta_obs_data, et_data=None,
                                     ic_profile=None, device='auto'):
     """
@@ -102,6 +126,9 @@ def train_inverse_pinn_from_config(config, q_surf_data, theta_obs_data, et_data=
         lbfgs_tolerance_grad=config.lbfgs_tolerance_grad,
         lbfgs_tolerance_change=config.lbfgs_tolerance_change,
         lbfgs_n_epochs=config.lbfgs_n_epochs,
+        use_all_data_points=config.use_all_data_points,
+        use_torch_compile=config.use_torch_compile,
+        print_freq=config.print_freq,
     )
 
 
@@ -162,6 +189,9 @@ def train_inverse_pinn(
     lbfgs_tolerance_grad=1e-7,
     lbfgs_tolerance_change=1e-9,
     lbfgs_n_epochs=1000,  # Number of L-BFGS iterations
+    use_all_data_points=True,  # Skip gradient sampling, use all BC points directly
+    use_torch_compile=False,   # Use torch.compile for model optimization
+    print_freq=500,            # Reduce print frequency for speed
 ):
     """
     Train inverse PINN to find water table depth from surface observations.
@@ -265,6 +295,14 @@ def train_inverse_pinn(
             scaler = torch.cuda.amp.GradScaler()
             print("Mixed precision training (AMP) enabled")
 
+    # torch.compile optimization (PyTorch 2.0+)
+    if use_torch_compile:
+        try:
+            model = torch.compile(model, mode='reduce-overhead')
+            print("torch.compile enabled (reduce-overhead mode)")
+        except Exception as e:
+            print(f"Warning: torch.compile failed: {e}. Continuing without compilation.")
+
     # Optimizer with different learning rates for h_net vs z_b
     # Use slightly lower learning rate for z_b (was 0.1x, now 0.5x for faster adaptation)
     zb_lr = learning_rate * 0.5  # 2x smaller for z_b
@@ -272,10 +310,26 @@ def train_inverse_pinn(
     h_net_params = list(model.h_net.parameters())
     zb_params = list(model.zb_spline.parameters())
 
-    optimizer = Adam([
-        {'params': h_net_params, 'lr': learning_rate},
-        {'params': zb_params, 'lr': zb_lr}
-    ])
+    # Try fused Adam if available (PyTorch 2.0+ on CUDA) for better performance
+    use_fused_adam = device == 'cuda' and hasattr(torch.optim.Adam, 'fused')
+    try:
+        if use_fused_adam:
+            optimizer = Adam([
+                {'params': h_net_params, 'lr': learning_rate},
+                {'params': zb_params, 'lr': zb_lr}
+            ], fused=True)
+            print("Using fused Adam optimizer (faster on CUDA)")
+        else:
+            optimizer = Adam([
+                {'params': h_net_params, 'lr': learning_rate},
+                {'params': zb_params, 'lr': zb_lr}
+            ])
+    except TypeError:
+        # Fused not available in this PyTorch version
+        optimizer = Adam([
+            {'params': h_net_params, 'lr': learning_rate},
+            {'params': zb_params, 'lr': zb_lr}
+        ])
 
     print(f"Using separate learning rates: h_net={learning_rate:.2e}, z_b={zb_lr:.2e}")
 
@@ -350,45 +404,75 @@ def train_inverse_pinn(
     print(f"Initial z_b knots (last 5): {zb_knots_initial[-5:]}")
     print(f"Initial z_b range: [{zb_knots_initial.min():.3f}, {zb_knots_initial.max():.3f}] m\n")
 
+    # Performance optimization: prepare BC data based on strategy
+    if use_all_data_points:
+        # Use ALL data points directly - faster for small datasets (e.g., 228 points)
+        # Clone and enable gradients for each epoch (will be reused)
+        t_bc_flux_all = qsurf_times_t.clone().requires_grad_(True)
+        t_bc_theta_all = theta_times_t.clone().requires_grad_(True)
+        print(f"PERFORMANCE: Using ALL data points directly ({len(qsurf_times_t)} flux, {len(theta_times_t)} theta)")
+    else:
+        # Precompute gradient weights ONCE (not every epoch)
+        qsurf_grad_weights, _ = _precompute_gradient_weights(qsurf_times_t, qsurf_values_t, device, power=gradient_power)
+        theta_grad_weights, _ = _precompute_gradient_weights(theta_times_t, theta_values_t, device, power=gradient_power)
+        print(f"PERFORMANCE: Using gradient-based sampling (precomputed weights)")
+
+    # Cache Beta distributions for PDE sampling (avoid recreation every epoch)
+    beta_surface = torch.distributions.Beta(
+        torch.tensor(1.0, device=device),
+        torch.tensor(3.0, device=device)
+    )
+    beta_bottom = torch.distributions.Beta(
+        torch.tensor(3.0, device=device),
+        torch.tensor(1.0, device=device)
+    )
+
     # Main training loop (Adam only)
+    import time as time_module
+    train_start_time = time_module.time()
+
     for epoch in range(start_epoch, n_epochs):
         if epoch % grad_accumulation_steps == 0:
             optimizer.zero_grad()
 
-        z_col, t_col = sampling.sample_pde_points(
-            model_core, batch_size, t_max, device, boundary_ratio=boundary_ratio
-        )
+        # Sample PDE training points (optimized with cached Beta distributions)
+        t_col = torch.rand(batch_size, 1, device=device) * t_max
+        t_col.requires_grad_(True)
 
-        # Gradient-based BC sampling - SEPARATE for flux and theta
-        # Flux BC: sample based on q_surf gradients (captures flux spikes)
-        t_bc_flux, _ = gradient_based_sampling(
-            qsurf_times_t,
-            qsurf_values_t,
-            batch_size_flux,
-            device=device,
-            use_interpolation=True,
-            interp_ratio=interp_ratio,
-            neighbor_ratio=neighbor_ratio,
-            baseline_ratio=baseline_ratio,
-            neighbor_expansion=gradient_neighbor_expansion,
-            gradient_threshold=gradient_threshold,
-            power=gradient_power
-        )
+        n_boundary = int(batch_size * boundary_ratio)
+        n_interior = batch_size - n_boundary
+        n_surface = n_boundary // 2
+        n_bottom = n_boundary - n_surface
 
-        # Theta data matching: sample based on theta gradients (captures moisture variations)
-        t_bc_theta, _ = gradient_based_sampling(
-            theta_times_t,
-            theta_values_t,
-            batch_size_theta,
-            device=device,
-            use_interpolation=True,
-            interp_ratio=interp_ratio,
-            neighbor_ratio=neighbor_ratio,
-            baseline_ratio=baseline_ratio,
-            neighbor_expansion=gradient_neighbor_expansion,
-            gradient_threshold=gradient_threshold,
-            power=gradient_power
-        )
+        u_surface = beta_surface.sample((n_surface,))
+        u_bottom = beta_bottom.sample((n_bottom,))
+        u_interior = torch.rand(n_interior, device=device)
+        u_col = torch.cat([u_surface, u_bottom, u_interior]).reshape(-1, 1)
+
+        with torch.no_grad():
+            zb_col = model_core.predict_water_table(t_col)
+        z_col = (-u_col * zb_col).requires_grad_(True)
+
+        # BC time points - use all data or sampled
+        if use_all_data_points:
+            # Use all data points directly (fastest for small datasets)
+            t_bc_flux = qsurf_times_t.clone().requires_grad_(True)
+            t_bc_theta = theta_times_t.clone().requires_grad_(True)
+        else:
+            t_bc_flux, _ = gradient_based_sampling(
+                qsurf_times_t, qsurf_values_t, batch_size_flux,
+                device=device, use_interpolation=True,
+                interp_ratio=interp_ratio, neighbor_ratio=neighbor_ratio,
+                baseline_ratio=baseline_ratio, neighbor_expansion=gradient_neighbor_expansion,
+                gradient_threshold=gradient_threshold, power=gradient_power
+            )
+            t_bc_theta, _ = gradient_based_sampling(
+                theta_times_t, theta_values_t, batch_size_theta,
+                device=device, use_interpolation=True,
+                interp_ratio=interp_ratio, neighbor_ratio=neighbor_ratio,
+                baseline_ratio=baseline_ratio, neighbor_expansion=gradient_neighbor_expansion,
+                gradient_threshold=gradient_threshold, power=gradient_power
+            )
 
         z_ic, t_ic = sampling.sample_initial_condition_points(
             model_core, batch_size, t_min, device
@@ -487,22 +571,29 @@ def train_inverse_pinn(
                 if os.path.exists(old_checkpoint):
                     os.remove(old_checkpoint)
 
-        if (epoch + 1) % 200 == 0 or epoch == 0:
+        # Print progress (use configurable frequency)
+        if (epoch + 1) % print_freq == 0 or epoch == 0:
             # Get current z_b range
             with torch.no_grad():
                 t_test = torch.tensor([[t_min], [t_max]], device=device)
                 zb_test = model_core.predict_water_table(t_test).flatten()
-                zb_min, zb_max = zb_test[0].item(), zb_test[1].item()
+                zb_min, zb_max_val = zb_test[0].item(), zb_test[1].item()
 
-            print(f"\n[Epoch {epoch+1}/{n_epochs}]")
+            elapsed = time_module.time() - train_start_time
+            epochs_done = epoch - start_epoch + 1
+            epochs_per_sec = epochs_done / elapsed if elapsed > 0 else 0
+            eta_sec = (n_epochs - epoch - 1) / epochs_per_sec if epochs_per_sec > 0 else 0
+
+            print(f"\n[Epoch {epoch+1}/{n_epochs}] ({epochs_per_sec:.1f} ep/s, ETA: {eta_sec/60:.1f} min)")
             print(f"  Total loss: {total_loss.item() if hasattr(total_loss, 'item') else total_loss:.3e}")
             print(f"  Components: PDE={losses['pde'].item():.3e}, FluxBC={losses['flux_bc'].item():.3e}, "
                   f"WTHead={losses['wt_head'].item():.3e}")
             print(f"  Data match: {losses['data'].item():.3e}")
             print(f"  Regularization: smooth={losses['zb_smooth'].item():.3e}, curv={losses['zb_curv'].item():.3e}")
-            print(f"  z_b range: [{zb_min:.3f}, {zb_max:.3f}] m")
+            print(f"  z_b range: [{zb_min:.3f}, {zb_max_val:.3f}] m")
 
-        if (epoch + 1) % 500 == 0 or epoch == 0:
+        # Sample loss (less frequent for speed)
+        if (epoch + 1) % (print_freq * 2) == 0 or epoch == 0:
             sample_losses_dict = compute_full_sample_loss_inverse(
                 model_core, qsurf_times_t, theta_times_t, t_min, device,
                 t_max=t_max, boundary_ratio=boundary_ratio,
@@ -541,25 +632,44 @@ def train_inverse_pinn(
         weights = weight_manager.get_weights()
 
         for lbfgs_epoch in range(lbfgs_n_epochs):
-            # Sample points (use larger batch for stability)
-            z_col, t_col = sampling.sample_pde_points(
-                model_core, lbfgs_batch_size, t_max, device, boundary_ratio=boundary_ratio
-            )
-            # Separate flux and theta sampling for L-BFGS
-            t_bc_flux, _ = gradient_based_sampling(
-                qsurf_times_t, qsurf_values_t, lbfgs_batch_flux,
-                device=device, use_interpolation=True,
-                interp_ratio=interp_ratio, neighbor_ratio=neighbor_ratio,
-                baseline_ratio=baseline_ratio, neighbor_expansion=gradient_neighbor_expansion,
-                gradient_threshold=gradient_threshold, power=gradient_power
-            )
-            t_bc_theta, _ = gradient_based_sampling(
-                theta_times_t, theta_values_t, lbfgs_batch_theta,
-                device=device, use_interpolation=True,
-                interp_ratio=interp_ratio, neighbor_ratio=neighbor_ratio,
-                baseline_ratio=baseline_ratio, neighbor_expansion=gradient_neighbor_expansion,
-                gradient_threshold=gradient_threshold, power=gradient_power
-            )
+            # Sample PDE points (use larger batch for stability)
+            t_col = torch.rand(lbfgs_batch_size, 1, device=device) * t_max
+            t_col.requires_grad_(True)
+
+            n_boundary = int(lbfgs_batch_size * boundary_ratio)
+            n_interior = lbfgs_batch_size - n_boundary
+            n_surface = n_boundary // 2
+            n_bottom = n_boundary - n_surface
+
+            u_surface = beta_surface.sample((n_surface,))
+            u_bottom = beta_bottom.sample((n_bottom,))
+            u_interior = torch.rand(n_interior, device=device)
+            u_col = torch.cat([u_surface, u_bottom, u_interior]).reshape(-1, 1)
+
+            with torch.no_grad():
+                zb_col = model_core.predict_water_table(t_col)
+            z_col = (-u_col * zb_col).requires_grad_(True)
+
+            # BC points - use all data for L-BFGS (better for full-batch optimization)
+            if use_all_data_points:
+                t_bc_flux = qsurf_times_t.clone().requires_grad_(True)
+                t_bc_theta = theta_times_t.clone().requires_grad_(True)
+            else:
+                t_bc_flux, _ = gradient_based_sampling(
+                    qsurf_times_t, qsurf_values_t, lbfgs_batch_flux,
+                    device=device, use_interpolation=True,
+                    interp_ratio=interp_ratio, neighbor_ratio=neighbor_ratio,
+                    baseline_ratio=baseline_ratio, neighbor_expansion=gradient_neighbor_expansion,
+                    gradient_threshold=gradient_threshold, power=gradient_power
+                )
+                t_bc_theta, _ = gradient_based_sampling(
+                    theta_times_t, theta_values_t, lbfgs_batch_theta,
+                    device=device, use_interpolation=True,
+                    interp_ratio=interp_ratio, neighbor_ratio=neighbor_ratio,
+                    baseline_ratio=baseline_ratio, neighbor_expansion=gradient_neighbor_expansion,
+                    gradient_threshold=gradient_threshold, power=gradient_power
+                )
+
             z_ic, t_ic = sampling.sample_initial_condition_points(
                 model_core, lbfgs_batch_size, t_min, device
             )

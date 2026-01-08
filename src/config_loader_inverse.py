@@ -287,6 +287,22 @@ class InversePINNConfig:
     def lbfgs_n_epochs(self) -> int:
         return int(self._config['optimization'].get('lbfgs_n_epochs', 1000))
 
+    # ========== Performance Optimization Configuration ==========
+    @property
+    def use_all_data_points(self) -> bool:
+        """Use all BC data points directly instead of gradient-based sampling."""
+        return self._config['optimization'].get('use_all_data_points', True)
+
+    @property
+    def use_torch_compile(self) -> bool:
+        """Use torch.compile for model optimization (PyTorch 2.0+)."""
+        return self._config['optimization'].get('use_torch_compile', False)
+
+    @property
+    def print_freq(self) -> int:
+        """Frequency of printing progress (epochs)."""
+        return int(self._config['optimization'].get('print_freq', 500))
+
     # ========== Physics Configuration ==========
     @property
     def zr(self) -> float:
