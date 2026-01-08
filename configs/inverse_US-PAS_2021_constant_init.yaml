@@ -1,0 +1,95 @@
+# Inverse PINN Configuration for US-PAS - L-BFGS TEST
+# Quick test: 5k Adam + 500 L-BFGS epochs
+
+data:
+  npz_path: data/US-PAS_2021-04-01_2021-11-30.npz
+  time_key: times
+  flux_key: qsurf
+  theta_key: smap_sm
+  zb_true_key: zb
+  flux_path: data/US-PAS_2021-04-01_2021-11-30.npz
+  theta_obs_path: data/US-PAS_2021-04-01_2021-11-30.npz
+  start_date: "2021-04-01"
+  end_date: "2021-11-30"
+  interpolate: true
+  max_gap_hours: 24
+
+soil:
+  theta_s: 0.43
+  theta_r: 0.02
+  alpha: 3.6
+  n: 1.56
+  Ks: 2.9e-6
+  l: 0.5
+
+physics:
+  L: 5.0
+  zr: 0.5
+  S_max: 0.0
+  ic_type: hydrostatic
+
+inverse:
+  n_spline_knots: 40          # More knots for flexibility
+  zb_initial: 0.8             # Start closer to mean of true range (0.2-1.9m)
+  zb_max: 2.0                 # True max is 1.9m, allow a bit more
+  lambda_smooth: 0.01         # VERY low regularization - let z_b vary freely
+  lambda_curv: 0.001          # VERY low curvature penalty
+
+network:
+  h_net:
+    hidden_dim: 32    # Small network but guidance helps z_b learn
+    num_layers: 3     # Moderate layers
+    activation: tanh
+
+training:
+  n_epochs: 20000          # More epochs without L-BFGS
+  learning_rate: 1.0e-3
+  device: auto
+  seed: 42
+
+sampling:
+  batch_size: 5000
+  boundary_ratio: 0.5
+  batch_size_flux: 800    # More samples for flux BC (q_surf gradient-based)
+  batch_size_theta: 500   # For theta data matching (theta gradient-based)
+  interp_ratio: 0.80
+  neighbor_ratio: 0.05
+  baseline_ratio: 0.15
+  gradient_threshold: 0.7
+  power: 2.0
+  neighbor_expansion: 2
+
+optimization:
+  weight_update_freq: 100000
+  weight_lr: 0.5
+  use_initial_scales: true
+  use_amp: false
+  use_multi_gpu: false
+  grad_accumulation_steps: 1
+  # Fixed weights
+  initial_pde_weight: 1.0
+  initial_flux_bc_weight: 10.0
+  initial_wt_head_weight: 10.0
+  initial_data_weight: 200.0   # HIGH weight to force θ matching (increased from 100)
+  initial_ic_h_weight: 1.0
+  initial_ic_zb_weight: 0.0     # ZERO IC z_b weight - let data fully drive z_b
+  initial_zb_smooth_weight: 0.1  # Low smooth weight
+  initial_zb_curv_weight: 0.1    # Low curv weight
+  initial_zb_max_depth_weight: 100.0  # Strong soft penalty for exceeding zb_max
+  initial_zb_guide_weight: 0.0        # DISABLED guidance - rely on data only
+  # L-BFGS configuration - DISABLED (collapses z_b dynamics)
+  use_lbfgs: false
+  lbfgs_n_epochs: 500      # Number of L-BFGS iterations after Adam
+  lbfgs_lr: 0.5            # Lower LR for stability (was 1.0)
+  lbfgs_max_iter: 10       # Fewer iterations per step for stability
+  lbfgs_history_size: 50
+  lbfgs_tolerance_grad: 1.0e-7
+  lbfgs_tolerance_change: 1.0e-9
+
+checkpointing:
+  dir: checkpoints_inverse/US-PAS_separate_sampling
+  freq: 1000
+  keep_last_n: 3
+
+output:
+  dir: outputs_inverse/US-PAS_separate_sampling

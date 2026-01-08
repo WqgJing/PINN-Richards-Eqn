@@ -1,0 +1,97 @@
+# Inverse PINN Configuration
+# Given: surface flux q(0,t) and observed surface moisture θ_obs(0,t)
+# Find: water table depth z_b(t)
+
+data:
+  # Surface flux data (ET - P) [m/s]
+  flux_path: "data/flux_data.npz"
+  # Observed surface soil moisture [m³/m³]
+  theta_obs_path: "data/theta_obs.npz"
+  start_date: "2021-01-01"
+  end_date: "2021-12-31"
+  interpolate: true
+  max_gap_hours: 6
+
+soil:
+  # van Genuchten parameters
+  theta_s: 0.43
+  theta_r: 0.02
+  alpha: 3.6     # [1/m]
+  n: 1.56
+  Ks: 2.9e-6     # [m/s]
+  l: 0.5         # Mualem pore-connectivity
+
+physics:
+  zr: 0.5        # Root zone depth [m]
+  L: 5.0         # Characteristic length scale [m]
+  S_max: 1.0e-7  # Maximum sink term [1/s]
+  ic_type: "hydrostatic"
+
+inverse:
+  # Water table spline parameterization
+  n_spline_knots: 30
+  zb_initial: 1.5   # Initial guess for water table depth [m]
+
+  # Regularization
+  lambda_smooth: 1.0e-4   # Smoothness penalty weight
+  lambda_curv: 1.0e-6     # Curvature penalty weight
+
+training:
+  n_epochs: 20000
+  learning_rate: 1.0e-3
+  device: "auto"   # auto, cuda, or cpu
+  seed: 42
+
+network:
+  h_net:
+    hidden_dim: 64
+    num_layers: 4
+
+sampling:
+  batch_size: 500
+  boundary_ratio: 0.7
+  batch_size_bc: 100
+
+  # Gradient-based BC sampling
+  interp_ratio: 0.80
+  neighbor_ratio: 0.05
+  baseline_ratio: 0.15
+  neighbor_expansion: 2
+  gradient_threshold: 0.7
+  power: 2.0
+
+optimization:
+  weight_update_freq: 200
+  weight_lr: 0.3
+  use_initial_scales: true
+
+  # Initial loss weights (null = use automatic scaling)
+  initial_pde_weight: 1.0
+  initial_flux_bc_weight: 10.0
+  initial_wt_head_weight: 10.0
+  initial_data_weight: 100.0     # High weight for data matching
+  initial_ic_h_weight: 1.0
+  initial_ic_zb_weight: 1.0
+  initial_zb_smooth_weight: 1.0
+  initial_zb_curv_weight: 1.0
+
+  # HPC optimizations
+  use_amp: false
+  use_multi_gpu: true
+  grad_accumulation_steps: 1
+
+  # L-BFGS switch (optional)
+  switch_to_lbfgs_epoch: null
+  lbfgs_lr: 1.0
+  lbfgs_max_iter: 20
+  lbfgs_history_size: 50
+  lbfgs_tolerance_grad: 1.0e-7
+  lbfgs_tolerance_change: 1.0e-9
+
+checkpointing:
+  dir: "checkpoints_inverse"
+  freq: 2000
+  keep_last_n: 3
+
+output:
+  dir: "outputs_inverse"

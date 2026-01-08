@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Data files
+*.npz
+data/
+
+# Outputs
+outputs_inverse/
+checkpoints_inverse/
+
+# Logs
+hpc/logs/
+*.out
+*.err
+
+# Conda
+conda_envs/

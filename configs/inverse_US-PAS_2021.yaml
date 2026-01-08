@@ -1,0 +1,111 @@
+# Inverse PINN Configuration for US-PAS (Florida Pasture)
+# April - November 2021
+#
+# Objective: Recover water table depth z_b(t) from observed surface moisture
+#            given surface flux forcing q_surf = ET - P
+#
+# Data: SMAP surface soil moisture, AmeriFlux ET/P
+# Soil: Florida Spodosols (sandy, calibrated parameters)
+
+data:
+  # Combined NPZ file with all data
+  npz_path: data/US-PAS_2021-04-01_2021-11-30.npz
+  # Keys in NPZ file
+  time_key: times
+  flux_key: qsurf        # Surface flux = ET - P [m/s]
+  theta_key: smap_sm     # Observed surface moisture [m3/m3]
+  zb_true_key: zb        # Ground truth water table depth (for validation)
+  # Placeholder paths (not used when using combined NPZ)
+  flux_path: data/US-PAS_2021-04-01_2021-11-30.npz
+  theta_obs_path: data/US-PAS_2021-04-01_2021-11-30.npz
+  start_date: "2021-04-01"
+  end_date: "2021-11-30"
+  interpolate: true
+  max_gap_hours: 24
+
+# Florida Spodosol soil parameters (calibrated from forward FEM)
+soil:
+  theta_s: 0.43
+  theta_r: 0.02
+  alpha: 3.6
+  n: 1.56
+  Ks: 2.9e-6
+  l: 0.5
+
+# Physics parameters
+physics:
+  L: 5.0              # Domain depth [m]
+  zr: 0.5             # Root zone depth [m] (not used - sink disabled)
+  S_max: 0.0          # Root uptake rate [1/s] - DISABLED as requested
+  ic_type: hydrostatic
+
+# Inverse problem configuration
+inverse:
+  n_spline_knots: 30          # Number of spline knots for z_b
+  zb_initial: 1.0             # Initial guess for water table depth [m]
+  zb_max: null                # No hard constraint (ground truth goes to 1.94m)
+  # NOTE: Regularization is now in DIMENSIONLESS form - penalties are O(1)
+  lambda_smooth: 1.0          # Smoothness regularization (|dz̃_b/dt̃|^2)
+  lambda_curv: 0.1            # Curvature regularization (|d²z̃_b/dt̃²|^2)
+
+# Network architecture
+network:
+  h_net:
+    hidden_dim: 64
+    num_layers: 4
+    activation: tanh
+
+# Training configuration
+training:
+  n_epochs: 100000
+  learning_rate: 1.0e-3
+  device: auto
+  seed: 42
+
+# Sampling configuration
+sampling:
+  batch_size: 5000          # Collocation points per batch
+  boundary_ratio: 0.5       # Fraction for boundary conditions
+  batch_size_bc: 500        # BC points per batch
+  interp_ratio: 0.80
+  neighbor_ratio: 0.05
+  baseline_ratio: 0.15
+  gradient_threshold: 0.7
+  power: 2.0
+  neighbor_expansion: 2
+
+# Optimization configuration
+optimization:
+  weight_update_freq: 100000  # Set > n_epochs to disable adaptive weighting (use fixed weights)
+  weight_lr: 0.5              # Not used with fixed weights
+  use_initial_scales: true
+  use_amp: false
+  use_multi_gpu: false
+  grad_accumulation_steps: 1
+  # Fixed weights for inverse problem
+  # Data matching is the inverse objective - give it high weight
+  initial_pde_weight: 1.0
+  initial_flux_bc_weight: 10.0
+  initial_wt_head_weight: 10.0
+  initial_data_weight: 10.0    # Data matching weight (inverse objective)
+  initial_ic_h_weight: 1.0
+  initial_ic_zb_weight: 10.0   # Anchor z_b at initial value
+  initial_zb_smooth_weight: 1.0
+  initial_zb_curv_weight: 1.0
+  # L-BFGS fine-tuning - DISABLED (causes instability in inverse problem)
+  # switch_to_lbfgs_epoch: 8000
+  lbfgs_lr: 1.0
+  lbfgs_max_iter: 20
+  lbfgs_history_size: 50
+  lbfgs_tolerance_grad: 1.0e-7
+  lbfgs_tolerance_change: 1.0e-9
+
+# Checkpointing
+checkpointing:
+  dir: checkpoints_inverse/US-PAS_2021
+  freq: 1000
+  keep_last_n: 3
+
+# Output
+output:
+  dir: outputs_inverse/US-PAS_2021
