@@ -303,6 +303,13 @@ class InversePINNConfig:
         """Frequency of printing progress (epochs)."""
         return int(self._config['optimization'].get('print_freq', 500))
 
+    @property
+    def bc_resample_freq(self) -> int:
+        """Frequency of resampling BC points when using gradient-based sampling (epochs).
+        Set to 0 to resample every epoch (original behavior).
+        Higher values cache samples longer for better performance."""
+        return int(self._config['optimization'].get('bc_resample_freq', 100))
+
     # ========== Physics Configuration ==========
     @property
     def zr(self) -> float:

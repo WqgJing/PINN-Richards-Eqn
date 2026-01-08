@@ -129,6 +129,7 @@ def train_inverse_pinn_from_config(config, q_surf_data, theta_obs_data, et_data=
         use_all_data_points=config.use_all_data_points,
         use_torch_compile=config.use_torch_compile,
         print_freq=config.print_freq,
+        bc_resample_freq=config.bc_resample_freq,
     )
 
 
@@ -192,6 +193,7 @@ def train_inverse_pinn(
     use_all_data_points=True,  # Skip gradient sampling, use all BC points directly
     use_torch_compile=False,   # Use torch.compile for model optimization
     print_freq=500,            # Reduce print frequency for speed
+    bc_resample_freq=100,      # How often to resample BC points (when not using all data)
 ):
     """
     Train inverse PINN to find water table depth from surface observations.
@@ -407,15 +409,12 @@ def train_inverse_pinn(
     # Performance optimization: prepare BC data based on strategy
     if use_all_data_points:
         # Use ALL data points directly - faster for small datasets (e.g., 228 points)
-        # Clone and enable gradients for each epoch (will be reused)
-        t_bc_flux_all = qsurf_times_t.clone().requires_grad_(True)
-        t_bc_theta_all = theta_times_t.clone().requires_grad_(True)
         print(f"PERFORMANCE: Using ALL data points directly ({len(qsurf_times_t)} flux, {len(theta_times_t)} theta)")
     else:
-        # Precompute gradient weights ONCE (not every epoch)
-        qsurf_grad_weights, _ = _precompute_gradient_weights(qsurf_times_t, qsurf_values_t, device, power=gradient_power)
-        theta_grad_weights, _ = _precompute_gradient_weights(theta_times_t, theta_values_t, device, power=gradient_power)
-        print(f"PERFORMANCE: Using gradient-based sampling (precomputed weights)")
+        # Cache gradient-based BC samples, refresh every bc_resample_freq epochs
+        print(f"PERFORMANCE: Using gradient-based sampling (cached, refresh every {bc_resample_freq} epochs)")
+        cached_t_bc_flux = None
+        cached_t_bc_theta = None
 
     # Cache Beta distributions for PDE sampling (avoid recreation every epoch)
     beta_surface = torch.distributions.Beta(
@@ -453,26 +452,36 @@ def train_inverse_pinn(
             zb_col = model_core.predict_water_table(t_col)
         z_col = (-u_col * zb_col).requires_grad_(True)
 
-        # BC time points - use all data or sampled
+        # BC time points - use all data or sampled with caching
         if use_all_data_points:
             # Use all data points directly (fastest for small datasets)
             t_bc_flux = qsurf_times_t.clone().requires_grad_(True)
             t_bc_theta = theta_times_t.clone().requires_grad_(True)
         else:
-            t_bc_flux, _ = gradient_based_sampling(
-                qsurf_times_t, qsurf_values_t, batch_size_flux,
-                device=device, use_interpolation=True,
-                interp_ratio=interp_ratio, neighbor_ratio=neighbor_ratio,
-                baseline_ratio=baseline_ratio, neighbor_expansion=gradient_neighbor_expansion,
-                gradient_threshold=gradient_threshold, power=gradient_power
-            )
-            t_bc_theta, _ = gradient_based_sampling(
-                theta_times_t, theta_values_t, batch_size_theta,
-                device=device, use_interpolation=True,
-                interp_ratio=interp_ratio, neighbor_ratio=neighbor_ratio,
-                baseline_ratio=baseline_ratio, neighbor_expansion=gradient_neighbor_expansion,
-                gradient_threshold=gradient_threshold, power=gradient_power
-            )
+            # Gradient-based sampling with caching (refresh every bc_resample_freq epochs)
+            need_resample = (bc_resample_freq == 0 or
+                            epoch % bc_resample_freq == 0 or
+                            cached_t_bc_flux is None)
+
+            if need_resample:
+                cached_t_bc_flux, _ = gradient_based_sampling(
+                    qsurf_times_t, qsurf_values_t, batch_size_flux,
+                    device=device, use_interpolation=True,
+                    interp_ratio=interp_ratio, neighbor_ratio=neighbor_ratio,
+                    baseline_ratio=baseline_ratio, neighbor_expansion=gradient_neighbor_expansion,
+                    gradient_threshold=gradient_threshold, power=gradient_power
+                )
+                cached_t_bc_theta, _ = gradient_based_sampling(
+                    theta_times_t, theta_values_t, batch_size_theta,
+                    device=device, use_interpolation=True,
+                    interp_ratio=interp_ratio, neighbor_ratio=neighbor_ratio,
+                    baseline_ratio=baseline_ratio, neighbor_expansion=gradient_neighbor_expansion,
+                    gradient_threshold=gradient_threshold, power=gradient_power
+                )
+
+            # Clone cached samples with fresh gradient tracking
+            t_bc_flux = cached_t_bc_flux.clone().requires_grad_(True)
+            t_bc_theta = cached_t_bc_theta.clone().requires_grad_(True)
 
         z_ic, t_ic = sampling.sample_initial_condition_points(
             model_core, batch_size, t_min, device

@@ -155,9 +155,13 @@ def compute_inverse_losses(model, z_col, t_col, t_bc_flux, t_bc_theta, z_ic, t_i
     # Max depth soft constraint (provides gradient when z_b exceeds zb_max)
     loss_zb_max_depth = model.zb_spline.max_depth_penalty() * lambda_max_depth
 
-    # Physics-based z_b guidance loss - uses theta times (related to moisture)
-    res_zb_guide = model.zb_guidance_residual(t_bc_theta)
-    loss_zb_guide = (res_zb_guide**2).mean() * lambda_guide
+    # Physics-based z_b guidance loss - SKIP computation when weight=0 for speed
+    if lambda_guide > 0:
+        res_zb_guide = model.zb_guidance_residual(t_bc_theta)
+        loss_zb_guide = (res_zb_guide**2).mean() * lambda_guide
+    else:
+        # Skip expensive computation when weight is zero
+        loss_zb_guide = torch.tensor(0.0, device=z_col.device)
 
     return {
         "pde": loss_pde,
