@@ -1,5 +1,5 @@
 # Real data, second site: US-PAS (AmeriFlux, bahiagrass pasture on a Spodosol, 1.2 km north of US-ONA), recession of
-# 19 - 25 Aug 2021 (tasks/todo.md finding 73 ad). Water table 0.23 -> 0.68 m, sensor 0.432 -> 0.31; 3 mm of rain on
+# 19 - 25 Aug 2021 (tasks/todo.md finding 73 ae). Water table 0.23 -> 0.68 m, sensor 0.432 -> 0.31; 3 mm of rain on
 # 20 Aug (true time). Hindcast window for the soil of 25 Sep 2021 (the recession before its calibration window).
 # Same set-up as configs/real_ona_sep21.yaml (scripts/make_real.py); site, rain time shift and window differ.
 #   given    half-hourly LE (-> ET), rain, soil moisture SWC_1_1_1 (TDR at 0.10 m below the surface)
