@@ -1572,3 +1572,40 @@ Real-case spec (first slice):
        usable, s). Continues.
        Referee, B with S_A (calsep21on21, iteration 2): 14 cm from the observed WT at cost 0.28-0.35 -> the
        previous-recession protocol FAILS on B, as the forward check (0.030 / +0.025) said it would.
+    u) Whole record (15:10; daily means of the half-hourly file, 2021-2022, awk on the login node; WT known ->
+       calibration-side reading, no inversion):
+       - WT depth (m) at the same sensor reading, every drying episode of the record
+           episode                 theta 0.30   theta 0.22
+           A   25 Sep-4 Oct 2021     0.76         0.83
+               13-14 Oct 2021        0.69          -
+               6-11 Nov 2021         0.66          -
+           B   13 Nov-14 Dec 2021    0.68         0.77
+               1-11 Oct 2022         0.63         0.755
+           C   17 Oct-1 Nov 2022     0.66         0.74
+               11-19 Nov 2022        0.65          -
+           D   26 Nov-14 Dec 2022    0.63         0.72
+         Seven of the eight lie within 0.63-0.69 (0.72-0.77): the relation repeats to about +-3 cm, within 2022 to
+         +-1.5 cm. A is 8-10 cm deeper than every other episode, including the one ten days after it with the same
+         sensor installation (13-14 Oct 2021) -> A is the outlier: S_A cannot transfer (t), and no soil transfers
+         to A. It is the only drainage that starts from weeks of standing saturation and has complete forcing.
+       - Sensor with the WT above it (0.04-0.10 m): 0.386-0.391 in Sep 2021 and in Sep 2022 (no drift of the
+         sensor). After a fast rise from a dry profile it reads lower: 21-22 Nov 2022 WT 0.65 -> 0.08 m in a day on
+         11.7 mm of rain, reading 0.356; 11 Nov 2022 0.12 m, 0.369 (entrapped air). The "saturated" reading
+         depends on the event by 0.03.
+       - Above the knee the reading falls gently with the WT (D: 0.358 at 0.17 m, 0.348 at 0.35 m, 0.344 at 0.47 m;
+         A: 0.376 at 0.20 m, 0.359 at 0.60 m). A van Genuchten curve with n at 10 (flat, then a sharp knee) has no
+         such slope and reads that range as "WT at the knee": days 0-3 of the D test (p). This is model structure
+         and hysteresis, not a sensor offset, so a misfit without the mean (considered) would not remove it: not
+         run. It is what the bound for theta_obs >= theta_s - 3 sigma (s) is for.
+       - 1-11 Oct 2022 has no forcing: LE is missing from 26 Sep 12:00 to after 13 Oct (tower down after the
+         193 mm storm of 28 Sep), and the WT record stands at 0.324 m through that storm. Not usable as a window.
+         Soil moisture is missing 14-26 Oct 2021.
+       - The WT record itself: jumps of 5-40 cm within hours in Sep 2022 without rain (26 Sep 06:00 0.54 m,
+         12:00 0.15 m), +-2-3 cm from day to day inside the windows. R3's 3 cm is at the repeatability of the site.
+       Expected accuracy of a test, RULE WRITTEN BEFORE THE RUNS (hindcast): for a test with soil S_k,
+         sigma_hind = below-saturation RMSE of the inversion, with S_k, of the most recent earlier recession with
+         complete forcing other than the calibration one (its WT is known: calibration side, solver referee),
+       on a window whose soil moisture stays inside S_k's calibration range. It is reported next to the realised
+       error, and the uncertainty of the estimate is sqrt(sigma_post^2 + sigma_hind^2). No number is tuned.
+         D with S_C  -> B (15 Nov 2021 + 17 d, the window of T21b) inverted with S_C
+         C with S_B  -> A (25 Sep 2021 + 9 d) inverted with S_B   (A is the outlier above: expect about 10 cm)
