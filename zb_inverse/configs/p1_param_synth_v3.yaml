@@ -1,0 +1,50 @@
+# Parametric (operator) PINN, synthetic v3 twin (2026-11-10; plan: physics-only operator + inversion through it).
+# The network learns h(xi, t; c) for zb paths c from the PDE + surface-flux residuals ONLY; theta data are used only
+# by scripts/param_invert.py. sampling.mode:
+#   prior       wide stage (basin finding)
+#   local_file  refinement around the last inversion (local_center.npz from param_invert.py)
+#   local_truth DIAGNOSTIC (gate G1 only): local distribution centred on the true path
+twin_npz: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/twin_synth_v3/twin.npz
+mode: parametric
+obs:
+  depth_m: 0.05
+  use: hourly
+  noise_sigma: 0.005
+  q_noise_frac: 0.05
+model:
+  width: 128
+  depth: 6
+  fourier_periods_days: [2, 4, 8, 16, 32, 64]
+  tau_ic_days: 0.25
+  memory_taus_days: [0.25, 1.0, 4.0, 16.0]
+  sqrt_t: false
+sigmas:
+  theta: 0.005
+  q_frac: 0.1
+  pde: auto
+prior:
+  mean_range_m: [0.3, 1.2]
+  step_sd_m: 0.15
+  clip_m: [0.2, 1.5]
+sampling:
+  mode: local_truth
+  local_width_m: 0.05
+  frac_local: 1.0
+train:
+  seed: 0
+  n_col: 8192
+  n_bc: 1024
+  frac_rain_t: 0.3
+  frac_early_t: 0.1
+  n_val: 8192
+  adam_steps: 30000
+  lr: 1.0e-3
+  lr_final: 1.0e-5
+  clip: 1000.0
+  lbfgs_blocks: 15
+  lbfgs_iters: 200
+  lbfgs_n_col: 32768
+  lbfgs_n_bc: 4096
+  log_every: 500
+output:
+  dir: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/runs/p1_g1_noise005

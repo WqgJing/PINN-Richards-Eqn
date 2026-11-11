@@ -1,0 +1,54 @@
+# Twin (E0) for the smooth synthetic case: sinusoidal surface flux and water table, US-PAS soil.
+# q_surf = 1.5 + 4 sin(2 pi t / 6 d) mm/d (net evaporation with infiltration phases down to -2.5 mm/d)
+# zb     = 0.6 + 0.25 sin(2 pi t / 20 d) m  (shallow: well inside the identifiable range)
+site:
+  name: synthetic
+  synthetic: true
+
+synthetic:
+  q_mean_mmd: 1.5
+  q_amp_mmd: 4.0
+  q_period_days: 6.0
+  zb_mean: 0.6
+  zb_amp: 0.25
+  zb_period_days: 20.0
+
+soil:
+  theta_s: 0.43
+  theta_r: 0.02
+  alpha: 3.6
+  n: 1.56
+  Ks: 2.9e-6
+  l: 0.5
+  Ss: 1.0e-5
+  blend_width_m: 0.02
+  abs_smooth_m: 1.0e-3
+
+scaling:
+  L: 2.0
+
+window:
+  start: 'synthetic'
+  n_days: 30
+
+zb_spline:
+  knot_days: 5.0
+  zb_min: 0.05
+
+reference:
+  n_nodes: 801
+  grid_gamma: 1.5
+  rtol: 1.0e-6
+  atol: 1.0e-9
+  max_step_hours: 1.0
+  out_dt_hours: 1.0
+
+obs:
+  depth_m: 0.05
+  interval_hours: 24
+
+ident:
+  sigmas: [0.005, 0.01, 0.02]
+
+output:
+  dir: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/twin_synth

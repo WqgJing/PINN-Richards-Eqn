@@ -1,0 +1,76 @@
+# Twin v5: GLDAS-forced FEM twin with a PRESCRIBED, TIME-VARYING water table (scripts/make_twin_fem.py).
+# Same solver and forcing as the fixed-WTD sweeps of wtd_pipeline (generate_training_continuous.py):
+#   solver   ForwardSensitivitySolverPyTorch (wtd_pipeline/fem/fem_pytorch.py), 101 nodes, Picard (tol 1e-5, omega 0.5)
+#   surface  GLDAS daily q_surf = E_soil - I (flux boundary), + up
+#   sink     GLDAS T_p as Feddes root uptake (default grass parameters)
+#   bottom   h = 0 at z = -zb(t)
+# The only change: zb(t) varies in time instead of being constant (the path of twin_synth_v4: recession to 0.93 m,
+# recharge rise to 0.55 m, second recession), and the run starts from the hydrostatic profile over zb(0).
+# Site G02101 (27.375 N, 81.625 W, central Florida, 0.3 deg east of US-ONA), 1 Apr - 1 May 2021:
+#   2 mm rain on day 0, dry to day 9, rain on days 10-11 (21 + 12 mm), 14-15 (2 + 2 mm), 18-20 (14 + 6 + 9 mm) and
+#   23 (6 mm), then dry; T_p 2.4-3.5 mm/d on dry days. Between the daily values q_surf and T_p vary linearly.
+# Soil: calibrated Florida sand (CLAUDE.md; FL_SPODOSOL of wtd_pipeline/OOD/florida_fixed_wtd.py), plain
+# van Genuchten-Mualem as in the FEM (no air-entry option).
+site:
+  name: GLDAS G02101
+  gldas_csv: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/data/gldas_G02101_2015_2024.csv
+
+prescribed:
+  zb_points:
+    t_days: [0, 3, 7, 11, 14, 17, 21, 25, 30]
+    values: [0.50, 0.67, 0.82, 0.90, 0.93, 0.78, 0.55, 0.66, 0.80]
+
+fem:                          # as generate_training_continuous.py
+  root: /storage/project/r-rbras6-0/jjason3/wtd_pipeline
+  L: 12.0
+  n_nodes: 101
+  max_iter: 50
+  tol: 1.0e-5
+  omega: 0.5
+  dt_hours: 1.0               # time step of the twin (the sweeps step daily; that run is kept for comparison)
+  check_dt_hours: 0.25        # convergence check: finer steps ...
+  check_n_nodes: 201          # ... and a finer grid
+  jacobian:                   # scripts/fem_identifiability.py: tighter Picard tolerance for the finite differences
+    tol: 1.0e-8
+    max_iter: 200
+
+soil:
+  theta_s: 0.43
+  theta_r: 0.02
+  alpha: 3.6
+  n: 1.56
+  Ks: 2.9e-6
+  l: 0.5
+  Ss: 1.0e-5
+  blend_width_m: 0.02
+  abs_smooth_m: 1.0e-3
+
+scaling:
+  L: 2.0
+
+window:
+  start: '2021-04-01'
+  n_days: 30
+
+zb_spline:
+  knot_days: 5.0
+  zb_min: 0.05
+
+reference:                    # this project's solver, used here only to cross-check the FEM run without the root sink
+  n_nodes: 801
+  grid_gamma: 1.5
+  rtol: 1.0e-6
+  atol: 1.0e-9
+  max_step_hours: 1.0
+  out_dt_hours: 1.0
+  h_surf_admissible_m: -10.0   # twin rejected as a test case if the surface head falls below this
+
+obs:
+  depth_m: 0.05
+  interval_hours: 24
+
+ident:
+  sigmas: [0.005, 0.01, 0.02]
+
+output:
+  dir: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/twin_gldas_fl
