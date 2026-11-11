@@ -1686,3 +1686,23 @@ Real-case spec (first slice):
        - Reading note for every "by day" row of estimate - observed in (p)-(v): the value at the start of each day
          of the window (12:00), not a daily mean; the scores (rmse, bias, r) are over all hours. The well has a
          daily cycle of 1-2 cm, so the rows read about 1.5 cm more negative than the bias on B.
+    y) Loop of the B / S_D test, iteration 3 (rf21bdc_it3, 16:30), and solver-side jobs that ended (16:40):
+       - step / sigma max 2.26 -> 0.72 -> 0.73 over iterations 1-3 (segments 0.02 0.08 0.39 0.62 0.73): the step
+         does not shrink. PINN - referee over the window 2.79 -> 2.67 -> 2.45 cm rms; the offset of the forward
+         PINNs from the operator grows (rms 0.0021 -> 0.0023 -> 0.0028); coefficients 3-5 move towards the
+         referee's by a few 0.01 per iteration. Iteration 4 (the last) is queued.
+         HYPOTHESIS (not tested): the value correction replaces the operator's value at the estimate and keeps
+         its Jacobian, so its fixed point solves J_op^T r = 0 and the solver's J^T r = 0. With a residual r that
+         is not noise (cost 0.34, a soil that does not fit) the two differ by (J^T J)^-1 (J_op - J)^T r, large
+         only along directions the data hardly constrain (posterior sd on days 9-17: PINN 0.3-23 cm, solver
+         0.8-68 cm). On D with the 2021 soil the same loop ended 0.19 cm from the solver (w).
+         Test of it, if the two primary runs (rf22c, rf22ob) stall the same way: the chord loop with the
+         Jacobian from forward PINNs on a finite-difference design (hpc/fd_set.sh, --fwd-fd; findings 60-61).
+         Not started: the baseline is not shown to fail on a soil that passes its in-sample test.
+       - Hindcast B with S_C, second start (hydrostatic_flat): 3.494 cm, cost 0.32688 = first start (3.494 cm,
+         0.32688) -> sigma_hind(D | S_C) = 3.5 cm stands on two starts.
+       - Calibration of D, start 0 (the data set's own soil) = start 3: theta_s 0.35142, theta_r 0.12991,
+         alpha 1.9164, n 10 (bound), Ks 4.127e-7, rmse 0.00433 from both. Starts 1 and 2 still run (rmse 0.039
+         and 0.008 so far). S_D is reproducible and still fails its in-sample inversion (s).
+       - Queue: GPU partitions are full; rf22c round 1 has one member training since 16:25, three pending since
+         15:43-16:08; rf22ob has three of four wide members.
