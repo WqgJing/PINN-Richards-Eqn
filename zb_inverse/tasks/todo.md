@@ -1609,3 +1609,45 @@ Real-case spec (first slice):
        error, and the uncertainty of the estimate is sqrt(sigma_post^2 + sigma_hind^2). No number is tuned.
          D with S_C  -> B (15 Nov 2021 + 17 d, the window of T21b) inverted with S_C
          C with S_B  -> A (25 Sep 2021 + 9 d) inverted with S_B   (A is the outlier above: expect about 10 cm)
+    v) Results that arrived after (u) (15:45). Solver inversions = referee, scoring/calibration side only.
+       - Protocol (d), referee, all starts finished or at the same estimate:
+           test / soil    starts   cost     whole window              below saturation
+                                           rmse  bias  max    r      hours from day  rmse  bias   r
+           D / S_C        4 of 4   0.2797  4.37  +2.81 18.8  0.985   359   3.08      2.44  +1.69  0.983
+           C / S_B        4 of 4   0.3345  4.41  +3.37 12.3  0.987   275   3.58      3.23  +2.69  0.975
+           B / S_A        2 of 2   0.2767  14.46 +11.92 35.2  -      -     -         11.34 +9.91  0.909
+         (cm). The far starts (1.0 m, 0.3 m) reach the estimate of the hydrostatic ones on D and on C (C: s2, s3 at
+         cost 0.33445 after 13-15 iterations, still polishing): the solver inversion is start-independent, so the
+         distance to the well is the model's (soil, structure), not a local minimum.
+         C / S_B by day (cm): +12.3 +9.0 +5.5 -0.8 +1.0 +1.6 +4.2 +4.5 +4.9 +2.1 +0.6 +0.9 -0.5 +1.0 +0.5 -0.9,
+         coefficient 0 on the bound of the box. R3 in range: D meets it (2.44 / +1.69 / 0.983), C misses it
+         narrowly (3.23 / +2.69 / 0.975), B / S_A fails (A is the outlier of (u)).
+       - In-sample, S_C on C: second start = first (3.59 cm whole; below saturation 1.63, bias -0.01, r 0.9805).
+       - Hindcast for the C / S_B test (A, 25 Sep 2021 + 9 d, inverted with S_B; two starts, one estimate):
+         whole window 9.75 cm, bias -8.73, cost 5.13, coefficients 0 and 1 on the bound; below saturation (99 h
+         from day 4.92) 6.96 cm, bias -6.75, r 0.935  ->  sigma_hind(C | S_B) = 7.0 cm. Realised on C: 3.23 cm.
+         The hindcast is pessimistic here because its only available window is the outlier; it is kept as written.
+       - Hindcast for the D / S_C test (B, 15 Nov 2021 + 17 d, inverted with S_C): two starts at cost 0.3269,
+         3.49 cm over the whole window, not finished; the in-range number follows.
+       - Calibration starts. Oct 2022: starts 0/1/2 stop at rmse 0.0160 / 0.0203 / 0.0196 (n 3.1-3.4, theta_s
+         0.46-0.54), start 3 at 0.0051 (n at its bound): one basin is lower by a factor 3-4, the others are not
+         competitive. Sep 2021: 0.0207 / 0.0224 / 0.0215 against 0.0042 for start 3: the same picture. The rule of
+         (s), lowest misfit AND in-sample inversion within 2 cm, selects start 3 in both.
+         One soil for B + C + D (A left out; start 3): theta_s 0.3501, theta_r 0.1193, alpha 1.635, n 9.33,
+         Ks 1.97e-6; rmse 0.0115; by window B 0.0122 / -0.0076, C 0.0066 / +0.0022, D 0.0133 / +0.0097. The three
+         episodes that share one theta-WT relation (u) share one soil to 0.012, and it is S_C within 0.01 in every
+         parameter but theta_r. Not used for a test (it contains every test window).
+       - PINN, D with S_C (rf22c), first inversion with the wide members only (inv0, no refinement yet):
+         one estimate from all starts (spread 2e-9 m), cost 0.2777 (referee 0.2797); whole window 5.24 cm, bias
+         +3.98; below saturation 4.02 cm, bias +3.10, r 0.977.
+           by day, estimate - observed (cm):  +18.1 +11.1 +6.5 +5.5 +3.0 +1.3 +3.0 +2.4 +3.4 +0.4 +1.3 +6.4 +6.1
+                                              +5.8 +6.2 +4.5 +4.5 +5.8 +4.9
+           by day, PINN - referee (cm):       -0.2 +0.3 -0.1 -0.8 -1.6 -2.0 -1.9 -1.3 -0.4 +0.7 +1.9 +3.0 +3.8
+                                              +4.1 +3.8 +3.4 +3.5 +4.7 +6.0        (rms 2.57 cm)
+         The wide operator is within 0.3 cm of the solver inversion on days 0-2 and drifts deep by 3-6 cm in the
+         dry half, the same pattern as every earlier inv0 (T21b, T22): the refinement rounds and the value
+         correction are what remove it. Nothing is concluded from inv0.
+       - Scoring: scripts/score_real.py --sigma-hind <m> (optional; default output byte-identical, job 15493875)
+         adds sqrt(sigma_post^2 + sigma_hind^2): share of the hours below saturation within 1 and 2 sd, share of
+         the saturated hours with the observed WT not below estimate + 2 sd, and the +-2 sd limits in the figure
+         as two thin dotted lines.
