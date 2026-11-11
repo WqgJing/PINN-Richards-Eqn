@@ -8,6 +8,7 @@ saturation by more than 3 sigma_theta: while it reads saturated it only bounds t
 
 Usage: python -u scripts/score_real.py --data output/real_ona_nov22_cal21 --pinn runs/<tag>_inv2 \
            --referee output/referee/<name>_s0 output/referee/<name>_s1 --out output/real_ona_nov22_cal21/result_<tag>
+       --sigma-hind <m>: expected error of the soil transfer (hindcast); reported with the posterior of the inversion
 """
 import argparse
 import json
@@ -33,6 +34,9 @@ def main():
     ap.add_argument('--pinn', required=True, help='directory of a param_invert.py result')
     ap.add_argument('--referee', nargs='*', default=[], help='directories of fem_referee.py results (one per start)')
     ap.add_argument('--sigma', type=float, default=0.005, help='sigma_theta of the inversion')
+    ap.add_argument('--sigma-hind', type=float, default=None,
+                    help='expected error of the soil transfer (m), from the hindcast of tasks/todo.md finding 73 u: '
+                         'adds the uncertainty block and the limits of the estimate to the figure')
     ap.add_argument('--out', required=True, help='path stem of the outputs (.json, .png)')
     args = ap.parse_args()
     with open(os.path.join(args.data, 'twin_config.yaml')) as f:
@@ -78,10 +82,25 @@ def main():
         zb_runs.append(('FEM inversion (referee)', r['zb_pred']))
     zb_runs.append(('hydrostatic reading of the sensor', np.clip(zb_hyd, 0.0, 1.5 * zb_obs.max())))
     th_runs.append(('FEM with the observed water table', d['theta_fem'][k_fem]))
+    band = None
+    if args.sigma_hind is not None:      # posterior of the inversion (holds no soil error) and the soil transfer
+        s_tot = np.sqrt(pred['zb_sigma'] ** 2 + args.sigma_hind ** 2)
+        e = pred['zb_pred'] - zb_obs
+        res['pinn']['uncertainty'] = {
+            'sigma_hind_m': args.sigma_hind, 'sigma_total_median_m': float(np.median(s_tot)),
+            'below_saturation_within_1_sigma': float(np.mean(np.abs(e[dry]) <= s_tot[dry])),
+            'below_saturation_within_2_sigma': float(np.mean(np.abs(e[dry]) <= 2.0 * s_tot[dry])),
+            'saturated_hours': int((~dry).sum()),
+            # a saturated sensor bounds the water table from below only: it is at or above the estimate
+            'saturated_observed_not_below_estimate_plus_2_sigma':
+                float(np.mean(e[~dry] >= -2.0 * s_tot[~dry])) if (~dry).any() else None,
+        }
+        band = ('PINN estimate \u00b1 2 sd (inversion and soil transfer)',
+                pred['zb_pred'] - 2.0 * s_tot, pred['zb_pred'] + 2.0 * s_tot)
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     with open(args.out + '.json', 'w') as f:
         json.dump(res, f, indent=2)
-    plots.plot_real_result(t, th_obs, th_runs, zb_obs, zb_runs, args.out + '.png')
+    plots.plot_real_result(t, th_obs, th_runs, zb_obs, zb_runs, args.out + '.png', band=band)
     print(json.dumps(res, indent=1), flush=True)
 
 
