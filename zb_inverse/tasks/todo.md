@@ -1527,3 +1527,23 @@ Real-case spec (first slice):
        (0.020-0.023). Only the 30-day window (Nov 2021) brought all starts to one soil. So on the short windows
        "the starts agree" does NOT hold: the soil taken is the lowest-misfit one (start 3, 3-5 x lower), and the
        in-sample inversion (o) is the check that decides whether it can be used.
+    r) Decisions 14:42, written before the results.
+       - rf22o (T22o with S_D) STOPPED (driver group killed, GPU jobs 15489060-62 cancelled; w1 had finished): the
+         solver inversion with S_D misses by 9.7 cm with coefficients on the box (p), so no PINN on that data set
+         can meet R3; the GPUs go to the tests below. Also S_D is the LATER recession, which protocol d) does not
+         allow ("the last recession BEFORE the test window"); i) departed from d) and is withdrawn.
+       - Protocol d) applied to EVERY recession that has a previous one (all three are reported):
+           D (Nov 2022) with S_C (Oct 2022)   rf22c, running; referee caloct22on22 (p)
+           C (Oct 2022) with S_B (Nov 2021)   NEW: rf22ob on output/real_ona_oct22_soilnov21 (17 Oct 2022 12:00 +
+                                              15 d, 6 coefficients; S_B's range 0.110-0.376 contains 0.144-0.352;
+                                              forward check 0.0161 / +0.0133, m); referee calnov21on22oct_s0..3
+                                              (jobs 15491620-27); hpc/real_full.sh as rf22c
+           B (Nov 2021) with S_A (Sep 2021)   S_A's range 0.221-0.379 -> window cut at day 11 (theta 0.2256):
+                                              output/real_ona_nov21_calsep21_11d, referee calsep21on21_s0/_s1
+                                              first (jobs 15491647-51); forward check on the full window was
+                                              0.0301 / +0.025 (m), so a miss is expected; the PINN run follows
+                                              only if the solver inversion itself is inside R3.
+       - In-sample inversions (o), state 14:40, not finished: Oct 2022 with S_C zb RMSE 3.8 cm at iteration 2
+         (cost 0.336), Sep 2021 with S_A 6.4 cm at iteration 4 (cost 0.695). Both windows START with the sensor at
+         saturation, so the whole-window number contains the undetermined days; to be read by day and for the hours
+         below saturation.
