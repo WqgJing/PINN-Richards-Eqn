@@ -1,0 +1,57 @@
+# Twin (E0) for the smooth synthetic case: sinusoidal surface flux and water table, US-PAS soil.
+# q_surf = -1 + 2 sin(2 pi t / 6 d) mm/d (infiltration down to -3 mm/d, evaporation up to 1 mm/d)
+# zb     = 0.6 + 0.25 sin(2 pi t / 20 d) m
+# v1 (q = 1.5 + 4 sin) was inadmissible: the soil cannot deliver 5.5 mm/d evaporation from a 0.85 m WT,
+# the surface node dried to h = -2e7 m (kept as twin_synth_v1_inadmissible.yaml). Screened 2026-11-09.
+site:
+  name: synthetic
+  synthetic: true
+
+synthetic:
+  q_mean_mmd: -1.0
+  q_amp_mmd: 2.0
+  q_period_days: 6.0
+  zb_mean: 0.6
+  zb_amp: 0.25
+  zb_period_days: 20.0
+
+soil:
+  theta_s: 0.43
+  theta_r: 0.02
+  alpha: 3.6
+  n: 1.56
+  Ks: 2.9e-6
+  l: 0.5
+  Ss: 1.0e-5
+  blend_width_m: 0.02
+  abs_smooth_m: 1.0e-3
+
+scaling:
+  L: 2.0
+
+window:
+  start: 'synthetic'
+  n_days: 30
+
+zb_spline:
+  knot_days: 5.0
+  zb_min: 0.05
+
+reference:
+  n_nodes: 801
+  grid_gamma: 1.5
+  rtol: 1.0e-6
+  atol: 1.0e-9
+  max_step_hours: 1.0
+  out_dt_hours: 1.0
+  h_surf_admissible_m: -10.0   # twin rejected as a test case if the surface head falls below this
+
+obs:
+  depth_m: 0.05
+  interval_hours: 24
+
+ident:
+  sigmas: [0.005, 0.01, 0.02]
+
+output:
+  dir: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/twin_synth_v2

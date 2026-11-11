@@ -1,0 +1,61 @@
+# Twin v4: as v3 (twin_synth_v3.yaml: same soil, same sinusoidal surface flux, same solver settings), with a
+# NON-sinusoidal water table: a slow recession, a recharge rise, and a second recession.
+# q_surf = -1 + 2 sin(2 pi t / 6 d) mm/d (infiltration down to -3 mm/d, evaporation up to 1 mm/d)   [as v3]
+# zb     = smooth curve (PCHIP) through the control points below: 0.50 m -> 0.93 m (day 14) -> 0.55 m (day 21)
+#          -> 0.80 m (day 30); the truth is its 5-day cubic B-spline fit, as for every twin.
+# The flux is unchanged on purpose: the operator networks are trained per forcing and do not depend on the true
+# water table, so this twin tests the water-table shape alone.
+site:
+  name: synthetic
+  synthetic: true
+
+synthetic:
+  q_mean_mmd: -1.0
+  q_amp_mmd: 2.0
+  q_period_days: 6.0
+  zb_points:
+    t_days: [0, 3, 7, 11, 14, 17, 21, 25, 30]
+    values: [0.50, 0.67, 0.82, 0.90, 0.93, 0.78, 0.55, 0.66, 0.80]
+
+soil:
+  theta_s: 0.43
+  theta_r: 0.02
+  alpha: 3.6
+  n: 1.56
+  Ks: 2.9e-6
+  l: 0.5
+  Ss: 1.0e-5
+  blend_width_m: 0.02
+  abs_smooth_m: 1.0e-3
+  air_entry_m: 0.02         # |h_e| (HYDRUS option "air-entry value of -2 cm")
+  ae_smooth_m: 0.005        # smooth-min width at h_e
+
+scaling:
+  L: 2.0
+
+window:
+  start: 'synthetic'
+  n_days: 30
+
+zb_spline:
+  knot_days: 5.0
+  zb_min: 0.05
+
+reference:
+  n_nodes: 801
+  grid_gamma: 1.5
+  rtol: 1.0e-6
+  atol: 1.0e-9
+  max_step_hours: 1.0
+  out_dt_hours: 1.0
+  h_surf_admissible_m: -10.0   # twin rejected as a test case if the surface head falls below this
+
+obs:
+  depth_m: 0.05
+  interval_hours: 24
+
+ident:
+  sigmas: [0.005, 0.01, 0.02]
+
+output:
+  dir: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/twin_synth_v4

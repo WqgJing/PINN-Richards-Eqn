@@ -1,0 +1,20 @@
+# results: only the scored summary and figure of each try, the soil calibrations and the comparison figures
+/output/*
+!/output/*/
+/output/*/*
+!/output/*/result_*.json
+!/output/*/result_*.png
+!/output/soil_*/start*.json
+!/output/soil_*/start*.png
+!/output/compare/*
+# generated: caches, checkpoints, logs, data, scratch
+__pycache__/
+*.py[cod]
+/runs/
+/logs/
+/data/
+/tmp/
+*.npz
+*.pt
+*.out
+*.err

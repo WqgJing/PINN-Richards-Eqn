@@ -1,0 +1,44 @@
+# Twin (E0) for US-PAS, full season Apr 1 - Nov 14 2021
+site:
+  name: US-PAS
+  forcing_npz: /storage/project/r-rbras6-0/jjason3/fem_validation/uploaded_data/forward_sensitivity_lib/data/US-PAS_2021-04-01_2021-11-30.npz
+
+soil:            # calibrated Florida set (CLAUDE.md)
+  theta_s: 0.43
+  theta_r: 0.02
+  alpha: 3.6
+  n: 1.56
+  Ks: 2.9e-6
+  l: 0.5
+  Ss: 1.0e-5
+  blend_width_m: 0.02
+  abs_smooth_m: 1.0e-3
+
+scaling:
+  L: 2.0
+
+window:
+  start: '2021-04-01'
+  n_days: 227
+
+zb_spline:
+  knot_days: 5.0
+  zb_min: 0.05
+
+reference:
+  n_nodes: 201
+  grid_gamma: 1.5
+  rtol: 1.0e-6
+  atol: 1.0e-9
+  max_step_hours: 1.0
+  out_dt_hours: 1.0
+
+obs:
+  depth_m: 0.05
+  interval_hours: 24
+
+ident:
+  sigmas: [0.005, 0.01, 0.02]
+
+output:
+  dir: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/twin_pas_season

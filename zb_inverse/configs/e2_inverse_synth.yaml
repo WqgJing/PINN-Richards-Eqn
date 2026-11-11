@@ -1,0 +1,59 @@
+# E2 (synthetic sinusoidal twin): inverse, zb free (spline), hydrostatic VG init, hourly obs.
+twin_npz: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/twin_synth_v2/twin.npz
+mode: inverse
+
+obs:
+  depth_m: 0.05
+  use: hourly
+  noise_sigma: 0.0
+  q_noise_frac: 0.0
+
+zb_init:
+  kind: hydrostatic
+  zb_max: 3.0
+
+model:
+  width: 64
+  depth: 5
+  fourier_periods_days: [2, 4, 8, 16, 32, 64]
+  tau_ic_days: 0.25
+  base: current       # hydrostatic at the current zb(t) + learned departure
+
+sigmas:
+  theta: 0.005
+  q_frac: 0.1
+  pde: auto            # data-driven: RMS d Se_obs / d t~
+
+weighting:
+  mode: gradnorm
+  freq: 100
+  alpha: 0.9
+  causal: false
+  n_chunks: 16
+  eps: 0.05
+  eps_max: 5.0
+
+sampling:
+  rar: {enabled: true, k: 1.0, c: 1.0, pool_factor: 8}
+
+train:
+  seed: 0
+  n_col: 4096
+  n_bc: 512
+  resample_every: 100
+  frac_rain_t: 0.3
+  stage1_steps: 5000
+  stage2_steps: 30000
+  lr: 1.0e-3
+  lr_final: 1.0e-5
+  lr_zb: 1.0e-2
+  lr_zb_final: 1.0e-4
+  clip: 1000.0
+  lbfgs_iters: 3000
+  lbfgs_n_col: 16384
+  lbfgs_n_bc: 2048
+  lbfgs_chunk: 100
+  log_every: 500
+
+output:
+  dir: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/runs/e2_inverse_synth

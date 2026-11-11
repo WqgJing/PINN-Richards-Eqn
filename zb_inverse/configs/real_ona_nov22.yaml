@@ -1,0 +1,68 @@
+# Real data, calibration window: US-ONA, recession of 23 Nov - 13 Dec 2022 (the year after the test window)
+# (scripts/make_real.py). 12 mm of rain on 20 Nov lifts the water table to 0.08 m; it then falls to 0.86 m with no
+# rain until 15 Dec. Same set-up as configs/real_ona_nov21.yaml; only the window differs.
+#   given    half-hourly LE (-> ET), rain, soil moisture SWC_1_1_1 (TDR at 0.10 m below the surface)
+#   truth    half-hourly water-table depth WTD (scoring only)
+# The window starts at local noon: the daily forcing nodes are then calendar-day means, placed at noon.
+# Transpiration fraction: the tower measures total ET; it is split with the GLDAS ratio T_p / (E_soil + T_p) of the
+# pixel next to the site (0.80-0.90 in this window), T_p as the root sink as everywhere in the project.
+# Soil: calibrated Florida set (CLAUDE.md), i.e. the forward-validation soil as it is.
+site:
+  name: US-ONA
+  amf_csv: /storage/project/r-rbras6-0/jjason3/fem_validation/uploaded_data/AMF_US-ONA_BASE-BADM_4-5/AMF_US-ONA_BASE_HH_4-5.csv
+  columns: {le: LE, p: P_RAIN, wtd: WTD, swc: SWC_1_1_1}
+  p_shift_hours: 0.0          # rain record in step with the water table at this site
+  gldas_csv: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/data/gldas_G02101_2015_2024.csv
+
+forcing:
+  node_hours: 24
+  fill_half_window_days: 7    # mean-diurnal-cycle filling of missing LE
+  transpiration_fraction: gldas
+  check_fractions: [0.0, 0.5, 1.0]
+
+fem:                          # as configs/twin_gldas_fl.yaml (forward check and scoring only)
+  root: /storage/project/r-rbras6-0/jjason3/wtd_pipeline
+  L: 12.0
+  n_nodes: 101
+  max_iter: 50
+  tol: 1.0e-5
+  omega: 0.5
+  dt_hours: 1.0
+  check_dt_hours: 0.25
+  check_n_nodes: 201
+
+soil:
+  theta_s: 0.43
+  theta_r: 0.02
+  alpha: 3.6
+  n: 1.56
+  Ks: 2.9e-6
+  l: 0.5
+  Ss: 1.0e-5
+  blend_width_m: 0.02
+  abs_smooth_m: 1.0e-3
+
+scaling:
+  L: 2.0
+
+window:
+  start: '2022-11-23T12:00'
+  n_days: 20
+
+zb_spline:
+  knot_days: 5.0
+  zb_min: 0.05
+
+reference:
+  h_surf_admissible_m: -10.0
+
+obs:
+  depth_m: [0.10, 0.10]       # point sensor
+  interval_hours: 24
+  max_gap_hours: 3
+
+truth:
+  max_gap_hours: 3
+
+output:
+  dir: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/real_ona_nov22
