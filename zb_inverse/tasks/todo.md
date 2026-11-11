@@ -1454,3 +1454,23 @@ Real-case spec (first slice):
        (output/soil_chk_nov22, job 15489539; same starting soil and starting rmse 0.006445 so far).
        DISCLOSED: three protocols now (other year, previous / nearest recession, leave one out); every one is
        reported, none is chosen on the test window's forward check.
+    k) Previous-recession test, set-up (14:05): T22 with the October soil S_C = output/real_ona_nov22_caloct22
+       (26 Nov 2022 12:00 + 18 d, 7 coefficients; sensor 0.147-0.348 inside S_C's 0.1435-0.3521). Check e2: FEM with
+       the OBSERVED WT gives theta rmse 0.0103, bias +0.0088, r 0.9975 (other-year soil S_B: 0.0273 / +0.024) ->
+       clearly below, the PINN is trained: hpc/real_full.sh rf22c (logs/full_rf22c.log), referee
+       output/referee/caloct22on22_s0..3 (jobs 15490072 / 15490073 / 15490076 / 15490099).
+       The model is 0.01-0.02 too wet on the steep limb (days 3-10) -> expected estimate ~2 cm too deep there;
+       days 0-2.5 the sensor reads saturation (WT above ~0.5 m): no information on the WT in that part.
+    l) What each retention curve says with NO dynamics (hydrostatic profile, zb = 0.1 m + |h(theta)|, the 13 daily
+       pairs of T22 in b; awk on the login node, context only, nothing of the method uses it):
+         S_C (Oct 2022)   est - obs  +4.4 +2.0 +0.7 +1.3 +1.4 +1.2 -1.6 -1.2 +1.0 +0.6 +0.9 +0.0 +1.1   rmse 1.7 cm
+         S_B (Nov 2021)              +6.1 +4.5 +3.6 +4.7 +5.1 +5.0 +2.3 +2.6 +4.7 +4.2 +4.2 +3.0 +3.0   rmse 4.2 cm
+         S_D (Nov 2022, own window)  -1.5 -4.5 -6.3 -6.1 -6.5 -7.0 -10. -9.8 -7.8 -8.2 -8.0 -9.0 -7.8   rmse 7.4 cm
+       -> S_C and S_B are close to a static relation between sensor and WT (S_B with the +4 cm of the other year,
+       the bias the PINN and the referee found in finding 72: +5.7). S_D is NOT: its curve alone puts the WT 7 cm
+       too shallow on its own window; it matches the sensor through slow drainage (Ks 4.1e-07, five times lower
+       than the other three recessions: S_A 1.6e-06, S_B 2.4e-06, S_C 2.1e-06; alpha 1.92 against 1.43-1.66).
+       With such a soil the sensor follows the drainage rate, not the WT: the inversion is badly conditioned.
+       S_D came from ONE start (3); its other starts were never finished -> it does not meet the rule "accepted
+       only if the starts agree". Soil of Sep 2021, S_A (output/soil_ona_sep21 start 3): theta_s 0.3686,
+       theta_r 0.0984, alpha 1.433, n 10 (bound), Ks 1.62e-06, fit 0.0042.
