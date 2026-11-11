@@ -1547,3 +1547,28 @@ Real-case spec (first slice):
          (cost 0.336), Sep 2021 with S_A 6.4 cm at iteration 4 (cost 0.695). Both windows START with the sensor at
          saturation, so the whole-window number contains the undetermined days; to be read by day and for the hours
          below saturation.
+    s) IN-SAMPLE INVERSIONS (check o), solver only, each soil on its own calibration window (14:55). Whole window /
+       hours with the sensor below saturation by > 3 sigma (vs the observed WT, cm):
+         S_A on Sep 2021  (own_sep21_s1)  6.44, bias +2.97, max 20.7 | from day 3.4: rmse 1.37, bias -0.00, r 0.975;
+                                          est - obs by day +20.7 +10.5 +3.2 -0.9 -1.4 -1.2 -0.8 -0.6 +0.2 -0.8
+         S_C on Oct 2022  (own_oct22_s0)  3.59, bias +1.14, max 12.5 | from day 3.6: rmse 1.63, bias -0.01, r 0.981;
+                                          +12.5 +8.8 +4.7 -2.4 -1.3 -1.4 +0.7 +0.8 +1.2 -1.4 -2.7 -2.2 -3.3 -1.0
+                                          -0.2 +0.5; coefficient 0 on the box
+         S_D on Nov 2022  (own_nov22_s0)  7.03, bias +2.20, max 21.8 | from day 6.1: rmse 3.40, bias -0.68, r 0.933;
+                                          +21.8 +18.5 +15.4 +9.4 +4.4 +0.8 +1.0 +0.1 +0.4 +3.9 +4.1 +4.0 -1.4 -3.4
+                                          -1.1 -3.3 -3.9 -2.4 -1.5 +2.6 +9.3; coefficients 0 and 6 on the box,
+                                          sigma 11 -> 233 cm on the last four days
+         S_B on Nov 2021  running (30 d, 9 coefficients).
+       -> as stated in o) before the numbers: S_D does not return its own WT (3.4 cm with r 0.93 below saturation,
+       no information at the end of the window) and is NOT a usable soil; S_A and S_C return theirs to 1.4-1.6 cm
+       with zero bias once the sensor is below saturation. Rule for a usable soil from here on: lowest-misfit
+       calibration AND in-sample inversion within 2 cm, r >= 0.975 below saturation.
+       The same picture in every window: on the first 3-6 days the sensor is at saturation and the estimate sits
+       at the air-entry depth (0.5 m), 10-20 cm below a WT that is still at 0.2-0.4 m. The posterior sigma there is
+       1-7 cm, far too small: it is the linearised sigma at the estimate and knows nothing of the flat side. The
+       estimate on those hours is a BOUND (WT at or above it), which is how it has to be reported.
+    t) rf21bdc iteration 2 (14:42): step / sigma max 0.72 (segments 0.03 0.04 0.21 0.40 0.72), cost 0.342, all starts
+       one estimate, vs observed 10.1 cm (bias -9.0): converging to the solver's answer for that soil (S_D, not
+       usable, s). Continues.
+       Referee, B with S_A (calsep21on21, iteration 2): 14 cm from the observed WT at cost 0.28-0.35 -> the
+       previous-recession protocol FAILS on B, as the forward check (0.030 / +0.025) said it would.
