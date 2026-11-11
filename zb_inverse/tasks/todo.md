@@ -1365,3 +1365,19 @@ Real-case spec (first slice):
        start 2 (sandy loam)           rmse 0.004635, theta_s 0.34975, theta_r 0.11146, alpha 1.5465, n 9.444, Ks 2.379e-6
        start 3 (hydrostatic fit)      rmse 0.004635, theta_s 0.34978, theta_r 0.11138, alpha 1.5464, n 9.433, Ks 2.383e-6
        none on a bound. -> the 2021 calibration is unique within the bounds; the soil used on T22 stands.
+    s) VALUE-CORRECTED LOOP, T21b iteration 1 (rf21bdc_it1, 13:10; rf22dc still waits for a GPU: f1_m0 pending).
+       Forward PINNs at the round-4 estimate (rf21bdc_f1_m0/1): val_pde 0.052 / 0.066, val_flux 0.021 / 0.007,
+       val_box 0.11 / 0.18 (operator members on this soil: val_pde 0.45-2.45, val_flux 4-7) -> a single-path PINN
+       solves this stiff soil 10-100x better than the operator. Operator value error at the estimate: theta rms
+       0.0021 (max 0.0052), the two forward members differ by 0.0004.
+       Corrected inversion: 5 starts -> one estimate (spread 5e-9 m); cost 0.34558 (round 4: 0.42899; referee
+       0.34256); theta rmse 0.00294 (referee 0.00293); coefficients -1.821 -0.356 -0.574 +0.055 -0.063 -0.140
+       +1.183 (referee -1.821 -0.366 -0.556 -0.005 +0.179 -0.325 +1.183).
+                              vs referee (rms / max)   vs observed WT
+         round 4 (inv4c)        3.19 / 7.14 cm           10.63 cm
+         value-corrected it 1   2.79 / 6.21 cm           10.04 cm        (referee vs observed 9.16 cm)
+       zb (m) at days 0, 4, 8, 12, 16: observed 0.490 0.647 0.775 0.855 0.915; referee 0.474 0.547 0.689 0.785
+       0.715; round 4 0.473 0.546 0.691 0.715 0.722; it 1 0.475 0.546 0.692 0.724 0.735.
+       -> the cost is now the referee's to 1%, the estimate equals the referee's to 0.5 cm up to day 9 and differs
+       after day 10 (c_4, c_5: 3-5 cm), a direction the data barely constrain (cost difference 0.003). Step / sigma
+       2.26 (segments 0.58 0.23 0.24 1.64 2.26) -> not converged, loop continues (up to 4 iterations).
