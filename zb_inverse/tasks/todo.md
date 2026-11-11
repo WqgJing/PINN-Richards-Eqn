@@ -1665,3 +1665,24 @@ Real-case spec (first slice):
          either way). The loop is at step/sigma 0.72 and continues. Read as: where the model fits the data
          (D) the PINN is the solver inversion; where it does not, neither is determined.
          output/real_ona_nov21_cal22_17d/result_rf21bdc_it2.{json,png}
+    x) Hindcast for the D / S_C test, finished (16:05): B (15 Nov 2021 + 17 d, theta 0.152-0.349 inside S_C's
+       calibration range 0.144-0.352) inverted with S_C by the solver: cost 0.3269, coefficient 6 on the bound;
+       whole window 3.49 cm, bias -2.44, max 7.2, r 0.979; below saturation (382 h from day 1.12) 3.49 cm, bias
+       -2.80, r 0.979  ->  sigma_hind(D | S_C) = 3.5 cm. Realised on D (referee): 2.44 cm in range.
+           test / soil   sigma_hind (rule of u)   realised in range (referee)
+           D / S_C       3.5 cm  (B with S_C)      2.44 cm, bias +1.69
+           C / S_B       7.0 cm  (A with S_B)      3.23 cm, bias +2.69
+       Both realised errors are inside 1 sigma_hind. The sign differs between hindcast and test in both pairs
+       (-2.8 | +1.7, -6.8 | +2.7): the soil-transfer error is not a fixed offset that could be subtracted.
+       - The C / S_B far starts have stopped at the same estimate (cost 0.334452 x 4, 4.41 cm); S_D in-sample,
+         second start = first (7.03 cm whole window; below saturation 3.40 cm, r 0.933: still fails (s)).
+       - Soils fitted to three recessions, the fourth left out (start 3; rmse by window in theta):
+           left out   theta_s  theta_r  alpha   n     Ks        A       B       C       D
+           A          0.3501   0.1193   1.635   9.33  1.97e-6   -       0.0122  0.0066  0.0133
+           C          0.3565   0.1146   1.700   9.82  4.36e-7   0.0344  0.0073  -       0.0223
+           D          0.3578   0.1136   1.629   10.0  6.60e-7   0.0320  0.0058  0.0200  -
+         Whenever A is in the fit it keeps a bias of -0.03 and drags the 2022 windows to +0.02: A does not share
+         a soil with the rest (u). (The run leaving B out is not finished.)
+       - Reading note for every "by day" row of estimate - observed in (p)-(v): the value at the start of each day
+         of the window (12:00), not a daily mean; the scores (rmse, bias, r) are over all hours. The well has a
+         daily cycle of 1-2 cm, so the rows read about 1.5 cm more negative than the bias on B.
