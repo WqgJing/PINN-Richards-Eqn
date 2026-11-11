@@ -1381,3 +1381,41 @@ Real-case spec (first slice):
        -> the cost is now the referee's to 1%, the estimate equals the referee's to 0.5 cm up to day 9 and differs
        after day 10 (c_4, c_5: 3-5 cm), a direction the data barely constrain (cost difference 0.003). Step / sigma
        2.26 (segments 0.58 0.23 0.24 1.64 2.26) -> not converged, loop continues (up to 4 iterations).
+73. Real case: what "reliable" means on site data, and the next test: soil from the PREVIOUS RECESSION
+    (2026-11-11 13:30; criteria and plan written before any result of it).
+    a) Where it stands (finding 72): the PINN returns the solver's inversion (0.5 cm on T22, 2.8 cm on T21b) and one
+       estimate from every start. What is left to the observed water table (6.3 cm, bias +5.7 on T22; 10 cm, bias
+       -9.0 on T21b) is the soil taken from ANOTHER YEAR, not the network: the referee has the same error.
+    b) Site record, no model (daily means, AmeriFlux file; WT depth m / sensor theta):
+         Oct 2022 recession   0.565/0.342  0.621/0.322  0.674/0.292  0.711/0.254  0.742/0.221  0.766/0.201
+                              0.790/0.188  0.813/0.177  0.830/0.168  0.849/0.161  0.858/0.155  0.877/0.148  0.889/0.142
+         T22 (26 Nov-14 Dec)  0.513/0.339  0.579/0.324  0.625/0.305  0.657/0.275  0.693/0.242  0.722/0.219
+                              0.770/0.203  0.785/0.190  0.789/0.175  0.805/0.169  0.824/0.160  0.845/0.156  0.872/0.146
+       At the same theta the WT of T22 is 0-4 cm shallower than in October (4 cm at 0.32, 3 at 0.25-0.29, 0 at
+       0.19-0.20, 2.5 at 0.16-0.18, 1 at 0.15), against ~9 cm between Nov 2021 and Nov 2022 (finding 71). Both fall
+       at 3-4 cm/d on the steep limb. -> within one season the sensor-WT relation repeats to ~2 cm.
+       Not single valued in general: 6 Nov 2021, one day after a 0.7-m rise, the sensor reads 0.333 with the WT at
+       0.34 m (0.369 a week later at 0.24 m: entrapped air / wetting limb); 25 Sep-4 Oct 2021 the WT falls 7 cm/d and
+       theta lags (0.325 at 0.71 m; 0.325 at 0.60 m in Nov 2021). Only drying limbs after a wet plateau compare.
+    c) RELIABILITY CRITERIA for site data (all four must hold):
+         R1 one estimate from all starts (spread < 0.2 cm);
+         R2 the PINN's own error: distance to the referee (solver inversion, same data and soil) <= 1 cm rms;
+         R3 accuracy: vs the observed WT over the whole window RMSE <= 3 cm, |bias| <= 2 cm, r >= 0.98
+            (3 cm = what the site allows: 1.6 cm is the distance of the 5-day spline from the hourly record, ~2 cm
+            the repeatability of the sensor reading in b));
+         R4 it repeats: R1-R3 on a second held-out window with the same protocol.
+       Uncertainty: the posterior sigma (0.2 cm) has no soil error in it. Reported next to it: the distance between
+       the estimates with independently calibrated soils (previous recession, other year), not a pass/fail.
+    d) PROTOCOL "previous recession": soil calibrated on the last recession with a known WT BEFORE the test window
+       (scripts/calibrate_soil.py, all starts, theta range must contain the test's), then the adopted PINN method
+       unchanged (wide stage, 4 members -> inversion -> 4 refinement rounds with --coarse -> value-corrected loop
+       -> score). Nothing is fitted on the test window. Test window unchanged, T22 = 26 Nov 2022 12:00 + 18 d, so
+       the soil is the only difference from finding 72. Calibration window: configs/real_ona_oct22.yaml,
+       17 Oct 2022 12:00 + 15 d (WT 0.39 -> 0.89 m, theta 0.351 -> 0.142, contains T22's 0.348 -> 0.147; no rain;
+       LE missing 17-19 Oct, filled with the mean diurnal cycle as everywhere).
+       DISCLOSED: the protocol was chosen after the other-year soil left 6-10 cm, and T22's WT had been seen; the
+       other-year results stay in the report next to it.
+    e) CPU checks before any GPU time: (1) calibration starts agree; (2) FEM with the OBSERVED WT on T22 with the
+       new soil (other-year soil: theta rmse 0.0273, bias +0.024); (3) the same check of the two existing soils on
+       the October window (how far each soil carries: output/real_ona_oct22_soilnov21, _soilnov22); (4) referee on
+       T22 with the new soil. The PINN is trained only if (2) is clearly below 0.0273.
