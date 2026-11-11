@@ -1734,3 +1734,27 @@ Real-case spec (first slice):
           theta_r 0.0588, alpha 2.547, n 10 (bound), Ks 1.0e-7 (bound); rmse by window A 0.0304 (bias -0.026),
           C 0.0112, D 0.0150 (bias +0.011). Completes the leave-one-out table of (x): every pooled fit that
           holds A keeps A's bias of -0.03 and two parameters end on bounds here. No pooled soil is used.
+    ac) IN-SAMPLE INVERSION OF S_B, finished (check o; solver only; own_nov21_s0, 21 iterations, 3.2 h; the second
+        start is at the same cost 0.6644 and still iterating): Nov 2021, 30 d, 9 coefficients, cost 0.6643,
+        coefficient 0 on the box. Whole window 5.74 cm, bias +0.73, max 23.7; below saturation (645 h from day 3.2)
+        3.74 cm, bias -0.62, r 0.9635  ->  S_B FAILS the rule of (s) as written (2 cm, r >= 0.975).
+        By day (start of day, cm): +23.4 +14.2 +6.2 +0.6 -1.9 -2.0 -1.1 -2.1 -2.6 -0.2 -3.0 -2.5 +0.9 -1.5 -2.2
+        -1.7 -3.0 -3.0 -4.0 -4.2 -4.1 -2.3 -1.9 -0.3 +0.8 +1.0 +0.8 -2.2 -6.9 -12.3 -20.6; posterior sd 0.1-0.6 cm
+        to day 23, then 1.1 2.9 5.5 8.1 10.8 16.9 29.7 cm: the miss is the last five days, where the inversion
+        itself reports no information. Diagnostic only (the rule is NOT changed after the fact), the same scores
+        without the last five days of each window:
+            soil / window      below saturation          without the last 5 d
+            S_A  Sep 2021      1.37, +0.00, r 0.975      1.36, +0.31, r 0.922  (15 h)
+            S_B  Nov 2021      3.74, -0.62, r 0.964      1.96, +0.12, r 0.988  (525 h)
+            S_C  Oct 2022      1.63, -0.01, r 0.981      1.62, -0.07, r 0.968  (155 h)
+            S_D  Nov 2022      3.40, -0.68, r 0.933      2.82, -0.66, r 0.941  (215 h)
+        Consequences, stated before the PINN results of rf22ob:
+        - Usable soils by the rule: S_A and S_C only. The C / S_B test (rf22ob) runs on a soil the rule rejects and
+          whose hindcast error is 7 cm (u); it is finished and reported as a test of PINN = solver (R1, R2), and
+          it cannot count as the second window of R4 whatever it scores against the well.
+        - The B / S_A test fails although S_A passes the rule (v): the rule is necessary, not sufficient.
+        - So at US-ONA one held-out test has a usable soil and a solver inversion inside R3 below saturation
+          (D / S_C). R4 needs a second one, and this site has no further recession with complete forcing.
+          Next: look for recession pairs at a second site with the same instruments (US-PAS, same soil order,
+          record in fem_validation, read-only), solver side first (calibration, in-sample, hindcast, referee);
+          a PINN run there only if the solver inversion is inside R3, as in (r).
