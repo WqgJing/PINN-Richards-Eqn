@@ -167,10 +167,11 @@ def plot_profiles(xi, t_days, theta_ref, theta_pred, zb_ref, zb_pred, path, titl
     _finish(fig, path)
 
 
-def plot_real_result(t, theta_obs, theta_runs, zb_obs, zb_runs, path):
+def plot_real_result(t, theta_obs, theta_runs, zb_obs, zb_runs, path, band=None):
     """Inversion on site data (scripts/score_real.py): soil moisture at the sensor (observed and model runs
     theta_runs = [(label, theta), ...]) and the water table (observed and estimates zb_runs = [(label, zb or a list of
-    zb, one per start), ...]), all on the hourly times t."""
+    zb, one per start), ...]), all on the hourly times t. band = (label, lower, upper): limits of the first estimate,
+    drawn as two thin dotted lines in its colour."""
     fig, ax = plt.subplots(2, 1, figsize=(9, 6.5), sharex=True)
     ax[0].plot(t, theta_obs, color=INK, label='observed')
     for (label, y), c in zip(theta_runs, (C_PRED, C_TRUTH, C_3, C_4)):
@@ -180,5 +181,8 @@ def plot_real_result(t, theta_obs, theta_runs, zb_obs, zb_runs, path):
     for (label, z), c in zip(zb_runs, (C_PRED, C_TRUTH, C_3, C_4)):
         for k, zk in enumerate(np.atleast_2d(z)):
             ax[1].plot(t, zk, color=c, lw=1.2, label=label if k == 0 else None)
+    if band is not None:
+        ax[1].plot(t, band[1], color=C_PRED, lw=0.8, ls=":", label=band[0])
+        ax[1].plot(t, band[2], color=C_PRED, lw=0.8, ls=":")
     ax[1].invert_yaxis(); ax[1].set_ylabel('water-table depth (m)'); ax[1].set_xlabel('time (days)'); ax[1].legend()
     _finish(fig, path)
