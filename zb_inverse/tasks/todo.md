@@ -1706,3 +1706,14 @@ Real-case spec (first slice):
          and 0.008 so far). S_D is reproducible and still fails its in-sample inversion (s).
        - Queue: GPU partitions are full; rf22c round 1 has one member training since 16:25, three pending since
          15:43-16:08; rf22ob has three of four wide members.
+    z) Loop of the D / S_B (2021 soil) test CONVERGED at iteration 3 (rf22dc_it3, 16:38; stop rule step < 0.2 sd):
+       step / sigma max 1.44 -> 0.62 -> 0.07 (segments 0.03 0.07 0.04 0.02 0.02), forward offset rms 0.0013,
+       cost 0.28431 (solver 0.28540 from four starts), start spread 2.3e-8 m (5 starts).
+           PINN - solver inversion, whole window: rms 0.10 cm, max 0.31 cm, r 0.99997
+           by day (cm): -0.1 +0.0 +0.1 +0.1 +0.0 -0.0 -0.0 +0.0 +0.0 +0.0 -0.0 -0.0 -0.1 -0.0 +0.0 +0.1 +0.2 +0.3 +0.3
+           vs observed, whole window:      PINN 6.15 cm, bias +5.51, r 0.988 | solver 6.13 cm, +5.47, r 0.987
+           vs observed, below saturation:  PINN 5.10 cm, bias +4.78, r 0.982 | solver 5.07 cm, +4.73, r 0.982
+       -> on this window the full PINN method (wide members, four rounds, three value-correction iterations)
+          ends on the solver's estimate to 1 mm from every start: R1 and R2 met, with the loop's own stop rule
+          and no truth used. R3 is not met with the soil of the year before (5-6 cm), for the PINN and the
+          solver alike. output/real_ona_nov22_cal21/result_rf22dc_it3.{json,png} (job 15496703).
