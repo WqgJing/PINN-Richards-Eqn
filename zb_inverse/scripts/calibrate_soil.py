@@ -8,6 +8,7 @@ solve). One start per job (--start): the calibration is accepted only if the sta
 The result is used unchanged for ANOTHER window, where the water table is the unknown.
 
 Usage: python -u scripts/calibrate_soil.py --data output/real_ona_nov21 --out output/soil_ona_nov21 --start 0
+       several windows after --data: one soil fitted to all of them (every hourly value has the same weight)
 """
 import argparse
 import json
@@ -61,17 +62,27 @@ def static_start(zb, depth, theta_obs, ks):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--data', required=True, help='directory of a make_real.py data set (calibration window)')
+    ap.add_argument('--data', required=True, nargs='+',
+                    help='directory of a make_real.py data set (calibration window); several: one soil for all of them')
     ap.add_argument('--out', required=True)
     ap.add_argument('--start', type=int, default=0)
     ap.add_argument('--max-nfev', type=int, default=80)
     args = ap.parse_args()
-    with open(os.path.join(args.data, 'twin_config.yaml')) as f:
-        cfg = yaml.safe_load(f)
-    d = dict(np.load(os.path.join(args.data, 'real.npz'), allow_pickle=False))
-    t, th_obs, zb = d['t_days'], d['theta_obs_hourly'], d['zb_true']
-    q = np.interp(t, d['t_daily'], d['q_daily'])
-    tp = np.interp(t, d['t_daily'], d['tp_daily_mmd'])
+    wins = []
+    for path in args.data:
+        with open(os.path.join(path, 'twin_config.yaml')) as f:
+            c = yaml.safe_load(f)
+        d = dict(np.load(os.path.join(path, 'real.npz'), allow_pickle=False))
+        wins.append({'cfg': c, 't': d['t_days'], 'th': d['theta_obs_hourly'], 'zb': d['zb_true'],
+                     'q': np.interp(d['t_days'], d['t_daily'], d['q_daily']),
+                     'tp': np.interp(d['t_days'], d['t_daily'], d['tp_daily_mmd']),
+                     'start': str(d['start_date']), 'n_days': int(d['n_days'])})
+    cfg = wins[0]['cfg']                  # FEM set-up, sensor and the soil of start 0: taken from the first window
+    for w in wins[1:]:
+        if w['cfg']['fem'] != cfg['fem'] or w['cfg']['obs']['depth_m'] != cfg['obs']['depth_m']:
+            raise SystemExit('the calibration windows differ in the FEM set-up or in the sensor depth')
+    edges = np.cumsum([0] + [w['t'].size for w in wins])        # the windows one after the other on the time axis
+    t, th_obs, zb = (np.concatenate([w[k] for w in wins]) for k in ('t', 'th', 'zb'))
     depth = cfg['obs']['depth_m']
     fc = cfg['fem']
     cfg['fem'] = {**fc, **fc.get('jacobian', {'tol': 1.0e-8, 'max_iter': 200})}      # differences need a tight solve
@@ -83,13 +94,15 @@ def main():
         X = np.atleast_2d(X)
         B = X.shape[0]
         n_solves[0] += B
+        out = np.full((B, t.size), np.nan)
         try:
-            A = run_fem(Solver, Sink, cfg, t, np.tile(zb, (B, 1)), np.tile(q, (B, 1)), np.tile(tp, (B, 1)),
-                        fc['n_nodes'], depth, soil_params=to_p(X), quiet=True)
+            for w, a, b in zip(wins, edges[:-1], edges[1:]):
+                A = run_fem(Solver, Sink, cfg, w['t'], np.tile(w['zb'], (B, 1)), np.tile(w['q'], (B, 1)),
+                            np.tile(w['tp'], (B, 1)), fc['n_nodes'], depth, soil_params=to_p(X), quiet=True)
+                out[:, a:b] = A['theta_obs']
         except Exception as e:                                   # a soil the solver cannot run: reject the step
             print(f"[cal] solver failed: {type(e).__name__}: {e}", flush=True)
             return np.full((B, t.size), np.nan)
-        out = A['theta_obs']
         out[~np.isfinite(out).all(axis=1)] = np.nan
         return out
 
@@ -119,8 +132,8 @@ def main():
     else:
         x0 = to_x(start)
     x0 = np.clip(x0, LOWER + 1e-6, UPPER - 1e-6)
-    print(f"[cal] {cfg['site']['name']} {d['start_date']} + {int(d['n_days'])} d, start {args.start}: "
-          + ', '.join(f"{k}={float(v):.4g}" for k, v in to_p(x0).items()), flush=True)
+    print(f"[cal] {cfg['site']['name']} " + ', '.join(f"{w['start']} + {w['n_days']} d" for w in wins)
+          + f", start {args.start}: " + ', '.join(f"{k}={float(v):.4g}" for k, v in to_p(x0).items()), flush=True)
     tic = time.time()
     th_start = forward(x0)[0]
     fit = least_squares(fun, x0, jac=jac, bounds=(LOWER, UPPER), x_scale='jac', max_nfev=args.max_nfev,
@@ -132,8 +145,12 @@ def main():
     cov = np.linalg.pinv(J.T @ J)
     corr = cov / np.sqrt(np.outer(np.diag(cov), np.diag(cov)))
     p = {k: float(v) for k, v in to_p(fit.x).items()}
+    one = len(wins) == 1
     res = {
-        'site': cfg['site']['name'], 'window': str(d['start_date']), 'n_days': int(d['n_days']), 'start': args.start,
+        'site': cfg['site']['name'], 'window': wins[0]['start'] if one else [w['start'] for w in wins],
+        'n_days': wins[0]['n_days'] if one else [w['n_days'] for w in wins], 'start': args.start,
+        'by_window': [{'window': w['start'], 'rmse': float(np.sqrt(np.mean(r[a:b] ** 2))), 'bias': float(r[a:b].mean())}
+                      for w, a, b in zip(wins, edges[:-1], edges[1:])],
         'soil_start': {k: float(v) for k, v in to_p(x0).items()}, 'soil': p,
         'rmse_start': float(np.sqrt(np.nanmean((th_start - th_obs) ** 2))),
         'rmse': float(np.sqrt(np.mean(r ** 2))), 'bias': float(r.mean()), 'max': float(np.abs(r).max()),
@@ -146,11 +163,16 @@ def main():
     with open(os.path.join(args.out, f'start{args.start}.json'), 'w') as f:
         json.dump(res, f, indent=2)
     np.savez(os.path.join(args.out, f'start{args.start}.npz'), t_days=t, theta_obs=th_obs, theta_start=th_start,
-             theta_fit=th_fit, zb=zb, x=fit.x, x0=x0)
-    plots.plot_twin_compare([(t, th_obs, 'observed', '-'), (t, th_start, 'FEM, starting soil', '-'),
-                             (t, th_fit, 'FEM, calibrated soil', '-')],
-                            os.path.join(args.out, f'start{args.start}.png'),
-                            ylabel='soil moisture at the sensor (m$^3$/m$^3$)')
+             theta_fit=th_fit, zb=zb, x=fit.x, x0=x0, window_edges=edges)
+    for i, (a, b) in enumerate(zip(edges[:-1], edges[1:])):      # one figure per window
+        s = slice(a, b)
+        plots.plot_twin_compare([(t[s], th_obs[s], 'observed', '-'), (t[s], th_start[s], 'FEM, starting soil', '-'),
+                                 (t[s], th_fit[s], 'FEM, calibrated soil', '-')],
+                                os.path.join(args.out, f'start{args.start}.png' if one else f'start{args.start}_w{i}.png'),
+                                ylabel='soil moisture at the sensor (m$^3$/m$^3$)')
+    if not one:
+        print('[cal] by window: ' + ', '.join(f"{w['window']} rmse {w['rmse']:.4f} bias {w['bias']:+.4f}"
+                                             for w in res['by_window']), flush=True)
     print(f"[cal] start {args.start}: rmse {res['rmse_start']:.4f} -> {res['rmse']:.4f} (bias {res['bias']:+.4f}, "
           f"r {res['r']:.3f}), on bound: {res['on_bound']}, {res['message']}", flush=True)
     print('[cal] soil: ' + ', '.join(f"{k}: {v:.5g}" for k, v in p.items()), flush=True)

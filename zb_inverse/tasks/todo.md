@@ -1419,3 +1419,38 @@ Real-case spec (first slice):
        new soil (other-year soil: theta rmse 0.0273, bias +0.024); (3) the same check of the two existing soils on
        the October window (how far each soil carries: output/real_ona_oct22_soilnov21, _soilnov22); (4) referee on
        T22 with the new soil. The PINN is trained only if (2) is clearly below 0.0273.
+    f) Recessions of the record with complete WT and sensor and no rain inside (scan of the daily means, 2021-2022):
+         A 23 Sep- 4 Oct 2021  WT 0.05 -> 0.83 m (7 cm/d), theta 0.380 -> 0.218, LE complete
+         B 13 Nov-   Dec 2021  theta from 0.369; WT gap 25-26 Nov (31 h)
+         C 15 Oct- 1 Nov 2022  WT 0.34 -> 0.89 m, theta 0.362 -> 0.142; LE missing 17-19 Oct
+         D 21 Nov-14 Dec 2022  WT 0.08 -> 0.87 m, theta 0.356 -> 0.146
+       (29 Sep-11 Oct 2022 has no LE at all: not usable.) Four recessions, two per year: all there is.
+       Data sets (scripts/make_real.py): A configs/real_ona_sep21.yaml (25 Sep 2021 12:00 + 9 d, theta 0.379 ->
+       0.221), C configs/real_ona_oct22.yaml (17 Oct 2022 12:00 + 15 d, spline vs hourly record 1.6 cm).
+    g) Check e2/e3, FEM with the OBSERVED WT and the soil of another recession (theta at the sensor, rmse / bias):
+         soil \ window     A Sep 2021      B Nov 2021      C Oct 2022      D Nov-Dec 2022
+         S_B (Nov 2021)    0.0385/-0.036   0.0046 (fit)    0.0161/+0.013   0.0273/+0.024
+         S_D (Nov 2022)    0.0563/-0.051   0.0273/-0.013   0.0073/-0.003   0.0043 (fit)
+       -> C and D (same season, 5 weeks apart) carry each other's soil at 0.007, the level of the fit itself; the
+       other year is 2-4 times worse, and the fast recession A is reproduced by neither soil (the sensor lags a WT
+       that falls 7 cm/d: 0.04-0.06 too dry in the model).
+    h) Soil of October 2022, S_C (output/soil_ona_oct22, start 3, 31 solves): theta_s 0.35107, theta_r 0.12610,
+       alpha 1.6607, n 10 (ON THE BOUND, as S_D), Ks 2.0511e-06; fit 0.0051, r 0.998. S_D has alpha 1.92 with
+       Ks 4.1e-07: the two trade against each other on a recession (same forward check, g). Starts 0-2 running
+       (jobs 15488766 / 15488767 / 15488773): the soil counts as calibrated only when they agree.
+    i) Second held-out window of the same season (for R4), T22o = output/real_ona_oct22_cal22nov_13d: 17 Oct 2022
+       12:00 + 13 d (cut where the sensor leaves S_D's range, 0.1524), 6 coefficients, soil S_D of the LATER
+       recession ("nearest recession", backwards in time; an estimate for October could not have been made in
+       October, it tests the transfer, not a forecast). Forward check 0.0085 / -0.0041, r 0.995; hydrostatic
+       0.050. Full method: hpc/real_full.sh rf22o (new driver: param_pipeline.sh with 4 rounds, then dc_loop.sh,
+       flags of rf22 / rf21b); referee output/referee/cal22novon22oct_s0..3 (jobs 15489045-15489049).
+    j) NEXT PROTOCOL, written before its results: "leave one recession out". One soil fitted to ALL recessions
+       with a known WT except the tested one (scripts/calibrate_soil.py now takes several windows after --data and
+       fits one soil to all hourly values; one window: as before). No choice of calibration window is left, and
+       the fit residual by window says how well ONE soil explains the site at all. Tests: D <- A+B+C
+       (output/soil_ona_loo_nov22), B <- A+C+D (soil_ona_loo_nov21), C <- A+B+D (soil_ona_loo_oct22),
+       A <- B+C+D (soil_ona_loo_sep21); start 3 first (jobs 15489540 / 15489586 / 15489587 / 15489613), start 0
+       for D (15489614). Regression of the edit: --data output/real_ona_nov22 --start 3 must return S_D
+       (output/soil_chk_nov22, job 15489539; same starting soil and starting rmse 0.006445 so far).
+       DISCLOSED: three protocols now (other year, previous / nearest recession, leave one out); every one is
+       reported, none is chosen on the test window's forward check.
