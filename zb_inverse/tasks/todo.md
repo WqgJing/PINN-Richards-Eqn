@@ -1651,3 +1651,17 @@ Real-case spec (first slice):
          adds sqrt(sigma_post^2 + sigma_hind^2): share of the hours below saturation within 1 and 2 sd, share of
          the saturated hours with the observed WT not below estimate + 2 sd, and the +-2 sd limits in the figure
          as two thin dotted lines.
+    w) PINN against the solver inversion on site data, after two value-correction iterations (16:00; scoring only):
+           run (test / soil)             starts spread   PINN - referee, whole window        vs observed (PINN | referee)
+           rf22dc_it2  (D / S_B, 2021)   2.5e-8 m        rms 0.19 cm, max 0.89 cm, r 0.9999  6.16 | 6.13 cm
+           rf21bdc_it2 (B17 / S_D, 2022) 1.3e-8 m        rms 2.67 cm, max 5.97 cm            10.07 | 9.17 cm
+       - D with the 2021 soil: R1 and R2 are met on site data. All five starts give one path and it is the
+         solver's to 2 mm; the 6 cm to the well is what the soil of the year before costs (both inversions alike).
+         output/real_ona_nov22_cal21/result_rf22dc_it2.{json,png}
+       - B with the 2022 soil (S_D, which fails its own in-sample test, (s)): the two agree to 0.6 cm on days 0-8
+         and part on days 9-17 (-1.8 -3.7 -5.4 -5.9 -4.8 -2.5 +0.2 +2.7 +3.7 cm), with coefficients 3-5 moved
+         against each other (+0.05 -0.05 -0.16 | -0.00 +0.18 -0.33) at equal cost (0.34235 | 0.34255) and both
+         end coefficients on the box: a flat direction of a problem whose soil does not fit (10 cm from the well
+         either way). The loop is at step/sigma 0.72 and continues. Read as: where the model fits the data
+         (D) the PINN is the solver inversion; where it does not, neither is determined.
+         output/real_ona_nov21_cal22_17d/result_rf21bdc_it2.{json,png}
