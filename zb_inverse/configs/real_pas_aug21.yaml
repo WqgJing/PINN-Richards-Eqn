@@ -1,0 +1,68 @@
+# Real data, second site: US-PAS (AmeriFlux, bahiagrass pasture on a Spodosol, 1.2 km north of US-ONA), recession of
+# 19 - 25 Aug 2021 (tasks/todo.md finding 73 ad). Water table 0.23 -> 0.68 m, sensor 0.432 -> 0.31; 3 mm of rain on
+# 20 Aug (true time). Hindcast window for the soil of 25 Sep 2021 (the recession before its calibration window).
+# Same set-up as configs/real_ona_sep21.yaml (scripts/make_real.py); site, rain time shift and window differ.
+#   given    half-hourly LE (-> ET), rain, soil moisture SWC_1_1_1 (TDR at 0.10 m below the surface)
+#   truth    half-hourly water-table depth WTD_1_1_1 (scoring / calibration only)
+# The window starts at local noon: the daily forcing nodes are then calendar-day means, placed at noon.
+# Transpiration fraction: GLDAS ratio T_p / (E_soil + T_p) of the pixel next to both sites, T_p as the root sink.
+# Soil: calibrated Florida set (CLAUDE.md) as the starting soil; replaced by --set soil.* for a calibrated one.
+site:
+  name: US-PAS
+  amf_csv: /storage/project/r-rbras6-0/jjason3/fem_validation/uploaded_data/AMF_US-PAS_BASE-BADM_2-5/AMF_US-PAS_BASE_HH_2-5.csv
+  columns: {le: LE, p: P_RAIN_1_1_1, wtd: WTD_1_1_1, swc: SWC_1_1_1}
+  p_shift_hours: -23.5        # rain record stamped 23.5 h late at this site, Aug-Dec 2021 (tasks/todo.md finding 68 d)
+  gldas_csv: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/data/gldas_G02101_2015_2024.csv
+
+forcing:
+  node_hours: 24
+  fill_half_window_days: 7    # mean-diurnal-cycle filling of missing LE
+  transpiration_fraction: gldas
+  check_fractions: [0.0, 0.5, 1.0]
+
+fem:                          # as configs/twin_gldas_fl.yaml (forward check and scoring only)
+  root: /storage/project/r-rbras6-0/jjason3/wtd_pipeline
+  L: 12.0
+  n_nodes: 101
+  max_iter: 50
+  tol: 1.0e-5
+  omega: 0.5
+  dt_hours: 1.0
+  check_dt_hours: 0.25
+  check_n_nodes: 201
+
+soil:
+  theta_s: 0.43
+  theta_r: 0.02
+  alpha: 3.6
+  n: 1.56
+  Ks: 2.9e-6
+  l: 0.5
+  Ss: 1.0e-5
+  blend_width_m: 0.02
+  abs_smooth_m: 1.0e-3
+
+scaling:
+  L: 2.0
+
+window:
+  start: '2021-08-19T12:00'
+  n_days: 6
+
+zb_spline:
+  knot_days: 5.0
+  zb_min: 0.05
+
+reference:
+  h_surf_admissible_m: -10.0
+
+obs:
+  depth_m: [0.10, 0.10]       # point sensor
+  interval_hours: 24
+  max_gap_hours: 3
+
+truth:
+  max_gap_hours: 3
+
+output:
+  dir: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/real_pas_aug21

@@ -1758,3 +1758,37 @@ Real-case spec (first slice):
           Next: look for recession pairs at a second site with the same instruments (US-PAS, same soil order,
           record in fem_validation, read-only), solver side first (calibration, in-sample, hindcast, referee);
           a PINN run there only if the solver inversion is inside R3, as in (r).
+    ad) Loop of the B / S_D test, iteration 4 (the last; rf21bdc_it4, 17:57): step / sigma max 0.78 (segments 0.02
+        0.06 0.49 0.29 0.78) after 2.26 -> 0.72 -> 0.73: NOT converged in 4 iterations. PINN - solver 2.58 cm rms
+        (2.79 -> 2.67 -> 2.45 -> 2.58), max 5.8 cm, all of it on days 9-14 (daily means -1.6 -3.5 -5.1 -5.8 -4.9
+        -2.9; days 0-8 within 0.6 cm). Against the well both miss by 10 cm (PINN 10.25 / bias -9.11, r 0.928):
+        S_D is the soil that fails its in-sample inversion (s), so this run is no test of accuracy. It stays the
+        one case where the loop does not reach the solver's estimate (hypothesis in y, untested; the two primary
+        runs decide whether the chord loop is needed).
+    ae) SECOND SITE, US-PAS (grazed bahiagrass pasture, 1.2 km north of US-ONA, Spodosol; finding 68: same TDR at
+        0.10 m, WT negative below ground, rain stamped 23.5 h late Aug-Dec 2021 -> p_shift_hours -23.5).
+        PROTOCOL AND WINDOWS, WRITTEN BEFORE ANY MODEL RUN AT THIS SITE (18:20). Everything as at US-ONA (c, d,
+        o, s, u): criteria R1-R3 unchanged, scores for the whole window and below saturation, previous-recession
+        soil, usable-soil rule (lowest misfit of the starts AND in-sample inversion within 2 cm, r >= 0.975 below
+        saturation), hindcast sigma. Solver side first; the PINN is trained on a test only if the solver
+        inversion of that test is inside R3 below saturation (r).
+        Record (daily means of the half-hourly file, awk; LE, rain, WT, sensor complete Apr - 20 Dec 2021;
+        2022 not usable: nothing Jan - mid Nov, and from 16 Nov the rain record reads 0 while the WT rises by
+        0.4-0.8 m three times and the sensor stays at 0.27-0.30 for WT 0.05-0.88 m).
+        Recessions of autumn 2021 (WT m / sensor), rain in true time:
+          P0  19 Aug 12:00 + 6 d   0.23 -> 0.68 / 0.432 -> 0.31   3 mm on 20 Aug
+          P1  25 Sep 12:00 + 9 d   0.24 -> 0.98 / 0.400 -> 0.168  no rain (next: 5 Oct 22:00)
+          P2  14 Oct 12:00 + 9 d   0.31 -> 1.02 / 0.423 -> 0.163  no rain (next: 24 Oct)
+          P3  14 Nov 12:00 + 20 d  0.24 -> 0.97 / 0.410 -> 0.168  0.5 mm on 18 Nov
+        P3 goes on to 14 Dec (1.04 m, 0.135); it is cut at 20 d, where the sensor leaves P2's calibration range
+        (d: the calibration range must contain the test's; the cut uses the sensor only, never the WT).
+        P1 and P2 end one day before the next rain so that no forcing node holds it.
+        Tests (nothing fitted on a test window):
+          T_P2 = P2 with S_P1 (soil calibrated on P1);  hindcast: P0 inverted with S_P1
+          T_P3 = P3 with S_P2 (soil calibrated on P2);  hindcast: P1 inverted with S_P2
+        Configs configs/real_pas_{aug21,sep21,oct21,nov21}.yaml = configs/real_ona_sep21.yaml with the site block,
+        the rain shift and the window replaced; same GLDAS pixel for the transpiration fraction (G02101, next to
+        both sites). Data sets output/real_pas_<win> (jobs 15500022-15500025).
+        What would count for R4: a test at this site with a usable soil whose PINN run meets R1-R3 - disclosed as
+        a second site 1.2 km away, not a second season of US-ONA. If no US-PAS soil is usable or the solver
+        inversion is outside R3, R4 stays open and is reported so.
