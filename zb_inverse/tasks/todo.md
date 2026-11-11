@@ -1717,3 +1717,13 @@ Real-case spec (first slice):
           ends on the solver's estimate to 1 mm from every start: R1 and R2 met, with the loop's own stop rule
           and no truth used. R3 is not met with the soil of the year before (5-6 cm), for the PINN and the
           solver alike. output/real_ona_nov22_cal21/result_rf22dc_it3.{json,png} (job 15496703).
+    aa) Primary PINN runs, intermediate inversions (17:30; nothing is concluded before the loops end):
+           run / stage                 starts   cost     vs observed: whole | below saturation     PINN - solver
+           rf22c  inv0 (wide)          one      0.2777   5.24 / +3.98      | 4.02 / +3.10 / 0.977   2.57 cm rms
+           rf22c  inv1 (round 1)       one      0.3131   4.61 / +3.43      | 2.97 / +2.46 / 0.983   1.02 cm rms, max 3.7
+           rf22ob inv0 (wide)          one      0.3240   4.51 / +3.42      | 3.33 / +2.77 / 0.984   1.28 cm rms, max 2.4
+           solver, D / S_C             one      0.2797   4.37 / +2.81      | 2.44 / +1.69 / 0.983
+           solver, C / S_B             one      0.3345   4.41 / +3.37      | 3.23 / +2.69 / 0.975
+        rf22c by day, PINN - solver after round 1 (cm): +0.0 -0.1 -0.3 -0.3 -0.3 -0.2 -0.0 +0.2 +0.4 +0.7 +1.0
+        +1.2 +1.3 +1.2 +1.0 +0.9 +1.4 +2.7 +3.7 (deep at the dry end, as in every earlier round 1). Round 2 of
+        rf22c and round 1 of rf22ob are training.
