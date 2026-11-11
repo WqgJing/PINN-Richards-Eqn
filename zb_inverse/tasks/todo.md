@@ -1727,3 +1727,10 @@ Real-case spec (first slice):
         rf22c by day, PINN - solver after round 1 (cm): +0.0 -0.1 -0.3 -0.3 -0.3 -0.2 -0.0 +0.2 +0.4 +0.7 +1.0
         +1.2 +1.3 +1.2 +1.0 +0.9 +1.4 +2.7 +3.7 (deep at the dry end, as in every earlier round 1). Round 2 of
         rf22c and round 1 of rf22ob are training.
+    ab) Calibrations that ended (17:30; files went in with commit c7ce04e, not named in its message):
+        - D, start 2 (sandy loam) = starts 0 and 3: theta_s 0.35142, theta_r 0.12991, alpha 1.9164, n 10 (bound),
+          Ks 4.127e-7, rmse 0.00433 -> S_D is the same from three of four starts (start 1 still runs, 0.039).
+        - Pooled soil with B left out (A + C + D, start 3; output/soil_ona_loo_nov21): theta_s 0.3724,
+          theta_r 0.0588, alpha 2.547, n 10 (bound), Ks 1.0e-7 (bound); rmse by window A 0.0304 (bias -0.026),
+          C 0.0112, D 0.0150 (bias +0.011). Completes the leave-one-out table of (x): every pooled fit that
+          holds A keeps A's bias of -0.03 and two parameters end on bounds here. No pooled soil is used.
