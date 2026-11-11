@@ -1474,3 +1474,20 @@ Real-case spec (first slice):
        S_D came from ONE start (3); its other starts were never finished -> it does not meet the rule "accepted
        only if the starts agree". Soil of Sep 2021, S_A (output/soil_ona_sep21 start 3): theta_s 0.3686,
        theta_r 0.0984, alpha 1.433, n 10 (bound), Ks 1.62e-06, fit 0.0042.
+    m) Full transfer matrix (14:20; FEM with the OBSERVED WT, theta at the sensor rmse / bias; windows as calibrated:
+       A 25 Sep 2021 + 9 d, B 13 Nov 2021 + 30 d, C 17 Oct 2022 + 15 d, D 23 Nov 2022 + 20 d; soils of start 3):
+         soil \ window     A Sep 2021      B Nov 2021      C Oct 2022      D Nov-Dec 2022
+         S_A (Sep 2021)    0.0042 (fit)    0.0301/+0.025   0.0528/+0.049   0.0617/+0.055
+         S_B (Nov 2021)    0.0385/-0.036   0.0046 (fit)    0.0161/+0.013   0.0273/+0.024
+         S_C (Oct 2022)    0.0546/-0.049   0.0149/-0.008   0.0051 (fit)    0.0099/+0.008
+         S_D (Nov 2022)    0.0563/-0.051   0.0273/-0.013   0.0073/-0.003   0.0043 (fit)
+       -> ORDERED IN TIME: a soil from an earlier recession is too wet on every later window, a soil from a later one
+       too dry on every earlier window, and the misfit grows with the distance in time (neighbours C-D 0.007-0.010,
+       B-C 0.015-0.016, B-D 0.027, A-D 0.06). The sensor-WT relation of the site DRIFTS (at the same WT the sensor
+       reads lower as time goes on: sensor, well datum or soil), it is not a random year effect. Consequences:
+       the nearest recession in time is the soil to use (the previous one, in operation); pooling recessions that
+       are far apart averages over the drift; A (fast, 7 cm/d, and first in time) is the far end.
+    n) Value-corrected loops of the other-year tests, iteration 1 (finding 72): rf22dc step / sigma max 1.44
+       (segments 0.32 1.12 0.40 0.31 1.44), cost 0.282, vs observed 6.19 cm (bias +5.58), all 5 starts one estimate;
+       rf21bdc 2.26 (0.58 0.23 0.24 1.64 2.26), cost 0.346, vs observed 10.0 cm (bias -9.0), coefficients 0 and 6 on
+       the box. Both continue (limit 4 iterations).
