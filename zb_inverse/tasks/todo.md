@@ -1792,3 +1792,40 @@ Real-case spec (first slice):
         What would count for R4: a test at this site with a usable soil whose PINN run meets R1-R3 - disclosed as
         a second site 1.2 km away, not a second season of US-ONA. If no US-PAS soil is usable or the solver
         inversion is outside R3, R4 stays open and is reported so.
+    af) 18:45. PINN runs at US-ONA, and US-PAS before any inversion there.
+        rf22ob (C with S_B) inv1: cost 0.32914 (solver 0.33445); PINN - solver by day -0.1 -0.1 -0.1 -0.0 +0.0
+        +0.1 +0.2 +0.3 +0.4 +0.5 +0.7 +0.9 +1.1 +1.4 +1.7 +1.9, rms 0.74 cm, max 1.91 cm (inv0 1.28 cm); starts
+        agree to 2e-15 m; vs well 4.67 / +3.84 / r 0.986, below saturation (275 h) 3.74 / +3.32 / 0.978.
+        rf22c (D with S_C, primary) inv2: PINN - solver by day -0.0 +0.0 +0.0 -0.0 -0.1 -0.1 -0.1 -0.1 +0.0 +0.2
+        +0.4 +0.7 +0.8 +0.7 +0.5 +0.5 +0.9 +2.4 +3.6, rms 0.74 cm, max 3.60 cm (inv0 2.57, inv1 1.02 cm); starts
+        agree to 4e-9 m; vs well 4.52 / +3.20 / r 0.983, below saturation (359 h) 2.74 / +2.15 / 0.983
+        (solver 2.44 / +1.69 / 0.983). What is left is the window end (last knot), as in every run before the
+        value correction.
+        US-PAS data sets (make_real, default Florida soil, hourly): P0 sensor 0.3185-0.4386, WT 0.225-0.679 m,
+        ET 19.7 mm, P 3.5 mm; P1 0.1691-0.4000, 0.242-0.986 m, 28.2 mm, 0.2 mm; P2 0.1619-0.4230, 0.305-1.024 m,
+        22.7 mm, 0; P3 0.1680-0.4164, 0.239-0.971 m, 31.1 mm, 0.7 mm. Unresolved sensor noise 0.0022-0.0066.
+        THE SENSOR HAS TWO LEVELS WHEN WET (hourly record, no model): a reading of 0.41-0.44 that differs by
+        event and does not follow the water table (WT 0.23-0.25 m: 0.432 in Aug, 0.400 in Sep, 0.411 in Nov),
+        and a level of 0.38-0.40 it steps down to within one hour (P2 day 1.04 -> 1.08: 0.420 -> 0.387; P3 day
+        3.5 -> 3.75: 0.411 -> 0.392; P0 flips 0.435 / 0.408 on days 1-3, then 0.394). P1 has no upper level.
+        Calibrations (calibrate_soil.py, jobs 15500140-15500148), start 3 finished for both:
+          S_P1 (P1): theta_s 0.394148, theta_r 9.7e-7 (bound), alpha 1.393142, n 4.843617, Ks 2.597021e-06;
+                     rmse 0.00453, bias 0.0000, max 0.0103; starts 0 and 2 at 0.00456 (same theta_s, alpha, n;
+                     Ks 1.7-1.8e-6), start 1 (C&P sand) still far (0.05).
+          S_P2 (P2): theta_s 0.429899, theta_r 5e-9 (bound), alpha 1.678704, n 3.180866, Ks 2.661683e-06;
+                     rmse 0.00605, max 0.0216; starts 0 and 2 at 0.00605 (same soil), start 1 still far (0.037).
+        n is not on its bound here (US-ONA: 10). S_P2 holds P2's upper level (theta_s 0.430 against 0.394).
+        The solver side goes on with the start-3 soils; if a start still running ends lower, it is redone.
+        WINDOWS BY RULE d, FIXED BEFORE ANY INVERSION AT THIS SITE (the sensor only; as at US-ONA the range is
+        checked on both sides, i 'sensor 0.147-0.348 inside S_C's 0.1435-0.3521'). A window starts at the first
+        hour at which the sensor is inside the calibration range of the soil used and lasts the largest whole
+        number of days that stay inside it:
+          T_P2 (S_P1, range 0.1691-0.4000): P2 reads 0.420-0.423 until day 1.04 and 0.1683 from day 8.125
+               -> 15 Oct 14:00 + 7 d (0.387 -> 0.169), not 14 Oct 12:00 + 9 d.
+          T_P3 (S_P2, range 0.1619-0.4230): P3 0.1680-0.4164 is inside -> unchanged, 14 Nov 12:00 + 20 d.
+          hindcast of T_P2 (P0 with S_P1): P0 is above 0.400 until day 3.21 -> 22 Aug 18:00 + 2 d (0.396 ->
+               0.357, WT 0.34 -> 0.57 m): short, and said so wherever its sigma is used.
+          hindcast of T_P3 (P1 with S_P2): P1 0.1691-0.4000 is inside -> unchanged.
+        Expected weak point, written before the result: in P3 the upper level (0.411-0.415 for 3.5 d, WT
+        0.24-0.31 m) is below S_P2's theta_s, so the model must read it as drained (hydrostatic: about 0.35 m);
+        the rule stays as it is and the outcome is reported.
