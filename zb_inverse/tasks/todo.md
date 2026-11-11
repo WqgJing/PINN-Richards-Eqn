@@ -1491,3 +1491,39 @@ Real-case spec (first slice):
        (segments 0.32 1.12 0.40 0.31 1.44), cost 0.282, vs observed 6.19 cm (bias +5.58), all 5 starts one estimate;
        rf21bdc 2.26 (0.58 0.23 0.24 1.64 2.26), cost 0.346, vs observed 10.0 cm (bias -9.0), coefficients 0 and 6 on
        the box. Both continue (limit 4 iterations).
+    o) New check of a calibrated soil, written before its results (14:30): IN-SAMPLE INVERSION. The calibration fits
+       the sensor with the WT given; the method needs the opposite direction. A soil that matches the sensor through
+       slow drainage (S_D, l) can pass the forward fit and still leave the WT undetermined. Check, CPU and solver
+       only (calibration side, no PINN run reads it): the referee inversion on the calibration window itself with
+       its own soil must return the WT that was used to calibrate. Sets output/real_ona_<win>_own, referee
+       output/referee/own_<win>_s0 (hydrostatic start) and _s1 (flat start), win = sep21, nov21, oct22, nov22
+       (jobs 15490763-15490818). If S_D fails it and S_C, S_B pass, the rule for a usable soil becomes: starts agree
+       AND the in-sample inversion returns the WT (stated here before the numbers).
+       Remaining starts of the Nov 2022 calibration submitted (15490546 / 15490547 / 15490596).
+    p) REFEREE (solver inversion, scoring only) on the two tests of the nearest-recession protocol (14:35):
+       T22o with S_D (output/referee/cal22novon22oct_s0/_s1, hydrostatic and flat start, same minimum, cost 0.378):
+         zb RMSE 9.70 cm (inner 4.83), bias -3.4, max 25.1; coefficients 0 and 5 ON THE BOX
+         (+1.183 -1.267 -0.246 +0.485 -0.760 +1.183). est - obs by day (cm): +7.0 +2.7 -1.2 -7.2 -4.3 -1.8 +3.7
+         +6.4 +7.1 +0.6 -8.5 -16.4 -23.9 -23.6: the estimate RISES after day 8 while the observed WT falls.
+         Start constant:1.0 stays at its start (cost 789, no sensitivity); constant:0.3 slow (cost 57 at it 5).
+         -> with S_D the data do not determine the WT (as l said): rf22o cannot meet R3, whatever the PINN does.
+       T22 with S_C (output/referee/caloct22on22_s0/_s1, same minimum, cost 0.2797, 7 iterations, no coefficient
+         on the box, theta rmse 0.0026, sigma median 0.17 cm): zb RMSE 4.37 cm whole window (inner 4.92), bias
+         +2.81, max 18.8. est - obs by day (cm), d0..d18: +18.8 +10.9 +6.3 +6.0 +4.3 +3.2 +5.0 +4.1 +4.3 +0.2 -0.0
+         +3.9 +2.6 +1.8 +2.2 +1.0 +1.2 +1.9 -1.1.
+         Hours with the sensor below saturation by > 3 sigma (359 h, from day 3.08): RMSE 2.44 cm, bias +1.69 cm.
+         -> the whole-window miss is days 0-3: the sensor reads saturation (theta_obs >= theta_s - 3 sigma), which
+         only says "WT above the air-entry depth"; the estimate sits at that depth (0.52 m), the WT is at 0.34 m.
+         From day 3 on the solver inversion is inside the R3 thresholds (2.4 cm, bias +1.7). R3 as written (whole
+         window) is NOT met by the referee, so it cannot be met by a PINN that reproduces it; both scores are
+         reported, R3 is not changed after the fact.
+       Hydrostatic reading of the Oct 2022 daily pairs (calibration window of S_C; est - obs, rmse / bias cm):
+         S_C 1.6 / -1.3; S_B 2.0 / +1.7; S_A 7.0 / +6.9; S_D 9.4 / -9.4 (S_D reads ~10 cm too shallow everywhere).
+    q) Calibration starts, state 14:40. Regression check of the multi-window calibrate_soil.py on Nov 2022 alone
+       (output/soil_chk_nov22/start3.json): identical to S_D (rmse 0.0043278, same five values) -> the edit did not
+       change the single-window result. Other starts on the short windows end in a DIFFERENT, much worse basin
+       (broad retention curve): Oct 2022 start 0 rmse 0.0160 (theta_s 0.458, n 3.40) against 0.0051 of start 3;
+       Sep 2021 start 0 rmse 0.0207 (theta_s 0.447, n 1.72) against 0.0042. Starts 1, 2 are heading the same way
+       (0.020-0.023). Only the 30-day window (Nov 2021) brought all starts to one soil. So on the short windows
+       "the starts agree" does NOT hold: the soil taken is the lowest-misfit one (start 3, 3-5 x lower), and the
+       in-sample inversion (o) is the check that decides whether it can be used.
