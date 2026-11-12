@@ -2078,3 +2078,44 @@ Real-case spec (first slice):
         asks for a profile in equilibrium with the water table), start 3 at 0.0025, start 0 at 0.0038
         (different basins, Ks 1.6e-5 and 3e-6). W1 (1 May 2023) starts at 0.0015 - 0.0017, theta_s 0.52 -
         0.54, alpha 4 - 6, n 1.2 - 1.4, Ks 2e-4 - 9e-4, theta_r anywhere in 0 - 0.13 (not identified).
+    au) 01:25. rfp2dc it 1 (US-PAS T_P2, value correction; job 15515881): step 0.51 sigma, five starts
+        identical (6e-10 m), cost 0.50617 (solver 0.5043), coefficients -1.821 -0.683 +0.412 +0.157 +1.183
+        (solver -1.821 -0.684 +0.414 +0.157 +1.183). PINN - solver 0.03 cm rms, max 0.05 cm (inv4 0.20 /
+        0.34): after one correction the PINN estimate IS the solver's. vs well 4.52 / +0.17 / max 7.9 / r
+        0.995, below saturation (150 h) 4.14 / -0.67 / 0.992 (solver 4.13 / -0.64 / 0.992). it 2 running.
+        US-NC2, record of 2024 looked at again (awk, sensor / well / rain only; no model run): complete from
+        27 Apr to 12 Jul 2024 (the survey of aq stopped at the gaps of Apr 2024). Water table 0.55 - 1.47 m,
+        sensor 0.40 -> 0.15: below the range of every 2023 window. Rule d inside 2024 gives two tests only,
+        both with the soil of 2 - 9 May 2024 (sensor 0.372 -> 0.326): 19 - 23 May (4 d) and 1 - 5 Jun (4 d,
+        after a 7.5-h sensor gap). Windows of 4 - 5 d have 4 spline coefficients, a case the method has never
+        been run on (all tests: 5 - 9 coefficients). And at one water table (0.845 m) the sensor reads 0.372
+        on 2 May, 0.359 on 20 May, 0.333 on 4 Jun: with the water table below 0.8 m the top 0.30 m follows
+        rain and ET history, not the water table. NO TEST IS DEFINED IN 2024 (not run, not counted, said
+        here so that the choice is on record: it was made from the records, before any model run there).
+        US-NC2 PREVIEW with the calibrations still iterating (they stop at 80 function evaluations, 03:30 -
+        06:30; nothing below is a result, the pre-registered numbers come from the finished calibrations).
+        Soils at 01:10: S_W2 (starts 1, 2 at rmse 0.00104) 0.550 / 0.164 / 15.31 / 1.252 / Ks 1e-3 (bound);
+        S_W1 (all four starts within rmse 0.00148 - 0.00150, heading to one soil) 0.538 / 0.001 / 5.58 /
+        1.219 / Ks 1e-3 (bound). Data sets output/real_nc2_{sep23a,sep23b}_prev (S_W2),
+        output/real_nc2_{may23,sep23a,sep23b}_prevW1 (S_W1). FEM over the OBSERVED water table against
+        the sensor (forward check; rmse / bias):
+                          W1 (May)           W2 (1 Sep)         W3 (27 Sep)
+          S_W1            0.0015 / -0.0001   0.0219 / +0.0214   0.0038 / +0.0003
+          S_W2            -                  0.0010 / +0.0000   0.0232 / -0.0229
+        -> exactly the picture of the survey: W1 and W3 share one retention relation, W2 (after the storm)
+        is 0.02 drier at the same water table. Solver inversions so far (preview): W2 with S_W2 (in-sample)
+        0.62 cm, bias +0.04, max 1.8 cm, starts 0 and 3 identical (cost 0.1512) -> S_W2 passes the in-sample
+        rule; W3 with S_W2 (= T_N1) 9.5 cm (cost 0.132: the sensor is fitted, the water table is wrong by
+        the hysteresis offset). So T_N1 fails R3 by a wide margin in the solver inversion itself, as
+        announced in aq; T_N0 (W2 with S_W1) will fail the same way with the other sign.
+        Decision written BEFORE the solver inversion of it: "W3 with S_W1" (soil of May, skipping the
+        post-storm recession) is run as a DIAGNOSTIC. It is NOT the pre-registered test (rule d takes the
+        last earlier recession, W2), the choice was made after seeing the forward check above, so it can
+        NOT count for R4 whatever it scores. What it can show: whether the inversion returns the well at a
+        third site when the retention relation carries over, and whether the PINN equals the solver there.
+        Preview solver jobs 15516206-13 (W1 in-sample, T_N0, W3 with S_W1).
+        01:20: calibration of W2 (output/soil_nc2_sep23a), starts 1 and 2 FINISHED (xtol; 179 / 191 member
+        solves, 112 / 108 min): rmse 0.0010408 / 0.0010409, bias 0, r 0.99935; soil theta_s 0.54976 /
+        0.54976, theta_r 0.1778 / 0.1775, alpha 15.111 / 15.114, n 1.2660 / 1.2657, Ks 1.0e-3 (upper bound)
+        in both -> two starts, one soil. Starts 0 and 3 are still iterating (other basins, 0.0037 and
+        0.0024 at 01:10); S_W2 = start 1 unless one of them ends lower.
