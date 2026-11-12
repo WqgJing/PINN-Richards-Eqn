@@ -1906,3 +1906,13 @@ Real-case spec (first slice):
         (PINN +0.393, solver -0.112; posterior sd of the last day 1.5 cm), i.e. the value error of the
         operator at the window end - the job of the loop. vs well 4.48 / +3.10 / r 0.984, below saturation
         (359 h) 2.67 / +2.05 / 0.983: RMSE and r inside R3, bias 0.05 cm outside.
+    ak) 20:50. rf22ob inv4 (job 15504498; pipeline done 20:24, loop rf22obdc started): cost 0.32945 (solver
+        0.33445), starts identical (2e-9 m); PINN - solver 0.44 cm rms, max 1.01 cm (inv3 0.40): the rounds
+        have stopped gaining here too. vs well 4.50 / +3.59 / r 0.987, below saturation (275 h) 3.43 / +2.99 /
+        0.978.
+        rf22cdc it 1 (job 15505064; two forward PINNs at the round-4 estimate, value offset 0.0013 rms):
+        step 3.02 sigma (last segment; 0.22-0.91 before it), cost 0.27273, five starts identical (6e-9 m).
+        PINN - solver 0.43 cm rms, max 2.66 cm (inv4 0.66 / 3.53); by day -0.0 +0.0 x8 +0.1 +0.1 +0.1 -0.0
+        -0.2 -0.4 -0.4 +0.2 +1.5 +2.7. vs well 4.38 / +2.87 / r 0.985; below saturation (359 h) 2.46 / +1.76 /
+        r 0.983 (solver 2.44 / +1.69 / 0.983) -> INSIDE R3 on all three numbers. Not converged yet (stop
+        rule 0.2 sigma): the loop goes on.
