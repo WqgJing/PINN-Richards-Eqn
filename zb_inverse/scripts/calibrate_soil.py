@@ -68,7 +68,13 @@ def main():
     ap.add_argument('--out', required=True)
     ap.add_argument('--start', type=int, default=0)
     ap.add_argument('--max-nfev', type=int, default=80)
+    ap.add_argument('--resume', action='store_true',
+                    help='continue this start from progress<start>.json (written at every improvement), if it exists')
+    ap.add_argument('--x0', type=float, nargs=5, metavar=('THETA_S', 'THETA_R', 'ALPHA', 'N', 'KS'),
+                    help='continue this start from that soil (a job that ran out of time: the last state in its log)')
     args = ap.parse_args()
+    os.makedirs(args.out, exist_ok=True)
+    progress = os.path.join(args.out, f'progress{args.start}.json')
     wins = []
     for path in args.data:
         with open(os.path.join(path, 'twin_config.yaml')) as f:
@@ -113,7 +119,13 @@ def main():
         th = forward(x)[0]
         cache['x'], cache['th'] = x.copy(), th
         r = np.where(np.isfinite(th), th - th_obs, 1.0)
-        print(f"[cal] solve {n_solves[0]:4d}: rmse {np.sqrt(np.mean(r ** 2)):.5f}  "
+        rmse = float(np.sqrt(np.mean(r ** 2)))
+        if rmse < cache.get('best', np.inf):                  # the state to continue from if the job runs out of time
+            cache['best'] = rmse
+            with open(progress, 'w') as f:
+                json.dump({'soil': {k: float(v) for k, v in to_p(x).items()}, 'rmse': rmse,
+                           'n_solves': n_solves[0]}, f)
+        print(f"[cal] solve {n_solves[0]:4d}: rmse {rmse:.5f}  "
               + '  '.join(f"{k}={float(v):.4g}" for k, v in to_p(x).items()), flush=True)
         return r
 
@@ -126,7 +138,13 @@ def main():
 
     start = STARTS[args.start]
     top, bottom = (0.0, float(depth)) if np.ndim(depth) == 0 else depth
-    if start is None:
+    continued = None
+    if args.x0 is not None:
+        x0, continued = to_x(dict(zip(NAMES, args.x0))), 'x0'
+    elif args.resume and os.path.exists(progress):
+        with open(progress) as f:
+            x0, continued = to_x(json.load(f)['soil']), 'progress'
+    elif start is None:
         x0 = to_x(cfg['soil'])
     elif start == 'static':
         x0 = static_start(zb, (top + bottom) / 2.0, th_obs, cfg['soil']['Ks'])
@@ -134,7 +152,8 @@ def main():
         x0 = to_x(start)
     x0 = np.clip(x0, LOWER + 1e-6, UPPER - 1e-6)
     print(f"[cal] {cfg['site']['name']} " + ', '.join(f"{w['start']} + {w['n_days']} d" for w in wins)
-          + f", start {args.start}: " + ', '.join(f"{k}={float(v):.4g}" for k, v in to_p(x0).items()), flush=True)
+          + f", start {args.start}{'' if continued is None else ' (continued)'}: "
+          + ', '.join(f"{k}={float(v):.4g}" for k, v in to_p(x0).items()), flush=True)
     tic = time.time()
     th_start = forward(x0)[0]
     fit = least_squares(fun, x0, jac=jac, bounds=(LOWER, UPPER), x_scale='jac', max_nfev=args.max_nfev,
@@ -150,6 +169,7 @@ def main():
     res = {
         'site': cfg['site']['name'], 'window': wins[0]['start'] if one else [w['start'] for w in wins],
         'n_days': wins[0]['n_days'] if one else [w['n_days'] for w in wins], 'start': args.start,
+        'continued_from': continued,
         'by_window': [{'window': w['start'], 'rmse': float(np.sqrt(np.mean(r[a:b] ** 2))), 'bias': float(r[a:b].mean())}
                       for w, a, b in zip(wins, edges[:-1], edges[1:])],
         'soil_start': {k: float(v) for k, v in to_p(x0).items()}, 'soil': p,
