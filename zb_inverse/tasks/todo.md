@@ -2159,3 +2159,50 @@ Real-case spec (first slice):
           Diagnostic W3 with S_W1, interim soil (preview; three starts identical, cost 0.0631):
                       1.61 / +0.51 / 2.6, r 0.998, by day -1.8 -2.0 -1.2 +0.1 +1.5 +2.0 +1.8 +1.6 +1.7.
           W2 in-sample, interim S_W2 (preview): 0.62 / +0.04 / 1.8, r 0.998.
+    aw) 02:40. US-NC2, solver side with the FINAL soils (zb RMSE / bias / max in cm, r; all hours are below
+        saturation at this site, so the two scores of 73 c coincide):
+          W1 calibration: all four starts finished (xtol) at ONE soil, rmse 0.00147988 (start 2 lowest by
+                      1e-9; theta_s 0.53809, theta_r 0 (bound), alpha 5.583-5.584, n 1.2182, Ks 1e-3 (bound))
+                      -> S_W1 is final.
+          W2 calibration: starts 1, 2 at one soil (0.00104083); start 0 unconverged in another basin
+                      (0.00360); start 3 (job 15511560) still running: 0.00105 at theta_r 0.199, alpha 14.9,
+                      n 1.289, Ks 8.0e-4 after 214 solves, moving along the flat valley towards starts 1 / 2.
+                      S_W2 = start 1 unless start 3 ends lower.
+          in-sample W1 / S_W1 (starts 0, 2; cost 0.08843):      0.89 / +0.03 / 2.5, r 0.9975
+          in-sample W2 / S_W2 (four starts, cost 0.15095):      0.62 / +0.02 / 1.8, r 0.9978
+              -> both soils meet the usable-soil rule (in-sample <= 2 cm, r >= 0.975).
+          T_N0 = W2 with S_W1 (four starts, cost 0.12278):      10.69 / +9.95 / 16.6, r 0.9981
+                      by day +4.2 +5.1 +7.8 +10.8 +12.8 +14.3 +16.5       -> R3 NO
+          T_N1 = W3 with S_W2 (starts 0, 3; cost 0.13207):      9.52 / -9.30 / 12.7, r 0.9982
+                      by day -5.6 -7.0 -7.6 -7.9 -8.0 -9.0 -10.5 -11.7 -12.2 -11.5 -> R3 NO
+          diagnostic W3 with S_W1 (four starts, cost 0.06303):  1.64 / +0.55 / 2.7, r 0.9978
+                      by day -1.8 -2.0 -1.1 +0.1 +1.5 +2.1 +1.9 +1.7 +1.8 +2.6
+        Reading: both PRE-REGISTERED tests at US-NC2 miss R3 by 10 cm with the solver itself, with
+        opposite signs: the recession after the storm of late August (W2) lies 0.02 in theta above the
+        relation of May (W1) and of late September (W3) at the same water table (the forward checks of
+        au), the sensor is fitted in every case (0.0015 - 0.0018) and r is 0.998. With 0.26 theta per m
+        that offset is 8 - 10 cm. This is the anticipated soil-transfer failure (aq), not an inversion
+        failure: W3 read with the soil of May (four months and one storm earlier) is within 1.64 cm.
+        Nothing is changed to make the site pass; the diagnostic cannot count for R4 (au).
+        PINN on US-NC2: the diagnostic first (it is the case whose solver inversion is near the well, so a
+        PINN defect would show against the well too): tag rfnd, hpc/real_full_obs.sh rfnd
+        output/real_nc2_sep23b_soilmay23 "[0.0,0.30]" launched 02:02 (first use of the layer sensor on site
+        data). Wide members on V100: w0 15517740, w3 15517741, w1 15517742, w2 15517743.
+        Checked before the launch (reading only): the layer mean is 4 Gauss-Legendre nodes at 0.021,
+        0.099, 0.201, 0.279 m; when zb < 0.30 m a node lies below the water table (xi < -1, outside the
+        trained domain). There the ansatz gives h > 0 and SoilVG blends to theta_s within 0.02 m, the FEM
+        side clamps to theta_s: mismatch <= 0.0005 in theta (<= 0.5 cm). R2 will show whether that holds.
+        Training of rfnd_w0 so far (physics only; steps 2000 / 4000 / 6000 / 8000 / 10000): L_pde 70 / 216
+        / 121 / 24 / 8.7, L_flux 91 / 115 / 87 / 77 / 63 (held-out total 191 / 605 / 130 / 133 / 78). The
+        first 6000 steps are far above the earlier sites at the same stage (rfp2_w0 L_pde 0.1, L_flux 13
+        at step 3500; rf22c_w0 0.4, 63), then it comes down; this soil has Ks 1e-3 m/s (the bound of the
+        calibration), 30 - 300 times the Florida soils, so the profile is close to hydrostatic and the
+        residual is stiff. To be judged at the end of the wide stage by the kept held-out loss and by
+        inv0 against the solver (output/referee/nc2_may23on_sep23b_s*) - no change before that.
+        The PINN runs of the pre-registered tests (T_N1: output/real_nc2_sep23b_soilsep23a; T_N0:
+        output/real_nc2_sep23a_soilmay23) wait for (i) S_W2 final and (ii) inv0 of rfnd, so that no GPU is
+        spent on this soil class before the first check against the solver. Their R3 outcome is fixed by
+        the solver (NO); they would add R1 / R2 at this site.
+        US-NC3 looked at as a possible further site (reading the CSV header and columns only): WTD exists
+        2019 - 2021 only, within 0.08 - 0.47 m in 2019 - 2020, LE sparse or absent 2020 - 2021 -> not a
+        candidate (the sensor layer would be at the water table, the flux cannot be built).
