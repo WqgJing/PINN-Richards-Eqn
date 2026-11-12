@@ -1882,3 +1882,20 @@ Real-case spec (first slice):
         alternative to rule d, and it is not used. It is the same fact as S_B/S_D failing the usable-soil
         rule and as US-PAS: the sensor - water table relation shifts from one recession to the next.
         rfp2 (PINN on T_P2, R1/R2 only, as declared in ag) started 19:27 behind rf22c's round 4.
+    ai) 19:55. rf22ob inv3 (job 15503241): cost 0.33635 (solver 0.33445), all five starts on the same
+        coefficients (spread 1e-8 m); PINN - solver 0.40 cm rms, max 0.86 cm (inv1 0.74, inv2 0.52); by day
+        +0.0 x9, +0.2 +0.4 +0.6 +0.7 +0.8 +0.8 +0.7. vs well 4.54 / +3.62 / r 0.987, below saturation (275 h)
+        3.45 / +3.01 / 0.978 (solver 3.23 / +2.69 / 0.975).
+        US-PAS solver side, rest (est - obs in cm):
+          T_P3 (S_P2 on P3, with the box; starts 0 and 2 identical, 1 and 3 still running): cost 0.627,
+               5.89 / +2.97 / max 11.7 / r 0.993 (479 of 481 h below saturation: 5.88 / +2.95); c6 on the box;
+               by day +11.1 +9.0 +7.5 +6.9 +8.2 +11.0 +8.1 +7.4 +9.1 +3.1 -4.2 -4.4 -1.7 -1.7 -0.7 +0.5 -1.4
+               -1.3 -0.3 +0.6 +2.9. OUTSIDE R3; days 0-8 are the wet sensor level read as a drained soil (af).
+          own P2 without the box: cost 1.387 (box 1.471) but 3.76 / -1.20 / max 13.6 (box 2.26 / -0.55 /
+               6.2): the lower cost is bought with a last day 13.6 cm off. The box is not what fails the rule.
+          T_P2 without the box, all four starts: 0, 1, 2 identical (cost 0.4786, 4.27 cm); start 3
+               (constant 0.3 m) RUNS AWAY: coefficients -15890 ... +1671, water table hundreds of metres
+               deep, cost 1.45 after 20 iterations and still falling. Without the support of the prior the
+               inversion of the solver itself is not stable from every start; with it all four starts agree
+               (ag). The box is part of the method for that reason, and it costs 0.1-0.2 cm here.
+        US-PAS closes as written in ag: no test inside R3, no usable soil; R4 stays open.
