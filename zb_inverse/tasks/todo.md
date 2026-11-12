@@ -2342,9 +2342,9 @@ Real-case spec (first slice):
             inv4 (job 15524447)  starts identical (3e-9 m)   PINN - solver 0.06 cm rms, max 0.10 cm
                                  vs well 9.49 / -9.26 / 12.7, r 0.9980 (solver 9.53 / -9.31 / 12.7)
             value correction rfn1dc running. R1, R2 hold; R3 fails by the 9 cm the solver has (aw).
-        US-HB2, calibrations: this sand (n near 3.7) costs about 2.2 min per member solve against 0.7 -
-        1.0 at the earlier sites. Finished so far, all by xtol (rmse of theta; theta_s, theta_r, alpha, n,
-        Ks):
+        US-HB2, calibrations: a member solve costs about 2.2 min here against 0.7 - 1.0 at the earlier
+        sites (cause not looked into; windows of 13 - 20 d, alpha 5 - 18). Finished so far, all by xtol
+        (rmse of theta; theta_s, theta_r, alpha, n, Ks):
           V1 start 0 (88 solves)  0.002807   0.3957 0.0581 5.413 3.557 1.80e-5
           V1 start 3 (99 solves)  0.002646   0.3868 0.0580 5.311 3.656 8.74e-6
           V4 start 3 (75 solves)  0.003651   0.3013 0.0016 18.74 1.653 3.40e-6
@@ -2386,4 +2386,6 @@ Real-case spec (first slice):
         +0.1 +0.1 +1.0 +1.7 +0.9 -1.5 -6.8; posterior sd 0.1 cm until day 10, 1.4 cm on the last day (sensor
         at 10 - 11 %, close to theta_r). RMSE and bias inside R3, r below 0.98 through the last day.
         A PINN dry run on the same data set (tag rfh1p, started 08:17, does not count) checks the tool on
-        this sand (n 3.66 against 1.3 - 2.7 so far) while the last calibration start of V1 runs.
+        this soil (alpha 5.3 with n 3.7; so far US-ONA alpha 1.4 - 2.7 with n 8 - 10, US-PAS 1.4 - 1.7 with
+        n 3.2 - 4.8, US-NC2 5.6 - 14.8 with n 1.2 - 1.3) while the last calibration start of V1 runs.
+        (The commit message of a216104 puts the slow solves down to "n near 3.7": not established.)
