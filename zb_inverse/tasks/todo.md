@@ -1941,3 +1941,13 @@ Real-case spec (first slice):
         387 min, finished 20:45): rmse 0.00433, theta_s 0.3514, theta_r 0.1299, alpha 1.916, n on bound 10,
         Ks 4.13e-7 - the same soil as starts 0, 2, 3: all four starts of S_D agree. Nothing changes (S_D is
         the in-sample soil of the D window, not usable for a held-out test).
+    ao) 22:50. rf22obdc it 2 (job 15510025; value offset 0.0012 rms): step 0.25 sigma (segments 0.02 0.08 0.11
+        0.25; it 1: 0.37), cost 0.33135 (solver 0.33445), starts identical. PINN - solver 0.13 cm rms, max
+        0.64 cm (it 1: 0.16 / 0.37); by day +0.0 +0.1 +0.1 +0.0 x6 +0.1 +0.1 +0.1 -0.1 -0.4 -0.6. vs well
+        4.42 / +3.38 / r 0.987, below saturation (275 h) 3.23 / +2.67 / 0.974 (solver 3.23 / +2.69 / 0.975).
+        rf22cdc it 3 (job 15510622; value offset 0.0018 rms): step 0.41 sigma (segments 0.06 0.10 0.13 0.35
+        0.41; it 1, 2: 3.02, 0.89), cost 0.28207 (solver 0.27966), starts identical; coefficients +0.565
+        -0.841 -0.197 +0.103 +0.110 +0.311 -0.001 (solver +0.573 -0.842 -0.197 +0.102 +0.114 +0.329 -0.112).
+        PINN - solver 0.19 cm rms, max 0.47 cm (it 2: 0.27 / 1.48); by day 0.0 x10, -0.1 -0.1 -0.2 -0.3 -0.4
+        -0.5 -0.3 +0.0 +0.3. vs well 4.34 / +2.71 / r 0.986; below saturation (359 h) 2.37 / +1.57 / r 0.984
+        (solver 2.44 / +1.69 / 0.983): inside R3. Both loops go on to their next iteration (stop 0.2 sigma).
