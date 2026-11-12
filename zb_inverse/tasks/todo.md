@@ -2159,7 +2159,7 @@ Real-case spec (first slice):
           Diagnostic W3 with S_W1, interim soil (preview; three starts identical, cost 0.0631):
                       1.61 / +0.51 / 2.6, r 0.998, by day -1.8 -2.0 -1.2 +0.1 +1.5 +2.0 +1.8 +1.6 +1.7.
           W2 in-sample, interim S_W2 (preview): 0.62 / +0.04 / 1.8, r 0.998.
-    aw) 02:40. US-NC2, solver side with the FINAL soils (zb RMSE / bias / max in cm, r; all hours are below
+    aw) 02:32. US-NC2, solver side with the FINAL soils (zb RMSE / bias / max in cm, r; all hours are below
         saturation at this site, so the two scores of 73 c coincide):
           W1 calibration: all four starts finished (xtol) at ONE soil, rmse 0.00147988 (start 2 lowest by
                       1e-9; theta_s 0.53809, theta_r 0 (bound), alpha 5.583-5.584, n 1.2182, Ks 1e-3 (bound))
@@ -2178,7 +2178,7 @@ Real-case spec (first slice):
           diagnostic W3 with S_W1 (four starts, cost 0.06303):  1.64 / +0.55 / 2.7, r 0.9978
                       by day -1.8 -2.0 -1.1 +0.1 +1.5 +2.1 +1.9 +1.7 +1.8 +2.6
         Reading: both PRE-REGISTERED tests at US-NC2 miss R3 by 10 cm with the solver itself, with
-        opposite signs: the recession after the storm of late August (W2) lies 0.02 in theta above the
+        opposite signs: the recession after the storm of late August (W2) lies 0.02 in theta BELOW the
         relation of May (W1) and of late September (W3) at the same water table (the forward checks of
         au), the sensor is fitted in every case (0.0015 - 0.0018) and r is 0.998. With 0.26 theta per m
         that offset is 8 - 10 cm. This is the anticipated soil-transfer failure (aq), not an inversion
