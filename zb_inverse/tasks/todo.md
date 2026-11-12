@@ -2119,3 +2119,43 @@ Real-case spec (first slice):
         0.54976, theta_r 0.1778 / 0.1775, alpha 15.111 / 15.114, n 1.2660 / 1.2657, Ks 1.0e-3 (upper bound)
         in both -> two starts, one soil. Starts 0 and 3 are still iterating (other basins, 0.0037 and
         0.0024 at 01:10); S_W2 = start 1 unless one of them ends lower.
+    av) 02:05. rfp2 (US-PAS T_P2 = Oct 2021 with the soil of Sep 2021, S_P1) FINISHED. Value correction it 2
+        (job 15517587): step 0.03 sigma -> the loop CONVERGED BY ITS STOP RULE at it 2 (its 1, 2: 0.51, 0.03).
+        Five starts identical (8e-10 m), cost 0.50994 (solver 0.50426), coefficients -1.821 -0.682 +0.412
+        +0.157 +1.183 (solver -1.821 -0.684 +0.414 +0.157 +1.183; first and last on the box in both).
+        FINAL SCORES (job 15517638, scripts/score_real.py; output/real_pas_oct21_soilsep21/result_rfp2.json
+        / .png; no hindcast sigma at this site), 169 h, 150 h below saturation:
+                                   whole window                  below saturation
+          PINN vs well             4.52 / +0.17 / 7.9 / 0.9945   4.14 / -0.66 / r 0.9919
+          solver inversion vs well 4.50 / +0.19 / 7.9 / 0.9944   4.13 / -0.64 / r 0.9918
+          hydrostatic reading      5.28 / -2.69 / 9.1 / 0.998    5.35 / -3.59 / r 0.998
+          PINN - solver            0.03 cm rms, max 0.05 cm
+        sensor fitted to 0.0036 (PINN); FEM over the observed water table 0.0124 from the sensor: the soil
+        of September does not describe October (by day the estimate is +6.5 cm at the start, -6.5 cm at
+        the end: the slope of the recession, not its level).
+        R1 yes (one estimate from five starts), R2 yes (0.03 cm), R3 NO (4.1 cm; bias and r inside). As
+        known since ak: S_P1 is not a usable soil, so this run was the R1 / R2 check at the second site and
+        does not count for R4.
+        US-NC2 calibrations finished so far (output/soil_nc2_*):
+          W1 (May):   start 0 rmse 0.00147988, start 2 0.00147988 (lower by 1e-9), both xtol: theta_s 0.53809
+                      / 0.53809, theta_r 0 (bound), alpha 5.5845 / 5.5836, n 1.21821 / 1.21822, Ks 1.0e-3
+                      (bound) -> ONE soil; starts 1 and 3 are at the same point (0.00148), still iterating.
+                      S_W1 = that soil (the data sets carry the digits of start 0; alpha differs from start
+                      2 by 1.5e-4 relative).
+          W2 (1 Sep): start 1 0.00104083, start 2 0.00104089 (one soil, see au); start 0 stopped at its 80
+                      evaluations at 0.00360 (theta_s 0.523, theta_r 0.083, alpha 4.98, n 1.369, Ks 5.7e-6:
+                      another basin, not converged); start 3 at 0.00112 and falling towards starts 1 / 2.
+                      S_W2 = start 1 unless start 3 ends lower.
+        Data sets with these soils (jobs 15516306-07, 15516532-34), FEM over the recorded water table
+        against the sensor: real_nc2_sep23a_own (W2, S_W2) rmse 0.00104; real_nc2_sep23b_soilsep23a (= T_N1)
+        bias -0.0230 (r 0.9996); real_nc2_may23_own (W1, S_W1) 0.00148; real_nc2_sep23a_soilmay23 (= T_N0)
+        bias +0.0214 (r 0.9958); real_nc2_sep23b_soilmay23 (the diagnostic of au) rmse 0.0038, bias
+        +0.0004 (r 0.9972). Solver inversions, 4 starts each, --box, layer sensor [0, 0.30] m: jobs
+        15516425-44 (S_W2), 15516719-30 (S_W1).
+        First solver results (zb RMSE / bias / max, cm):
+          T_N0 (W2 with S_W1), final soil: starts 0, 1, 3 identical, cost 0.12278: 10.69 / +9.95 / 16.6
+                      -> T_N0 FAILS R3 (the sensor is fitted to 0.0018, the water table is 10 cm too deep).
+          T_N1 (W3 with S_W2), interim soil of au (preview): 9.49 / -9.28 / 12.6, r 0.998 (final pending).
+          Diagnostic W3 with S_W1, interim soil (preview; three starts identical, cost 0.0631):
+                      1.61 / +0.51 / 2.6, r 0.998, by day -1.8 -2.0 -1.2 +0.1 +1.5 +2.0 +1.8 +1.6 +1.7.
+          W2 in-sample, interim S_W2 (preview): 0.62 / +0.04 / 1.8, r 0.998.
