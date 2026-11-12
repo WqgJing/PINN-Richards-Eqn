@@ -2236,3 +2236,66 @@ Real-case spec (first slice):
         R1 / R2 yes, R3 no (9.5 cm too shallow). No PINN run is made for T_N0: its soil is usable too, but
         its R3 outcome is fixed by the solver (10.69 cm, four starts) and T_N1 is the designated test (aq);
         stated here so that the omission is not read as a selection.
+    ay) 03:55. FOURTH SITE, US-HB2 (survey and plan, written BEFORE any calibration or inversion there).
+        Reason: R4 is open at three sites and the limit is the soil transfer between recessions, not the
+        inversion (av, aw). A site whose sensor reacts more strongly to the water table loses less depth
+        per unit of retention drift (US-NC2: 0.26 theta per m, 0.02 of drift = 8 - 10 cm).
+        Sites looked at (login node, awk over the half-hourly files of fem_validation/uploaded_data, nothing
+        fitted) and set aside: US-NC3 (aw); US-NC4 (water table only 2019 - 2020 and within 0.2 m of the
+        surface); US-Oho (water table 1 - 3 m, sensor 17 - 23 %, no response); US-SSH (16 - 27 m); US-TLR
+        (2024 only); US-Fo1 / US-Fo2 (sparse records).
+        Sensor depths: AmeriFlux measurement-height table (BASE_MeasurementHeight_20260908.csv, public;
+        read in /tmp, not in the repository). It also confirms the earlier sites: US-ONA SWC_1_1_1 -0.1 m,
+        US-PAS -0.1 m, US-NC2 -0.3 m (read as rods 0 - 0.30 m, aq).
+        US-HB2 (Hobcaw Barony, SC, mature longleaf pine on sand, 33.3242 N 79.2440 W; file
+        AMF_US-HB2_BASE_HH_2-5.csv):
+        - Records: LE (29.87 m), P_RAIN (27.43 m, above the canopy: no throughfall correction, the windows
+          hold at most 16 mm), WTD_1_1_1 (pressure transducer, negative below the surface; from Aug 2019,
+          missing 14 Jan - 21 Feb 2021), SWC_1_1_1 (TDR at -0.1524 m, until 7 Feb 2022): taken as a point
+          sensor, obs.depth_m [0.1524, 0.1524]. Saturated plateau 44 - 45 %.
+        - Sensitivity: on the recession of Sep 2019 the sensor reads 36 / 30 / 20 / 12 / 9.5 / 6 / 3 % with
+          the water table at 0.25 / 0.32 / 0.39 / 0.49 / 0.59 / 0.80 / 1.0 m: about 1 theta per m down to
+          0.45 m, 0.15 - 0.2 per m below 0.6 m.
+        - Rain and the rise of the water table coincide to the hour (5 Sep 2019, 3 Aug 2020, 11 - 12 Nov
+          2020, 3 Mar 2021): no time shift.
+        - Transpiration fraction: same rule as before, nearest pixel of the project's GLDAS tables = USGS
+          well 330247079340300 (43 km south-west); a partition exists on every day of the windows (window
+          means of f_T 0.66 - 0.84).
+        Windows, by the rule of aq written out: after a rise, the window starts at 12:00 of the first day
+        whose daily-mean water table is back at 0.25 - 0.30 m and runs to the last noon before the next
+        day-to-day rise of the daily mean by more than 0.01 m, at most 20 d (the longest window inverted so
+        far); kept if the water table falls by more than 0.25 m in it and the sensor and well records have
+        no gap above 3 h. Aug 2019 - Feb 2022 holds exactly seven (half-hourly ranges; the last column is
+        the highest reading of the sensor in the 7 d before the start):
+          V1  7 Sep 2019 + 20 d   sensor 36.0 ->  5.5 %   water table 0.254 -> 0.820 m   rain  1.9 mm   44.4
+          V2  7 Mar 2020 + 15 d          35.0 -> 10.4                  0.260 -> 0.565          7.2      44.8
+          V3 13 Jul 2020 + 20 d          31.9 ->  6.2                  0.256 -> 0.733         15.5      43.6
+          V4 26 Aug 2020 + 13 d          18.4 ->  8.5                  0.257 -> 0.598          3.7      25.4
+          V5 14 Nov 2020 + 15 d          12.8 ->  8.8                  0.254 -> 0.526          6.3      15.3
+          V6  6 Mar 2021 +  8 d          25.5 -> 14.4                  0.255 -> 0.520          0.0      31.6
+          V7 23 Aug 2021 + 16 d          33.1 ->  8.1                  0.258 -> 0.703          0.4      41.4
+        (LE missing 9 - 23 % of the half hours, filled with the mean diurnal cycle as before.)
+        KNOWN BEFORE THE TESTS: with the water table at 0.25 - 0.26 m the sensor reads 36.0, 35.0, 31.9,
+        18.4, 12.8, 25.5 and 33.1 %. V4, V5 and V6 follow a rise that did not bring the sensor back to its
+        plateau (25, 15, 32 % against 44 - 45; on 3 Mar 2021 the well stood above the surface and the
+        sensor read 32 %): another sensor - water-table relation (rewetting branch, trapped air), which a
+        model with one retention curve cannot hold together with V1 / V2 / V3 / V7.
+        Tests (protocol d unchanged: soil of the last earlier window whose sensor range contains the
+        test's, to within sigma_theta = 0.005 as for T_N0; nothing fitted on a test window):
+          T_H1 = V2 with the soil of V1      T_H2 = V3 with the soil of V1 (V2 ends at 10.4 %)
+          T_H3 = V4 with the soil of V3      T_H4 = V5 with the soil of V4
+          T_H5 = V6 with the soil of V3      T_H6 = V7 with the soil of V1 (V3 starts at 31.9 %)
+        Expectation written now: T_H1 and T_H6 can pass (same branch, same relation to within 1 - 1.5 %);
+        T_H2 is open (V3 reads 3 - 4 % below V1 at 0.3 - 0.4 m, in July); T_H3, T_H4 and T_H5 should fail
+        R3 with the solver itself (the relation above).
+        Rules, unchanged: soil = lowest misfit of the four starts of scripts/calibrate_soil.py (start 0 =
+        the Florida set of CLAUDE.md), usable if the in-sample solver inversion is within 2 cm, r >= 0.975
+        below saturation; R1 - R3 as in c. Solver side first (CPU): make_real for the seven windows,
+        calibrations on V1, V3, V4, in-sample inversions, the six tests (four starts each, --box, point
+        sensor). All six solver outcomes are reported. The PINN (hpc/real_full_obs.sh, unchanged) is run on
+        every test with a usable soil whose solver inversion is inside R3 or within the R2 margin of it
+        (1 cm RMSE, 1 cm bias): for the others R3 is decided by the solver, as for T_N0. A test with a
+        usable soil whose PINN run meets R1 - R3 counts for R4; the report gives the full tally (passes out
+        of six, and out of the tests whose window starts from the plateau: sensor >= theta_s - 3 sigma of
+        the calibration soil at some hour of the 7 d before the start - an input-only check, declared here).
+        If no soil is usable the site is reported as such; nothing is changed to make a test pass.
