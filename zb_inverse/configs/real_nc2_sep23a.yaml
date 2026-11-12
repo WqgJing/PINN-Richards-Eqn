@@ -1,0 +1,62 @@
+# Real data, third site: US-NC2, recession of 1 - 7 Sep 2023 (tasks/todo.md finding 73 aq), after 84 mm of rain on
+# a water table at 1.25 m. Water table 0.22 -> 0.53 m, soil moisture 0.499 -> 0.404; no rain until 8 Sep.
+# Test window for the soil of May 2023; calibration window of the test of 27 Sep 2023.
+# Same set-up as configs/real_nc2_may23.yaml; only the window differs.
+site:
+  name: US-NC2
+  amf_csv: /storage/project/r-rbras6-0/jjason3/fem_validation/uploaded_data/AMF_US-NC2_BASE-BADM_19-5/AMF_US-NC2_BASE_HH_19-5.csv
+  columns: {le: LE_1_1_1, p: P_1_1_1, wtd: WTD_1_1_1, swc: SWC_1_1_1}
+  gldas_csv: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/data/gldas_well354227076232901_2015_2024.csv
+
+forcing:
+  node_hours: 24
+  fill_half_window_days: 7    # mean-diurnal-cycle filling of missing LE
+  transpiration_fraction: gldas
+  check_fractions: [0.0, 0.5, 1.0]
+
+fem:                          # as configs/twin_gldas_fl.yaml (forward check and scoring only)
+  root: /storage/project/r-rbras6-0/jjason3/wtd_pipeline
+  L: 12.0
+  n_nodes: 101
+  max_iter: 50
+  tol: 1.0e-5
+  omega: 0.5
+  dt_hours: 1.0
+  check_dt_hours: 0.25
+  check_n_nodes: 201
+
+soil:
+  theta_s: 0.60
+  theta_r: 0.10
+  alpha: 2.0
+  n: 1.45
+  Ks: 5.0e-6
+  l: 0.5
+  Ss: 1.0e-5
+  blend_width_m: 0.02
+  abs_smooth_m: 1.0e-3
+
+scaling:
+  L: 2.0
+
+window:
+  start: '2023-09-01T12:00'
+  n_days: 6
+
+zb_spline:
+  knot_days: 5.0
+  zb_min: 0.05
+
+reference:
+  h_surf_admissible_m: -10.0
+
+obs:
+  depth_m: [0.0, 0.30]        # mean over the layer 0 - 0.30 m (vertical rods)
+  interval_hours: 24
+  max_gap_hours: 3
+
+truth:
+  max_gap_hours: 3
+
+output:
+  dir: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/real_nc2_sep23a

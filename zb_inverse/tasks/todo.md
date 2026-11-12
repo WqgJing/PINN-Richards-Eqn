@@ -1958,3 +1958,39 @@ Real-case spec (first slice):
         max 7.5 / r 0.995, below saturation (150 h) 3.89 / -0.49 / 0.993 (solver 4.13 / -0.64 / 0.992).
         R1 and R2 hold at the second site after two rounds; the distance to the well is the solver's (soil
         S_P1 not usable, 73 ag), so this test counts for R1/R2 only, as declared before the run.
+    aq) 23:35. THIRD SITE, US-NC2 (survey and plan, written BEFORE any inversion or calibration there). Reason:
+        R4 is open at US-ONA (soil S_B not usable) and at US-PAS (soil S_P1 not usable); US-NC2 is the third
+        strongly validated site of the project (CLAUDE.md) and has a well next to the sensor.
+        Survey (login node, awk over the half-hourly file AMF_US-NC2_BASE_HH_19-5.csv; nothing fitted):
+        - Records: LE_1_1_1, P_1_1_1, WTD_1_1_1, SWC_1_1_1. Stand harvested in 2020 (sensors moved Nov 2020):
+          2019-2020 is another soil-moisture regime and is not used. Rain is missing in 2021, unreliable in 2022
+          (443 mm in the year, long runs of zeros) and zero from Aug 2024; in 2023 rain and the rise of the
+          water table coincide (no time shift). From 23 Oct 2023 to Apr 2024 the soil-moisture and well records
+          have a gap of 4 - 17 h almost every night (66 h on 9-12 Apr 2024): outside the rule of the Florida
+          tests (gaps <= 3 h). Usable period with the same data rule: Feb - 22 Oct 2023.
+        - Sensor: listed at -0.30 m; the reading falls (0.553 -> 0.498) while the water table goes from 0.11 to
+          0.29 m, so it is not a point at 0.30 m but rods from the surface: taken as the mean over 0 - 0.30 m
+          (obs.depth_m [0.0, 0.30]; the layer mean is already in the code, src/zbinv/data.py obs_layer).
+          Saturated plateau 0.553 - 0.557. Sensitivity about 0.26 per m of water table (0.01 = 3.8 cm).
+        - Recessions of 2023 that start with the water table at 0.2 - 0.3 m, fall by more than 0.25 m and are
+          complete: 1 - 16 May (0.288 -> 0.731 m, sensor 0.495 -> 0.398; 3.6 mm of rain on 9 May),
+          1 - 7 Sep (0.218 -> 0.534 m, 0.499 -> 0.404; after 84 mm on a water table at 1.25 m),
+          24 Sep - 6 Oct (0.189 -> 0.616 m, 0.537 -> 0.413). At the same water table the sensor reads within
+          0.007 in May and in Sep-Oct, but 0.015 - 0.023 LOWER in the recession of 1 - 7 Sep (fast rise before
+          it: probably trapped air, i.e. hysteresis) - known before the tests, so a failure of the soil
+          transfer across that window would not be a surprise.
+        - Transpiration fraction: the same rule as in Florida (GLDAS ratio of a nearby pixel): nearest pixel in
+          the project's tables = USGS well 354227076232901 (27 km east), data/gldas_well354227076232901_2015_2024.csv.
+        Plan (protocol d, the usable-soil rule and R1 - R4 unchanged; the windows follow from the rule "last
+        earlier recession whose sensor range contains the test's"):
+        - W1 = 1 May 2023 12:00 + 15 d, W2 = 1 Sep 2023 12:00 + 6 d, W3 = 27 Sep 2023 12:00 + 9 d (starts
+          where the sensor, 0.498, is inside the range of W2). configs/real_nc2_{may23,sep23a,sep23b}.yaml.
+        - T_N1 (the test): W3 with the soil calibrated on W2. T_N0: W2 with the soil calibrated on W1 (the
+          sensor range of W2 is inside W1's except the first hours, 0.499 against 0.495); its solver error is
+          also the hindcast sigma of T_N1.
+        - Solver side first (CPU only): make_real for the three windows, calibrate_soil (4 starts) on W1 and
+          W2, usable-soil rule (in-sample solver inversion within 2 cm, r >= 0.975 below saturation), solver
+          inversion (4 starts, --box, layer sensor) of T_N0 and T_N1 against R3.
+        - The PINN is run on a test only if its soil is usable; a test with a usable soil whose PINN run meets
+          R1 - R3 counts for R4 (as a second site, disclosed). If no soil is usable the site is reported as
+          such and nothing is changed to make it pass.
