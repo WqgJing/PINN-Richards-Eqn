@@ -2326,3 +2326,48 @@ Real-case spec (first slice):
         guess, below the lower bound 0.30 (V4 never comes near saturation). The guess is now clipped to
         the bounds, as the starting soil of the main fit already is; windows whose guess was inside are
         unchanged. Start 3 of V4 resubmitted (job 15520572). lessons.md updated.
+    ba) 08:20. US-NC2, PINN runs to the end of the pipeline (four refinement rounds), each inversion against
+        its solver reference (four starts, one cost; zb RMSE / bias / max in cm against the well):
+          rfnd (diagnostic W3 with S_W1, NOT counting for R4)
+            inv3 (job 15521799)  starts identical (6e-10 m)  PINN - solver 0.06 cm rms, max 0.12 cm
+            inv4 (job 15522578)  starts identical (3e-9 m)   PINN - solver 0.06 cm rms, max 0.11 cm
+            value correction rfnddc: converged at iteration 1 (step 0.003 sigma), starts identical
+            FINAL runs/rfnddc_it1: PINN - solver 0.06 cm rms, max 0.11 cm; vs well 1.59 / +0.55 / 2.6,
+            r 0.9979 (solver 1.64 / +0.55 / 2.7, r 0.9978; hydrostatic reading of the sensor 1.64 / -0.33
+            / 3.9). Figure output/real_nc2_sep23b_soilmay23/result_rfnd.png (job 15524846).
+          rfn1 (T_N1 = W3 with S_W2, the pre-registered test)
+            inv1 (job 15521579)  starts identical (2e-13 m)  PINN - solver 0.07 cm rms, max 0.09 cm
+            inv2 (job 15522252)  starts identical (4e-9 m)   PINN - solver 0.06 cm rms, max 0.09 cm
+            inv3 (job 15523110)  starts identical (3e-9 m)   PINN - solver 0.06 cm rms, max 0.09 cm
+            inv4 (job 15524447)  starts identical (3e-9 m)   PINN - solver 0.06 cm rms, max 0.10 cm
+                                 vs well 9.49 / -9.26 / 12.7, r 0.9980 (solver 9.53 / -9.31 / 12.7)
+            value correction rfn1dc running. R1, R2 hold; R3 fails by the 9 cm the solver has (aw).
+        US-HB2, calibrations: this sand (n near 3.7) costs about 2.2 min per member solve against 0.7 -
+        1.0 at the earlier sites. Finished so far, all by xtol (rmse of theta; theta_s, theta_r, alpha, n,
+        Ks):
+          V1 start 0 (88 solves)  0.002807   0.3957 0.0581 5.413 3.557 1.80e-5
+          V1 start 3 (99 solves)  0.002646   0.3868 0.0580 5.311 3.656 8.74e-6
+          V4 start 3 (75 solves)  0.003651   0.3013 0.0016 18.74 1.653 3.40e-6
+        the other nine are running (V1 starts 1, 2 at 0.00267, 0.00276; V3 0.00336 - 0.00416; V4 0.00130 -
+        0.00169). TOOL (commit a216104): a calibration that reaches its time limit writes nothing, so
+        scripts/calibrate_soil.py now writes every improvement to progress<start>.json and can continue a
+        start from it (--resume) or from a soil given on the command line (--x0, for the jobs started
+        before the change); the result records which (continued_from). Checked with three batch jobs
+        (runs/_stage/caltest). Not needed so far.
+        TOOL hpc/transfer_solver.sh (commits 54349a0, 47ded8d): the solver side of one soil transfer as one
+        driver = soil of the lowest-misfit start (needs all four), make_real for the calibration window
+        (in-sample check) and each test window, solver inversion from the four starts.
+        DRY RUN of that chain for V1 (names *_pre, DOES NOT COUNT; started 07:09 with the state of start 3
+        at solve 87, which is its final soil to four digits; log logs/transfer_hb2_sep19_pre.log). FEM over
+        the recorded water table against the sensor (rmse / bias / r):
+          V1 in-sample 0.0026 / -0.0001 / 0.9993     V2 0.0197 / +0.0139 / 0.9821
+          V3 0.0138 / +0.0081 / 0.9952               V7 0.0170 / -0.0143 / 0.9923
+        Solver inversions in progress (10 - 15 min per LM iteration). Seen so far:
+          - V2 (T_H1): starts hydrostatic, hydrostatic_flat and 0.3 m at one cost 0.7928, zb RMSE 2.50 cm.
+            The start at 1.0 m did not move (cost 622, 23 member solves, lambda 1e4): with the water table
+            at 1.0 m this sand holds the sensor at theta_r, the sensitivity of the sensor to the water
+            table is nil and no step is accepted. A start in the part of the box the sensor cannot see.
+          - V7 (T_H6): three starts at cost 0.1835, zb RMSE 4.95 cm (days 0 - 12: 3.65); start 1.0 m moving.
+          - V1 in-sample: cost 0.66 - 0.73 after two iterations, zb RMSE 1.6 - 2.0 cm on days 0 - 15 and
+            7.5 - 9.5 cm on the whole window: in the last days the water table is below about 0.6 m and
+            the sensor is at theta_r (same blindness; the usable-soil rule is scored on the whole window).
