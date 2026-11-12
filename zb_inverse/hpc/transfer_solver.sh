@@ -16,7 +16,7 @@ set -u
 cd /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse
 SITE=$1; CAL=$2; DEPTH=$3; shift 3
 O=$PWD/output
-RT=${RT:-03:00:00}   # time limit of one solver inversion (a sand with a steep retention curve needs more)
+RT=${RT:-03:00:00}   # time limit of one solver inversion (US-HB2: 10 - 25 min per LM iteration)
 
 submit() {   # name, cpus, mem, time, script args... ; as hpc/param_pipeline.sh: retried until the controller answers
   local name=$1 cpus=$2 mem=$3 tl=$4 j i; shift 4
