@@ -55,6 +55,7 @@ def static_start(zb, depth, theta_obs, ks):
     """Retention curve through the (water-table depth, theta) pairs, read as a hydrostatic profile."""
     h = -(zb - depth)
     x0 = to_x({'theta_s': float(theta_obs.max()) + 0.01, 'theta_r': 0.03, 'alpha': 2.0, 'n': 2.5, 'Ks': ks})
+    x0 = np.clip(x0, LOWER + 1e-6, UPPER - 1e-6)                # a window that never comes near saturation
     fit = least_squares(lambda x: vg_theta(to_p(np.append(x, x0[4])), h) - theta_obs, x0[:4],
                         bounds=(LOWER[:4], UPPER[:4]), x_scale='jac')
     return np.append(fit.x, x0[4])
