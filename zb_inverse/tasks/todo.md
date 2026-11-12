@@ -1916,3 +1916,13 @@ Real-case spec (first slice):
         -0.2 -0.4 -0.4 +0.2 +1.5 +2.7. vs well 4.38 / +2.87 / r 0.985; below saturation (359 h) 2.46 / +1.76 /
         r 0.983 (solver 2.44 / +1.69 / 0.983) -> INSIDE R3 on all three numbers. Not converged yet (stop
         rule 0.2 sigma): the loop goes on.
+    al) 21:25. rfp2 inv0 (US-PAS test T_P2, wide members only; job 15505271): four starts identical (1e-8 m),
+        cost 0.50623 (solver 0.5043); coefficients -1.821 -0.650 +0.327 +0.286 +0.783 (solver -1.821 -0.684
+        +0.414 +0.157 +1.183): c0 on the same bound as the solver's. PINN - solver 1.11 cm rms, max 1.81 cm;
+        by day +0.0 -0.8 -1.6 -1.6 -0.5 +0.9 +1.1 +0.3. vs well 3.99 / -0.15 / max 7.6 / r 0.998, below
+        saturation (150 h) 3.47 / -1.03 / 0.997 (solver 4.13 / -0.64 / 0.992). R1/R2 only, as declared.
+        rf22obdc it 1 (job 15506962; value offset 0.0008 rms): step 0.37 sigma (segments 0.10 0.31 0.37
+        0.37), cost 0.32789, starts identical (1e-9 m). PINN - solver 0.16 cm rms, max 0.37 cm (inv4 0.44 /
+        1.01); by day +0.1 +0.0 x9 +0.1 +0.3 +0.3 +0.3 +0.2 +0.1. vs well 4.46 / +3.47 / r 0.987, below
+        saturation (275 h) 3.29 / +2.80 / 0.976 (solver 3.23 / +2.69 / 0.975): the PINN gives the solver's
+        answer; that answer is outside R3 (soil S_B, not usable by the rule), as known since 73 v.
