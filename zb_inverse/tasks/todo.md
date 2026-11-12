@@ -2371,3 +2371,19 @@ Real-case spec (first slice):
           - V1 in-sample: cost 0.66 - 0.73 after two iterations, zb RMSE 1.6 - 2.0 cm on days 0 - 15 and
             7.5 - 9.5 cm on the whole window: in the last days the water table is below about 0.6 m and
             the sensor is at theta_r (same blindness; the usable-soil rule is scored on the whole window).
+    bb) 09:05. US-NC2 T_N1 FINAL (rfn1, the pre-registered test: W3 with S_W2). Value correction rfn1dc
+        converged at iteration 1 (step 0.012 sigma), starts identical (1.5e-8 m). runs/rfn1dc_it1:
+          PINN - solver 0.07 cm rms, max 0.10 cm                      -> R1, R2 hold
+          vs well: PINN 9.48 / -9.25 / 12.7 cm, r 0.9980; solver 9.53 / -9.31 / 12.7, r 0.9982;
+                   hydrostatic reading of the sensor 11.1 / -11.0 / 14.0  -> R3 fails, as the solver
+        Figure output/real_nc2_sep23b_soilsep23a_cal3/result_rfn1.png (job 15525891). US-NC2 is closed:
+        T_N0 not run (soil range rule, R3 decided by the solver), T_N1 fails R3 through the soil
+        transfer W2 -> W3 (aw), the diagnostic with S_W1 (rfnd, ba) is 1.59 cm from the well and does
+        not count. On both data sets the PINN is the solver inversion to 0.06 - 0.07 cm.
+        US-HB2 dry run (does not count), V2 with the state of V1 start 3, solver start hydrostatic
+        (output/referee/hb2_sep19on_mar20_pre_s0, 6 iterations, cost 0.7928, coefficients 0 and 5 on the
+        box): 2.50 / +1.23 / 8.0 cm, r 0.9679. By day (cm): +2.8 +0.6 +0.9 +2.0 +2.8 +4.3 +3.6 +1.8 +1.2
+        +0.1 +0.1 +1.0 +1.7 +0.9 -1.5 -6.8; posterior sd 0.1 cm until day 10, 1.4 cm on the last day (sensor
+        at 10 - 11 %, close to theta_r). RMSE and bias inside R3, r below 0.98 through the last day.
+        A PINN dry run on the same data set (tag rfh1p, started 08:17, does not count) checks the tool on
+        this sand (n 3.66 against 1.3 - 2.7 so far) while the last calibration start of V1 runs.
