@@ -1,0 +1,110 @@
+{
+  "data": "output/real_ona_oct22_soilnov21",
+  "pinn": {
+    "all": {
+      "rmse_m": 0.04379428257651934,
+      "bias_m": 0.03213242678261364,
+      "maxabs_m": 0.12312391448969617,
+      "r": 0.9859462182738248,
+      "hours": 361
+    },
+    "below_saturation": {
+      "rmse_m": 0.031490851491850075,
+      "bias_m": 0.024538991876619766,
+      "maxabs_m": 0.06302268520024279,
+      "r": 0.9693847516997927,
+      "hours": 275
+    },
+    "start_spread_max_m": 4.368894401807211e-08,
+    "sigma_median_m": 0.0015914393636160375,
+    "theta_rmse_vs_obs": 0.0029065286868587823,
+    "uncertainty": {
+      "sigma_hind_m": 0.07,
+      "sigma_total_median_m": 0.07001808822902884,
+      "below_saturation_within_1_sigma": 1.0,
+      "below_saturation_within_2_sigma": 1.0,
+      "saturated_hours": 86,
+      "saturated_observed_not_below_estimate_plus_2_sigma": 1.0
+    }
+  },
+  "window": "2022-10-17T12:00",
+  "n_days": 15.0,
+  "soil": {
+    "theta_s": 0.34978,
+    "theta_r": 0.11138,
+    "alpha": 1.5464,
+    "n": 9.4328,
+    "Ks": 2.3826e-06
+  },
+  "hours": 361,
+  "hours_sensor_below_saturation": 275,
+  "zb_observed_range_m": [
+    0.386528,
+    0.9111724999999999
+  ],
+  "spline_of_observed_vs_record": {
+    "rmse_m": 0.016126812384988264,
+    "bias_m": -0.00016028174698718328,
+    "maxabs_m": 0.04439724618997598,
+    "r": 0.9945404306105773,
+    "hours": 361
+  },
+  "hydrostatic_reading": {
+    "all": {
+      "rmse_m": 0.048930830719697053,
+      "bias_m": 0.02598732044269693,
+      "maxabs_m": 0.2539314290277313,
+      "r": 0.9638476398505085,
+      "hours": 361
+    },
+    "below_saturation": {
+      "rmse_m": 0.02653768761404653,
+      "bias_m": 0.01866026166044883,
+      "maxabs_m": 0.0477582348615061,
+      "r": 0.9738349522998925,
+      "hours": 275
+    }
+  },
+  "fem_with_observed_wt_theta_rmse_vs_obs": 0.016053117373441676,
+  "referee": {
+    "dir": "output/referee/calnov21on22oct_s0",
+    "all": {
+      "rmse_m": 0.04405545433147491,
+      "bias_m": 0.033740480415477864,
+      "maxabs_m": 0.12321779609403005,
+      "r": 0.9865126756833734,
+      "hours": 361
+    },
+    "below_saturation": {
+      "rmse_m": 0.03227676304557958,
+      "bias_m": 0.026857401253772287,
+      "maxabs_m": 0.06323208202920583,
+      "r": 0.9745541220110702,
+      "hours": 275
+    },
+    "cost": 0.3344515692014246,
+    "costs_by_start": {
+      "hydrostatic": 0.3344515692014246,
+      "hydrostatic_flat": 0.3344517962445327,
+      "constant:1.0": 0.33445195964273866,
+      "constant:0.3": 0.3344521019575058
+    },
+    "theta_rmse_vs_obs": 0.002891589395131269
+  },
+  "pinn_vs_referee": {
+    "all": {
+      "rmse_m": 0.004509141925627586,
+      "bias_m": -0.0016080536328642251,
+      "maxabs_m": 0.01950346759531374,
+      "r": 0.9996560697978439,
+      "hours": 361
+    },
+    "below_saturation": {
+      "rmse_m": 0.005151089246497035,
+      "bias_m": -0.002318409377152528,
+      "maxabs_m": 0.01950346759531374,
+      "r": 0.9987007728756087,
+      "hours": 275
+    }
+  }
+}
