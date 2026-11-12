@@ -1860,3 +1860,25 @@ Real-case spec (first slice):
         10), a recession twice as fast (0.62 m in 7 d) and the estimate on the box at both ends. This departs
         from the sentence in ae (PINN only if the solver is inside R3) in purpose, not in what counts: the run
         cannot count for R3 or R4 whatever it gives. It is queued behind rf22c's last round.
+    ah) 19:35. PINN runs against the solver, and two diagnostics that close open ends.
+        rf22ob (C with S_B) inv2 (job 15501578): cost 0.33261 (solver 0.33445), PINN - solver 0.52 cm rms, max
+        1.30 cm (inv1 0.74); vs well 4.57 / +3.68 / r 0.987, below saturation (275 h) 3.50 / +3.08 / 0.978.
+        rf22c (D with S_C, the primary test) inv3 (job 15503028): cost 0.28839 (solver 0.27966); starts agree
+        to 1e-8 m; PINN - solver 0.66 cm rms, max 3.44 cm (inv0 2.57, inv1 1.02, inv2 0.74). By day:
+        +0.0 -0.1 -0.1 -0.1 +0.0 +0.0 +0.0 -0.0 -0.0 +0.1 +0.3 +0.5 +0.6 +0.6 +0.4 +0.3 +0.8 +2.2 +3.4:
+        within 0.1 cm for days 0-9, the whole distance is in the last two days, where the posterior sd is
+        0.7-1.4 cm (the end of the window is weakly seen by the sensor) - the part the value correction is for.
+        vs well 4.49 / +3.13 / r 0.984, below saturation (359 h) 2.69 / +2.09 / 0.983 (solver 2.44 / +1.69 /
+        0.983): RMSE and r inside R3, bias 0.09 cm outside it until the last days are closed.
+        T_P3 (S_P2 on P3), solver without the box (diagnostic of ag): cost 0.626, 5.92 / +3.04 / max 11.7 /
+        r 0.992; by day +11.1 +8.9 +7.5 +6.9 +8.2 +11.0 +8.1 +7.4 +9.1 +3.1 -4.2 -4.4 -1.7 -1.6 -0.6 +0.5 -1.5
+        -1.4 -0.2 +1.3 +4.8. Outside R3, as written in advance in af: the wet level of the sensor (0.41) is
+        read as a drained soil, 7-11 cm too deep for nine days. The boxed starts are still running.
+        One soil for all three earlier US-ONA recessions (A + B + C pooled, output/soil_ona_loo_nov22, start
+        0; asked: would a pooled soil carry to D better than the last recession's?): sensor RMSE 0.0164
+        (by window 0.0203 / 0.0152 / 0.0162, bias -0.010 / -0.001 / +0.008), Ks on its lower bound (1e-7).
+        Three to five times the misfit of a single-recession soil (0.003-0.005) and three sigma_theta: one
+        van Genuchten soil does not describe the three recessions together, so a pooled soil is NOT an
+        alternative to rule d, and it is not used. It is the same fact as S_B/S_D failing the usable-soil
+        rule and as US-PAS: the sensor - water table relation shifts from one recession to the next.
+        rfp2 (PINN on T_P2, R1/R2 only, as declared in ag) started 19:27 behind rf22c's round 4.
