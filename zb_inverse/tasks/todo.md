@@ -1931,3 +1931,13 @@ Real-case spec (first slice):
         1.48 cm (it 1: 0.43 / 2.66); by day 0.0 x11, -0.1 -0.2 -0.3 -0.4 -0.4 -0.1 +0.8 +1.5. vs well 4.36 /
         +2.79 / r 0.985; below saturation (359 h) 2.40 / +1.66 / r 0.984 (solver 2.44 / +1.69 / 0.983):
         inside R3. The loop contracts (x0.3 per step) and goes on to the 0.2-sigma stop.
+    an) 22:30. rfp2 inv1 (US-PAS T_P2, refinement round 1; job 15509536): four starts identical, cost 0.49642
+        (solver 0.5043; the PINN's own forward model, not yet value-corrected), coefficients -1.821 -0.681
+        +0.402 +0.208 +1.152 (solver -1.821 -0.684 +0.414 +0.157 +1.183). PINN - solver 0.77 cm rms, max
+        1.59 cm (inv0 1.11 / 1.81); by day -0.0 -0.1 -0.1 +0.1 +0.6 +1.1 +1.5 +1.6: the gap sits in the last
+        days of the window, as at US-ONA before the value correction. vs well 3.99 / +0.62 / max 7.6 /
+        r 0.997, below saturation (150 h) 3.48 / -0.15 / 0.995. R1 holds, R2 inside 1 cm after one round.
+        Late arrival: output/soil_ona_nov22/start1 (calibration of S_D from the Carsel & Parrish sand start,
+        387 min, finished 20:45): rmse 0.00433, theta_s 0.3514, theta_r 0.1299, alpha 1.916, n on bound 10,
+        Ks 4.13e-7 - the same soil as starts 0, 2, 3: all four starts of S_D agree. Nothing changes (S_D is
+        the in-sample soil of the D window, not usable for a held-out test).
