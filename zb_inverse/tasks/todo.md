@@ -2299,3 +2299,30 @@ Real-case spec (first slice):
         of six, and out of the tests whose window starts from the plateau: sensor >= theta_s - 3 sigma of
         the calibration soil at some hour of the 7 d before the start - an input-only check, declared here).
         If no soil is usable the site is reported as such; nothing is changed to make a test pass.
+    az) 05:40. US-NC2, the solver side is COMPLETE (four starts everywhere; zb RMSE / bias / max in cm, r):
+          W1 in-sample, S_W1   (nc2_own_may23_s0..3)              0.89 / +0.03 / 2.5, r 0.9975  usable
+          W2 in-sample, S_W2   (nc2_own_sep23a_cal3_s0..3)        0.63 / +0.02 / 1.8, r 0.9978  usable
+          T_N1 = W3 with S_W2  (nc2_sep23aon_sep23b_cal3_s0..3)   9.53 / -9.31 / 12.7, r 0.9982  R3 fails
+          the same with start 1's soil (other end of the valley)  9.52 / -9.30 / 12.7           (aw)
+        Every group ends at one cost to 1e-6 (0.150580 / 0.131741), first coefficient on the box.
+        PINN runs:
+          rfn1 (T_N1) inv0 (wide members only, job 15520550): four starts identical (2e-9 m);
+            PINN - solver 0.07 cm rms, max 0.12 cm; vs well 9.53 / -9.29 / 12.8, r 0.9980
+            -> R1, R2 hold; R3 fails by the 9 cm the solver has (the soil transfer W2 -> W3, aw).
+          rfnd (diagnostic W3 with S_W1, not counting for R4):
+            inv1 (job 15520238)  starts identical (7e-13 m)  PINN - solver 0.06 cm rms, max 0.14 cm
+                                 vs well 1.58 / +0.55 / 2.5, r 0.9979
+            inv2 (job 15520751)  starts identical (3e-9 m)   PINN - solver 0.06 cm rms, max 0.13 cm
+                                 vs well 1.58 / +0.55 / 2.5, r 0.9979
+          Both runs continue to the end of the driver (refinement rounds, value correction) unchanged.
+        US-HB2, FIRST STEPS (after the push of ay, commit 7615349). GLDAS rows of well 330247079340300 in
+        data/gldas_well330247079340300_2015_2024.csv; configs/real_hb2_{sep19,mar20,jul20,aug20,nov20,
+        mar21,aug21}.yaml = V1..V7; make_real for the seven windows (jobs 15519848-69). With the Florida
+        soil the FEM over the recorded water table reads 0.17 - 0.25 too wet at the sensor (r 0.94 -
+        0.99): a much coarser sand, as the record shows (sensor at 6 % with the water table at 0.8 m).
+        Calibrations on V1, V3, V4 submitted, four starts each (jobs 15519919-15520001).
+        TOOL BUG, fixed (commit 54e078a): start 3 of V4 stopped at once, "Initial guess is outside of
+        provided bounds": the static start takes theta_s = max(theta_obs) + 0.01 = 0.194 as its first
+        guess, below the lower bound 0.30 (V4 never comes near saturation). The guess is now clipped to
+        the bounds, as the starting soil of the main fit already is; windows whose guess was inside are
+        unchanged. Start 3 of V4 resubmitted (job 15520572). lessons.md updated.
