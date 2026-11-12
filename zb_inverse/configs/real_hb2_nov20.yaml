@@ -1,0 +1,62 @@
+# Real data, fourth site: US-HB2, window V5 of tasks/todo.md finding 73 ay: recession of 14 - 29 Nov 2020. Water table
+# 0.25 -> 0.53 m, soil moisture 0.128 -> 0.088 (the sensor was not back at its plateau before it); 5.3 mm of
+# rain on 15 Nov. Test T_H4 (soil of V4).
+# Same set-up as configs/real_hb2_sep19.yaml; only the window differs.
+site:
+  name: US-HB2
+  amf_csv: /storage/project/r-rbras6-0/jjason3/fem_validation/uploaded_data/AMF_US-HB2_BASE-BADM_2-5/AMF_US-HB2_BASE_HH_2-5.csv
+  columns: {le: LE, p: P_RAIN, wtd: WTD_1_1_1, swc: SWC_1_1_1}
+  gldas_csv: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/data/gldas_well330247079340300_2015_2024.csv
+
+forcing:
+  node_hours: 24
+  fill_half_window_days: 7    # mean-diurnal-cycle filling of missing LE
+  transpiration_fraction: gldas
+  check_fractions: [0.0, 0.5, 1.0]
+
+fem:                          # as configs/twin_gldas_fl.yaml (forward check and scoring only)
+  root: /storage/project/r-rbras6-0/jjason3/wtd_pipeline
+  L: 12.0
+  n_nodes: 101
+  max_iter: 50
+  tol: 1.0e-5
+  omega: 0.5
+  dt_hours: 1.0
+  check_dt_hours: 0.25
+  check_n_nodes: 201
+
+soil:
+  theta_s: 0.43
+  theta_r: 0.02
+  alpha: 3.6
+  n: 1.56
+  Ks: 2.9e-6
+  l: 0.5
+  Ss: 1.0e-5
+  blend_width_m: 0.02
+  abs_smooth_m: 1.0e-3
+
+scaling:
+  L: 2.0
+
+window:
+  start: '2020-11-14T12:00'
+  n_days: 15
+
+zb_spline:
+  knot_days: 5.0
+  zb_min: 0.05
+
+reference:
+  h_surf_admissible_m: -10.0
+
+obs:
+  depth_m: [0.1524, 0.1524]   # point sensor
+  interval_hours: 24
+  max_gap_hours: 3
+
+truth:
+  max_gap_hours: 3
+
+output:
+  dir: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/real_hb2_nov20
