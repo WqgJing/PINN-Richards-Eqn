@@ -1899,3 +1899,10 @@ Real-case spec (first slice):
                inversion of the solver itself is not stable from every start; with it all four starts agree
                (ag). The box is part of the method for that reason, and it costs 0.1-0.2 cm here.
         US-PAS closes as written in ag: no test inside R3, no usable soil; R4 stays open.
+    aj) 20:02. rf22c inv4 (job 15503662; pipeline done 19:50, value-correction loop rf22cdc started):
+        cost 0.28426 (solver 0.27966), five starts identical (spread 6e-9 m); PINN - solver 0.66 cm rms, max
+        3.53 cm; by day +0.0 -0.1 -0.1 -0.0 +0.0 +0.0 -0.0 -0.1 -0.1 +0.0 +0.2 +0.5 +0.6 +0.6 +0.3 +0.2 +0.7
+        +2.3 +3.5. The refinement rounds have stopped gaining (inv3 0.66): what is left is the last coefficient
+        (PINN +0.393, solver -0.112; posterior sd of the last day 1.5 cm), i.e. the value error of the
+        operator at the window end - the job of the loop. vs well 4.48 / +3.10 / r 0.984, below saturation
+        (359 h) 2.67 / +2.05 / 0.983: RMSE and r inside R3, bias 0.05 cm outside.
