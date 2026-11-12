@@ -2012,3 +2012,37 @@ Real-case spec (first slice):
         drainage (ET 1.7 - 4 mm/d against 3 - 5 cm/d of water-table fall).
         Calibrations submitted (4 starts each, jobs 15511553-60): output/soil_nc2_may23 (W1),
         output/soil_nc2_sep23a (W2).
+    as) 23:48. rf22obdc it 3 (C with S_B; job 15512245): step 0.27 sigma (segments 0.02 0.04 0.03 0.27; its 1,
+        2: 0.37, 0.25), five starts identical, cost 0.33911 (solver 0.33445), coefficients +1.154 -1.121
+        +0.103 +0.163 +0.334 +0.142. PINN - solver 0.30 cm rms, max 1.31 cm (it 1: 0.16 / 0.37; it 2: 0.13 /
+        0.64); by day +0.1 x4, 0.0 x8, -0.2 -0.5 -1.0 -1.3. vs well 4.39 / +3.28 / max 12.3 / r 0.986; below
+        saturation (275 h) 3.17 / +2.53 / 0.972 (solver 3.23 / +2.69 / 0.975): outside R3, as known (S_B is
+        not a usable soil). it 4 (the last) is running.
+        rf22cdc it 4 (D with S_C, the primary test; job 15512521): step 0.30 sigma (segments 0.04 0.09 0.09
+        0.18 0.30; its 1 - 4: 3.02, 0.89, 0.41, 0.30). THE LOOP ENDED AT ITS LIMIT OF 4 ITERATIONS WITHOUT
+        MEETING THE 0.2-SIGMA STOP RULE. The step no longer falls: it sits at the training noise of the
+        forward PINNs (0.25 - 0.3 sigma; it 4 - it 3 0.29 cm rms, max 1.57 cm, all of it in the last days of
+        the window, where the posterior is widest). Five starts identical (3e-8 m), cost 0.27790 (solver
+        0.27966), coefficients +0.547 -0.837 -0.198 +0.104 +0.110 +0.313 -0.181 (solver +0.573 -0.842 -0.197
+        +0.102 +0.114 +0.329 -0.112). PINN - solver 0.35 cm rms, max 1.24 cm (its 1 - 4: 0.43, 0.27, 0.19,
+        0.35); by day 0.0 x11, -0.1 -0.2 -0.2 -0.4 -0.5 -0.8 -1.0 -1.2.
+        The scored result is it 4, the estimate the method stops at; the loop is not continued (a fifth
+        iteration would move the window end by another training-noise step, not converge it).
+        FINAL SCORES of rf22c (job 15512665, scripts/score_real.py, sigma_hind 3.5 cm from the hindcast;
+        output/real_ona_nov22_caloct22/result_rf22c.json / .png), 433 h, 359 h below saturation:
+                                   whole window                  below saturation
+          PINN vs well             4.34 / +2.63 / 18.8 / 0.9857  2.37 / +1.47 / r 0.9826
+          solver inversion vs well 4.37 / +2.81 / - / 0.9850     2.44 / +1.69 / r 0.9830
+          hydrostatic reading      4.18 / +2.10 / - / 0.982      1.93 / +0.84 / r 0.983
+        (rmse cm / bias cm / max cm / r). theta rmse of the fit 0.00264; posterior sigma of the inversion
+        0.15 cm (median; holds no soil error); with sigma_hind 3.5 cm: below saturation 81.6 % of the hours
+        within 1 sd and 100 % within 2 sd; in the 74 saturated hours the well is never below the estimate
+        + 2 sd (a saturated sensor bounds the water table from below only).
+        Against the criteria of 73 c: R1 met (starts within 3e-8 m). R2 met (0.35 cm rms <= 1 cm). R3 met
+        below saturation (2.37 cm <= 3, +1.47 cm <= 2, r 0.983 >= 0.98) and NOT met over the whole window
+        (4.34 cm, +2.63 cm): the first three days the sensor reads saturated and the well stands 10 - 19 cm
+        above the estimate; the solver inversion misses the same days by the same amount, so this is the
+        limit of the sensor, not of the PINN. R4 open (C / S_B and US-PAS cannot count; US-NC2 is being
+        screened). Not hidden: on this recession the hydrostatic reading of the sensor (no flow model at all)
+        scores as well as both inversions (1.93 cm below saturation), i.e. this window does not show that
+        the dynamics add skill over the retention curve alone.
