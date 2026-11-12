@@ -1926,3 +1926,8 @@ Real-case spec (first slice):
         1.01); by day +0.1 +0.0 x9 +0.1 +0.3 +0.3 +0.3 +0.2 +0.1. vs well 4.46 / +3.47 / r 0.987, below
         saturation (275 h) 3.29 / +2.80 / 0.976 (solver 3.23 / +2.69 / 0.975): the PINN gives the solver's
         answer; that answer is outside R3 (soil S_B, not usable by the rule), as known since 73 v.
+    am) 21:48. rf22cdc it 2 (job 15507993; value offset 0.0016 rms): step 0.89 sigma (segments 0.01 0.03 0.18
+        0.21 0.89; it 1: 3.02), cost 0.27353, starts identical (2e-8 m). PINN - solver 0.27 cm rms, max
+        1.48 cm (it 1: 0.43 / 2.66); by day 0.0 x11, -0.1 -0.2 -0.3 -0.4 -0.4 -0.1 +0.8 +1.5. vs well 4.36 /
+        +2.79 / r 0.985; below saturation (359 h) 2.40 / +1.66 / r 0.984 (solver 2.44 / +1.69 / 0.983):
+        inside R3. The loop contracts (x0.3 per step) and goes on to the 0.2-sigma stop.
