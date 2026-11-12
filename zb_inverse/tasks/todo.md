@@ -2389,3 +2389,19 @@ Real-case spec (first slice):
         this soil (alpha 5.3 with n 3.7; so far US-ONA alpha 1.4 - 2.7 with n 8 - 10, US-PAS 1.4 - 1.7 with
         n 3.2 - 4.8, US-NC2 5.6 - 14.8 with n 1.2 - 1.3) while the last calibration start of V1 runs.
         (The commit message of a216104 puts the slow solves down to "n near 3.7": not established.)
+    bc) 09:45. US-HB2: all four starts of the V1 calibration ended by xtol (misfit of theta 0.002807 /
+        0.002667 / 0.002761 / 0.002646, nothing on a bound): S_V1 = start 3 (theta_s 0.3868, theta_r 0.0580,
+        alpha 5.311, n 3.656, Ks 8.74e-6), the soil of the dry run to four digits. OFFICIAL solver chain
+        for T_H1, T_H2, T_H6 and the in-sample check started 09:29 (RT=08:00:00 hpc/transfer_solver.sh hb2
+        sep19 "[0.1524,0.1524]" mar20 jul20 aug21; logs/transfer_hb2_sep19.log; data sets
+        output/real_hb2_sep19_own, output/real_hb2_{mar20,jul20,aug21}_soilsep19). Forward checks equal
+        to the dry run's (ba). Dry run, V2: starts hydrostatic, hydrostatic_flat and 0.3 m end at one cost
+        (0.792835 / 0.792835 / 0.792835) and one estimate; the start at 1.0 m stays where it is (cost 622).
+        CHECKED AND DROPPED: could the misfit of the inversion on the test window pick the soil among the
+        earlier recessions' (an input-only choice)? No. US-NC2, solver inversions already on disk:
+          W2 with its own soil   cost 0.151   0.6 cm from the well
+          W2 with S_W1           cost 0.123  10.6 cm          <- lower misfit, wrong water table
+          W3 with S_W1           cost 0.063   1.6 cm
+          W3 with S_W2           cost 0.132   9.5 cm
+        The sensor alone does not tell the soil from the water table: a soil that is wrong for the
+        window can fit the sensor better with a shifted water table. Protocol d stays as it is.
