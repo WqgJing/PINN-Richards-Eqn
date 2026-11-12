@@ -2206,3 +2206,33 @@ Real-case spec (first slice):
         US-NC3 looked at as a possible further site (reading the CSV header and columns only): WTD exists
         2019 - 2021 only, within 0.08 - 0.47 m in 2019 - 2020, LE sparse or absent 2020 - 2021 -> not a
         candidate (the sensor layer would be at the water table, the flux cannot be built).
+    ax) 03:40. W2 CALIBRATION FINISHED, S_W2 CHANGES. Start 3 (job 15511560, 258 solves, xtol) ended at rmse
+        0.00103759, BELOW starts 1 / 2 (0.00104083 / 0.00104089): theta_s 0.54931, theta_r 0.19853, alpha
+        14.803, n 1.28956, Ks 9.997e-4 (no bound active) against theta_s 0.54976, theta_r 0.17781, alpha
+        15.111, n 1.26597, Ks 1e-3 (bound). One flat valley (smallest scaled singular value of the Jacobian
+        0.002; theta_r and n trade), the misfit differs by 0.3 %. By the rule (lowest misfit of the starts)
+        S_W2 = the soil of start 3, as announced in av / aw. New data sets with it (jobs 15519425 / 26):
+          output/real_nc2_sep23a_own_cal3        (W2 in-sample)  FEM over the record vs sensor 0.00104
+          output/real_nc2_sep23b_soilsep23a_cal3 (= T_N1)        0.0233 / bias -0.0230, r 0.9996
+        (the sets real_nc2_sep23a_own and real_nc2_sep23b_soilsep23a carry start 1's soil: kept, now a
+        sensitivity check of the choice between the two ends of the valley). Solver inversions redone,
+        four starts each: output/referee/nc2_own_sep23a_cal3_s0..3, nc2_sep23aon_sep23b_cal3_s0..3 (jobs
+        15519460-67). With start 1's soil T_N1 was 9.52 / -9.30 / 12.7 (aw); the forward check is the same
+        to 1e-4, so the same is expected.
+        rfnd (diagnostic W3 with S_W1), WIDE STAGE AND inv0. Kept held-out physics loss of the four wide
+        members 25.6 / 17.8 / 3.4 / 21.0 (w0..w3; at 40000 steps L_pde 2 - 7, L_flux 5 - 34), above the
+        Florida runs (rfp2_w0 4.0, rf22c_w0 10.7): with Ks 1e-3 m/s the flux residual amplifies an error
+        of the head gradient 30 - 300 times more. It does not reach the sensor: inv0 (job 15519529, wide
+        members only): four starts identical (4e-9 m), cost 0.06331 (solver 0.06303), coefficients -1.821
+        -1.478 -0.530 -0.246 +0.199 (first on the box, as the solver),
+          PINN - solver   0.07 cm rms, max 0.17 cm (by day +0.1 +0.1 +0.0 -0.0 -0.1 -0.1 -0.1 -0.1 -0.1 -0.2)
+          PINN vs well    1.57 / +0.53 / 2.5, r 0.9979 (217 h, all below saturation)
+        -> the layer sensor and this soil class work with the unchanged method; the node below the water
+        table (aw) costs nothing visible. R1 and R2 hold at the third site already at inv0; the run
+        continues through its rounds and the value correction unchanged (it remains a diagnostic: its 1.6
+        cm cannot count for R4).
+        PINN ON THE PRE-REGISTERED TEST T_N1 launched 03:36: hpc/real_full_obs.sh rfn1
+        output/real_nc2_sep23b_soilsep23a_cal3 "[0.0,0.30]" (logs/full_rfn1.log). Expected from the solver:
+        R1 / R2 yes, R3 no (9.5 cm too shallow). No PINN run is made for T_N0: its soil is usable too, but
+        its R3 outcome is fixed by the solver (10.69 cm, four starts) and T_N1 is the designated test (aq);
+        stated here so that the omission is not read as a selection.
