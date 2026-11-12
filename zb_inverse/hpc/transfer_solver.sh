@@ -10,11 +10,13 @@
 #   reads  configs/real_<site>_<window>.yaml, output/soil_<site>_<cal>/start?.json
 #   writes output/real_<site>_<cal>_own, output/real_<site>_<test>_soil<cal>,
 #          output/referee/<site>_own_<cal>_s<k>, output/referee/<site>_<cal>on_<test>_s<k>   (k = 0..3)
+#   RT=08:00:00 : time limit of the solver inversions (default 03:00:00)
 #   SOIL_SET="--set soil.theta_s=.. ..." : dry run of the chain with that soil; every name then ends in _pre
 set -u
 cd /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse
 SITE=$1; CAL=$2; DEPTH=$3; shift 3
 O=$PWD/output
+RT=${RT:-03:00:00}   # time limit of one solver inversion (a sand with a steep retention curve needs more)
 
 submit() {   # name, cpus, mem, time, script args... ; as hpc/param_pipeline.sh: retried until the controller answers
   local name=$1 cpus=$2 mem=$3 tl=$4 j i; shift 4
@@ -64,7 +66,7 @@ one() {   # window, data-set dir, referee name
   echo "$r: FEM over the record vs sensor $(jq -c '.fem_vs_obs["fT=gldas, record water table"]' $d/real_summary.json)"
   k=0
   for s in hydrostatic hydrostatic_flat constant:1.0 constant:0.3; do
-    j=$(submit rf_${r}_s$k 2 8G 03:00:00 scripts/fem_referee.py --config configs/p1_param_synth_v3.yaml \
+    j=$(submit rf_${r}_s$k 2 8G $RT scripts/fem_referee.py --config configs/p1_param_synth_v3.yaml \
         --set twin_npz=$d/real.npz --set obs.depth_m=$DEPTH --set obs.noise_sigma=0.0 --set obs.q_noise_frac=0.0 \
         --box --start $s --out $O/referee/${r}_s$k)
     ids="$ids $j"; k=$((k + 1))
