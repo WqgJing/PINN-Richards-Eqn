@@ -1958,7 +1958,7 @@ Real-case spec (first slice):
         max 7.5 / r 0.995, below saturation (150 h) 3.89 / -0.49 / 0.993 (solver 4.13 / -0.64 / 0.992).
         R1 and R2 hold at the second site after two rounds; the distance to the well is the solver's (soil
         S_P1 not usable, 73 ag), so this test counts for R1/R2 only, as declared before the run.
-    aq) 23:35. THIRD SITE, US-NC2 (survey and plan, written BEFORE any inversion or calibration there). Reason:
+    aq) 23:10. THIRD SITE, US-NC2 (survey and plan, written BEFORE any inversion or calibration there). Reason:
         R4 is open at US-ONA (soil S_B not usable) and at US-PAS (soil S_P1 not usable); US-NC2 is the third
         strongly validated site of the project (CLAUDE.md) and has a well next to the sensor.
         Survey (login node, awk over the half-hourly file AMF_US-NC2_BASE_HH_19-5.csv; nothing fitted):
@@ -1994,3 +1994,21 @@ Real-case spec (first slice):
         - The PINN is run on a test only if its soil is usable; a test with a usable soil whose PINN run meets
           R1 - R3 counts for R4 (as a second site, disclosed). If no soil is usable the site is reported as
           such and nothing is changed to make it pass.
+    ar) 23:38. rfp2 inv3 (US-PAS T_P2, refinement round 3; job 15512224): five starts identical (1e-10 m), cost
+        0.49575 (solver 0.5043), coefficients -1.821 -0.686 +0.411 +0.169 +1.183 (solver -1.821 -0.684 +0.414
+        +0.157 +1.183). PINN - solver 0.21 cm rms, max 0.45 cm (inv2 0.26 / 0.50); by day -0.1 -0.1 -0.1 -0.0
+        +0.1 +0.3 +0.4 +0.5. vs well 4.33 / +0.27 / max 7.6 / r 0.995, below saturation (150 h) 3.93 / -0.54 /
+        0.993 (solver 4.13 / -0.64 / 0.992). Round 4 and the value correction follow.
+        US-NC2 data sets (jobs 15511395-97, scripts/make_real.py; forward check with the STARTING soil of
+        CLAUDE.md, nothing fitted): W1 1 May 2023 + 15 d: water table 0.288 - 0.731 m, sensor 0.398 - 0.495,
+        6 coefficients, ET 41.3 mm, rain 3.6 mm, f_T 0.69; W2 1 Sep 2023 + 6 d: 0.218 - 0.533 m, 0.404 -
+        0.499, 5 coefficients, ET 24.5 mm, rain 0.3 mm, f_T 0.75; W3 27 Sep 2023 + 9 d: 0.292 - 0.615 m,
+        0.413 - 0.498, 5 coefficients, ET 15.3 mm, rain 0.5 mm, f_T 0.58. No hour filled in the sensor or the
+        well record; LE filled 14 - 16 %; spline of the well within 0.2 - 0.5 cm rms of the record; all
+        admissible (surface head >= -0.8 m), FEM converged everywhere. With the starting soil the FEM over
+        the observed water table reads 0.09 - 0.11 too wet (r 0.98 - 0.99): that soil belongs to the sensor
+        of 2021, the calibration has to replace it. The transpiration fraction hardly matters here (bias
+        changes by 0.002 between f_T 0 and 1): the profile stays near hydrostatic, the water table falls by
+        drainage (ET 1.7 - 4 mm/d against 3 - 5 cm/d of water-table fall).
+        Calibrations submitted (4 starts each, jobs 15511553-60): output/soil_nc2_may23 (W1),
+        output/soil_nc2_sep23a (W2).
