@@ -1829,3 +1829,34 @@ Real-case spec (first slice):
         Expected weak point, written before the result: in P3 the upper level (0.411-0.415 for 3.5 d, WT
         0.24-0.31 m) is below S_P2's theta_s, so the model must read it as drained (hydrostatic: about 0.35 m);
         the rule stays as it is and the outcome is reported.
+    ag) 19:25. US-PAS, SOLVER SIDE (rules of ae and af; nothing changed after the results).
+        Calibrations, all starts: S_P1 start 3 lowest (0.004530); starts 0, 1, 2 end at 0.004559-0.004566 on a
+        neighbouring soil (theta_r 0.012-0.025, alpha 1.46-1.50, n 5.0-5.2, Ks 1.5-1.7e-6): a flat direction,
+        misfit within 1 %. S_P2: all four starts end on the same soil (0.006050).
+        Forward check of the transfer (solver with the OBSERVED water table, sensor RMSE): own 0.0045 (P1),
+        0.0060 (P2); T_P2 0.012 (bias +0.003); T_P3 0.015-0.016 (+0.006); P0 cut with S_P1 0.0048; P1 with S_P2
+        0.018-0.019. (sigma_theta of the inversion: 0.005.)
+        Solver inversions (fem_referee.py --box, est - obs in cm; all starts of a set agree to the last digit):
+                                   cost    whole window (rmse/bias/max/r)   below saturation      on the box
+          own P1 (S_P1 on P1)      0.798   3.84 / +1.03 / 12.0 / 0.994      3.37 / -0.53 / 0.981  c0, c1
+          own P2 (S_P2 on P2)      1.471   2.26 / -0.55 /  6.2 / 0.997      2.33 / -0.80 / 0.994  c0, c4
+          T_P2  (S_P1, 15 Oct+7 d) 0.504   4.50 / +0.19 /  7.9 / 0.994      4.13 / -0.64 / 0.992  c0, c4
+          hind. P1 with S_P2       1.476   13.40 / +8.15 / 33.0 / 0.936     (all hours)           c0, c3, c4
+          hind. P0 cut with S_P1   0.297   6.52 / -5.11 / 10.3 (49 h)       1.18 (8 h only)       c0, c1, c3
+        T_P2 by day: +6.5 +5.2 +2.7 +0.8 -1.2 -4.5 -6.8 -6.5 (too deep early, too shallow late); own P1 by day
+        +0.8 +3.1 +5.7 +5.8 +1.2 -1.3 -0.2 +1.6 -2.4 -12.0.
+        BY THE RULES: neither soil passes the usable-soil rule (in-sample within 2 cm below saturation: 3.37 and
+        2.33 cm), and the solver inversion of T_P2 is outside R3 (4.13 cm). T_P3 is still running; its soil
+        already fails and its hindcast is 13 cm. So US-PAS gives NO test that can count for R4; R4 stays open.
+        Is the prior box the cause (estimates on it at both ends; the observed paths' own spline coefficients
+        lie outside it at the window start: -2.6, -2.4, -4.1 against the bound -1.82)? Diagnostic, solver
+        without --box on T_P2: cost 0.479, 4.27 / +0.15, below saturation 4.02 / -0.57 / 0.993, by day +5.0
+        +5.0 +2.9 +0.9 -1.4 -4.5 -6.5 -5.8. No: the box costs 0.1-0.2 cm. The error is in soil and sensor.
+        Reading: at this site the sensor - water table relation of one recession does not carry to the next
+        within 3 cm (two wet levels of the sensor, af), and not even within its own recession for P1. That is
+        a limit of the model (one van Genuchten soil, no hysteresis, this sensor), the same for any inversion.
+        NEXT, DECLARED BEFORE THE RUN: the PINN is run on T_P2 all the same (tag rfp2, method unchanged), for
+        R1 and R2 ONLY - does it reach the solver's estimate at a second site, with another soil (n 4.8, not
+        10), a recession twice as fast (0.62 m in 7 d) and the estimate on the box at both ends. This departs
+        from the sentence in ae (PINN only if the solver is inside R3) in purpose, not in what counts: the run
+        cannot count for R3 or R4 whatever it gives. It is queued behind rf22c's last round.
