@@ -1951,3 +1951,10 @@ Real-case spec (first slice):
         PINN - solver 0.19 cm rms, max 0.47 cm (it 2: 0.27 / 1.48); by day 0.0 x10, -0.1 -0.1 -0.2 -0.3 -0.4
         -0.5 -0.3 +0.0 +0.3. vs well 4.34 / +2.71 / r 0.986; below saturation (359 h) 2.37 / +1.57 / r 0.984
         (solver 2.44 / +1.69 / 0.983): inside R3. Both loops go on to their next iteration (stop 0.2 sigma).
+    ap) 22:58. rfp2 inv2 (US-PAS T_P2, refinement round 2; job 15510813): five starts identical, cost 0.50122
+        (solver 0.5043), coefficients -1.821 -0.690 +0.414 +0.170 +1.183 (solver -1.821 -0.684 +0.414 +0.157
+        +1.183): both ends on the same bounds of the prior box as the solver's. PINN - solver 0.26 cm rms,
+        max 0.50 cm (inv1 0.77 / 1.59); by day -0.1 -0.1 -0.1 +0.1 +0.2 +0.4 +0.5 +0.5. vs well 4.29 / +0.31 /
+        max 7.5 / r 0.995, below saturation (150 h) 3.89 / -0.49 / 0.993 (solver 4.13 / -0.64 / 0.992).
+        R1 and R2 hold at the second site after two rounds; the distance to the well is the solver's (soil
+        S_P1 not usable, 73 ag), so this test counts for R1/R2 only, as declared before the run.
