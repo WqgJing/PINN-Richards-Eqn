@@ -10,6 +10,7 @@
 #   reads  configs/real_<site>_<window>.yaml, output/soil_<site>_<cal>/start?.json
 #   writes output/real_<site>_<cal>_own, output/real_<site>_<test>_soil<cal>,
 #          output/referee/<site>_own_<cal>_s<k>, output/referee/<site>_<cal>on_<test>_s<k>   (k = 0..3)
+#   SOIL_SET="--set soil.theta_s=.. ..." : dry run of the chain with that soil; every name then ends in _pre
 set -u
 cd /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse
 SITE=$1; CAL=$2; DEPTH=$3; shift 3
@@ -41,13 +42,19 @@ ok() {   # files written on a compute node can take a while to appear on the log
   echo "MISSING $1 -> stop at $(date)"; exit 1
 }
 
-n=$(ls $O/soil_${SITE}_$CAL/start?.json 2>/dev/null | wc -l)
-[ "$n" -eq 4 ] || { echo "output/soil_${SITE}_$CAL holds $n of the four starts -> stop"; exit 1; }
-best=$(for f in $O/soil_${SITE}_$CAL/start?.json; do echo "$(jq -r '.rmse' $f) $f"; done | sort -g | head -1 | cut -d' ' -f2)
-S=$(jq -r '.soil | "--set soil.theta_s=\(.theta_s) --set soil.theta_r=\(.theta_r) --set soil.alpha=\(.alpha) --set soil.n=\(.n) --set soil.Ks=\(.Ks)"' $best)
+X=""
 echo "transfer $SITE $CAL -> $* at $(date)"
-for f in $O/soil_${SITE}_$CAL/start?.json; do echo "  $(basename $f): $(jq -c '[.rmse, .on_bound, .soil.theta_s, .soil.theta_r, .soil.alpha, .soil.n, .soil.Ks]' $f)"; done
-echo "soil: $best"; echo "  $S"
+if [ -n "${SOIL_SET:-}" ]; then   # dry run of the chain with a soil given by hand (not the rule's): every name ends in _pre
+  S=$SOIL_SET; X=_pre
+  echo "DRY RUN, soil from SOIL_SET (the results *_pre do not count): $S"
+else
+  n=$(ls $O/soil_${SITE}_$CAL/start?.json 2>/dev/null | wc -l)
+  [ "$n" -eq 4 ] || { echo "output/soil_${SITE}_$CAL holds $n of the four starts -> stop"; exit 1; }
+  best=$(for f in $O/soil_${SITE}_$CAL/start?.json; do echo "$(jq -r '.rmse' $f) $f"; done | sort -g | head -1 | cut -d' ' -f2)
+  S=$(jq -r '.soil | "--set soil.theta_s=\(.theta_s) --set soil.theta_r=\(.theta_r) --set soil.alpha=\(.alpha) --set soil.n=\(.n) --set soil.Ks=\(.Ks)"' $best)
+  for f in $O/soil_${SITE}_$CAL/start?.json; do echo "  $(basename $f): $(jq -c '[.rmse, .on_bound, .soil.theta_s, .soil.theta_r, .soil.alpha, .soil.n, .soil.Ks]' $f)"; done
+  echo "soil: $best"; echo "  $S"
+fi
 
 one() {   # window, data-set dir, referee name
   local w=$1 d=$2 r=$3 j st k s ids=""
@@ -74,7 +81,7 @@ one() {   # window, data-set dir, referee name
   done
 }
 
-one $CAL $O/real_${SITE}_${CAL}_own ${SITE}_own_$CAL &
-for t in "$@"; do one $t $O/real_${SITE}_${t}_soil$CAL ${SITE}_${CAL}on_$t & done
+one $CAL $O/real_${SITE}_${CAL}_own$X ${SITE}_own_$CAL$X &
+for t in "$@"; do one $t $O/real_${SITE}_${t}_soil$CAL$X ${SITE}_${CAL}on_$t$X & done
 wait
 echo "transfer $SITE $CAL done at $(date)"
