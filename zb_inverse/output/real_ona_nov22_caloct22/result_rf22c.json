@@ -1,0 +1,110 @@
+{
+  "data": "output/real_ona_nov22_caloct22",
+  "pinn": {
+    "all": {
+      "rmse_m": 0.043433322912084106,
+      "bias_m": 0.026331100868316373,
+      "maxabs_m": 0.1875237200139468,
+      "r": 0.9856765479576536,
+      "hours": 433
+    },
+    "below_saturation": {
+      "rmse_m": 0.023735026777730348,
+      "bias_m": 0.014748437265042831,
+      "maxabs_m": 0.0571342317145731,
+      "r": 0.9826187971724121,
+      "hours": 359
+    },
+    "start_spread_max_m": 3.0999057321068335e-08,
+    "sigma_median_m": 0.001520615760920392,
+    "theta_rmse_vs_obs": 0.0026357935358503667,
+    "uncertainty": {
+      "sigma_hind_m": 0.035,
+      "sigma_total_median_m": 0.03503301688824929,
+      "below_saturation_within_1_sigma": 0.8161559888579387,
+      "below_saturation_within_2_sigma": 1.0,
+      "saturated_hours": 74,
+      "saturated_observed_not_below_estimate_plus_2_sigma": 1.0
+    }
+  },
+  "window": "2022-11-26T12:00",
+  "n_days": 18.0,
+  "soil": {
+    "theta_s": 0.351066672480799,
+    "theta_r": 0.12609628093214864,
+    "alpha": 1.6607260798374652,
+    "n": 9.999997423927631,
+    "Ks": 2.0510697991841013e-06
+  },
+  "hours": 433,
+  "hours_sensor_below_saturation": 359,
+  "zb_observed_range_m": [
+    0.336483,
+    0.8842425
+  ],
+  "spline_of_observed_vs_record": {
+    "rmse_m": 0.015808594139226265,
+    "bias_m": -0.0001469982181681022,
+    "maxabs_m": 0.04880618920588631,
+    "r": 0.993959403962936,
+    "hours": 433
+  },
+  "hydrostatic_reading": {
+    "all": {
+      "rmse_m": 0.041779944984480365,
+      "bias_m": 0.020994402243448163,
+      "maxabs_m": 0.16390904293372183,
+      "r": 0.9818978851330604,
+      "hours": 433
+    },
+    "below_saturation": {
+      "rmse_m": 0.01927405613616918,
+      "bias_m": 0.00844686873787185,
+      "maxabs_m": 0.07095619903474693,
+      "r": 0.982956882856082,
+      "hours": 359
+    }
+  },
+  "fem_with_observed_wt_theta_rmse_vs_obs": 0.010329293013851418,
+  "referee": {
+    "dir": "output/referee/caloct22on22_s3",
+    "all": {
+      "rmse_m": 0.04373799710167177,
+      "bias_m": 0.02807379103437803,
+      "maxabs_m": 0.18814018552628275,
+      "r": 0.9850464695782658,
+      "hours": 433
+    },
+    "below_saturation": {
+      "rmse_m": 0.02440243520433126,
+      "bias_m": 0.016874966761855376,
+      "maxabs_m": 0.05686781236396876,
+      "r": 0.9830366467238222,
+      "hours": 359
+    },
+    "cost": 0.2796610271446646,
+    "costs_by_start": {
+      "hydrostatic": 0.27966117232717835,
+      "hydrostatic_flat": 0.27966141723704785,
+      "constant:1.0": 0.2796614609865746,
+      "constant:0.3": 0.2796610271446646
+    },
+    "theta_rmse_vs_obs": 0.0026441493298633148
+  },
+  "pinn_vs_referee": {
+    "all": {
+      "rmse_m": 0.0035419157580966754,
+      "bias_m": -0.001742690166061656,
+      "maxabs_m": 0.012351481227373173,
+      "r": 0.9997901134425995,
+      "hours": 433
+    },
+    "below_saturation": {
+      "rmse_m": 0.0038875583993320346,
+      "bias_m": -0.002126529496812543,
+      "maxabs_m": 0.012351481227373173,
+      "r": 0.9995702693683057,
+      "hours": 359
+    }
+  }
+}
