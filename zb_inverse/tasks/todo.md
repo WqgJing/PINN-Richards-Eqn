@@ -2046,3 +2046,35 @@ Real-case spec (first slice):
         screened). Not hidden: on this recession the hydrostatic reading of the sensor (no flow model at all)
         scores as well as both inversions (1.93 cm below saturation), i.e. this window does not show that
         the dynamics add skill over the retention curve alone.
+    at) 00:32 (12 Nov). rf22obdc it 4 (C with S_B; job 15514472): step 0.06 sigma (segments 0.01 0.02 0.06
+        0.05) -> THE LOOP CONVERGED BY ITS STOP RULE (its 1 - 4: 0.37, 0.25, 0.27, 0.06). Five starts
+        identical (4e-8 m), cost 0.33792 (solver 0.33445), coefficients +1.148 -1.121 +0.102 +0.163 +0.332
+        +0.083. PINN - solver 0.45 cm rms, max 1.95 cm (its 1 - 4: 0.16, 0.13, 0.30, 0.45); by day 0.0 or
+        +0.1 on days 0 - 10, then -0.1 -0.3 -0.7 -1.5 -2.0: as in rf22cdc the two inversions part on the
+        last three days only, where the sensor constrains the path least (posterior sd 0.5 - 1.1 cm there).
+        it 4 - it 3 0.15 cm rms, max 0.64 cm.
+        FINAL SCORES of rf22ob (job 15514557, sigma_hind 7.0 cm; output/real_ona_oct22_soilnov21/
+        result_rf22ob.json / .png), 361 h, 275 h below saturation (rmse cm / bias cm / max cm / r):
+                                   whole window                  below saturation
+          PINN vs well             4.38 / +3.21 / 12.3 / 0.9859  3.15 / +2.45 / r 0.9694
+          solver inversion vs well 4.41 / +3.37 / 12.3 / 0.9865  3.23 / +2.69 / r 0.9746
+          hydrostatic reading      4.89 / +2.60 / 25.4 / 0.964   2.65 / +1.87 / r 0.974
+        theta rmse of the fit 0.00291; posterior sd 0.16 cm (median); with sigma_hind 7.0 cm all hours below
+        saturation are within 1 sd (the hindcast sigma of this soil is wide), saturated hours 86, bound
+        holds in all of them.
+        Criteria: R1 met, R2 met (0.45 cm rms), R3 NOT met (3.15 cm, +2.45 cm, r 0.969 below saturation),
+        as the solver inversion (3.23 / +2.69 / 0.975) and as stated before the run: S_B is not a usable
+        soil, the test cannot count for R4. What it adds: the PINN is again the solver inversion to within
+        0.5 cm, from every start, on a second window.
+        rfp2 inv4 (US-PAS T_P2, refinement round 4; job 15513888): five starts identical (7e-11 m), cost
+        0.50222 (solver 0.5043), coefficients -1.821 -0.692 +0.414 +0.166 +1.183. PINN - solver 0.20 cm rms,
+        max 0.34 cm (inv3 0.21 / 0.45); vs well 4.32 / +0.23 / max 7.6 / r 0.995, below saturation (150 h)
+        3.94 / -0.57 / 0.992 (solver 4.13 / -0.64 / 0.992). Pipeline done 00:10; value correction rfp2dc
+        started (it 1 forward PINNs on V100).
+        hpc/real_full_obs.sh: hpc/real_full.sh with the sensor depth as third argument (for the layer sensor
+        of US-NC2); real_full.sh itself untouched (rfp2 still reads it). Not used yet.
+        US-NC2 calibrations after 75 min (not finished; 4 starts each): W2 (1 Sep 2023) starts 1 and 2 have
+        met at rmse 0.00105 (theta_s 0.550, alpha 15.4, n 1.25, Ks on its upper bound 1e-3 m/s: the fit
+        asks for a profile in equilibrium with the water table), start 3 at 0.0025, start 0 at 0.0038
+        (different basins, Ks 1.6e-5 and 3e-6). W1 (1 May 2023) starts at 0.0015 - 0.0017, theta_s 0.52 -
+        0.54, alpha 4 - 6, n 1.2 - 1.4, Ks 2e-4 - 9e-4, theta_r anywhere in 0 - 0.13 (not identified).
