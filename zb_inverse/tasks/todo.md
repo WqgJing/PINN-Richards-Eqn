@@ -2896,3 +2896,70 @@ Real-case spec (first slice):
           With the site's default soil the solver at the observed water table is 0.045 - 0.053 from the sensor
           on C1 (too wet by 0.07 at the dry end): the calibration has to do the work.
         NEXT: four calibration starts on C1 (output/soil_pas_jul21), then transfer_solver.sh pas jul21 on T1, T2.
+    73 bn. (13 Nov, 04:40) PLAN 1 RESULT: THE REGIME SCALES ARE NOT THE CAUSE. OPTION NOT ADOPTED.
+        Forward PINNs at the well's spline on W_R1 (soil S_A, seed 0, 25000 Adam + 15 x 200 L-BFGS, V100, 47 - 49
+        min each), scored against the solver at the same path (param_validate, jobs 15569349 - 15569351):
+                                   theta vs solver                              held-out, last state
+                                   whole    max     days 0-5  5-10    10-14     pde    flux   box
+          A  as it is              0.0205   0.182   0.0074    0.034   0.0010    2.14   8.2    8.1
+          B  q by regime           0.0297   0.182   0.0054    0.049   0.0012    3.97   37.2   21.3
+          C  q and pde by regime   0.0294   0.181   0.0055    0.049   0.0006    4.01   36.7   20.4
+        (held-out terms are in units of each run's own scales, so B and C are not comparable with A there.)
+        Against the written rule (73 bl): B and C do not reach 0.004 before the burst (0.0054 / 0.0055) and make
+        the burst segment worse than A (0.049 against 0.034) -> not adopted; A is not there either (0.0074) ->
+        the fault is not only in the operator stage; none gets there -> the scales are not the cause.
+        The expectation was wrong on the main point: B's first segment was expected below 0.004 with a held-out
+        box below 5; it is 0.0054 and 21.
+        What the three runs do show: training stops improving long before the end. A: held-out flux 8.3 from
+        step 16000 on (12.3 at 8000, 8.9 at 16000, 8.2 at 28000), pde 2.1 - 2.5; L-BFGS changes nothing. A
+        flux term of 8.2 is an rms miss of 2.9 sigma_q = 29 % of the rms flux of the window, at ONE known path.
+        On the recessions this term ends well below 1. So the forward PINN does not solve the problem it is
+        given on this window, and the miss is in the flux condition.
+        Data, read before guessing at the reason: the forcing has one node at 331 mm/d (day 9.333; 13.8 mm in
+        the hour) - 2.4 x Ks of S_A (140 mm/d). Every other rain node is below 62 mm/d.
+        Reference solver, read (wtd_pipeline/fem/fem_pytorch.py, read only): it steps in Se and clamps Se to
+        [1e-6, 1 - 1e-6] after every Picard update (lines 739, 753), and h to <= 0 (line 194). Rain above what
+        the profile takes is therefore removed at the clamp; the PINN's head form with a pure flux condition
+        has to pass all of it. NOT YET SHOWN that this is what separates the two on day 9 - checked next:
+        scripts/truth_error_profile.py (staged copy, new option --sensor fem: reference at the sensor = the
+        solver at the same path instead of the observations), jobs 15569464 - 15569466: error by day, by
+        depth band, the worst hours, and the daily water balance of the error (column residual, surface flux
+        error, remainder).
+        The staged option stays in runs/_stage_regime (not moved into src/, not committed).
+        04:45. WHERE THE FORWARD PINN LEAVES THE SOLVER (truth_error_profile, staged, --sensor fem; jobs
+        15569464 - 15569466; run A unless said; theta at the sensor, PINN - solver at the well's spline):
+          day        0      1      2      3      4      5      6      7      8      9      10 - 13
+          rms        0.006  0.020  0.011  0.009  0.006  0.006  0.008  0.015  0.022  0.074  0.00002 - 0.0015
+          mean       all positive (PINN wetter) up to day 9
+          C (rms)    0.005  0.013  0.009  0.006  0.004  0.002  0.002  0.007  0.054  0.100  as A
+        Three separate things, each read off the hourly series (not inferred):
+        1. After the burst the PINN is exact (1e-5 - 1e-3): the profile is wet and near equilibrium.
+        2. Day 9.17 - 9.33, the largest error (+0.10 ... +0.19): the PINN's sensor goes to saturation three to
+           four hours before the 331 mm/d node, while the solver's stays at 0.174. In those hours there is no
+           rain; what moves is the PATH: the 1-day spline of the well is at 0.62 -> 0.54 m (the well itself
+           stays at 0.76 m until 9.33 and is at 0.32 m one hour later). Equilibrium over a water table at
+           0.59 m with S_A is 0.362 at the sensor; the PINN is at 0.34 - 0.37. So the PINN follows the rising
+           boundary almost in equilibrium and the solver does not (dry soil above a boundary rising 0.5 m in
+           20 h). B and C do the same and start earlier (+0.12 from day 8.9).
+        3. Days 0 - 8 (what matters for the inversion: +0.006 ... +0.02 too wet -> an estimate pushed to the
+           deep bound, as seen in rfr1a): the water balance of the error has a column-integrated PDE residual of
+           +4 ... +35 mm/d (a source), drained through the water table; the surface flux is right to 0.2 - 0.4
+           mm/d on the dry days. On day 1 the PINN takes in 0.25 of the 3.9 mm of rain (flux miss 3.7 mm) and
+           still wets the sensor at once (+0.028 within three hours; the solver's front arrives half a day
+           later). The sensor is at Se ~ 0.1 here (theta 0.12 - 0.15), on the dry branch of a soil with n = 10
+           and below the range S_A was calibrated on (0.221).
+        Not shown: which of these a different design would remove. The solver is itself not converged in the
+        burst hour (hourly against finer: max 0.064), and its Se clamp was not shown to matter.
+        ASSESSMENT. W_R1 with S_A is outside what the single-valued model describes (solver inversion 23 - 24
+        cm from the well, 73 bj), so making the PINN equal the solver on it would not give a result to show.
+        No more forward-PINN work on W_R1/S_A. The order from here:
+          a) solver side first on every rain window: is there a soil with which the SOLVER inversion follows
+             the well through an event (ONA rain21 in-sample: running; US-PAS C1 in-sample, then T1, T2)?
+             A PINN of the same equation cannot do better than that.
+          b) where a) holds: forward PINN at the well's spline with that soil (same harness), then the
+             inversion. The US-PAS drying limbs are at Se 0.4 - 1 with n ~ 3, the regime in which the PINN
+             equals the solver on the recessions; whether the event hours hold the rest hostage there as well
+             is what that run shows.
+        US-PAS C1 calibration, state 04:44 (not finished, 60 - 130 solves): misfit 0.0138 - 0.0144 for all four
+        starts (theta_s 0.412 - 0.416, alpha 2.30 - 2.45, n 3.07 - 3.29, Ks 1.4 - 1.6e-6). The US-PAS recessions
+        calibrate to 0.0045 - 0.0061: the cycle is NOT held by one retention curve to the level of a recession.
