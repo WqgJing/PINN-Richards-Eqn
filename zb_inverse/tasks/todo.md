@@ -2442,3 +2442,31 @@ Real-case spec (first slice):
         (misfit 0.00128 / 0.00166 / 0.00101 after 190 / 153 / 173 solves; start 3 ended at 0.003651). They
         began before the progress file existed, so each is CONTINUED from the last soil in its log with
         --x0 (jobs cal_hb2aug20_s0c / s1c / s2c, 8 h; result key continued_from = "x0").
+    be) 22:20. README: section "Results on site data" with the six scored PINN runs (PINN - solver, PINN /
+        solver / hydrostatic reading against the well, figure links); numbers from the result_*.json files.
+        US-HB2, soil of V3 (S_V3 = start 1), forward checks of the chain started 22:01 (FEM over the
+        spline of the observed water table against the sensor; sigma_theta of the inversion is 0.005):
+          V3 in-sample     rmse 0.0033, bias  0.0000, r 0.9984
+          T_H3 (V4)        rmse 0.0651, bias +0.0464, r 0.9924
+          T_H5 (V6)        rmse 0.0366, bias +0.0111, r 0.9928
+        The model with S_V3 is 0.046 too wet over V4 on average: the sensor starts V4 at 18 % and V6 at
+        25.5 % with the water table near where V3 starts at 32 %. Solver inversions running (12 h limit).
+        CONSIDERED AND NOT ADOPTED (no run made; signs only): scale theta_s - theta_r of the calibration
+        soil by the highest sensor reading M of the 7 days before the window (wet-end reading of the
+        event; an input, no well needed), theta_s_test = theta_r + (theta_s_cal - theta_r) (M_test -
+        theta_r) / (M_cal - theta_r). M_test < M_cal makes the estimate shallower, M_test > M_cal deeper.
+        M (%, /tmp/hb2tools/prewin.sh), and the sign of the change against the bias the solver has now:
+          US-HB2  V1 44.4  V2 44.8  V3 43.6  V4 25.4  V5 15.3  V6 31.6  V7 41.4
+                  T_H1 (V2 <- V1): deeper,    bias now +1.2  -> wrong way (by 1 % of the range)
+                  T_H2 (V3 <- V1): shallower, bias now +7.0  -> right way (2 %; the error there is the
+                                                               blind tail, bd)
+                  T_H6 (V7 <- V1): shallower, bias now -4.3  -> wrong way (7 %)
+          US-ONA  sep21 38.9  nov21 37.7  oct22 36.9  nov22 36.0
+                  C <- B: shallower, bias now +2.5 -> right way;  D <- C: shallower, +1.5 -> right way
+          US-PAS  aug21 43.8  sep21 41.8  oct21 43.5  nov21 43.5
+                  T_P2 (oct21 <- sep21): deeper, bias now -0.7 below saturation, +0.2 whole window
+          US-NC2  may23 51.3  sep23a 50.6  sep23b 55.7  (layer sensor 0 - 0.30 m: M depends on how far the
+                  water table rose into the layer, not on the wet end of the curve alone)
+        Two of five signs against it, at the site where the rule would be judged (US-HB2) one of them by
+        the largest factor. Choosing it now would be choosing a rule on tests that are already scored.
+        Not adopted; protocol d stays.
