@@ -12,6 +12,7 @@
 #          output/referee/<site>_own_<cal>_s<k>, output/referee/<site>_<cal>on_<test>_s<k>   (k = 0..3)
 #   RT=08:00:00 : time limit of the solver inversions (default 03:00:00)
 #   SOIL_SET="--set soil.theta_s=.. ..." : dry run of the chain with that soil; every name then ends in _pre
+#   OWN=0 : test windows only; the data set and inversions of the calibration window exist and are not rewritten
 set -u
 cd /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse
 SITE=$1; CAL=$2; DEPTH=$3; shift 3
@@ -83,7 +84,7 @@ one() {   # window, data-set dir, referee name
   done
 }
 
-one $CAL $O/real_${SITE}_${CAL}_own$X ${SITE}_own_$CAL$X &
+if [ "${OWN:-1}" = 1 ]; then one $CAL $O/real_${SITE}_${CAL}_own$X ${SITE}_own_$CAL$X & fi
 for t in "$@"; do one $t $O/real_${SITE}_${t}_soil$CAL$X ${SITE}_${CAL}on_$t$X & done
 wait
 echo "transfer $SITE $CAL done at $(date)"
