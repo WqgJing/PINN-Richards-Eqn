@@ -5,6 +5,8 @@ Equilibrium-plus-departure form (base='current', default). Two departure forms:
     h~(xi, t) = (1 + xi) * [ -zb~(t) + s(t) * N(xi, t) ]
   departure='log':
     h~(xi, t) = -(1 + xi) * zb~(t) * exp( s(t) * N(xi, t) )
+  departure='conductive' (parametric PINN; the flux scale q~ = rms(q_obs / Ks) is set by the builder):
+    h~(xi, t) = (1 + xi) * [ -zb~(t) + g(xi, t) * s(t) * N(xi, t) ],   g = q~ / (K_r(-(1 + xi) zb~(t)) + q~)
   with s(t) = 1 - exp(-t / tau).
 - -(1 + xi) zb~(t) = -(z + zb)/L is the zero-flux (hydrostatic) profile for the CURRENT water
   table, so N only has to learn the departure from equilibrium caused by surface forcing.
@@ -14,6 +16,10 @@ Equilibrium-plus-departure form (base='current', default). Two departure forms:
   magnitude over a few mm (supply-limited evaporation; |h| ~ depth^-0.4 for this VG-Mualem soil) is
   then a gentle function of N. It keeps h < 0 above the water table (no perched saturation).
   With log_depth_eps the network also gets the input ln(eps - xi), in which that power law is linear.
+- 'conductive' scales the departure by g, the head gradient that carries the flux scale at the conductivity of
+  the hydrostatic profile, capped at one. Where the soil conducts far more than the flux (K_r >> q~) the
+  departure the physics asks for is that small, and N stays of order one; where K_r << q~, g -> 1 and the
+  form is the additive one. q~ is the scale that defines sigma_q (parametric.physics_scales): no new constant.
 base='initial' keeps the old form (hydrostatic at zb(0) for all t), which implies large spurious
 fluxes when the WT moves and trained poorly.
 zb(t) is NOT a network input: it reaches the profile only through the equilibrium baseline and
@@ -92,10 +98,11 @@ class InversePINN(nn.Module):
         self.T_days = soil.T / 86400.0
         if base not in ('current', 'initial'):
             raise ValueError(base)
-        if departure not in ('additive', 'log'):
+        if departure not in ('additive', 'log', 'conductive'):
             raise ValueError(departure)
-        if departure == 'log' and base != 'current':
-            raise ValueError("departure='log' needs base='current'")
+        if departure != 'additive' and base != 'current':
+            raise ValueError(f"departure='{departure}' needs base='current'")
+        self.q_scale = None         # departure='conductive': flux scale rms(q_obs / Ks), set by the builder
         self.base = base
         self.departure = departure
 
@@ -126,4 +133,8 @@ class InversePINN(nn.Module):
             v = self.V_MAX * torch.tanh(v / self.V_MAX)           # smooth bound, exact at v = 0 (IC)
             return -(1.0 + xi) * (self.zb_m(t_days, c) / self.soil.L) * torch.exp(v)
         zb_base = self.zb_m(t_days, c) / self.soil.L if self.base == 'current' else self.zb0_tilde(xi, c)
-        return (1.0 + xi) * (-zb_base + s * self._head(xi, t_days, c))
+        dep = s * self._head(xi, t_days, c)
+        if self.departure == 'conductive':
+            # gain = head gradient that carries the flux scale at the hydrostatic conductivity, capped at one
+            dep = dep * self.q_scale / (self.soil.K(-(1.0 + xi) * zb_base) + self.q_scale)
+        return (1.0 + xi) * (-zb_base + dep)

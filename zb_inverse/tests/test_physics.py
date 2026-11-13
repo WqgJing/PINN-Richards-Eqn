@@ -117,3 +117,33 @@ def test_hard_constraints_log_departure():
         assert torch.all(h[1:] < 0)                              # unsaturated above the WT
     R = pde_residual(m, -torch.rand(256, 1), 30 * torch.rand(256, 1))
     assert torch.all(torch.isfinite(R))
+
+
+def test_hard_constraints_conductive_departure():
+    """departure='conductive' is the additive departure times the gain g = q~ / (K_r(hydrostatic head) + q~):
+    the hard constraints are kept, g is in (0, 1) and grows with the suction of the hydrostatic profile."""
+    m, ma = _pinn(departure='conductive'), _pinn()
+    m.q_scale = 0.05
+    with torch.no_grad():
+        for p in m.head.parameters():
+            p.normal_(0, 0.5)
+        ma.load_state_dict(m.state_dict())                       # the same network in the additive form
+        t = torch.linspace(0, 30, 31).reshape(-1, 1)
+        assert torch.max(torch.abs(m.h_tilde(-torch.ones_like(t), t))) < 1e-14
+        xi = torch.linspace(-1, 0, 41).reshape(-1, 1)
+        h0 = m.h_tilde(xi, torch.zeros_like(xi))
+        hydro = -(m.zb_m(torch.zeros((1, 1))) / SOIL.L) * (1 + xi)
+        assert torch.max(torch.abs(h0 - hydro)) < 1e-14
+        tt = torch.full_like(xi, 10.0)
+        hyd = -(1 + xi) * m.zb_m(tt) / SOIL.L
+        g = m.q_scale / (SOIL.K(hyd) + m.q_scale)
+        assert float(g.min()) > 0 and float(g.max()) < 1 and torch.all(g[1:] > g[:-1])
+        d_c, d_a = m.h_tilde(xi, tt) - hyd, ma.h_tilde(xi, tt) - hyd
+        assert float(d_a.abs().max()) > 1e-3 and torch.max(torch.abs(d_c - g * d_a)) < 1e-13
+    R = pde_residual(m, -torch.rand(256, 1), 30 * torch.rand(256, 1))
+    assert torch.all(torch.isfinite(R))
+    try:
+        InversePINN(SOIL, m.zb_spline, m.head, base='initial', departure='conductive')
+        raise AssertionError("departure='conductive' with base='initial' not refused")
+    except ValueError:
+        pass
