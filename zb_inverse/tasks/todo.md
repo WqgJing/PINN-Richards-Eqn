@@ -3399,3 +3399,47 @@ Real-case spec (first slice):
         0.003): better than the expected range; the two days with showers are at 0.0013 and 0.0004.
         0.00043 of sensor is 0.3 cm of water table at this window's sensitivity (0.05 per 0.30 m), so the
         inversion rfnc1 is not limited by the PINN's forward accuracy at the level of R2 (1 cm).
+    73 bu. (13 Nov, 13:51) DIAGNOSTIC "C_N1 WITH S_W2", SOLVER SIDE: ONE ESTIMATE FROM ALL FOUR STARTS, 3.05 cm FROM
+        THE WELL. GATE PASSED (2.96 cm against the spline). THE SOLVER ITSELF IS JUST OUTSIDE R3.
+        Chain of 73 bs (11:29 - 13:50; make_real 15584490, solver inversions 15584807-10, 43 - 133 min).
+        Data set output/real_nc2_sep23c_soilsep23a (14 coefficients, admissible; hourly solver against the
+        finer one 0.0006). Solver over the well against the sensor: record 0.0039 / bias -0.0019 / max 0.0090 /
+        r 0.959; spline 0.0039 / -0.0020 / 0.0123.
+        Solver inversion, four starts: ONE estimate (cost 0.083249 to 1e-7, 4 - 9 iterations, no coefficient
+        on the box, sensor fit 0.00144, posterior sigma median 0.9 cm). Lowest cost: start 1.
+            solver - well (hourly)   3.05 cm, bias -1.64, max 5.1, r 0.948
+            solver - spline          2.96 cm, bias -1.64, max 4.9, r 0.953
+            floor (spline - well)    0.81 cm, bias  0.00, max 3.5, r 0.995
+          by day (solver - well rms cm (bias) | estimate range / well range, m):
+            0  1.8 (-1.7) | 0.53-0.56 / 0.54-0.59       6  4.3 (-4.3) | 0.58-0.62 / 0.62-0.66
+            1  2.6 (-2.1) | 0.56-0.63 / 0.59-0.63       7  4.5 (-4.5) | 0.62-0.63 / 0.66-0.68
+            2  2.1 (+0.8) | 0.55-0.63 / 0.52-0.64       8  4.6 (-4.6) | 0.63-0.67 / 0.68-0.70
+            3  3.5 (+3.2) | 0.51-0.54 / 0.47-0.54       9  2.7 (-2.5) | 0.67-0.73 / 0.71-0.74
+            4  0.6 (-0.2) | 0.52-0.56 / 0.50-0.56      10  1.0 (+0.2) | 0.73-0.79 / 0.74-0.77
+            5  2.8 (-2.7) | 0.56-0.58 / 0.57-0.61
+        RULES APPLIED (as written in 73 bs): GATE (<= 4 cm of the 1-day spline; the whole window is below
+        saturation): 2.96 cm -> PASSED -> the PINN run of the plan is started.
+        R3 read on the solver (not a counted test, for orientation): 3.05 cm (limit 3), bias -1.64 (limit 2),
+        r 0.948 (limit 0.98) -> the solver itself is outside R3, by the correlation clearly. A PINN that
+        reproduces the solver will be at about 3 cm from the well too.
+        Against the expectation of 73 bs: forward misfit 0.0039 (expected 0.002 - 0.004: inside, upper end);
+        whole window 3.05 cm (expected 1.5 - 3: at the upper end, just outside); bias -1.64 (expected +0.5
+        to +1.5: WRONG SIGN); r 0.948 (expected 0.97 - 0.99: outside); day after the rise too deep by 3.2 cm
+        (expected 2 - 4: inside); drying limbs: days 0 - 1 and 9 - 10 at 1.0 - 2.7 cm, but days 5 - 8 are
+        2.7 - 4.6 cm too SHALLOW (expected 1 - 2 cm: outside). The three-point static hand check of 73 bs
+        did not show that; the cause of the 4.5 cm on days 6 - 8 has not been looked at and is not claimed.
+        The estimate is a smooth drying curve that runs ahead of the well before the showers, is late after
+        the rise and lags the well's later recession: the cycle is seen, its amplitude is 5 - 8 cm short.
+        PINN ON THIS DATA SET (plan of 73 bs, step 3; nothing changed in the method):
+          a) inversion rfnc1t: hpc/real_full_obs.sh rfnc1t output/real_nc2_sep23c_soilsep23a "[0.0,0.30]"
+          b) forward check fwd_nc2ct: hpc/fwd_truth.sh fwd_nc2ct output/real_nc2_sep23c_soilsep23a "[0.0,0.30]"
+             RULE as in 73 br: theta at the sensor within 0.002 rms of the solver on the whole window.
+          EXPECTATION (before any PINN number on this data set): forward check 0.0002 - 0.001 (Ks 1e-3 is 450
+          times the largest rain node: the profile is close to static, easier than C_N1's own soil at
+          0.0004); R1 spread < 0.2 cm; R2 (PINN - solver) 0.1 - 1 cm (0.07 cm on sep23b with this soil,
+          without rain); against the hourly well 2.8 - 3.3 cm, bias -1.3 to -2.0, r 0.94 - 0.96, i.e. as
+          the solver and outside R3.
+          STATUS: DIAGNOSTIC (73 bs). What it can add: R1 / R2 on a second rain-window data set, with a soil
+          that never saw this window's well.
+        STARTED 13:51:47: PINN driver rfnc1t (process group 819813, logs/full_rfnc1t.log) and forward check
+        fwd_nc2ct (process group 819814, logs/fwd_fwd_nc2ct.log) on output/real_nc2_sep23c_soilsep23a.
