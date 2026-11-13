@@ -3037,3 +3037,11 @@ Real-case spec (first slice):
         runs on all three GPU partitions. Kept: runs/rfr1o_w0..3, rfr1o_inv0, rfr1o_r1_m0..3, rfr1o_inv1.
         rfr1a (recession soil, last refinement round) runs on to its end: it is the one US-ONA rain-window
         figure, to be shown with the caveat above.
+        06:05. US-HB2 V4 (aug20) calibration: the continuations s0c / s1c / s2c (15553786 / 90 / 91) ran into the
+        8 h limit again, still creeping in the fourth digit (misfit 0.00119 / 0.00161 / 0.00097 after 172 / 155
+        / 169 solves; theta_s 0.301 / 0.351 / 0.300 - the last on the lower bound 0.30 - alpha 18.2 / 19.9 /
+        19.2 against the upper bound 20, Ks 2.2e-5 / 4.9e-5 / 2.8e-5; start 3 ended at 0.003651). Three soils,
+        not one. Continued a second time from progress<k>.json (--resume; jobs 15572178 - 15572180,
+        cal_hb2aug20_s0d / s1d / s2d, 12 h; ids in logs/cal_hb2_aug20_d.ids). T_H4 waits for all four starts
+        as the rule requires; it is the only open test at US-HB2 and cannot change the tally there (five of
+        six decided on the solver side, none inside R3).
