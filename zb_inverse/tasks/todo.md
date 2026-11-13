@@ -2699,3 +2699,10 @@ Real-case spec (first slice):
           two days within a few cm. Before the burst the hand check says 5 cm, but it said 2 - 6 cm for S_A and
           the solver gave 25: the same low sensitivity applies, so 5 - 15 cm there would not surprise.
           R1: the starts may again differ before the burst. R2: open.
+        03:06: all four calibration starts on W_R1 finished (jobs 15557260 - 15557263 COMPLETED, start?.json
+        written): 0.018597 / 0.019736 / 0.018963 / 0.006546 (starts 0 - 3). Lowest = start 3, the soil the *_pre
+        chain was started with (same file), so its results stand as the rule's. Data set
+        output/real_ona_rain21_own_pre (job 15565909): FEM over the hourly record 0.006546 / 0.0000 (= the
+        calibration), FEM against the finer FEM 0.0015 (max 0.015); with the 1-day SPLINE of the well instead
+        of the record 0.0150 (max 0.157): the daily knots alone cost 0.015 in theta on this window, because
+        the spline cannot time the rise of 5 Nov. PINN rfr1o launched 02:58 on that data set.
