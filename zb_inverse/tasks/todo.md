@@ -3384,3 +3384,18 @@ Real-case spec (first slice):
         starts one estimate. Gate expected to pass.
         STARTED 11:29:47 (process group 4171707, logs/transfer_nc2_sep23a_sep23c.log): OWN=0, soil start 3 as
         expected, test window only. bash -n of the edited script: ok.
+    73 bt. (13 Nov, 11:53) US-NC2 SMALL CYCLE C_N1: THE FORWARD PINN HOLDS THROUGH THE SHOWERS (rule of 73 br PASSED).
+        Forward PINN fwd_nc2c at the well's spline with C_N1's soil (hpc/fwd_truth.sh, unchanged; GPU job
+        15581622, 28000 steps, 47 min; held-out pde 0.029, flux 0.027, box 0.0021 - US-PAS C1: 0.092 / 0.246 /
+        0.63). Theta of the layer 0 - 0.30 m against the SITE SOLVER on the same path (scripts/
+        truth_error_profile.py --sensor fem, job 15585571; reference = theta_fem[0] of
+        output/real_nc2_sep23c_own/real.npz):
+          whole window 0.00043 (max 0.0045, in the shower hours of day 2)      profile rms 0.00033 (max 0.0058)
+          by day 0 .. 10: 0.00014 0.00008 0.00129 0.00041 0.00004 0.00007 0.00011 0.00021 0.00014 0.00018 0.00013
+          (surface flux of the day, mm/d: 2.2 1.1 -10.9 -6.4 1.0 0.9 1.2 0.5 1.0 0.8 0.8)
+        Cross-check that the layer sensor is the one scored: the run's own summary gives 0.00154 against the
+        OBSERVATIONS, the solver on the same path 0.00155 (73 br).
+        RULE (<= 0.002 rms on the whole window): PASSED, by a factor of 4.7. Against the expectation (0.001 -
+        0.003): better than the expected range; the two days with showers are at 0.0013 and 0.0004.
+        0.00043 of sensor is 0.3 cm of water table at this window's sensitivity (0.05 per 0.30 m), so the
+        inversion rfnc1 is not limited by the PINN's forward accuracy at the level of R2 (1 cm).
