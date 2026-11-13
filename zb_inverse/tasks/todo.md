@@ -2738,3 +2738,110 @@ Real-case spec (first slice):
         with the soil of V4). The V4 calibration continuations (cal_hb2aug20_s0c / s1c / s2c, jobs 15553786,
         15553790, 15553791, started 22:01:40, 8 h limit) are still running: misfit 0.00122 / 0.00163 / 0.00098
         after 112 / 101 / 108 solves of the continuation (start 3 ended at 0.003651).
+    bl) 03:39 (13 Nov). RAIN WINDOW W_R1, PINN rfr1a (soil S_A) AFTER THE WIDE STAGE AND ROUND 1: THE OPERATOR IS NOT
+        ACCURATE ON THIS WINDOW. Interim (the driver is in round 2 of 4; nothing here is a final score).
+        PINN against the solver's estimate (S_A, start 0) and against the well, cm:
+          inversion          PINN - solver rms (max)   PINN - well rms / bias   sensor fit
+          rfr1a_inv0 (wide)  29.50 (61.6)              41.7 / +35.7
+          rfr1a_inv1 (r 1)   27.68                     39.3 / +33.9             0.0294 (solver 0.0069)
+          by part, inv1 (t < 1 d / 1 - 8.7 / 8.7 - 9.33 / from 9.33 d): PINN - solver 19.4 / 36.5 / 9.6 / 3.7
+          sensor fit by part: solver 0.0026 / 0.0038 / 0.0196 / 0.0082; PINN 0.0101 / 0.0202 (bias +0.017) /
+          0.1043 / 0.0210. Before the burst the PINN's theta at the sensor stays at 0.139 - 0.144 while the
+          sensor falls 0.137 -> 0.109 (the solver with zb at 1.5 m gives 0.113), and the PINN's estimate sits
+          on the deep bound (1.5 m) on days 2.5 - 7: the water table pays for a network that does not dry.
+          All four starts give the same estimate (spread 1.8e-8 m): stable, and wrong.
+        Scoring of the operator against the solver (scripts/param_validate.py, jobs 15566798 / 15566799,
+        runs/rfr1a_inv{0,1}/validation.json; SCORING ONLY):
+          theta at the sensor, operator - solver, round-1 members: 0.0231 at the well's path (max 0.182),
+          0.017 - 0.026 on local draws, 0.0065 - 0.023 on prior draws, 0.0303 at the PINN's own estimate,
+          0.0258 at the solver's; by 5-day segment about 0.011 / 0.037 - 0.046 / 0.001 - 0.010. Wide members:
+          0.0253 at the well's path. On the recessions the same numbers are 0.001 - 0.002.
+          Jacobian against finite differences of the solver: cosine 0.97 - 1.00 for the first two and the last
+          five coefficients, 0.84 - 0.90 for coefficients 3 - 7, 0.54 / 0.25 / 0.03 / 0.03 / 0.11 for 8 - 12
+          (the days around the burst); predicted contraction 2.27 (wide members 0.98): the refinement rounds
+          cannot be expected to converge to the solver's estimate from here.
+        What the training itself reports (metrics.csv; no solver needed to see it):
+          run            L_pde  L_flux  held-out pde / flux / box
+          rfr1a_w0       1.73   0.94    1.95 / 1.15 /  9.3
+          rfr1a_r1_m0    3.43   0.93    3.54 / 1.22 / 20.4   (27.9 - 34.9 in the last blocks)
+          rf22c_w0       1.41   5.98    1.49 / 6.14 /  3.0   (recession, for comparison)
+          rf22c_r1_m0    0.45   3.08    0.41 / 3.29 /  1.1
+          The held-out water balance of boxes (in sigma_theta^2) is 20 - 35 on W_R1 against 1 - 3 on a
+          recession: a layer-mean defect of 4.5 - 6 sigma_theta = 0.022 - 0.030, the size of the actual error.
+          The pointwise terms do not show it (L_flux 0.9 is LOWER than on the recession).
+        The residual scales on this window (src/zbinv/parametric.py physics_scales, one number each for the
+        whole window; computed from the data set with awk):
+          sigma_q = 0.1 x RMS(q) = 1.90 mm/d. 27 of the 337 hourly nodes have q < 0 (rain; RMS 67 mm/d), the
+          other 310 have mean 0.35 and RMS 0.65 mm/d: between the rains the flux condition is held to three
+          times the evaporation itself. On the recessions sigma_q is 0.026 (rf22c), 0.021 (rfp2), 0.27 mm/d (rfh1p).
+          sigma_pde = 0.650 (scaled time), = RMS of the day-mean d Se / dt = 0.16 /d, set by the two burst days
+          (+0.553, +0.238 /d); the dry days have 0.009 - 0.020 /d, the days after the burst 0.022 - 0.039 /d.
+          rf22c 0.170, rfp2 0.320, rfh1p 0.057.
+        HYPOTHESIS (NOT verified; what is established is only the numbers above): with one scale for the whole
+        window the rain hours set it, and between the rains neither the evaporation at the surface nor the slow
+        drying is enforced by the pointwise terms; only the box term asks for the water balance there, and it
+        is not brought down. The network then stays wet before the burst (+0.017) and the inversion answers
+        with the deep bound. Whether the burst itself (theta 0.15 -> 0.34 within the hour in a sand with
+        n = 10; the solver against its own finer grid differs by 0.055 - 0.064 in that hour) is within reach
+        of the network at all is a second, separate question.
+        PLAN 1 (test of the hypothesis; forward PINNs at ONE path, the cheapest run that can decide it):
+          Option, off by default (no run in progress changes): sigmas.q_by_regime / sigmas.pde_by_regime.
+          The scale of a residual is the size of the signal in the forcing regime of its time, the two regimes
+          being net infiltration (q_surf < 0) and not (the split the forcing-memory inputs already make,
+          model.forcing_split_sign):
+            flux  sigma_q(t) = q_frac x RMS of q over the hourly nodes of the regime of q_surf(t)
+            PDE   sigma_pde(t) = signal_rate_scale's estimate (day means, noise variance subtracted, same
+                  floor) over the pairs of consecutive days of one regime; a pair is 'infiltration' if either
+                  day has an infiltration hour; t belongs to the pair whose day-mean times bracket it
+          A regime that does not occur (or has RMS 0) leaves the window's scale: on a window without rain both
+          options give exactly the present method. No new constant; q_frac and pde_factor as they are.
+          W_R1 would get sigma_q 0.065 mm/d between the rains and 6.7 mm/d in the rain hours.
+          The code goes into a COPY of src/ and scripts/ (runs/_stage_regime/) and is run from there, so that
+          the jobs of the two drivers in progress keep importing the present source; it moves into src/ only
+          if the test supports it, after the tests (hpc/run_tests.slurm) pass on the copy.
+          Runs: forward PINN as in hpc/dc_loop.sh (sampling.mode=point, 25000 Adam + 15 L-BFGS blocks, seed 0,
+          the TS set of real_full_obs.sh) on output/real_ona_rain21_soilsep21 at the path of the well's spline
+          (truth_coef), three variants: A as it is, B q_by_regime, C q_by_regime + pde_by_regime.
+          Score (scoring only): param_validate.py with each as the one member -> theta at the sensor against
+          the solver on that path, whole window and by 5-day segment; and each run's own held-out box value.
+          EXPECTATION (written before the runs): A 0.010 - 0.025 with the first segment about 0.01 too wet
+          (as the operator); if the hypothesis holds, B brings the first segment (days 0 - 5, no burst) below
+          0.004 and the held-out box value below 5; C at least as good as B. The burst segment (days 5 - 10)
+          may stay at 0.02 - 0.04 in all three (second question above).
+          DECISION: the option is adopted (for every site run from now on, since it changes nothing on the
+          closed recessions without q < 0 hours) only if B or C reaches the solver to 0.004 on the segments
+          without the burst AND does not make the burst segment worse than A. If A is already there, the
+          hypothesis is wrong for the forward PINN and the fault is in the operator stage (then: the same
+          three variants as a local operator). If none gets there, the scales are not the cause.
+        PLAN 2 (in parallel, solver side only, CPU): a window with cycles where the sensor stays in its
+        sensitive range. US-PAS, 27 Jul - 2 Sep 2021 (daily and 6-hourly tables from the half-hourly record,
+        /tmp/hb2tools/rainsearch/pas_daily.txt, pas_6h.txt; rain stamps 24 h late here too: the sensor jumps on
+        27 Jul 13:00 and 4 Aug 07:00, the rain is stamped 28 Jul 13:00 and 5 Aug 07:00):
+          29 Jul - 3 Aug   recession, sensor 39.7 -> 18.0 %, well 0.27 -> 0.90 m
+          3 - 4 Aug        re-wetting: well 0.90 -> 0.50 m on 3 Aug with the sensor at 18.0 -> 21.4 %, then
+                           0.42 -> 0.22 m and 24.4 -> 40.5 % on the morning of 4 Aug; plateau to 7 Aug (41.1 %)
+          7 - 12 Aug       recession 41.0 -> 18.3 %, 0.32 -> 0.90 m
+          12 - 14 Aug      well to 0.33 m within six hours, sensor to 30.4 - 31.1 % and no further for two
+                           days (well 0.35 - 0.50 m; on the drying branch 0.37 - 0.44 m reads 33 - 40 %)
+          25 Aug - 2 Sep   three re-wettings back to the plateau (41.0 - 41.5 %) within 12 h each, recessions
+                           to 25.5 - 30 % between them; well 0.24 - 0.75 m
+          Windows (hourly forcing nodes and 1-day knots as configs/real_ona_rain21.yaml; site block as
+          configs/real_pas_oct21.yaml, p_shift_hours -23.5; point sensor [0.10, 0.10]):
+            C1 pas_jul21   29 Jul 12:00 + 9 d   calibration (recession, re-wetting, plateau; 18.0 - 41.1 %)
+            T1 pas_aug21b  7 Aug 12:00 + 6 d    test, soil of C1 (18.3 - 39.7 %)
+            T2 pas_aug21c  25 Aug 12:00 + 8 d   test, soil of C1 (25.5 - 41.5 %; C1 contains it to 0.004;
+                                                no window between holds its range: T1 tops at 39.7 %, the
+                                                existing aug21 window of 19 - 25 Aug bottoms at about 31 %)
+          Protocol d and the usable-soil rule as they are; R1 - R4 as they are.
+          Steps: make_real of C1 -> calibrate_soil, four starts -> hpc/transfer_solver.sh pas jul21
+          "[0.10,0.10]" aug21b aug21c (in-sample check + solver on both tests) -> PINN only where the rule
+          allows it, and only once PLAN 1 has settled how the PINN is run on a window with rain.
+          EXPECTATION (before any of it): the single-valued retention curve cannot follow the re-wettings in
+          which the well rises before the sensor does (3 Aug: 40 cm in 12 h at 18 - 21 %; 12 - 14 Aug: the
+          sensor 7 % below the drying branch for two days). The solver's estimate should be LATE by up to a day
+          on 3 - 4 Aug (in-sample) and 15 - 25 cm too deep on 12 - 13 Aug (T1, last day): T1 5 - 10 cm rms,
+          R3 not met. T2 has the cleanest cycles (each re-wetting completes within 12 h): 4 - 8 cm rms, with
+          the error at the rises (26 Aug: well 0.74 -> 0.46 m with the sensor at 26 -> 29 %) and at the
+          plateaus (sensor at saturation); r 0.9 or better. The calibration may be pulled by 3 - 4 Aug; if its
+          in-sample inversion is not within 2 cm (r 0.975 below saturation) the soil is not usable by the rule
+          and the tests are demonstrations only.
