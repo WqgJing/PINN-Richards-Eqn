@@ -3230,3 +3230,64 @@ Real-case spec (first slice):
         recession soil (19 - 24 cm), W_R1 with its own soil (19 - 20 cm), US-PAS C1 / T1 / T2 (12 - 16 cm):
         none invertible by the solver. Open: the two US-NC2 windows (calibration fits at this time: sep23c
         0.0018 - 0.0020 after 45 - 83 solves, start 3 finished; sep23d 0.0042 - 0.0087, start 3 finished).
+
+    73 br. (13 Nov, 10:29) US-NC2 SMALL CYCLE (C_N1 = sep23c): THE SOLVER INVERTS IT TO 1.1 cm FROM ALL FOUR
+        STARTS -> FIRST RAIN WINDOW THAT PASSES THE GATE. PINN STARTED ON IT. US-ONA PINN rfr1a ENDED.
+        C_N1, solver side (logs/cycle_nc2_sep23c.log, "done" 09:52):
+        - soil: all four calibration starts end at ONE soil, misfit 0.001551 (jobs 15574012/14/16/18):
+          theta_s 0.41935, theta_r 0 (lower bound), alpha 0.8223, n 2.747, Ks 1.923e-6
+          (file output/soil_nc2_sep23c/start1.json, lowest misfit by 1e-9). Expectation (fit <= 0.003): met.
+          NOTE: this theta_s is below the sensor's plateau at this site (0.555) and below 66 hourly readings
+          of this very window (sensor up to 0.4285 after the showers): it is an effective curve for sensor
+          readings 0.38 - 0.43, not the soil of the profile. In-sample -> every result here is a DEMONSTRATION.
+        - data set with that soil (output/real_nc2_sep23c_own, job 15578663): solver at the well's record
+          against the sensor 0.00155, bias 0.0000, max 0.0124, r 0.984; hourly against finer solver 0.0003.
+        - solver inversion (output/referee/nc2_own_sep23c_s0..3, jobs 15578769 - 72, 12 - 34 min): all four
+          starts the same estimate: cost 0.09178, sensor fit 0.00151, no coefficient on the box, posterior
+          sigma (median) 1.1 cm. Against the HOURLY well (awk on predictions.npz / real.npz):
+                                whole window (265 h)             below saturation (sensor < 0.4044, 199 h)
+            solver - well       1.11 cm, +0.11, max 3.1, r 0.990    0.99 cm, -0.05, max 3.0, r 0.986
+            solver - spline     0.76 cm, +0.12, max 1.7, r 0.996    0.77 cm, -0.03, max 1.7, r 0.992
+            floor (spline-well) 0.81 cm,  0.00, max 3.5, r 0.995    0.65 cm, -0.02, max 3.3, r 0.994
+          by day (solver - well, rms cm): 0.3, 1.8, 1.7, 1.7, 1.0, 0.4, 1.1, 0.7, 1.0, 0.6, 0.7 (days 1 - 3 =
+          the dry-down before the showers and the showers themselves, mean +0.9 to +1.1 cm).
+        RULES APPLIED (as written): GATE (73 bq, amended 07:1x: <= 4 cm of the spline below saturation):
+        0.77 cm -> PASSED. Usable-soil rule (<= 2 cm and r >= 0.975 below saturation against the hourly
+        well): 0.99 cm, r 0.986 -> PASSED. Solver against R3 (3 cm, |bias| 2 cm, r 0.98): inside, whole
+        window and below saturation. Expectation (solver 2 - 4 cm): better than expected.
+        What this window is and is not: a cycle with re-wetting (well 0.54 -> 0.645 -> 0.47 -> 0.78 m; sensor
+        0.406 -> 0.395 -> 0.428 -> 0.380), small (three showers, 21 mm), and scored with a soil that has seen
+        its well. A held-out test needs a later US-NC2 window whose sensor range lies inside 0.379 - 0.4285
+        with this soil (rule d); C_N2 does not (0.377 - 0.557) and overlaps it by three days.
+        C_N2 = sep23d, state: soil = start 1, misfit 0.004224 (three starts agree: theta_s 0.5663, theta_r
+        0.20 (upper bound), alpha 6.98, n 1.461, Ks 5.63e-4; start 3 stays at 0.0138 in another minimum);
+        expectation (0.005 - 0.010): slightly better. Solver inversions running.
+        PLAN FOR THE PINN ON C_N1 (written before either run starts; method and settings unchanged):
+          a) inversion rfnc1: hpc/real_full_obs.sh rfnc1 output/real_nc2_sep23c_own "[0.0,0.30]"
+             (4 wide members -> 4 refinement rounds -> value-correction loop). Reference for R2:
+             output/referee/nc2_own_sep23c_s0..3.
+          b) forward check fwd_nc2c: hpc/fwd_truth.sh fwd_nc2c output/real_nc2_sep23c_own "[0.0,0.30]"
+             (one forward PINN at the well's spline against the solver at the same path).
+             RULE: the operator holds through the cycle if theta at the sensor is within 0.002 rms of the
+             solver on the whole window (the window's sensitivity is 0.05 of sensor per 0.30 m of water
+             table, so 0.002 is 1.2 cm).
+          EXPECTATION (before any PINN number): forward check 0.001 - 0.003 (US-PAS C1: 0.0015 on its dry
+          days, 0.0049 through its rain, at rain rates ten times these); R1 spread < 0.2 cm; R2 (PINN -
+          solver) 1 - 2.5 cm, open whether <= 1 cm: the rain rate of the showers (up to 8 mm/h = 2.2e-6
+          m/s) is above this soil's Ks (1.9e-6 m/s) for single hours; R3 against the hourly well 1.5 - 3 cm.
+          If R2 fails with the forward check inside its rule: look at the value-correction loop first
+          (its forward offsets), then the reserve list (causal weights, decomposition at the showers).
+        US-ONA W_R1, PINN rfr1a (recession soil S_A), ENDED 10:24 (logs/full_rfr1a.log "done"): refinement
+        rounds inv0 .. inv4 = 41.7, 39.3, 42.4, 38.4, 36.0 cm from the well; value-correction loop it 1 - 4 =
+        36.5, 39.2, 39.2, 39.3 cm (bias +31 to +33, max 59 - 65), step/sigma 4.8, 2.8, 1.8, 2.5 -> NOT
+        converged after its four iterations; nine of 17 coefficients on the box; sensor fit 0.0225 - 0.030.
+        Solver with the same soil: 23.2 - 24.1 cm, sensor fit 0.0069. So on this window the PINN is not at
+        the solver's estimate either (R2 fails by a wide margin; scored below). Not followed up now: the
+        window failed the solver side twice (S_A 23 - 24 cm, own soil 19 - 20 cm) and no result on it can
+        count; noted as an open PINN question (a window where the soil is 0.027 off at the well's record).
+        (Consistent with 73 bl: its interim table had inv0 / inv1 at 41.7 / 39.3 cm from the well and 29.5 /
+        27.7 cm from the solver's estimate. The distance to the well did not close in the later rounds or
+        the loop; the final distance to the solver's estimate comes from scripts/score_real.py, below.)
+        10:29:30. STARTED: PINN driver rfnc1 (process group 3839010, logs/full_rfnc1.log) and forward check
+        fwd_nc2c (process group 3839430, logs/fwd_fwd_nc2c.log) on output/real_nc2_sep23c_own. Scoring of
+        rfr1a submitted (jobs 15581634 score_real, 15581635 plot_real_pinn; final directory runs/rfr1adc_it4).
