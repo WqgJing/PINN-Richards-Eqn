@@ -3012,3 +3012,28 @@ Real-case spec (first slice):
            for and takes 7 - 10 h; in-sample soil, so it is a demonstration whatever the score, and it counts as
            evidence for R1 - R3 on a cycle only if a) holds. T1 and T2 (soil from C1, nothing fitted on them)
            are the counting runs and wait for a).
+        05:50 - 06:00. STARTED, AND ONE RUN STOPPED.
+        Data sets with S_C1 (make_real jobs 15571383 - 15571385; all admissible, solver converged on every step):
+                                 solver at the well's record vs sensor     best-fit 1-day spline vs hourly well
+                                 rms      bias      max     r              whole    below saturation (bias, r, n)
+          C1 jul21  (in-sample)  0.0138   0.0000    0.036   0.988          3.3 cm   3.9 cm  (-0.3, 0.981, 142 h)
+          T1 aug21b (S_C1)       0.0301   -0.0182   0.049   0.927          5.7 cm   5.7 cm  (-0.3, 0.943, 144 h)
+          T2 aug21c (S_C1)       0.0637   -0.0588   0.137   0.969          6.4 cm   6.5 cm  (-1.5, 0.858, 146 h)
+        Two things read off this table before any inversion result exists:
+        - the spline floor BELOW saturation is 3.9 / 5.7 / 6.5 cm with r 0.981 / 0.943 / 0.858: neither the 2 cm
+          of the usable-soil rule nor R3 (3 cm, r 0.98) can be met against the hourly well on these windows by
+          any estimate that is a 1-day spline. The rule and the knot spacing stay as they are (fixed in 73 bl
+          before this was seen), so these windows cannot count; what is reported next to every estimate is its
+          distance to the hourly well, the floor, and its distance to the best-fit spline (the reachable target).
+        - S_C1 does not carry to T2: the solver at the well's own record is 0.059 too dry there (0.018 on T1).
+          The solver inversion of T2 will be pulled shallow by that; T2 is expected to fail on the soil alone.
+        b) forward PINN fwd_pasc1 (hpc/fwd_truth.sh, new: local file assembled from truth_coef, three duplicate GPU
+           submissions 15571665/70/75, then param_validate and truth_error_profile --sensor fem; log
+           logs/fwd_fwd_pasc1.log) and c) PINN driver rfpc1 (logs/full_rfpc1.log) started 05:50.
+        rfr1o STOPPED at 05:54 (driver process group killed, its twelve queued/running round-2 jobs 15571559 -
+        15571570 cancelled and confirmed CANCELLED). Reason: its window cannot give a reproduced water table -
+        the solver's own in-sample inversion sits 19 - 20 cm from the well, and the PINN's first two inversions
+        are at 22.2 and 23.1 cm (bias +13.8 / +15.4, max 50) - and its jobs were queued ahead of the US-PAS
+        runs on all three GPU partitions. Kept: runs/rfr1o_w0..3, rfr1o_inv0, rfr1o_r1_m0..3, rfr1o_inv1.
+        rfr1a (recession soil, last refinement round) runs on to its end: it is the one US-ONA rain-window
+        figure, to be shown with the caveat above.
