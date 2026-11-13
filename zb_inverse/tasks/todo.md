@@ -2517,3 +2517,61 @@ Real-case spec (first slice):
                   further site is wanted.
         So bf's last sentence becomes: with near-surface sensors there is one further candidate (CL-SDF),
         of the same kind as US-HB2.
+    bh) 23:55 (12 Nov). FIGURES OF THE PINN RUNS, AND A WINDOW WITH RAIN (asked by the user: every window shown
+        is a monotone drydown).
+        Figures against the observations only (scripts/plot_real_pinn.py, new: sensor observed / PINN, water
+        table observed / PINN; no solver line), commits 8072005 and 9eae874:
+          output/real_ona_nov22_caloct22/result_rf22c_pinn.png, output/real_ona_oct22_soilnov21/result_rf22ob_pinn.png,
+          output/real_pas_oct21_soilsep21/result_rfp2_pinn.png, output/real_hb2_mar20_soilsep19_pre/result_rfh1p_pinn.png
+        Checked for the answer: the forcing of every data set so far is DAILY nodes (centred daily means,
+        linear in between), the PINN fits the hourly sensor; the diurnal part of the sensor (theta minus its
+        centred 24-h mean) is 0.0012 - 0.0033 rms, 0.003 - 0.008 peak to peak, against falls of 0.2 - 0.25.
+        All windows are rain-free by construction (68 e).
+
+        RAIN WINDOW - facts from the records, before any run (awk over the half-hourly file, /tmp/hb2tools/
+        daily.sh; US-ONA has sensor and well together in 2021 - 2022 only):
+        - Search: 12-day windows, sensor and well complete, water table 0.15 - 1.3 m throughout, a rain day
+          >= 3 mm in the middle. Found: Feb 2021 (1.09 - 1.28 m, sensor 7 - 11 %), 28 Oct - 10 Nov 2021,
+          13 - 29 Dec 2021 (0.97 - 1.22 m, sensor 9 - 12 %), 5 - 22 Oct 2022 (LE on 0 - 29 % of the half-hours), 25 Oct - 9 Nov 2022,
+          7 - 31 Dec 2022.
+        - 28 Oct - 10 Nov 2021: dry since 13 Oct. 28 Oct 12:30-17:00, 4.6 mm: well 1.04 -> 0.85 m by 21:00,
+          sensor 12.0 -> 13.9 %. 5 Nov, 25.2 mm: 10 mm until noon (1.03 -> 0.76 m, 10.9 -> 15.1 %), 15 mm from
+          19:30, 13.8 mm of it in the first hour: well 0.745 -> 0.384 -> 0.264 -> 0.204 m at 20:30 / 21:00 /
+          21:30, sensor 14.9 -> 33.9 %. Then a recession to 0.67 m / 29.0 % on 10 Nov. Well and sensor answer
+          the rain within the hour; 27 cm of rise on 10 mm, 55 cm on 14 mm (2.5 - 3.7 mm of rain per 10 cm).
+        - 2 Nov 2022 19:00-20:30, 6.8 mm: sensor 13.4 -> 18.5 % within the hour; the well stays at 0.90 m,
+          steps to 0.69 m on 3 Nov 20:00-21:30 and back to 0.86 m on 4 Nov 16:00-16:30 (12 cm in one
+          half-hour), no rain and no change at the sensor at either step. 15 Dec 2022, 14 mm: sensor
+          14.3 -> 31.4 %, the well stays at 0.87 - 0.92 m for two days and is at 0.30 m on 17 Dec (no rain,
+          sensor 30.4 - 31.1 %). In late 2022 the well moves one to two days after the rain and not with the
+          sensor: steps that no reading of the sensor can time. NOT taken (cause not known, not looked for).
+        - Dec 2021 and Feb 2021: sensor at 7 - 12 %, around theta_r of the calibrated soils (0.098 - 0.130):
+          next to no sensitivity to the water table (hand check with S_B: 0.0008 theta per cm at 0.9 - 1.07 m).
+          Not taken.
+        -> window W_R1 = US-ONA 27 Oct 2021 12:00 + 14 d (configs/real_ona_rain21.yaml), the one window in which
+        rain, sensor and well move together. Water table 0.20 - 1.07 m, sensor 10.8 - 33.9 %.
+        What rain changes in the set-up (fixed here, before any run; nothing else differs from the recessions):
+          forcing.node_hours 24 -> 1   (bursts of 30 - 60 min; daily nodes spread them over two days)
+          zb_spline.knot_days 5 -> 1   (17 coefficients; the rise of 5 Nov takes two hours, so even daily
+                                        knots smooth it: the fit of the spline to the record is reported)
+        Soil: NO soil qualifies by protocol d. The only earlier recession is A (Sep 2021, S_A, usable), sensor
+        range 0.221 - 0.379: it does not contain 0.108 - 0.221. B (S_B, 13 Nov 2021 + 30 d) is the recession
+        that FOLLOWS and S_B is not a usable soil (ac); S_C is a year later. So W_R1 cannot count for R4
+        whatever comes out; it is a demonstration. Soil of the runs = S_A (the one earlier, usable soil;
+        extrapolated below 0.221, which is said with every number). S_B and S_C: forward check only.
+        Known beforehand (retention curves, hand check, not a result): theta_r of S_B (0.1114) and S_C (0.1261)
+        is above the 10.8 - 10.9 % the sensor reads before the rain; and after the burst of 5 Nov the sensor
+        reads 33.9 % with the well at 0.20 m, while it read 35.6 - 37.4 % with the well at 0.17 - 0.30 m on the
+        recessions (13 Nov 2021, 23 Nov 2022; theta_s 0.350 - 0.369): on re-wetting the sensor stays 2 - 4 % below the drying curve the soils were
+        calibrated on (hysteresis / trapped air), and a single-valued retention curve reads that as a water
+        table 0.3 - 0.4 m deeper than the well for the first days.
+        Order (solver = forward check and scoring only, as always):
+          1. scripts/make_real.py, W_R1 with S_A / S_B / S_C: FEM with the OBSERVED hourly water table and
+             the hourly rain against the sensor (record and spline). This says whether the Richards model
+             with a recession soil holds through a rain event at all; the level of the transfers that led
+             to R3-level inversions is 0.007 - 0.010 rmse (g, line 1459).
+          2. solver inversion (fem_referee, four starts, --box) and PINN (hpc/real_full_obs.sh, unchanged)
+             on W_R1 with S_A - run whatever 1 gives (the user asked to see it), expectation written down
+             from 1 before the numbers of 2.
+          3. scripts/score_real.py and plot_real_pinn.py; R1 - R3 as they are, whole window and below
+             saturation; additionally the scores for the hours before the burst of 5 Nov and after it.

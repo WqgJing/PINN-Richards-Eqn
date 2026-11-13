@@ -1,0 +1,73 @@
+# Real data, RAIN window: US-ONA, 27 Oct - 10 Nov 2021 (scripts/make_real.py; tasks/todo.md finding 73 bh).
+# Dry since 13 Oct; two rain events inside the window, each followed by a recession:
+#   28 Oct 12:30-17:00   4.6 mm: water table 1.04 -> 0.85 m, sensor 12.0 -> 13.9 %
+#   5 Nov               25.2 mm: 10 mm until noon (water table 1.03 -> 0.76 m, sensor 10.9 -> 15.1 %), then 15 mm from
+#                                19:30, 13.8 mm of it within the first hour (0.75 -> 0.20 m in two hours, 14.9 -> 33.9 %)
+# The well and the sensor answer the rain within the hour. Sensor, well and rain complete; ends before the rain of
+# 11 - 12 Nov, which takes the water table to 0.07 m.
+# Same set-up as configs/real_ona_sep21.yaml except for what rain needs:
+#   forcing.node_hours 1    the bursts last 30 - 60 min; daily nodes would spread them over two days
+#   zb_spline.knot_days 1   the water table rises within hours of the rain (5-day knots are for recessions)
+#   given    half-hourly LE (-> ET), rain, soil moisture SWC_1_1_1 (TDR at 0.10 m below the surface)
+#   truth    half-hourly water-table depth WTD (scoring only)
+# Transpiration fraction: GLDAS ratio T_p / (E_soil + T_p) of the pixel next to the site, by calendar day.
+# Soil: calibrated Florida set (CLAUDE.md); the runs override it with a soil calibrated on a recession (--set soil.*).
+site:
+  name: US-ONA
+  amf_csv: /storage/project/r-rbras6-0/jjason3/fem_validation/uploaded_data/AMF_US-ONA_BASE-BADM_4-5/AMF_US-ONA_BASE_HH_4-5.csv
+  columns: {le: LE, p: P_RAIN, wtd: WTD, swc: SWC_1_1_1}
+  p_shift_hours: 0.0          # rain record in step with the water table at this site
+  gldas_csv: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/data/gldas_G02101_2015_2024.csv
+
+forcing:
+  node_hours: 1
+  fill_half_window_days: 7    # mean-diurnal-cycle filling of missing LE
+  transpiration_fraction: gldas
+  check_fractions: [0.0, 0.5, 1.0]
+
+fem:                          # as configs/twin_gldas_fl.yaml (forward check and scoring only)
+  root: /storage/project/r-rbras6-0/jjason3/wtd_pipeline
+  L: 12.0
+  n_nodes: 101
+  max_iter: 50
+  tol: 1.0e-5
+  omega: 0.5
+  dt_hours: 1.0
+  check_dt_hours: 0.25
+  check_n_nodes: 201
+
+soil:
+  theta_s: 0.43
+  theta_r: 0.02
+  alpha: 3.6
+  n: 1.56
+  Ks: 2.9e-6
+  l: 0.5
+  Ss: 1.0e-5
+  blend_width_m: 0.02
+  abs_smooth_m: 1.0e-3
+
+scaling:
+  L: 2.0
+
+window:
+  start: '2021-10-27T12:00'
+  n_days: 14
+
+zb_spline:
+  knot_days: 1.0
+  zb_min: 0.05
+
+reference:
+  h_surf_admissible_m: -10.0
+
+obs:
+  depth_m: [0.10, 0.10]       # point sensor
+  interval_hours: 24
+  max_gap_hours: 3
+
+truth:
+  max_gap_hours: 3
+
+output:
+  dir: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/real_ona_rain21
