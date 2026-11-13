@@ -2470,3 +2470,26 @@ Real-case spec (first slice):
         Two of five signs against it, at the site where the rule would be judged (US-HB2) one of them by
         the largest factor. Choosing it now would be choosing a rule on tests that are already scored.
         Not adopted; protocol d stays.
+    bf) 22:35. Is there a FIFTH site in fem_validation/uploaded_data? (read-only, awk over the half-hourly
+        files on the login node, nothing fitted; not looked at in ay: the 17 sites below). Counted: Jun -
+        Sep half-hours with the water table 0.15 - 1.2 m below the surface together with a soil-moisture
+        record and LE; then the reading of the sensors by depth of the water table (mean and sd over all
+        years, 0.1 m bins).
+          US-Ho1 (forest on stony till; sensors at -0.05 / -0.1 / -0.2 / -0.5 / -1 m, wells 0.8 and 1.45 m
+                  deep, 2008 - 2025): sensor at -0.1 m reads 31.6 / 30.2 / 29.2 / 28.6 / 28.1 / 27.0 / 26.3 %
+                  with the water table at 0.0 ... 0.6 m, spread within a bin 10 - 15 %: 0.09 theta per m.
+                  A retention drift of 0.01 is 11 cm of depth (US-NC2: 0.26 per m; US-HB2: 1 per m) -> no.
+          CA-Mer (bog, peat; 1998 - 2020, water table 0.2 - 0.7 m): sensors at -0.1 m follow the rain, not
+                  the water table (51 / 46 / 36 / 37 / 35 / 30 % with sd 5 - 17 %; another 21 / 12 / 10 / 7 /
+                  5 / 4 % with sd up to 16 %). The sensors at -0.4 / -0.5 m follow it closely (SWC_3_5_1:
+                  89.7 / 86.7 / 63.3 / 49.7 / 42.2 / 36.2 % at 0.2 ... 0.7 m, sd 1.6 - 9 % over eleven
+                  years) but they sit 0 - 0.3 m above the water table: not the near-surface problem this
+                  work is about, and peat (compressible, moss layer) is outside the rigid van Genuchten
+                  soil of the model. Not taken; noted as the one record where a deep sensor would work.
+          CA-ARB, CA-ARF, CA-PB2 (bog / fen): water table within 0.0 - 0.3 m (0.5 m at most) -> no range.
+          CA-CF3 (2024 only, above the surface), CA-TP4 (5.5 - 7.4 m), US-Ton (1.5 - 9.4 m), CL-SDF / CL-SDP,
+          US-Elm, US-Esm (water table above the surface), US-HRA / US-HRC (rice, irrigated: the flux
+          cannot be built), US-StJ, US-Hsm (tidal marsh: the water table moves twice a day), US-Uaf
+          (permafrost: frozen layer), US-CLF (3 - 5 m), US-CRT (drainage tiles) -> no.
+        So with near-surface sensors the four sites used are all there is in this collection. R4 cannot
+        be tried on further data here; it is decided by US-HB2 (T_H3 - T_H5 running).
