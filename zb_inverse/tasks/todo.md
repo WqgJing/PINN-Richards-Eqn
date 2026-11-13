@@ -2845,3 +2845,54 @@ Real-case spec (first slice):
           plateaus (sensor at saturation); r 0.9 or better. The calibration may be pulled by 3 - 4 Aug; if its
           in-sample inversion is not within 2 cm (r 0.975 below saturation) the soil is not usable by the rule
           and the tests are demonstrations only.
+    73 bm. (13 Nov, 03:40 - ) PLAN 1 and PLAN 2 of 73 bl started.
+        PLAN 1, code (staged copy runs/_stage_regime/{src,scripts,tests}; src/ of the running drivers untouched):
+          train.py      signal_rate_scale split into day_mean_rates (day numbers, day-mean times, rate^2 and
+                        noise^2 per pair) and rate_scale (noise subtraction and floor); same numbers as before
+          parametric.py RegimeScales (sigmas.q_by_regime / sigmas.pde_by_regime, both off by default) and
+                        ParamTrainer.sq(tb) / sp(t), which return the window-wide numbers when the option is off;
+                        the five divisions by sig_q / sig_pde go through them
+          A node with q < 0 on a day boundary counts for both days (the interpolated flux is negative on both
+          sides of it).
+          Tests added (tests/test_parametric.py): test_regime_scales (no infiltration -> exactly the window
+          scales; with it -> the formulas over the nodes / day pairs of each regime, and the time -> regime
+          maps), test_regime_option_off_by_default_and_same_loss_for_equal_scales (trainer: off by default;
+          switched on with both regimes given the window value, every loss term and the held-out terms are the
+          same numbers to 1e-12).
+          Data check before relying on the sign split: in W_R1 the 27 nodes with q < 0 are all rain hours
+          (days 1, 2, 8, 9; no night-time q < 0), so pairs (0,1) (1,2) (2,3) (7,8) (8,9) (9,10) are the
+          infiltration regime, 6 of 13.
+        PLAN 1, runs (runs/_stage_regime/abc_fwd.sh; forward PINN at the well's spline, seed 0; V100):
+          rgA_truth  as it is                      job 15567457   q~ 1.355e-2, pde 0.650
+          rgB_truth  q_by_regime
+          rgC_truth  q_by_regime + pde_by_regime   job 15567458   q~ [4.63e-4, 4.78e-2] (0.065 / 6.7 mm/d),
+                                                                  pde [0.0917, 0.952]
+        PLAN 2, set-up: configs/real_pas_jul21.yaml (C1), real_pas_aug21b.yaml (T1), real_pas_aug21c.yaml (T2).
+          Rain time shift checked event by event on the half-hourly record, 28 Jul - 30 Aug 2021 (stamp of the
+          rain against the half-hour in which the well starts to rise): 23.5 h for 28 Jul, 3 Aug, 4 Aug, 10 Aug,
+          12 Aug, 13 Aug, 14 Aug, 26 Aug, 27 Aug, 29 Aug; 24.0 h for 9 Aug and 16 Aug. p_shift_hours -23.5
+          as in the other US-PAS configs.
+          The well's rises are large for the rain that causes them: 12 Aug 16:00 - 17:00, 17 mm, 0.89 -> 0.33 m
+          with the sensor going 18.5 -> 28.2 %; 26 Aug, 7 mm, 0.78 -> 0.44 m.
+        PLAN 1, tests (03:54): staged suite, job 15567582: 0 failed, both new tests PASS (the first run, job
+          15567428, failed in the new trainer test on its own set-up: n_tan = 8 is too small for the sampler,
+          int(frac_rain * n) = 0; n_tan = 32 as in the existing centre-term test. Every other test passed in
+          that run already, so the split of signal_rate_scale changes no number.)
+        PLAN 2, data sets (make_real, jobs 15567542 - 15567544, 03:52; all admissible, solver converged on every
+          step; solver vs finer solver 0.0023 / 0.0057 / 0.0035):
+                     days  coef.  rain mm  ET mm  well m       sensor          1-d spline vs hourly well
+          C1 jul21   9     12     37.4     28.5   0.21 - 0.92  0.180 - 0.411   rmse 3.3 cm, max 13.4, r 0.991
+          T1 aug21b  6      9     21.8     21.7   0.33 - 0.90  0.183 - 0.402   rmse 5.7 cm, max 27.8, r 0.944
+          T2 aug21c  8     11     40.0     23.5   0.24 - 0.77  0.257 - 0.415   rmse 6.4 cm, max 21.8, r 0.910
+          Sensor range of C1 contains T1's, and T2's to 0.004 (rule: to within 0.005) -> C1 soil is admissible
+          for both under protocol d.
+          C1 is a full cycle in both records: sensor 0.34 -> 0.18 over 4.8 days, 37 mm on days 4.8 - 5.9,
+          sensor back to 0.41, well 0.30 -> 0.92 -> 0.22 m.
+          LIMIT SEEN BEFORE ANY INVERSION: the well rises within an hour or two and a spline with 1-day knots
+          cannot follow that (3.3 / 5.7 / 6.4 cm rms from the hourly record at its best fit). R3 asks for 3 cm
+          against the well, so on T1 and T2 no estimate of this form can meet R3 on the whole window; the score
+          of the best-fit spline is the floor and is reported next to every estimate. Knot spacing is not
+          changed after seeing this (1 day was fixed in 73 bl for rain windows).
+          With the site's default soil the solver at the observed water table is 0.045 - 0.053 from the sensor
+          on C1 (too wet by 0.07 at the dry end): the calibration has to do the work.
+        NEXT: four calibration starts on C1 (output/soil_pas_jul21), then transfer_solver.sh pas jul21 on T1, T2.
