@@ -3291,3 +3291,12 @@ Real-case spec (first slice):
         10:29:30. STARTED: PINN driver rfnc1 (process group 3839010, logs/full_rfnc1.log) and forward check
         fwd_nc2c (process group 3839430, logs/fwd_fwd_nc2c.log) on output/real_nc2_sep23c_own. Scoring of
         rfr1a submitted (jobs 15581634 score_real, 15581635 plot_real_pinn; final directory runs/rfr1adc_it4).
+        10:30. rfr1a SCORED (scripts/score_real.py job 15581634, plot job 15581635; final directory
+        runs/rfr1adc_it4; files output/real_ona_rain21_soilsep21/result_rfr1a.json|png, result_rfr1a_pinn.png):
+          PINN - hourly well      39.30 cm, bias +33.42, max 65.4, r 0.844 (337 h, all below saturation)
+          PINN - solver (start 0) 28.21 cm, bias +16.33, max 61.0, r 0.773
+          solver - hourly well    24.09 cm, bias +17.10, max 48.3, r 0.794
+          starts of the PINN      spread max 1.85 cm; posterior sigma (median) 11.8 cm
+          sensor fit              PINN 0.0225, solver 0.0069; solver at the well's record 0.0271
+        -> R1 fails (1.85 cm against 0.2), R2 fails (28 cm against 1), R3 fails. The figure is kept as the
+        record of a window that neither method inverts; it is not shown as a reproduction.
