@@ -3094,3 +3094,80 @@ Real-case spec (first slice):
           inversions rfr1a_inv0 and inv1 themselves were 29.5 and 27.7 cm from the site solver's estimate.
           No hpc driver calls param_validate (grep of hpc/); R2 of every site result is scored by
           scripts/score_real.py against scripts/fem_referee.py, the site solver with the sink.
+    73 bq. (13 Nov, 06:57) US-PAS CYCLE WINDOWS, SOLVER SIDE COMPLETE: THE SOLVER ITSELF IS 12 - 16 cm FROM THE
+        WELL, IN-SAMPLE INCLUDED. NEXT CYCLE WINDOWS: US-NC2 (plan written before any run there).
+        Chain of 73 bo a) (logs/transfer_pas_jul21.log, 05:45 - 06:47; soil S_C1 = start 3; four starts each;
+        zb RMSE / bias / max in cm against the hourly well, coefficients on the box):
+          C1 in-sample (pas_own_jul21_s0..3)     11.88 / -0.51 / 32.9  [0,4,7]  cost 1.556 (starts 0, 1, 3);
+                                                 start 2 (constant 1.0): cost 1.651, 23.81 / +10.46 / 61.1
+          T1 = aug21b (pas_jul21on_aug21b_s0..3) 14.5 / -8.5 / 44.3    []       cost 0.977 (all four)
+          T2 = aug21c (pas_jul21on_aug21c_s0..3) 15.55 / -12.5 / 31.7  [6,10]   cost 6.593 (all four)
+        C1 below saturation (theta_obs < theta_s - 3 sigma = 0.3986; 142 h; awk on predictions.npz of s0):
+          13.99 cm, bias +1.05, r 0.780 (whole window r 0.897). Floor of a 1-day spline: 3.9 cm, r 0.981.
+        RULES APPLIED (unchanged): usable soil needs <= 2 cm and r >= 0.975 below saturation in-sample -> S_C1
+        is NOT usable; T1 and T2 are outside the margin (4 cm) -> no counting PINN run on T1 / T2. The PINN
+        run rfpc1 on C1 (in progress) stays what 73 bo c) said: a demonstration, and the R1 / R2 evidence on
+        a cycle (reference: the solver estimate of starts 0 / 1 / 3).
+        WHERE the solver's estimate leaves the well (s0; by day: rms of solver(theta) - sensor at the well's
+        spline / at the estimate; estimate - well rms and mean, cm):
+          day 0  0.0269 / 0.0094   5.1  +5.0      day 5 (rain) 0.0131 / 0.0113   7.2  +1.9
+          day 1  0.0096 / 0.0035   5.4  -4.5      day 6        0.0036 / 0.0037   1.9  +1.0
+          day 2  0.0090 / 0.0033  20.9 +16.8      day 7        0.0063 / 0.0013   2.7  -2.3
+          day 3  0.0078 / 0.0070  15.7  +3.8      day 8        0.0232 / 0.0018   9.9  -9.8
+          day 4  0.0070 / 0.0067  19.3 -16.1
+        - days 2 - 4 (well 0.64 - 0.92 m, sensor 0.29 -> 0.18): two water tables 16 - 21 cm apart give the
+          sensor to within 0.003 - 0.007 of each other - e.g. day 2.75: well 0.75 m -> 0.236, estimate 1.05 m
+          -> 0.239. With n = 3.07 the soil at 0.10 m has drained to where ET and slow drainage set it, not the
+          water table. The estimate swings +17 / -16 cm around the well there: 1-day knots, no information.
+        - day 0 and day 8: the solver at the well's own record is 0.027 / 0.023 off the sensor (day 0: too wet
+          by 0.03 in the first 18 h; day 8: the well falls 0.28 -> 0.36 m while the sensor stays at 0.41, the
+          model dries to 0.37 - a capillary fringe wider than this van Genuchten curve has). The fit takes
+          the misfit away by moving the water table 5 - 10 cm. On day 8 the sensor is on its plateau, so
+          nothing can be read from it anyway.
+        - the rise itself (days 5 - 7) is followed within 2 - 7 cm.
+        Reading: on this soil a sensor at 0.10 m constrains the water table only while it is shallower than
+        about 0.6 m; the dry half of the cycle is outside that. This is the forward model and the sensor, on
+        the solver side - the PINN matches that solver through the cycle to 0.0035 (73 bp).
+        Two sites, four rain / cycle windows, none invertible by the solver: US-ONA W_R1 (19 - 24 cm), US-PAS
+        C1 / T1 / T2 (12 - 16 cm). Both are sands (n 3 - 10) with the water table falling to 0.9 - 1.5 m.
+        PLAN: CYCLE WINDOWS AT US-NC2. Reason, from what is on record (73 aq, 73 az): n 1.2 - 1.3 there, the
+        sensor (rods 0 - 0.30 m) follows the water table at 0.26 per m down to about 0.8 m, and the in-sample
+        solver inversions of its recessions are 0.6 - 0.9 cm from the well (r 0.998) - the one site where the
+        sensor is tied to the water table. What failed there was the TRANSFER of a soil between windows
+        (retention drift 0.02 = 9.5 cm), which an in-sample window does not test.
+        Windows, chosen from the records only (awk on the half-hourly file, Aug - Oct 2023, this entry; rain and
+        the rise of the well coincide to the half-hour in both events; no gaps in rain, well or sensor; LE
+        missing in 124 of 528 and 145 of 576 half-hours, filled as everywhere):
+          C_N1 = sep23c  10 Sep 12:00 + 11 d  (14 coefficients). Well 0.54 -> 0.645 m, three showers of 5 - 8
+                 mm (12 Sep 16:00, 13 Sep 01:00, 13 Sep 14:00) lift it to 0.47 m, recession to 0.78 m.
+                 Sensor 40.6 -> 39.5 -> 41.2 -> 38.0 %. Everything inside the box [0.20, 1.50] m, below the
+                 plateau (55.5 %) and shallower than 0.8 m. A small cycle (sensor amplitude 0.03).
+          C_N2 = sep23d  18 Sep 12:00 + 12 d  (15 coefficients). Well 0.68 -> 0.78 m, 170 mm in 22 h from 22
+                 Sep 10:30 (up to 16 mm per half hour) lift it to 0.107 m, recession to 0.40 m.
+                 Sensor 39.4 -> 37.7 -> 55.7 -> 45.9 %. A large cycle, with two known handicaps: the well is
+                 ABOVE the shallow bound of the box (0.107 - 0.20 m) for about 2 days, and the sensor is on
+                 its plateau for about 1 day (22 Sep 22:00 - 23 Sep).
+        Set-up: configs/real_nc2_sep23b.yaml with the two settings of the rain windows fixed in 73 bl
+        (forcing.node_hours 1, zb_spline.knot_days 1); sensor layer [0.0, 0.30]. Nothing else differs.
+        Steps (hpc/cycle_solver.sh, new: data set with the starting soil -> four calibration starts ->
+        hpc/transfer_solver.sh in-sample; solver only):
+          a) soil of each window = lowest-misfit start of four (in-sample, so every result is a
+             DEMONSTRATION: the soil has seen the well of the window it is used on - said with every figure).
+          b) solver inversion from four starts, scored against the hourly well, whole window and below
+             saturation, next to the floor of the 1-day spline.
+          c) GATE for the PINN (so that no GPU time goes into a window the solver cannot invert): PINN
+             inversion (hpc/real_full_obs.sh, unchanged) and forward check (hpc/fwd_truth.sh) only on a
+             window whose lowest-cost solver start is within 4 cm of the well below saturation.
+             The usable-soil rule (2 cm, r >= 0.975) is reported as it is; it is not the gate.
+        EXPECTATION (before any run): C_N1 passes the gate (in-sample fit <= 0.003; solver 2 - 4 cm, limited
+        by the 0.01 the sensor reads lower before the showers than after them at one water table, = 4 cm).
+        C_N2: fit 0.005 - 0.010; the estimate is held at 0.20 m while the well is at 0.11 - 0.19 m; below
+        saturation 3 - 6 cm - the gate is open either way. If both fail the gate, the statement for the user
+        is that no rain window at the three sites is invertible with this forward model and one near-surface
+        sensor, PINN or solver, and what would change that (a deeper or second sensor; hysteresis in the
+        retention curve) is outside the inverse method.
+        06:59. STARTED: hpc/cycle_solver.sh nc2 sep23c "[0.0,0.30]" and ... nc2 sep23d ... (06:58:31; logs
+        logs/cycle_nc2_sep23c.log, logs/cycle_nc2_sep23d.log; configs/real_nc2_sep23c.yaml / sep23d.yaml differ
+        from real_nc2_sep23b.yaml in node_hours, knot_days, the window and the output directory only - diff
+        checked). Running besides: PINN rfpc1 (US-PAS C1; four wide members training since 05:55), PINN rfr1a
+        (US-ONA W_R1; value-correction loop, iteration 1), US-HB2 calibration continuations.
