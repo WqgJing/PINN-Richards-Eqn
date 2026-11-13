@@ -3630,3 +3630,33 @@ Real-case spec (first slice):
         1.10 (0.97). What it is not: held out. The same window with the soil of the earlier window (rfnc1t,
         diagnostic) is still running and its operator does not carry the flux (73 bw); the staged test of 73
         bw e) decides whether that can be repaired.
+
+    73 by. (13 Nov, 18:06) US-HB2 V4 (aug20) CALIBRATION: STARTS 0 - 2 RAN INTO THE LIMIT A THIRD TIME (8 + 8 + 12 h).
+        Jobs 15572178 - 15572180 (cal_hb2aug20_s0d / s1d / s2d): TIMEOUT at 12:00:15, all three still moving in
+        the fifth digit of the misfit and none ended by xtol (1e-6):
+          start 0  misfit 0.00097 (06:05: 0.00119)  theta_s 0.3000 (lower bound 0.30)  alpha 19.25  n 1.824  Ks 2.8e-5
+          start 1         0.00156 (0.00161)          theta_s 0.3497                     alpha 19.94  n 2.164  Ks 4.2e-5
+          start 2         0.00093 (0.00097)          theta_s 0.3000 (lower bound)       alpha 20.00 (upper bound)  n 1.769  Ks 3.3e-5
+          start 3  ended 12 Nov at 0.003651 (theta_s 0.3013, alpha 18.74, n 1.653, Ks 3.4e-6; another minimum)
+        (output/soil_hb2_aug20/progress<k>.json; 221 - 260 solves in this continuation.) Starts 0 and 2 are
+        closing on each other along a flat direction (alpha towards its bound of 20 1/m, Ks rising); start 1
+        is somewhere else. The rule needs four finished starts, so T_H4 still cannot be run as a counting test.
+        DECISION, two things, both CPU only:
+        1) third and LAST continuation, --resume, 12 h (cal_hb2aug20_s0e / s1e / s2e). If a start has not ended
+           by xtol after it (40 h), V4 is recorded as "calibration not converged" and T_H4 as not decided
+           under the rule; no further continuation, no change of the tolerance after the fact.
+        2) DRY RUN of the T_H4 chain now with the soil of the lowest misfit so far (start 2, progress2.json
+           of 18:04), names ending in _pre, which do not count (as T_H1's dry run, 73 bd):
+             SOIL_SET="--set soil.theta_s=0.3000064721994929 --set soil.theta_r=0.05661642541450263
+               --set soil.alpha=19.996278430849358 --set soil.n=1.7690653038695743
+               --set soil.Ks=0.00003319414777749387" RT=12:00:00 hpc/transfer_solver.sh hb2 aug20
+               "[0.1524,0.1524]" nov20 > logs/transfer_hb2_aug20_pre.log
+           It says where T_H4 will land unless the last 12 h move the soil by more than the last 12 did.
+        EXPECTATION (the pre-registration of T_H4 stands: "should fail R3 with the solver itself"):
+          V4 in-sample with this soil: FEM over the record against the sensor 0.001; solver inversion 1 - 2.5
+          cm from the well, usable-soil rule (2 cm, r >= 0.975 below saturation) about even.
+          T_H4 (V5): at a water table of 0.25 m the sensor reads 12.8 % in V5 and 18.4 % in V4, so the soil
+          of V4 must put V5's water table deeper than the well: solver 8 - 20 cm from the well, bias positive,
+          R3 failed.
+        STARTED 18:06: continuation jobs 15597939 / 15597940 / 15597941 (logs/cal_hb2_aug20_e.ids); dry run
+        process group 2322708 (logs/transfer_hb2_aug20_pre.log).
