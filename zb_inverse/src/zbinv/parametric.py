@@ -153,7 +153,10 @@ def build_param_model(cfg, ds, spline, device):
     # the module's own coefficients are unused in parametric mode (every call passes c); kept frozen
     zb_mod = ZbSplineTorch(spline, np.zeros(spline.n_coef), ds['zb_min'])
     zb_mod.coef.requires_grad_(False)
-    model = InversePINN(ds['soil'], zb_mod, head, mc.get('tau_ic_days', 0.25), base='current', features=feats)
+    model = InversePINN(ds['soil'], zb_mod, head, mc.get('tau_ic_days', 0.25), base='current',
+                        departure=mc.get('departure', 'additive'), features=feats)
+    if model.departure == 'conductive':          # the flux scale of physics_scales (sigma_q = q_frac * this)
+        model.q_scale = float(np.sqrt(np.mean((ds['q_obs'] / ds['soil'].Ks) ** 2)))
     if ds.get('tp_mmd') is not None:                 # the twin has root water uptake: the same sink in the residual
         model.sink = RootSink(ds['t_tp'], ds['tp_mmd'])
     model.forcing = forcing

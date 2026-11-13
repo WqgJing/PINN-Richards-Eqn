@@ -572,3 +572,25 @@ def test_box_term_optional():
     assert set(L) == {'pde', 'flux', 'box'} and L['box'].requires_grad and bool(torch.isfinite(L['box']))
     a, b = tr.heldout_loss(chunk=8)['box'], tr.heldout_loss()['box']
     assert np.isfinite(a) and abs(a - b) < 1e-10 * (1 + abs(b))
+
+
+def test_build_param_model_departure_switch():
+    """model.departure is 'additive' unless set; 'conductive' takes its flux scale from the data set: the rms of
+    q_obs / Ks, the scale that defines sigma_q in physics_scales."""
+    from zbinv.parametric import build_param_model, physics_scales
+    from zbinv.train import load_dataset
+    with open(os.path.join(ROOT, 'configs', 'p1_param_synth_v3.yaml')) as f:
+        cfg = yaml.safe_load(f)
+    ds = load_dataset(cfg)
+    m0 = build_param_model(cfg, ds, SP, torch.device('cpu'))
+    assert m0.departure == 'additive' and m0.q_scale is None
+    cfg['model']['departure'] = 'conductive'
+    m1 = build_param_model(cfg, ds, SP, torch.device('cpu'))
+    ref = float(np.sqrt(np.mean((ds['q_obs'] / ds['soil'].Ks) ** 2)))
+    assert m1.departure == 'conductive' and abs(m1.q_scale - ref) <= 1e-14 * ref
+    sig_q = physics_scales(cfg, ds)[0]
+    assert abs(sig_q - float(cfg['sigmas'].get('q_frac', 0.1)) * m1.q_scale) <= 1e-14 * sig_q
+    m1.load_state_dict(m0.state_dict())                          # the scale is not a parameter: same state dict
+    t = torch.linspace(0.5, 29.5, 9).reshape(-1, 1)
+    th = theta_obs_model(m1, t, 0.05, _coef())
+    assert th.shape[0] == 9 and bool(torch.isfinite(th).all())
