@@ -3600,7 +3600,7 @@ Real-case spec (first slice):
              F4  fc_pasc1   pgid 1919129   jobs 15596462 15596466 15596471   logs/fwd_fc_pasc1.log
              F3b fwd_nc2w3  pgid 1919130   jobs 15596464 15596465 15596478   logs/fwd_fwd_nc2w3.log (main tree)
 
-    73 bx. (13 Nov, 17:35) PINN ON THE SMALL US-NC2 CYCLE C_N1 WITH ITS OWN SOIL (rfnc1): R1 - R3 PASSED, AT THE
+    73 bx. (13 Nov, 17:32) PINN ON THE SMALL US-NC2 CYCLE C_N1 WITH ITS OWN SOIL (rfnc1): R1 - R3 PASSED, AT THE
         SOLVER'S ESTIMATE. A DEMONSTRATION (the soil has seen this window's well), not a held-out result.
         Driver hpc/real_full_obs.sh rfnc1, 10:29:25 -> 17:28:50; four wide members, four refinement rounds,
         value-correction loop converged at its first iteration (step / sigma max 0.02; forward offset rms
