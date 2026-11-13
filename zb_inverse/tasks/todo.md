@@ -3574,3 +3574,28 @@ Real-case spec (first slice):
            S_W2's slope of 0.11 - 0.16 % per cm (73 bs) I now expect PINN - solver 1.5 - 3 cm, R2 failed (the
            expectation of 73 bu, 0.1 - 1 cm, was written before a) and b)). The number says what the unlearned
            flux costs on a rain window, which decides how much the form of e) matters for the inversion.
+        g) (16:55) Stage built, before any run. runs/_stage_cond = copy of scripts/ and src/ of 3dd38ba plus
+           (diff -r src runs/_stage_cond/src, complete):
+             model.py   InversePINN.__init__: 'conductive' accepted; every departure other than 'additive' needs
+                        base='current'; self.q_scale = None
+                        h_tilde, after zb_base:
+                          dep = s * self._head(xi, t_days, c)
+                          if self.departure == 'conductive':
+                              dep = dep * self.q_scale / (self.soil.K(-(1.0 + xi) * zb_base) + self.q_scale)
+                          return (1.0 + xi) * (-zb_base + dep)
+             parametric.py build_param_model: InversePINN(..., departure=mc.get('departure', 'additive'), ...);
+                        if model.departure == 'conductive':
+                            model.q_scale = float(np.sqrt(np.mean((ds['q_obs'] / ds['soil'].Ks) ** 2)))
+           runs/_stage_cond/fwd_truth.sh = hpc/fwd_truth.sh with the two script paths pointing at the stage.
+           The Python edits could not be syntax-checked on the login node: the first job of each run is the check.
+           Numbers of the gain g = q~ / (K_r + q~) from the soils (awk, 73 bw d): S_W2 on C_N1 q~ = 1.5e-4, g from
+           1.5e-4 at the water table to 0.69 at 75 cm of suction; own soil q~ = 0.079, g 0.073 .. 0.18.
+           F3 has no present-form number at the well's path, so a fifth run is added as its baseline:
+             F3b fwd_nc2w3  W3 with S_W2, hpc/fwd_truth.sh of the main tree (additive). Expectation: flux
+                 0.2 - 0.4 of the zero-flux level, theta within 0.001 rms of the solver.
+           STARTED 16:54 (each a driver of its own, setsid nohup; GPU jobs h200 / A100 / V100, raced):
+             F1  fc_nc2ct   pgid 1919126   jobs 15596463 15596469 15596481   logs/fwd_fc_nc2ct.log
+             F2  fc_nc2c    pgid 1919127   jobs 15596461 15596468 15596480   logs/fwd_fc_nc2c.log
+             F3  fc_nc2w3   pgid 1919128   jobs 15596460 15596467 15596483   logs/fwd_fc_nc2w3.log
+             F4  fc_pasc1   pgid 1919129   jobs 15596462 15596466 15596471   logs/fwd_fc_pasc1.log
+             F3b fwd_nc2w3  pgid 1919130   jobs 15596464 15596465 15596478   logs/fwd_fwd_nc2w3.log (main tree)
