@@ -2706,3 +2706,35 @@ Real-case spec (first slice):
         calibration), FEM against the finer FEM 0.0015 (max 0.015); with the 1-day SPLINE of the well instead
         of the record 0.0150 (max 0.157): the daily knots alone cost 0.015 in theta on this window, because
         the spline cannot time the rise of 5 Nov. PINN rfr1o launched 02:58 on that data set.
+    bk) 03:21 (13 Nov). US-HB2, OFFICIAL solver side of the two tests with the soil of V3 (chain of 22:01, ended 03:17;
+        logs/transfer_hb2_jul20.log; four starts each, --box, point sensor; zb RMSE / bias / max in cm, r, from
+        /tmp/byday.sh on the lowest-cost start; this sand never reads saturated, so "below saturation" is the
+        whole window):
+          in-sample V3    1.23 / +0.15 / 4.4, r 0.9950   all four starts at cost 1.43567 (spread between starts
+                          0.012 cm at most; 4 - 11 iterations; coefficient 0 on the shallow bound in all four).
+                          By day within 2.3 cm except the first (+3.1) and the last (+4.4, posterior sd 1.8).
+                          -> by the rule written beforehand (within 2 cm, r >= 0.975) S_V3 IS a usable soil,
+                          the first at this site (S_V1 was not, bd).
+          T_H3 (V4)       7.58 / +6.31 / 13.6, r 0.9942  all four starts at cost 0.042106 (spread 0.0006 cm;
+                          6 - 9 iterations; nothing on a bound; theta fitted to 0.0010). By day +13.6 +13.1
+                          +11.7 +11.0 +9.1 +7.7 +7.1 +6.1 +4.9 +3.1 +1.7 +1.5 +2.0 +2.5.          R3 fails
+          T_H5 (V6)       4.36 / +0.05 / 8.0, r 0.9841   all four starts at cost 0.052791 (spread 0.0001 cm;
+                          4 - 12 iterations; nothing on a bound; theta fitted to 0.0011). By day +6.1 +6.4
+                          +3.8 +1.8 +0.6 -1.4 -4.3 -6.1 -7.4: no bias, a tilt.                    R3 fails
+        Written beforehand (73 ay): T_H3 and T_H5 should fail R3 with the solver itself. Outcome: both fail,
+        T_H3 with the sign the forward check gave (be: model 0.046 too wet over V4 -> estimate too deep), T_H5
+        on RMSE only (4.36 against 3; bias and r inside). Neither is inside R3 or within the margin declared
+        in ay for a PINN run (RMSE <= 4, |bias| <= 3): T_H5 misses that margin by 0.36 cm, and the margin is
+        not moved -> NO counting PINN run for T_H3 or T_H5; R3 is decided by the solver for both, as for T_N0.
+        In both tests the four starts agree to 0.001 cm and the sensor is fitted to 0.001: the estimate is
+        unique and wrong, i.e. the error is the soil's (the relation sensor - water table of V3 does not hold
+        in V4 and V6), not the inversion's.
+        Start from the plateau (declared in ay; highest sensor reading of the 7 d before the window, be,
+        against theta_s - 3 sigma of the calibration soil): S_V1 0.3868 - 0.015 = 0.372 -> T_H1 (44.8 %), T_H2
+        (43.6 %), T_H6 (41.4 %) start from the plateau; S_V3 0.3686 - 0.015 = 0.354 -> T_H3 (25.4 %) and T_H5
+        (31.6 %) do not.
+        Tally at US-HB2 so far: five of six tests decided on the solver side, none inside R3 (T_H1 2.50 cm,
+        r 0.968, with a soil that is not usable; T_H2 16.7; T_H3 7.58; T_H5 4.36; T_H6 4.96). Open: T_H4 (V5
+        with the soil of V4). The V4 calibration continuations (cal_hb2aug20_s0c / s1c / s2c, jobs 15553786,
+        15553790, 15553791, started 22:01:40, 8 h limit) are still running: misfit 0.00122 / 0.00163 / 0.00098
+        after 112 / 101 / 108 solves of the continuation (start 3 ended at 0.003651).
