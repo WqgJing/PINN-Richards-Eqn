@@ -2963,3 +2963,52 @@ Real-case spec (first slice):
         US-PAS C1 calibration, state 04:44 (not finished, 60 - 130 solves): misfit 0.0138 - 0.0144 for all four
         starts (theta_s 0.412 - 0.416, alpha 2.30 - 2.45, n 3.07 - 3.29, Ks 1.4 - 1.6e-6). The US-PAS recessions
         calibrate to 0.0045 - 0.0061: the cycle is NOT held by one retention curve to the level of a recession.
+
+    73 bo. (13 Nov, 05:50) US-PAS C1 SOIL: ONE SOIL FROM ALL FOUR STARTS. SOLVER CHAIN, FORWARD PINN AND PINN
+        DRIVER ON THE CYCLE WINDOW: PLAN AND EXPECTATIONS (written before any of the three runs).
+        C1 calibration (jobs 15567730 - 15567733, all COMPLETED, 54 - 100 min, nothing on a bound):
+          start  misfit    theta_s  theta_r   alpha   n      Ks
+          0      0.013872  0.4137   0.0089    2.327   3.105  1.496e-6
+          1      0.013839  0.4136   0.0000    2.301   3.076  1.462e-6
+          2      0.013837  0.4136   0.0002    2.300   3.075  1.469e-6
+          3      0.013834  0.4136   0.0000    2.297   3.070  1.476e-6   <- lowest: S_C1 (Ks = 128 mm/d)
+        The four starts give one soil (unlike several earlier windows). Fit of the solver at the well's record to
+        the sensor: rms 0.0138, bias 0.0000, max 0.036, r 0.988 (output/soil_pas_jul21/start3.png): the drying
+        limb, the rise on day 5.8 and the wet plateau are all followed; the misfit sits in the first day (the
+        sensor drops 0.04 within hours, the solver does not) and in days 8 - 9 (the solver dries, the sensor
+        stays at 0.41). 142 of the 217 hours are below saturation (theta_obs < theta_s - 3 sigma).
+        US-ONA rain window, in-sample solver inversion (soil S_R1 fitted on this very window; chain _pre, jobs
+        15566848/49/53/54, STATE at 05:43, not final): three starts at cost 1.170 - 1.174 with steps of 1 - 4 mm
+        and 19.4 - 19.9 cm from the well; the fourth still moving (cost 1.21, 14 - 21 cm). So on W_R1 the sensor
+        does not hold the water table even with the window's own soil: the usable-soil rule fails in-sample
+        there, and rfr1a / rfr1o can only be shown as what they are (figures with that caveat), not as a
+        reproduced water table. The US-PAS cycle windows are where the request can be met, if anywhere.
+        PLAN (three things, started together; the first is the gate for what counts):
+        a) SOLVER SIDE: RT=06:00:00 hpc/transfer_solver.sh pas jul21 "[0.10,0.10]" aug21b aug21c
+           -> output/real_pas_jul21_own (C1, in-sample), real_pas_aug21b_soiljul21 (T1), real_pas_aug21c_soiljul21
+           (T2); solver inversions from the four starts each. Rule unchanged: S_C1 is usable if the in-sample
+           inversion is within 2 cm of the hourly well record with r >= 0.975 below saturation; a test window
+           counts for the PINN if its solver inversion is inside R3 or within the margin (4 cm, |bias| 3 cm).
+           The floor of the 1-day spline (3.3 / 5.7 / 6.4 cm on the whole of C1 / T1 / T2) is reported next to
+           every score, and the score of the best-fit spline below saturation as well (not yet computed).
+           EXPECTATION (uncertain): n ~ 3 puts the sensor on the steep part of the retention curve over the
+           whole range of the well, so the path is held far better than on W_R1; with a misfit of 2.8 sigma the
+           inversion will bend the path in the first day and in days 8 - 9. In-sample 3 - 6 cm on the whole
+           window (floor 3.3), 2 - 4 cm below saturation; the rise on day 5.8 placed within a few hours. The 2 cm
+           rule may therefore fail on the floor alone; if it does, the windows do not count and the figures are
+           shown as demonstrations (the rule is not moved).
+        b) FORWARD PINN at the well's spline on C1 with S_C1 (run fwd_pasc1; main-tree source, settings of the
+           forward stage of hpc/dc_loop.sh, seed 0; local file = truth_coef of the _own data set, diagonal
+           covariance that point mode never samples), scored against the solver at the same path
+           (param_validate; truth_error_profile --sensor fem from the staged copy).
+           RULE: operator holds through the cycle if theta at the sensor is within 0.004 rms of the solver on
+           days 0 - 5 and within 0.010 on the whole window. If not: the hourly error series says where (the
+           event hours, peak rain 270 mm/d = 2.1 Ks, or the dry limb), and the design change is planned here
+           before it is run.
+           EXPECTATION: days 0 - 5 pass (Se 0.4 - 1, n ~ 3: the regime of the recessions); the event day is
+           open - on W_R1 it failed, with n = 10 and a sensor at Se 0.1, neither of which holds here.
+        c) PINN INVERSION of C1, unchanged method: hpc/real_full_obs.sh rfpc1 output/real_pas_jul21_own
+           "[0.10,0.10]". Started with a) and b) rather than after them because it is the run the user asked
+           for and takes 7 - 10 h; in-sample soil, so it is a demonstration whatever the score, and it counts as
+           evidence for R1 - R3 on a cycle only if a) holds. T1 and T2 (soil from C1, nothing fitted on them)
+           are the counting runs and wait for a).
