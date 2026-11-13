@@ -3471,3 +3471,106 @@ Real-case spec (first slice):
         estimates has not been examined; on a window where the solver's own answer is 12 - 24 cm from the
         well depending on the start, it is not followed up (no gate passed here; the windows that passed
         the gate are C_N1 and "C_N1 with S_W2", both running).
+
+    73 bw. (13 Nov, 16:50) FORWARD CHECK OF "C_N1 WITH S_W2" (fwd_nc2ct): RULE NOT PASSED (0.0029 > 0.002). THE
+        SURFACE-FLUX LOSS DID NOT TRAIN ON THIS SOIL. AUDIT OF THE FLUX LOSS OF EVERY SCORED PINN RUN. PLAN OF
+        A STAGED TEST OF A CONDUCTIVITY-SCALED DEPARTURE (nothing changed in the main tree).
+        a) Result (hpc/fwd_truth.sh, started 13:51:47; GPU job 15590527, 28000 steps, 2839 s; error profile job
+           15595900; reference = theta_fem[0] of output/real_nc2_sep23c_soilsep23a/real.npz, the site solver on
+           the same path). Theta at the sensor, PINN - solver:
+             whole window 0.00286 (max 0.0148); profile 0.00258 (max 0.0368)
+             day        0       1       2       3       4       5       6       7       8       9      10
+             q [mm/d]   2.17    1.12  -10.94   -6.43    1.00    0.92    1.19    0.49    1.00    0.79    0.81
+             rms       0.0011  0.0021  0.0062  0.0040  0.0010  0.0014  0.0021  0.0022  0.0020  0.0026  0.0026
+             mean     +0.0007 +0.0013 -0.0024 -0.0011 +0.0004 +0.0010 +0.0016 +0.0015 +0.0016 +0.0022 +0.0022
+           RULE of 73 bu (<= 0.002 rms on the whole window): 0.00286 -> NOT PASSED. The expectation of 73 bu
+           (0.0002 - 0.001) was wrong by a factor of 3 - 14. The same window with its own soil gave 0.00043
+           (73 bt).
+        b) What the training history shows (runs/fwd_nc2ct/metrics.csv). Held-out losses in sigma units at step
+           0 (the network starts hydrostatic, i.e. with zero flux) and at the end:
+             fwd_nc2ct (S_W2)       flux 612.0 -> 600.9     pde 45.2 -> 26.6    (training values at the end: 575, 25.4)
+             fwd_nc2c  (own soil)   flux 612.0 -> 0.027     pde  5.2 -> 0.029
+           With S_W2 the flux loss ends where it started: after 28000 steps the residual of the surface flux
+           is 0.991 of what a profile with no flux at all has (own soil: 0.0067). Training and held-out values
+           agree, so this is a loss that did not go down, not a gap between training and held-out points. The
+           0.0029 of a) is therefore the distance between the solver and a nearly hydrostatic profile under
+           the moving water table, not the accuracy of a trained operator.
+           The wide stage of the running driver rfnc1t shows the same: members w2, w3 (42000 steps) flux
+           609.1 -> 608.8 and 604.1 -> 602.3, pde 47.8 -> 39.8 and 51.4 -> 39.3.
+        c) AUDIT of every scored PINN run, same reading (member 0 of each stage; held-out flux residual, rms, as
+           a fraction of the zero-flux level of the same data set, which is 79 - 163 in sigma units on the
+           recession windows and 604 - 671 on the rain windows; "forward" = the forward PINN of the last
+           value-correction iteration, or the forward check):
+                                                 soil alpha [1/m], n, Ks [m/s]   wide    round 4   forward
+             US-ONA rf22   nov22, soil 2021       1.55,  9.43, 2.4e-6            0.176   0.147     0.0062
+             US-ONA rf22c  nov22, soil oct22      1.66, 10.0,  2.1e-6            0.237   0.156     0.0033
+             US-ONA rf22ob oct22, soil nov21      1.55,  9.43, 2.4e-6            0.096   0.073     0.0052
+             US-PAS rfp2   oct21, soil sep21      1.39,  4.84, 2.6e-6            0.129   0.062     0.011
+             US-HB2 rfh1p  mar20, dry-run soil    5.31,  3.66, 8.7e-6            0.052   0.041     0.0041
+             US-PAS rfpc1  C1 (rain), own soil    2.30,  3.07, 1.5e-6            0.041   0.034     0.0125
+             US-NC2 rfnc1  C_N1 (rain), own soil  0.82,  2.75, 1.9e-6            0.022   0.012     0.0067 (fwd_nc2c)
+             US-NC2 rfnd   W3, soil may23         5.58,  1.22, 1.0e-3            0.470   0.387     0.194
+             US-NC2 rfn1   W3, soil S_W2         14.80,  1.29, 1.0e-3            0.562   0.359     0.311
+             US-NC2 rfnc1t C_N1 (rain), S_W2     14.80,  1.29, 1.0e-3            0.9997 (w2), 0.9985 (w3)   0.991 (fwd_nc2ct)
+           (fwd_pasc1, the forward check of US-PAS C1: 0.019.) Three groups: with Ks of 1e-6 .. 1e-5 the final
+           forward PINNs carry the flux to 0.3 - 1.3 % of its zero-flux residual; with the two recession soils
+           of US-NC2 (n 1.2 - 1.3, Ks at the calibration bound 1e-3) 19 - 31 % is left on a recession; with
+           S_W2 on the rain window nothing is learned.
+           What this changes in results already written down:
+           - rfnd (W3 with the May soil, the held-out US-NC2 recession inside R3 at 1.59 cm): PINN - solver
+             0.056 cm, yet 19 - 47 % of the flux residual is left, and the hydrostatic reading of the sensor
+             scores 1.64 cm on that window. The score stands as a number. It does not show that the operator
+             carries the surface flux on this soil; it shows that on this soil and window the sensor says
+             little about the flux. The same for rfn1 (PINN - solver 0.066 cm, 31 - 56 % left; 9.48 cm from
+             the well).
+           - The held-out losses of the US-NC2 runs were never written into this file (the last val_flux
+             quoted is for US-ONA's rf21b), and no entry compares a val_flux with its zero-flux level.
+        d) NOT EXAMINED, NOT CLAIMED: why. One reading of the equations, with numbers, as a hypothesis:
+           the departure of the network is d = (1 + xi) s N and the flux is q~ = -K_r(h) d_xi / z~b. The
+           flux scale is q~ = rms(q)/Ks = 1.5e-4 here (0.079 with the window's own soil). K_r of S_W2 falls
+           from 1 at the water table to 0.10 at 2 cm of suction, 9.1e-3 at 10 cm, 2.0e-4 at 50 cm and 6.8e-5
+           at 75 cm (own soil: 1 .. 0.62 .. 0.37). So the true d_xi is of order 1e-4 near the water table and
+           of order 1 near the surface, and an error of N near the water table enters the PDE loss with
+           K_r/sigma_pde ~ 1/1.1e-4 ~ 9000 while the surface flux responds with K_r(surface)/sigma_q ~ 13.
+           A loss that stiff in one direction would not move under Adam from the hydrostatic start. This has
+           NOT been tested. The ideas held in reserve since 73 bl (causal weights, decomposition in time at
+           events, runoff boundary condition) are about events; the table of c) says the same soil leaves
+           19 - 56 % on recessions, so they are not what the evidence points to.
+        e) STAGED TEST of the hypothesis (copy of scripts/ and src/ in runs/_stage_cond, untracked; the main
+           tree and the running drivers rfnc1, rfnc1t are not touched). One change, no new constant:
+             departure='conductive':  h~ = (1 + xi) [ -z~b + g(xi, t) s(t) N ],
+                                      g = q~ / (K_r(-(1 + xi) z~b) + q~),   q~ = rms(q_obs / Ks)
+           g is the head gradient that carries the flux scale at the local hydrostatic conductivity, capped at
+           one. Where the soil conducts far more than the flux (K_r >> q~) the departure the physics asks for
+           is that small, and N stays of order one; where K_r << q~, g -> 1 and the form is the present one.
+           It is a rescaling of the network output by a positive function of the soil and of the flux scale
+           (the same rms(q)/Ks that defines sigma_q): every profile the present form can represent it can
+           too, no loss term or weight changes, h = 0 at the water table and the hydrostatic start are kept.
+             model.py      h_tilde: dep = s * head; if departure == 'conductive':
+                               dep = dep * q_scale / (soil.K(-(1 + xi) * zb~) + q_scale)
+             parametric.py build_param_model: departure = model.departure (default 'additive'); q_scale set
+                           from the data set as in physics_scales
+           Four forward PINNs at the well's spline, settings of hpc/fwd_truth.sh plus
+           --set model.departure=conductive, scored as there (flux residual against the zero-flux level; theta
+           at the sensor against the site solver on the same path):
+             F1 fc_nc2ct  C_N1 with S_W2 (rain)       now: flux 0.991, theta 0.00286
+             F2 fc_nc2c   C_N1, own soil (rain)       now: flux 0.0067, theta 0.00043
+             F3 fc_nc2w3  W3 with S_W2 (recession)    now: flux 0.31 (at the estimate of rfn1, not the well)
+             F4 fc_pasc1  US-PAS C1, own soil (rain)  now: flux 0.019, theta 0.0035 (days 0 - 5: 0.0015)
+           RULES, written before the runs:
+             F1 (decides): flux residual <= 0.1 of the zero-flux level AND theta within 0.002 rms of the solver
+                on the whole window (the rule of 73 bu).
+             F2: the same two conditions.   F3: flux <= 0.1; theta reported.
+             F4: flux <= 0.1 and the rule of 73 bo b) (<= 0.004 on days 0 - 5, <= 0.010 on the whole window).
+             The form goes into the main tree (default off, then a pre-registered re-run of rfnc1t) only if
+             F1 passes and F2, F4 pass. If F1 fails it is not adopted and the hypothesis of d) is not
+             supported; the stage stays untracked as runs/_stage_regime did.
+           EXPECTATION: F3 (no events) flux <= 0.05. F1: the dry days learned (their theta bias of +0.001 ..
+           +0.002 gone), the two shower days uncertain: flux 0.1 - 0.5, theta 0.001 - 0.002, i.e. the likeliest
+           outcome is short of the rule on the flux and inside it on theta. F2 and F4: within a factor of two
+           of now. I would not be surprised by a failure of F4's event hour.
+        f) rfnc1t (diagnostic, 73 bu) continues unchanged. Its wide operator carries no flux, so whatever it
+           returns is the inversion of a nearly hydrostatic network; with a forward difference of 0.0029 and
+           S_W2's slope of 0.11 - 0.16 % per cm (73 bs) I now expect PINN - solver 1.5 - 3 cm, R2 failed (the
+           expectation of 73 bu, 0.1 - 1 cm, was written before a) and b)). The number says what the unlearned
+           flux costs on a rain window, which decides how much the form of e) matters for the inversion.
