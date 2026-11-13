@@ -3203,3 +3203,30 @@ Real-case spec (first slice):
         Calibration starts (jobs 15574012/14/16/18 = sep23c s0..3; 15574013/15/17/19 = sep23d s0..3): all
         eight RUNNING, each log has its start line; first solves: sep23c s0 0.1115 (starting soil), s3
         0.00217 (start from the hydrostatic fit); sep23d s0 0.0859. Waiter on both chains: b4kiadbqy.
+        07:45. US-ONA W_R1, IN-SAMPLE SOLVER CHAIN COMPLETE (dry run *_pre with the W_R1 soil of start 3;
+        logs/transfer_ona_rain21_pre.log "done" 07:44; referee jobs 15566848/49/53/54 COMPLETED, 2.7 - 4.3 h
+        each). Against the hourly well, all four starts:
+          start              cost    rmse cm  bias cm  max cm  coefficients on the box  sensor fit
+          hydrostatic        1.1741  19.42    +10.29   48.5    [7,8,9,11]               0.00542
+          hydrostatic_flat   1.1695  19.68    +10.26   48.5    [0,7,8,9,11]             0.00541   (lowest cost)
+          constant 1.0       1.1794  20.26    +11.82   47.0    [8,9,11]                 0.00543
+          constant 0.3       1.1714  19.83    +10.98   48.5    [7,8,9,11]               0.00541
+        Lowest-cost start: whole window 19.68 cm, bias +10.26, r 0.898; below saturation (sensor < 0.3161,
+        253 of 337 h) 22.23 cm, bias +12.76, r 0.821. Floor of the 1-day spline: 4.85 cm whole (r 0.979),
+        4.19 cm below saturation. Posterior sigma (median) 3.5 - 3.8 cm - far below the actual error.
+        By two days (estimate against the well, rms / mean; well range):
+          0-2: 8.5 / +3.5 (0.85 - 1.04 m)     2-4: 3.1 / +0.8 (0.88 - 0.96)     4-6: 16.0 / +9.8 (0.94 - 1.04)
+          6-8: 44.7 / +44.6 (1.00 - 1.06; the estimate is at the deep bound of the box)
+          8-10: 18.8 / +13.6 (0.20 - 1.07; the rise)   10-12: 4.8 / +0.3 (0.35 - 0.57)
+          12-14: 1.8 / -0.6 (0.57 - 0.68)     14-16: 4.6 / -4.6 (0.67)
+        EXPECTATION of 03:0x (5 - 10 cm on the whole window): NOT MET, by a factor of two. What was expected
+        and found: the recession after the burst is followed (2 - 5 cm from day 10 on). What was not: with
+        the well at 1.0 m and deeper (days 4 - 8) the estimate runs to the deep bound, 45 cm away, at a
+        sensor fit of 0.0054 - better than the forward run at the well itself (0.0065). In this sand (n at
+        its bound of 10) a sensor at 0.10 m does not see a water table below about 0.95 m.
+        Decision by the rules: the W_R1 soil is not a usable soil (in-sample 22 cm below saturation against
+        the 2 cm of the rule); no PINN counting run on W_R1; the stop of rfr1o at 05:54 stands (its
+        reference would have been these four starts). Rain / cycle windows so far - US-ONA W_R1 with the
+        recession soil (19 - 24 cm), W_R1 with its own soil (19 - 20 cm), US-PAS C1 / T1 / T2 (12 - 16 cm):
+        none invertible by the solver. Open: the two US-NC2 windows (calibration fits at this time: sep23c
+        0.0018 - 0.0020 after 45 - 83 solves, start 3 finished; sep23d 0.0042 - 0.0087, start 3 finished).
