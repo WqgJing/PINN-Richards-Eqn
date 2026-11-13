@@ -3300,3 +3300,36 @@ Real-case spec (first slice):
           sensor fit              PINN 0.0225, solver 0.0069; solver at the well's record 0.0271
         -> R1 fails (1.85 cm against 0.2), R2 fails (28 cm against 1), R3 fails. The figure is kept as the
         record of a window that neither method inverts; it is not shown as a reproduction.
+        11:21. US-NC2 LARGE CYCLE (C_N2 = sep23d), SOLVER SIDE COMPLETE (logs/cycle_nc2_sep23d.log "done" 11:19;
+        data set output/real_nc2_sep23d_own, job 15578682; referee jobs 15578820 - 23, 1.3 - 2.0 h):
+        solver at the well's record against the sensor 0.0042 (bias 0.0000, max 0.036, r 0.998), at the
+        well's 1-day spline 0.0059; hourly against finer solver 0.0002.
+        Solver inversion: all four starts ONE estimate (cost 7.3712, 9 - 10 iterations), coefficients 0, 6
+        and 7 on the box, sensor fit 0.0136, posterior sigma (median) 0.3 cm. Against the well:
+                                whole window (289 h)              below saturation (sensor < 0.5513, 269 h)
+            solver - well       7.45 cm, +0.86, max 28.1, r 0.950    6.85 cm, +0.01, max 28.1, r 0.956
+            solver - spline     5.26 cm, +1.19, max 15.5, r 0.975    4.54 cm, +0.45, max 15.5, r 0.981
+            floor (spline-well) 3.97 cm, -0.32, max 22.2, r 0.986    3.95 cm, -0.45, max 22.2, r 0.985
+          by day (solver - well rms cm | estimate range against well range, m | sensor fit of the estimate):
+            0   2.1 | 0.66-0.73 / 0.68-0.70 | 0.0023        6   0.5 | 0.20-0.21 / 0.19-0.22 | 0.0016
+            1   3.3 | 0.68-0.74 / 0.71-0.74 | 0.0039        7   0.6 | 0.22-0.25 / 0.22-0.25 | 0.0031
+            2  10.4 | 0.69-0.94 / 0.74-0.77 | 0.0080        8   0.3 | 0.25-0.29 / 0.26-0.29 | 0.0020
+            3  14.2 | 0.51-0.94 / 0.77-0.78 | 0.0183        9   0.1 | 0.29-0.33 / 0.29-0.33 | 0.0008
+            4  17.7 | 0.24-0.49 / 0.11-0.77 | 0.0380       10   0.2 | 0.33-0.36 / 0.33-0.36 | 0.0009
+            5   5.5 | 0.20-0.23 / 0.13-0.19 | 0.0183       11   0.3 | 0.36-0.39 / 0.36-0.40 | 0.0004
+        RULES APPLIED (as written): GATE (<= 4 cm of the spline below saturation): 4.54 cm -> NOT PASSED.
+        Usable-soil rule (2 cm, r 0.975 against the hourly well): 6.85 cm, r 0.956 -> not passed.
+        -> no PINN inversion on C_N2. The gate is not moved a second time.
+        Against the expectation of 73 bq: calibration fit 0.0042 (expected 0.005 - 0.010); estimate held at
+        the box's 0.20 m while the well is at 0.13 - 0.19 m (as expected, day 5); below saturation 6.85 cm
+        against the hourly well (expected 3 - 6: outside), 4.54 cm against the spline.
+        Reading (from the table, not a new claim about the method): the six days after the event are
+        followed to 0.1 - 0.6 cm. What fails is the event itself, in two ways shared by any estimate of this
+        form: (1) a 1-day spline cannot follow a rise of 67 cm in 22 h and swings deeper before it (days 2
+        - 3: estimate to 0.94 m with the well at 0.74 - 0.78 m); (2) the well is above the box's shallow
+        bound for two days, so the estimate cannot reach the sensor's plateau (fit 0.038 / 0.018, 0.017 too
+        dry on days 4 - 5; the inversion's fit, 0.0136, is worse than the solver at the well's own spline,
+        0.0059, because that spline is outside the box). Both are settings fixed before this window was
+        seen (knot spacing 73 bl, box since the synthetic cases) and stay as they are.
+        Rain / cycle windows, solver side, tally: invertible C_N1 (1.1 cm); not invertible US-ONA W_R1 (19 -
+        24 cm), US-PAS C1 / T1 / T2 (12 - 16 cm), C_N2 (7.5 cm; 4.5 cm against the spline).
