@@ -3333,3 +3333,54 @@ Real-case spec (first slice):
         seen (knot spacing 73 bl, box since the synthetic cases) and stay as they are.
         Rain / cycle windows, solver side, tally: invertible C_N1 (1.1 cm); not invertible US-ONA W_R1 (19 -
         24 cm), US-PAS C1 / T1 / T2 (12 - 16 cm), C_N2 (7.5 cm; 4.5 cm against the spline).
+    73 bs. (13 Nov, 11:30) US-NC2 SMALL CYCLE WITH THE SOIL OF THE EARLIER RECESSION (S_W2 = sep23a): PLAN, WRITTEN
+        BEFORE ANY MODEL RUN. A DIAGNOSTIC BY RULE d (range condition), NOT A COUNTED TEST.
+        Why: C_N1's PINN run (rfnc1) uses the soil calibrated on C_N1 itself with its well -> a demonstration.
+        A result with a soil that never saw this window's well would be worth more.
+        What the record says (awk on the half-hourly file; sensor, well, rain only - no model):
+          mean sensor reading (%) at equal well depth (bins of 5 cm):
+            well depth (m)                      0.50   0.55   0.60   0.65   0.70   0.75
+            10 - 12 Sep (C_N1, before showers)     -   40.5   40.1   39.5      -      -
+            14 - 21 Sep (C_N1, after showers)   40.8   40.6   40.1   39.6   39.1   38.3
+            4 - 13 Oct (after the 170 mm)          -   42.2   41.7   40.9   40.1   39.5
+            27 Nov - 9 Dec                      41.9   41.2   40.7   40.5      -      -
+          -> after the storm of C_N2 the sensor reads 1.2 - 1.7 % wetter at the same water table (the size of the
+          offset W2 -> W3: forward check of S_W2 on W3 0.0232 / -0.0229 in au, T_N1 9.53 / -9.31 cm in az). At C_N1's slope (0.10 - 0.14 % per cm)
+          that is 9 - 17 cm: C_N1's soil on a window after the storm (4 - 21 Oct with showers of 3.0 and 4.6 mm,
+          or 27 Nov - 9 Dec) would repeat T_N1's failure. NOT RUN. By rule d those windows take C_N2's soil
+          anyway (not usable).
+          Windows before C_N1: may23 (sensor 0.398 - 0.495) and sep23a (0.4045 - 0.4995; 1 - 7 Sep, 0.25 mm of
+          rain; ends 3 d before C_N1 starts). C_N1's range is 0.379 - 0.4285, i.e. 0.0255 below sep23a's -> rule
+          d's range condition is NOT met (sigma_theta 0.005): no earlier window gives C_N1 a soil by the rule,
+          and nothing run with one can count for R3 / R4.
+        Hand check done BEFORE this plan (declared: it uses C_N1's well, so the expectation below is not blind):
+        hydrostatic layer mean (0 - 0.30 m, Simpson with 3 points) of S_W2 = output/soil_nc2_sep23a/start3.json
+        (0.5493 / 0.1985 / 14.80 / 1.2896 / Ks 1.0e-3; lowest misfit of the four, 0.001038; the soil of the data
+        sets *_cal3; in-sample 0.63 cm, az):
+            well depth (m)        0.475    0.55          0.75
+            S_W2, static          0.4174   0.4052        0.3831
+            sensor in C_N1        0.412    0.405-0.406   0.383     (0.475 m: the 6 h after the rise, day 3.25)
+          -> on the drying limbs S_W2 holds to about 0.001 although 0.75 m is 0.22 m deeper than the deepest
+          water table of its calibration window; after the rise the sensor is 0.005 drier than S_W2's curve
+          (3 cm at 0.16 % per cm).
+        PLAN (solver side first, CPU only):
+          1. hpc/transfer_solver.sh gets a switch OWN=0 (skip the in-sample part; default unchanged): the
+             in-sample sets of sep23a exist (output/real_nc2_sep23a_own = start 1's soil, _own_cal3 = start 3's)
+             and must not be rewritten. Check: bash -n; no transfer_solver.sh process is running (ps, 11:27).
+          2. OWN=0 hpc/transfer_solver.sh nc2 sep23a "[0.0,0.30]" sep23c -> output/real_nc2_sep23c_soilsep23a,
+             output/referee/nc2_sep23aon_sep23c_s0..3 (the script takes the lowest misfit = start 3 = S_W2).
+             New directories; nothing that rfnc1 / fwd_nc2c read is touched.
+          3. GATE of 73 bq, unchanged: lowest-cost start within 4 cm rms of the well's 1-day spline below
+             saturation (theta_s - 3 sigma = 0.534 > sensor maximum 0.4285: the whole window). Passed -> PINN
+             inversion with the unchanged driver (tag rfnc1t) on that data set, R2 against these four solver
+             runs. Not passed -> recorded, no PINN run.
+        STATUS OF ANY RESULT: DIAGNOSTIC ("C_N1 with S_W2", as "W3 with S_W1" in au). It can show the PINN
+        inverting a window with rain and re-wetting with a soil that never saw that window's well; it cannot
+        count for R3 / R4 (range condition; and the hand check above).
+        EXPECTATION (before any solver number): solver over the well's record against the sensor 0.002 - 0.004
+        (drying limbs 0.001, the day after the rise 0.005, the two shower hours 0.01 - 0.02 too dry: with Ks
+        1e-3 the layer cannot hold a shower). Inversion against the hourly well: drying limbs 1 - 2 cm, days
+        2.5 - 4 too deep by 2 - 4 cm; whole window 1.5 - 3 cm, bias +0.5 to +1.5 cm, r 0.97 - 0.99; all four
+        starts one estimate. Gate expected to pass.
+        STARTED 11:29:47 (process group 4171707, logs/transfer_nc2_sep23a_sep23c.log): OWN=0, soil start 3 as
+        expected, test window only. bash -n of the edited script: ok.
