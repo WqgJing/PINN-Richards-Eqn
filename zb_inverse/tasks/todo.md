@@ -3171,3 +3171,35 @@ Real-case spec (first slice):
         from real_nc2_sep23b.yaml in node_hours, knot_days, the window and the output directory only - diff
         checked). Running besides: PINN rfpc1 (US-PAS C1; four wide members training since 05:55), PINN rfr1a
         (US-ONA W_R1; value-correction loop, iteration 1), US-HB2 calibration continuations.
+        07:07. DATA SETS OF THE TWO US-NC2 CYCLE WINDOWS (starting soil of CLAUDE.md; no solver inversion and
+        no calibrated soil exists yet). make_real jobs 15573865 (sep23c), 15573866 (sep23d): COMPLETED, both
+        admissible, solver converged on every step, hourly against finer solver 0.0007 / 0.0008.
+                                         C_N1 = sep23c            C_N2 = sep23d
+          coefficients (1-day knots)     14                       15
+          well, hourly (m)               0.472 - 0.768            0.110 - 0.783
+          sensor                         0.379 - 0.4285           0.377 - 0.557
+          rain / ET (mm)                 21.3 / 36.9              170.4 / 27.4
+          LE filled                      23 %                     25 %
+          1-day spline against the hourly well (the FLOOR of every score against the well):
+            whole window                 0.81 cm, max 3.5, r 0.995   3.97 cm, max 22.2, r 0.986
+            sensor < 0.54 (provisional)  0.81 cm (all 265 h)         3.96 cm, bias -0.43 (254 of 289 h)
+          starting soil at the well's record against the sensor (not a result; the calibration starts here):
+                                         0.1115, bias +0.111, r 0.970   0.0859, bias +0.083, r 0.967
+          hours with the well above the box's 0.20 m:   0            44
+          hours with the sensor on its plateau (>= 0.54): 0          35
+        Where the floor of C_N2 is: days 3 and 4 only (the well rises 0.78 -> 0.11 m in 22 h; spline against
+        well 6.5 cm and 11.6 cm rms, max 17.5 / 22.2 cm); days 0 - 2: 0.2 - 1.0 cm; days 5 - 6: 2.2 - 2.3 cm
+        (well above 0.20 m and moving); days 7 - 11: 0.3 - 1.4 cm. Outside days 3 - 4 and below the plateau:
+        1.00 cm (219 h). So on C_N2 no estimate with 1-day knots - solver or PINN - can be inside R3 (3 cm)
+        against the hourly well over the whole window; R3 stays as it is and C_N2 is scored against it as it is.
+        AMENDMENT OF THE GATE, written before any solver inversion or calibrated soil of these windows exists
+        (the calibration starts are at their first or second solve): the gate of 73 bq was written without
+        this floor. With a floor of 3.96 cm, "within 4 cm of the hourly well" would decide on the spline's
+        ability to follow a 22-hour rise, not on whether the solver can invert the window, which is what the
+        gate is for. The gate is therefore evaluated against the well's 1-day spline (the water table the
+        unknown can represent; identical for C_N1 within 0.8 cm): lowest-cost solver start within 4 cm rms
+        of the spline below saturation. Unchanged: the usable-soil rule and R1 - R3, all against the HOURLY
+        well, reported next to the floor. The knot spacing (1 day, 73 bl) is not changed.
+        Calibration starts (jobs 15574012/14/16/18 = sep23c s0..3; 15574013/15/17/19 = sep23d s0..3): all
+        eight RUNNING, each log has its start line; first solves: sep23c s0 0.1115 (starting soil), s3
+        0.00217 (start from the hydrostatic fit); sep23d s0 0.0859. Waiter on both chains: b4kiadbqy.
