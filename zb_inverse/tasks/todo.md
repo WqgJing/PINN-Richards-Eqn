@@ -3660,3 +3660,91 @@ Real-case spec (first slice):
           R3 failed.
         STARTED 18:06: continuation jobs 15597939 / 15597940 / 15597941 (logs/cal_hb2_aug20_e.ids); dry run
         process group 2322708 (logs/transfer_hb2_aug20_pre.log).
+    73 bz. (13 Nov, 18:18) STAGED FORWARD CHECKS OF departure='conductive' (73 bw e): ALL FOUR RULES PASSED, F1 INCLUDED.
+        THE FLUX IS NOW LEARNED ON THE Ks 1e-3 SOILS (rain window 0.99 -> 0.018, recession 0.30 -> 0.0024). ADOPTED
+        INTO THE MAIN TREE, DEFAULT OFF; RE-RUN OF THE INVERSION ON "C_N1 WITH S_W2" PRE-REGISTERED BELOW.
+        Five forward PINNs at the well's spline (28000 steps each; started 16:54, the last ended 18:09; no Python
+        error in any job). Held-out losses from runs/<name>/metrics.csv, step 0 -> step 28000, and their rms ratio
+        to the step-0 (zero-flux, hydrostatic) level; theta at the sensor against the site solver on the same path
+        (truth_error_profile --sensor fem, [truth] lines of logs/fwd_<name>.log):
+                                             flux loss              flux    pde loss            pde     theta - solver
+                                             step 0 -> end          ratio   step 0 -> end       ratio   rms (max)
+          F1  fc_nc2ct  C_N1 with S_W2       612.03 -> 0.2025       0.018   45.22 -> 5.497      0.35    0.00098 (0.0060)
+              additive (fwd_nc2ct, 73 bw)    612.0  -> 600.9        0.991   45.2  -> 26.6       0.77    0.00286
+          F2  fc_nc2c   C_N1, own soil       612.03 -> 0.0316       0.0072  5.249 -> 0.0185     0.059   0.00043 (0.0046)
+              additive (73 bw c)                                    0.0067           0.029      0.074   0.00043
+          F3  fc_nc2w3  W3 with S_W2         101.93 -> 0.0006       0.0024  1.810 -> 0.1891     0.32    0.00028 (0.0008)
+          F3b fwd_nc2w3 the same, additive   101.93 -> 9.2395       0.301   1.810 -> 1.3294     0.86    0.00028 (0.0008)
+          F4  fc_pasc1  US-PAS C1, own soil  671.00 -> 0.1212       0.013   2.822 -> 0.0579     0.14    0.0034  (0.043)
+              additive (fwd_pasc1, 73 bp)             0.246         0.019            0.092      0.18    0.0035  (0.0425)
+        F4 by day 0 .. 8: 0.0004 0.0003 0.0005 0.0006 0.0018 0.0099 0.0002 0.0001 0.0002; days 0 - 5 (days 0 .. 4,
+        as in 73 bp; combined from the per-day values): 0.0009 (additive 0.0015); days 5 - 9: 0.0050 (0.0049).
+        The one event hour is missed as before (0.043 against 0.0425): the new form does not touch that.
+        F1 by day 0 .. 10 (rms; mean): dry days 0.0005 - 0.0009 with a mean of -0.0004 .. -0.0007 (PINN drier
+        than the solver); the two shower days 0.0022 (max 0.0060) and 0.0012 (max 0.0046).
+        RULES of 73 bw e), applied as written:
+          F1 (decides)  flux <= 0.1: 0.018 yes.  theta <= 0.002 on the whole window: 0.00098 yes.     PASSED
+          F2            0.0072 yes; 0.00043 yes.                                                      PASSED
+          F3            flux <= 0.1: 0.0024 yes (theta 0.00028, reported).                            PASSED
+          F4            0.013 yes; days 0 - 5 0.0009 <= 0.004; whole window 0.0034 <= 0.010.          PASSED
+        AGAINST THE EXPECTATION: F3 "flux <= 0.05": held (0.0024). F2, F4 "within a factor of two of now": held
+        (flux 0.0072 / 0.0067 and 0.013 / 0.019, theta unchanged). F3b "flux 0.2 - 0.4, theta within 0.001":
+        held (0.30, 0.00028). F1 "flux 0.1 - 0.5, theta 0.001 - 0.002, short of the rule on the flux": WRONG on
+        the flux, on the good side (0.018; the shower days were learned too); theta 0.00098, at the lower edge.
+        WHAT THE NUMBERS SAY AND WHAT THEY DO NOT:
+        - The hypothesis of 73 bw d) (the additive departure cannot express the small head gradients that carry
+          the flux through a soil conducting 1e3 - 1e4 times that flux) is supported by a controlled pair:
+          F3 and F3b differ only in the form, same data, same settings, same seed: 0.0024 against 0.30.
+        - On the recession (F3 / F3b) theta at the sensor is the SAME to 5e-6 with and without the flux
+          learned (0.00028 both). On such a window with such a soil the sensor does not see the flux at the
+          1e-3 level: the new form will not move a recession estimate on US-NC2 by itself; it makes the
+          statement "the operator solves the equation there" true, which it was not (73 bw c).
+          On the rain window (F1) it does move theta: 0.00286 -> 0.00098.
+        - NOT shown: the interior residual. On the two Ks 1e-3 data sets the held-out pde loss ends at 0.32 -
+          0.35 of its step-0 level (F1: 5.5, i.e. an rms residual of 2.3 sigma_pde), against 0.06 - 0.14 on
+          the Ks 1e-6 soils. It is outside the written rule and it is not explained; I do not claim the
+          equation is solved to sigma_pde there. Whether it costs anything is read from R2 of the inversion
+          (PINN against solver), not assumed.
+        - F1 against the OBSERVED sensor: 0.0043 (additive 0.0033; the solver at the well's spline 0.0039, 73 bu).
+          The additive net fitted the sensor better than the solver does because it was close to the
+          hydrostatic profile; the new one is where the solver is. Not a regression of the PINN.
+        DECISION (the rule of 73 bw e): adopted into the main tree, DEFAULT OFF (model.departure absent or
+        'additive' = the code path of every result so far, the same arithmetic).
+          - src/zbinv/model.py, src/zbinv/parametric.py: the staged files (the bytes that ran in jobs 15596460,
+            15596461, 15596463 and 15596471, plus the docstring of the form), moved in by rename so that a job
+            starting meanwhile never reads half a file. rfnc1t is still running (round 2 of 4): its later
+            jobs import the new files and take the 'additive' branch.
+          - tests: test_physics.py::test_hard_constraints_conductive_departure (h = 0 at the water table,
+            hydrostatic start, 0 < g < 1 growing with suction, departure = g x the additive one to 1e-13,
+            finite residual, base='initial' refused); test_parametric.py::test_build_param_model_departure_switch
+            (default additive, q_scale = rms(q_obs / Ks) = sigma_q / q_frac, same state dict).
+            The whole suite is run on the STAGED tree first (job 15598129, runs/_stage_cond/tests with links to
+            configs / output / runs), then on the main tree after the move.
+          - hpc/real_full_x.sh = hpc/real_full_obs.sh with a fourth argument appended to the training options
+            (a new file: hpc/real_full_obs.sh is being read by the running driver and is not edited).
+        PRE-REGISTERED RE-RUN (before any number of it exists):
+          hpc/real_full_x.sh rfnc1tc output/real_nc2_sep23c_soilsep23a "[0.0,0.30]" "--set model.departure=conductive"
+          Everything else is the adopted method. STATUS: DIAGNOSTIC, as rfnc1t (73 bs, 73 bu): the solver itself
+          is 3.05 cm from the well on this data set (r 0.948), so R3 is not expected and nothing here counts for
+          R3 / R4. What it decides: R1 and R2 on a rain window with a soil that never saw this window's well,
+          and, against rfnc1t (additive, same data, still running), what learning the flux is worth in cm.
+          Recorded per stage before any score: flux and pde loss ratios to the wide stage's step-0 level.
+          EXPECTATION: flux ratio wide 0.03 - 0.10 (a prior of paths is harder than one path: on the own soil
+          wide 0.022 against forward 0.007), rounds 0.02 - 0.05, forward PINNs of the loop 0.015 - 0.03.
+          R1: spread < 0.2 cm. R2 (PINN - solver, limit 1 cm): 0.5 - 1.5 cm, about even - the forward
+          difference is 0.001 with a dry-day mean of -0.0006, and S_W2's slope is 0.11 - 0.16 % per cm (73 bs),
+          i.e. 0.4 - 0.9 cm before the correction loop, which removes what the forward PINN sees but not the
+          forward PINN's own 0.001; the shower days (0.0022) are the likeliest place for a local 1 - 2 cm.
+          Against the hourly well: as the solver, 2.8 - 3.5 cm, bias -1 to -2, r 0.94 - 0.96.
+          rfnc1t (additive): the expectation of 73 bw f) stands (PINN - solver 1.5 - 3 cm).
+          READING RULE: the form "matters for the inversion" if R2 is <= 1 cm here and > 1 cm in rfnc1t. If
+          both are <= 1 cm the flux has little weight on this data set and the form is kept for the operator
+          only. If this run is > 1 cm, R2 fails on this rain window and the forward offsets of the loop, by
+          day, say where, before anything else is changed.
+        18:23. ADOPTED AND VERIFIED. Test suite on the staged tree (job 15598129): 62 PASS, 0 failed; after the move,
+        on the main tree (hpc/run_tests.slurm, job 15598151): 62 PASS, 0 failed (the 60 before + the 2 new;
+        test_defaults_reproduce_a_saved_joint_run among them). diff -rq of the stage's src against src: none.
+        The two forward checks F3 / F3b are a controlled pair by their config.yaml too (differences: the
+        departure, the output directory and the name of the local file; seed 0 both).
+        STARTED 18:22:15: PINN driver rfnc1tc (process group 2375444, logs/full_rfnc1tc.log, pipe_rfnc1tc.log).
+        To check when its first job starts: runs/rfnc1tc_w0/config.yaml carries model.departure: conductive.
