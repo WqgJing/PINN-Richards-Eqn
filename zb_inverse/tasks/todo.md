@@ -3443,3 +3443,31 @@ Real-case spec (first slice):
           that never saw this window's well.
         STARTED 13:51:47: PINN driver rfnc1t (process group 819813, logs/full_rfnc1t.log) and forward check
         fwd_nc2ct (process group 819814, logs/fwd_fwd_nc2ct.log) on output/real_nc2_sep23c_soilsep23a.
+    73 bv. (13 Nov, 16:12) US-PAS C1 (jul21, own soil S_C1, NOT usable): PINN rfpc1 SCORED. R1 HOLDS, R2 FAILS (2.9 cm
+        FROM THE SOLVER), THE WELL IS MISSED BY 10.7 cm, AS BY THE SOLVER (11.9 cm). A DEMONSTRATION, AS SAID IN 73 bo c).
+        Driver 05:50 - 16:05. Value-correction loop: four iterations, step / sigma max 0.56, 0.21, 0.31, 0.22
+        (stop rule 0.2: NOT reached, the loop ended on its iteration limit); forward offsets rms 0.0010,
+        0.0008, 0.0009, 0.0010; starts spread 0. Final estimate runs/rfpc1dc_it4. scripts/score_real.py (job
+        15594949) -> output/real_pas_jul21_own/result_rfpc1.json|png; scripts/plot_real_pinn.py (15594950) ->
+        result_rfpc1_pinn.png. zb RMSE / bias / max in cm, r:
+                                 whole window (217 h)             below saturation (sensor < 0.3986, 142 h)
+          PINN - well            10.73 / -1.99 / 26.5, r 0.907    12.49 / -1.20 / 26.5, r 0.799
+          solver - well          11.88 / -0.51 / 32.9, r 0.897    13.99 / +1.05 / 32.9, r 0.780
+          PINN - solver           2.92 / -1.48 /  9.2, r 0.9987    3.61 / -2.26 /  9.2, r 0.9983
+          floor (spline - well)   3.26 / -0.09 / 13.4, r 0.991     3.9 (73 bo)
+          hydrostatic reading    13.09 / -7.59 / 23.9, r 0.922    15.58 / -9.81, r 0.852
+        (solver = start 3, the lowest cost 1.5563, shared by starts 0, 1, 3; start 2 ends at cost 1.6512 and
+        23.8 cm, 73 bq.) Start spread of the PINN (max) 0.0002 cm; posterior sigma median 0.8 cm; sensor fit
+        PINN 0.0079, solver 0.0062; coefficients on the box: PINN 0 and 7, solver 0, 4 and 7.
+        By stage (PINN - well, cm): inv0 7.22, inv1 9.31, inv2 9.72, inv3 10.05, inv4 10.68, loop 11.14, 10.98,
+        10.89, 10.73: the refinement moves the PINN's estimate towards the solver's, which is 11.9 cm from
+        the well; the smaller number of the wide stage is not a better estimate.
+        READ AGAINST THE CRITERIA: R1 holds (one estimate from all starts). R2 (<= 1 cm from the solver):
+        2.92 cm -> FAILS. R3: fails, as the solver. Nothing here counts for R3 / R4 (soil not usable, 73 bq).
+        What is established and what is not: the forward PINN at the well's spline passed its rule on this
+        window (73 bp: 0.0035 whole window, one event hour at 0.0425), and the loop's forward offsets are
+        0.001; the sensor fit of the PINN's estimate is 0.0016 worse than the solver's and one more
+        coefficient is free of the box. WHY 0.001 of forward difference leaves 2.9 cm between the two
+        estimates has not been examined; on a window where the solver's own answer is 12 - 24 cm from the
+        well depending on the start, it is not followed up (no gate passed here; the windows that passed
+        the gate are C_N1 and "C_N1 with S_W2", both running).
