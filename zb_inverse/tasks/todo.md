@@ -2405,3 +2405,40 @@ Real-case spec (first slice):
           W3 with S_W2           cost 0.132   9.5 cm
         The sensor alone does not tell the soil from the water table: a soil that is wrong for the
         window can fit the sensor better with a shifted water table. Protocol d stays as it is.
+    bd) 22:10. US-HB2, OFFICIAL solver side of the three tests with the soil of V1 (transfer chain of 09:29,
+        finished 17:38; S_V1 = start 3). Solver inversions from the four starts, against the well (RMSE /
+        bias / max in cm, r; this sand never reads saturated, so "below saturation" is the whole window):
+          in-sample V1    9.3 / -3.7 / 27.5, r 0.84   starts 0, 1, 3 at cost 0.651 - 0.653; start 1.0 m at
+                          0.6507 after 21 iterations when the 8 h limit ended it. Days 0 - 15: 1.9 / +0.5.
+                          Days 16 - 20 (well below 0.6 m, sensor at theta_r): -5 ... -27 cm, with a
+                          posterior sd of the inversion of 5 - 27 cm there: the sensor does not see it.
+                          -> by the rule written beforehand (in-sample within 2 cm, r >= 0.975) S_V1 is
+                          NOT a usable soil.
+          T_H1 (V2)       2.50 / +1.22 / 8.0, r 0.968  starts hydrostatic, flat, 0.3 m at one cost (0.79239);
+                          the start at 1.0 m does not move (cost 622). RMSE and bias inside R3, r below 0.98
+                          (last day -6.8 cm).                                                  R3 fails
+          T_H2 (V3)       16.7 / +7.0 / 37.7, r 0.66   starts 0, 1, 3 at cost 1.3328 - 1.3329; start 1.0 m at
+                          1.3328 after 24 iterations at the limit. Days 0 - 10 within 5 cm, then the well
+                          falls below 0.6 m and the estimate is free.                          R3 fails
+          T_H6 (V7)       4.96 / -4.29 / 8.9, r 0.992  all four starts at one cost (0.18350).   R3 fails
+        Written beforehand (73 ay): T_H1 and T_H6 can pass, T_H2 open. Outcome: none passes; T_H1 misses on
+        r only. No test of this soil qualifies for a counting PINN run (soil not usable).
+        PINN on the dry-run data set of T_H1 (rfh1p; soil = S_V1 to four digits; does NOT count; solver
+        reference hb2_sep19on_mar20_pre, 2.50 / +1.23 / 8.0, r 0.968):
+          wide members only (inv0)   PINN - solver 0.62 cm rms (max 1.49)
+          refinement rounds 1 - 4    0.33 / 0.20 / 0.19 / 0.19 cm rms (max 0.49 at round 4)
+          value correction           converged at it 3 (step 0.09 sigma): 0.22 cm rms (max 0.60)
+          against the well           2.57 / +1.15 / 8.0, r 0.965 (runs/rfh1pdc_it3)
+          starts                     all five identical (spread 2e-9 m), INCLUDING the start at 1.0 m, which
+                                     the solver's own inversion cannot leave (PINN: first step accepted,
+                                     cost 362; solver: all ten trial steps rejected, cost stays 622).
+                                     Why the two differ there was not examined.
+        So R1 and R2 hold at the fourth site as at the other three; the distance to the well is the
+        solver's. V3 calibration complete, all by xtol: starts 0, 2, 3 at misfit 0.004145 (theta_s 0.3826,
+        theta_r 0.0618, alpha 6.59, n 3.17, Ks 3.6e-6), start 1 at 0.003309 (theta_s 0.3686, theta_r 0.0341,
+        alpha 5.675, n 2.926, Ks 5.28e-4) -> S_V3 = start 1, nothing on a bound. Chain for T_H3 and T_H5
+        started 22:01 (RT=12:00:00 hpc/transfer_solver.sh hb2 jul20 "[0.1524,0.1524]" aug20 mar21;
+        logs/transfer_hb2_jul20.log). V4 calibration: starts 0 - 2 ran into the 8 h limit still moving
+        (misfit 0.00128 / 0.00166 / 0.00101 after 190 / 153 / 173 solves; start 3 ended at 0.003651). They
+        began before the progress file existed, so each is CONTINUED from the last soil in its log with
+        --x0 (jobs cal_hb2aug20_s0c / s1c / s2c, 8 h; result key continued_from = "x0").
