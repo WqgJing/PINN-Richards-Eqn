@@ -3599,3 +3599,34 @@ Real-case spec (first slice):
              F3  fc_nc2w3   pgid 1919128   jobs 15596460 15596467 15596483   logs/fwd_fc_nc2w3.log
              F4  fc_pasc1   pgid 1919129   jobs 15596462 15596466 15596471   logs/fwd_fc_pasc1.log
              F3b fwd_nc2w3  pgid 1919130   jobs 15596464 15596465 15596478   logs/fwd_fwd_nc2w3.log (main tree)
+
+    73 bx. (13 Nov, 17:35) PINN ON THE SMALL US-NC2 CYCLE C_N1 WITH ITS OWN SOIL (rfnc1): R1 - R3 PASSED, AT THE
+        SOLVER'S ESTIMATE. A DEMONSTRATION (the soil has seen this window's well), not a held-out result.
+        Driver hpc/real_full_obs.sh rfnc1, 10:29:25 -> 17:28:50; four wide members, four refinement rounds,
+        value-correction loop converged at its first iteration (step / sigma max 0.02; forward offset rms
+        2.6e-5 in theta). Final estimate runs/rfnc1dc_it1; scripts/score_real.py (job 15597323) ->
+        output/real_nc2_sep23c_own/result_rfnc1.json, figure result_rfnc1_pinn.png (job 15597324).
+                                              whole window (265 h)           below saturation (199 h)
+                                              rms    bias   max    r         rms    bias   max    r
+          PINN - well (hourly) [cm]           1.10  +0.11   3.16  0.9905     0.97  -0.06   2.90  0.9869
+          solver - well                       1.11  +0.11   3.13  0.9904     0.99  -0.05   3.02  0.9862
+          PINN - solver                       0.065  0.00   0.30             0.056  0.00   0.30
+          hydrostatic reading - well          3.41  +1.16  36.4   0.928      1.75  +1.39   5.31  0.984
+          1-day spline of the well - well     0.81   0.00   3.46  0.9948     (the floor of the path)
+        R1 spread of the four starts 5e-7 cm -> passed.  R2 0.065 cm (<= 1) -> passed.  R3 1.10 cm (<= 3),
+        bias +0.11 (<= 2), r 0.9905 (>= 0.98) -> passed, also below saturation. R4 does not apply: the soil
+        (output/soil_nc2_sep23c/start1.json) was calibrated on this window with its well.
+        Sensor fit 0.00134 (solver 0.00151); the PINN's own sigma, median 1.11 cm, is the size of its error.
+        Physics losses, as 73 bw c) (held-out flux residual, rms, as a fraction of the zero-flux level of the
+        wide stage, 576 - 612 in sigma units): wide members 0.021 - 0.023 (flux 0.26 - 0.31, pde 0.41 - 0.44);
+        round 4 0.012 - 0.014 (0.082 - 0.121, pde 0.14 - 0.29); forward PINNs of the loop 0.0074 - 0.0077
+        (0.031 - 0.036, pde 0.028 - 0.032). So on this soil the flux condition IS learned through the showers.
+        Against the expectation written at 73 bt (R2 1 - 2.5 cm, "open whether <= 1 cm"; R3 1.5 - 3 cm): both
+        better than expected; R2 by a factor of 15 or more. I had taken the rain rate above Ks for single
+        hours as a limit of the operator; it was not one here.
+        What this is: the first window with rain and re-wetting (three showers, 21 mm; well 0.54 -> 0.645 ->
+        0.47 -> 0.78 m) on which the PINN returns the well's path inside R3, and on which the physics is
+        doing work: the static reading of the sensor is 3.4 cm off (1.75 below saturation) where the PINN is
+        1.10 (0.97). What it is not: held out. The same window with the soil of the earlier window (rfnc1t,
+        diagnostic) is still running and its operator does not carry the flux (73 bw); the staged test of 73
+        bw e) decides whether that can be repaired.
