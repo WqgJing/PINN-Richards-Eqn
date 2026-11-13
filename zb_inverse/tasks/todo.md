@@ -2493,3 +2493,27 @@ Real-case spec (first slice):
           (permafrost: frozen layer), US-CLF (3 - 5 m), US-CRT (drainage tiles) -> no.
         So with near-surface sensors the four sites used are all there is in this collection. R4 cannot
         be tried on further data here; it is decided by US-HB2 (T_H3 - T_H5 running).
+    bg) 22:55. CORRECTION of bf: CL-SDF and CL-SDP were set aside there as "water table above the surface".
+        Wrong: their WTD_PI_1 is a PI variable with the opposite sign (positive = depth below the surface;
+        the reading of the sensor falls as the value rises, well 0.5 m deep, sensor SWC_PI_1 at -0.05 m,
+        both from the measurement-height table). The sign had been assumed from the AmeriFlux convention
+        and not checked (lessons.md). US-Elm (0.27 - 1.47 m, WTD at height 0) stays as stated; US-Esm has
+        no half-hour with the sensor and the well together.
+        Looked at properly (dry spells of >= 7 days, /tmp/hb2tools/spells.sh; nothing fitted):
+          CL-SDP (peatland, 2014 - 2022): the sensor at 5 cm reads 20 - 46 % with the water table at 0.18 - 0.21 m
+                  (45.8 Dec 2014, 33.7 and 23.0 Jan 2016, 44.3 Jan 2020, 20.0 Mar 2019): the moss layer
+                  does not follow the water table, as at CA-Mer. The rain record has holes read as zero
+                  (7 Apr 2021 + 28 d: 1.2 mm recorded, water table 0.53 -> 0.04 m). -> no.
+          CL-SDF (forest, 2014 - 2021): nine recessions of 7 - 11 days in which the water table falls from
+                  0.19 - 0.28 m to 0.36 - 0.47 m (the well ends at 0.50 m) with LE on 72 - 86 % of the
+                  half-hours (Sep 2014, Apr 2015, Oct 2015, Nov 2016, Apr 2017, Dec 2019, Jan / Feb / Mar
+                  2020); the sensor falls by 5 - 17 % over them (0.2 - 0.8 theta per m). At the start of
+                  these recessions, water table 0.19 - 0.28 m, it reads 53.8 / 42.9 / 53.0 / 59.6 / 52.5 /
+                  64.7 / 52.8 / 54.6 / 46.7 %: a spread of 22 % at one water table, more than the whole
+                  fall within a recession. A POSSIBLE fifth site with a near-surface sensor, but one whose
+                  recessions repeat each other no better than US-HB2's (start readings 12.8 - 36.0 % at
+                  0.255 m). Not started: by the same reasoning as at US-HB2 most of its tests would fail
+                  on the solver side before the PINN is asked anything. Kept as the candidate if a
+                  further site is wanted.
+        So bf's last sentence becomes: with near-surface sensors there is one further candidate (CL-SDF),
+        of the same kind as US-HB2.
