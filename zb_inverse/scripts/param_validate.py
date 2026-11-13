@@ -60,6 +60,10 @@ def main():
     dev = torch.device('cpu')
     members, cfg = load_members(args.members, dev)
     ds = load_dataset(cfg)
+    if ds.get('tp_mmd') is not None:   # site data, FEM twins: the PINN and the data set's solver have the root sink
+        raise SystemExit("this data set has a root sink and the reference solver of this script has none: its "
+                         "scores would not be PINN-against-solver errors. Use scripts/truth_error_profile.py "
+                         "--sensor fem (value at the well's path) or scripts/fem_referee.py (inversion).")
     sp = CubicBSpline1D(0.0, ds['n_days'], cfg.get('zb_spline', {}).get('knot_days',
                                                                         ds['twin_cfg']['zb_spline']['knot_days']))
     depth = cfg['obs']['depth_m']

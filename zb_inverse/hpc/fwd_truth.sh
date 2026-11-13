@@ -6,8 +6,8 @@
 #            [extra --set options] > logs/fwd_<run name>.log 2>&1 < /dev/null &
 #   writes runs/<run name>_local.npz  centre = truth_coef of the data set; diagonal covariance (point mode never
 #                                     samples it)
-#          runs/<run name>            the forward PINN, validation.json (theta at the sensor against the solver),
-#                                     truth_profile.npz (hourly error series, --sensor fem)
+#          runs/<run name>            the forward PINN and
+#                                     truth_profile.npz (theta at the sensor, PINN - solver, hourly; --sensor fem)
 set -u
 cd /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse || exit 1
 name=$1; D=$(realpath $2); DEPTH=$3; shift 3
@@ -58,10 +58,9 @@ hpc/race.sh $a,$b,$c > logs/race_$name.log 2>&1
 echo "$name: $(tail -1 logs/race_$name.log)"
 [ -f runs/$name/model.pt ] || { sleep 60; [ -f runs/$name/model.pt ]; } || { echo "$name: no model -> stop at $(date)"; exit 1; }
 
-v=$(submit val_$name cpu-small --account=gts-rbras6 --qos=inferno -n1 -c8 --mem=16G -t 02:00:00 hpc/run_script_cpu.slurm \
-    scripts/param_validate.py --members runs/$name --out runs/$name/validation.json --n-local 0 --n-prior 0)
+# scripts/param_validate.py is NOT used here: its reference solver has no root sink (site data sets have one)
 p=$(submit tep_$name cpu-small --account=gts-rbras6 --qos=inferno -n1 -c4 --mem=16G -t 00:40:00 hpc/run_script_cpu.slurm \
     scripts/truth_error_profile.py --members runs/$name --sensor fem --out runs/$name/truth_profile.npz)
-echo "$name: validation job $v $(wait_job $v) (log logs/cpu_$v.out), error profile job $p $(wait_job $p) (log logs/cpu_$p.out)"
-grep "^\[val\] truth" logs/cpu_$v.out | cut -c1-300
+echo "$name: error profile job $p $(wait_job $p) (log logs/cpu_$p.out)"
+sed -n '/^\[truth\]/,/depth band/p' logs/cpu_$p.out | grep -v "depth band" | cut -c1-200
 echo "forward $name done at $(date)"

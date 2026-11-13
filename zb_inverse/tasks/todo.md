@@ -2899,6 +2899,11 @@ Real-case spec (first slice):
     73 bn. (13 Nov, 04:40) PLAN 1 RESULT: THE REGIME SCALES ARE NOT THE CAUSE. OPTION NOT ADOPTED.
         Forward PINNs at the well's spline on W_R1 (soil S_A, seed 0, 25000 Adam + 15 x 200 L-BFGS, V100, 47 - 49
         min each), scored against the solver at the same path (param_validate, jobs 15569349 - 15569351):
+        [CORRECTED in 73 bp: the reference of param_validate has no root sink, the PINN and the site solver
+        have one. Against the site solver (truth_error_profile --sensor fem) the columns whole / days 0-5 /
+        5-10 / 10-14 read A 0.0221 / 0.0114 / 0.0353 / 0.0010, B 0.0316 / 0.0061 / 0.0525 / 0.0009,
+        C 0.0308 / 0.0080 / 0.0510 / 0.0007. Same rule, same decision: none reaches 0.004, B and C are worse
+        than A in the burst segment.]
                                    theta vs solver                              held-out, last state
                                    whole    max     days 0-5  5-10    10-14     pde    flux   box
           A  as it is              0.0205   0.182   0.0074    0.034   0.0010    2.14   8.2    8.1
@@ -3045,3 +3050,47 @@ Real-case spec (first slice):
         cal_hb2aug20_s0d / s1d / s2d, 12 h; ids in logs/cal_hb2_aug20_d.ids). T_H4 waits for all four starts
         as the rule requires; it is the only open test at US-HB2 and cannot change the tally there (five of
         six decided on the solver side, none inside R3).
+    73 bp. (13 Nov, 06:54) US-PAS C1: THE FORWARD PINN HOLDS THROUGH THE WHOLE CYCLE. ONE SCORING TOOL WAS WRONG
+        FOR SITE DATA (FOUND HERE, FIXED, 73 bn CORRECTED).
+        Forward PINN fwd_pasc1 at the well's spline on C1 with S_C1 (hpc/fwd_truth.sh; GPU job 15571675, V100,
+        05:56 - 06:42; held-out pde 0.092, flux 0.246, box 0.63 - on W_R1 these were 2.1 / 8.2 / 8.1).
+        Theta at the sensor against the SITE SOLVER at the same path (scripts/truth_error_profile.py --sensor
+        fem, job 15573295; reference = theta_fem[0] of real.npz):
+          whole window 0.0035 (max 0.0425)     days 0 - 5: 0.0015     days 5 - 9: 0.0049     profile rms 0.0023
+          by day 0 .. 8: 0.0003 0.0006 0.0007 0.0008 0.0031 0.0099 0.0003 0.0001 0.0004
+        RULE of 73 bo b) (<= 0.004 on days 0 - 5, <= 0.010 on the whole window): PASSED. The expectation ("days
+        0 - 5 pass, the event day open") held; the event day is inside the rule too.
+        Hour by hour through the event (days 4.75 - 6.05): PINN - solver within +-0.010 in every hour, the PINN
+        slightly late (-0.006 .. -0.010 in the hour after rain nodes of 24 - 74 mm/d), except ONE hour, 5.833
+        (the 268 mm/d node; sensor 0.257 -> 0.384 in that hour): solver 0.3666, PINN 0.3241 (-0.0425); the next
+        hour 0.4008 / 0.3987. After the event the difference is <= 0.003 and goes to zero. For scale: the
+        hourly solver differs from its finer version on this data set by 0.0026 rms, max 0.032.
+        So, unlike W_R1 (n = 10, sensor at Se 0.1, a node at 2.4 Ks), the operator form solves a full
+        drying - wetting - drying cycle here. Whatever the inversion of C1 gives is not limited by the PINN's
+        forward accuracy at the 0.004 level.
+        SCORING TOOL. hpc/fwd_truth.sh also ran scripts/param_validate.py, which printed 0.0081 (max 0.017; by
+        segment 0.0095 / 0.0059) for the same run. Read in the code, not guessed: its reference is
+        run_reference(...) of the in-house solver with win = {t_days, qsurf} only (param_validate.py line 35) -
+        NO root sink, while the PINN (model.sink = RootSink) and the solver of the data set (theta_fem) have
+        it. On site data and FEM twins its numbers are therefore not PINN-against-solver errors. (That the
+        missing sink is the whole of the 0.008 offset is the reading of the code; no separate run isolated it.)
+        Consequences:
+        - 73 bn's table was made with that tool. Recomputed against theta_fem[0] from the truth_profile.npz of
+          the same three runs (rgA_truth / rgB_truth / rgC_truth; whole / days 0-5 / 5-10 / 10-14):
+            A 0.0221 / 0.0114 / 0.0353 / 0.0010   B 0.0316 / 0.0061 / 0.0525 / 0.0009   C 0.0308 / 0.0080 / 0.0510 / 0.0007
+          The decision of 73 bn stands under the same rule (none reaches 0.004 before the burst; B and C are
+          worse than A in the burst segment). Pointer added at 73 bn.
+        - scripts/param_validate.py now refuses a data set with a root sink (exit with a message naming the
+          two right tools). Checked: job 15573433 on runs/fwd_pasc1 -> "this data set has a root sink ..."
+          exit=1, no output file. Its use on the in-house twins (no sink) is unchanged.
+        - hpc/fwd_truth.sh: the param_validate step is removed; the score is truth_error_profile --sensor fem.
+        - Every use of param_validate on site data, listed from the files (runs/*/validation.json of site runs
+          and the grep of this file): runs/fwd_pasc1 (this entry), runs/rgA_truth / rgB_truth / rgC_truth
+          (73 bn, corrected above), and runs/rfr1a_inv0 / rfr1a_inv1 (the operator scoring of 73 bl: "0.0231
+          at the well's path", the 5-day segments, the Jacobian cosines and the contraction 2.27). The last
+          set is against the solver without the sink too: its values are indicative only. What was concluded
+          from it - the operator is 0.02 - 0.03 from the solver on W_R1 and the rounds will not converge
+          there - does not rest on it alone: the forward PINN A against the site solver is 0.0221, and the
+          inversions rfr1a_inv0 and inv1 themselves were 29.5 and 27.7 cm from the site solver's estimate.
+          No hpc driver calls param_validate (grep of hpc/); R2 of every site result is scored by
+          scripts/score_real.py against scripts/fem_referee.py, the site solver with the sink.
