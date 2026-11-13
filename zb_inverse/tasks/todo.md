@@ -2517,7 +2517,7 @@ Real-case spec (first slice):
                   further site is wanted.
         So bf's last sentence becomes: with near-surface sensors there is one further candidate (CL-SDF),
         of the same kind as US-HB2.
-    bh) 23:55 (12 Nov). FIGURES OF THE PINN RUNS, AND A WINDOW WITH RAIN (asked by the user: every window shown
+    bh) 23:25 (12 Nov). FIGURES OF THE PINN RUNS, AND A WINDOW WITH RAIN (asked by the user: every window shown
         is a monotone drydown).
         Figures against the observations only (scripts/plot_real_pinn.py, new: sensor observed / PINN, water
         table observed / PINN; no solver line), commits 8072005 and 9eae874:
@@ -2575,7 +2575,7 @@ Real-case spec (first slice):
              from 1 before the numbers of 2.
           3. scripts/score_real.py and plot_real_pinn.py; R1 - R3 as they are, whole window and below
              saturation; additionally the scores for the hours before the burst of 5 Nov and after it.
-    bi) 23:40 (13 Nov). RAIN WINDOW W_R1: THE FORWARD CHECK (step 1 of bh) AND WHAT IS EXPECTED OF THE INVERSION
+    bi) 23:40 (12 Nov). RAIN WINDOW W_R1: THE FORWARD CHECK (step 1 of bh) AND WHAT IS EXPECTED OF THE INVERSION
         (written and committed before any inversion of W_R1 is submitted).
         Data sets (scripts/make_real.py, configs/real_ona_rain21.yaml; jobs 15556531 - 15556533 COMPLETED, each
         real_summary.json written): output/real_ona_rain21_soilsep21 (S_A), _soilnov21 (S_B), _soiloct22 (S_C).
