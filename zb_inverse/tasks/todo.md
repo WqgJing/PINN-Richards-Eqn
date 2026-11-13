@@ -2575,3 +2575,64 @@ Real-case spec (first slice):
              from 1 before the numbers of 2.
           3. scripts/score_real.py and plot_real_pinn.py; R1 - R3 as they are, whole window and below
              saturation; additionally the scores for the hours before the burst of 5 Nov and after it.
+    bi) 23:40 (13 Nov). RAIN WINDOW W_R1: THE FORWARD CHECK (step 1 of bh) AND WHAT IS EXPECTED OF THE INVERSION
+        (written and committed before any inversion of W_R1 is submitted).
+        Data sets (scripts/make_real.py, configs/real_ona_rain21.yaml; jobs 15556531 - 15556533 COMPLETED, each
+        real_summary.json written): output/real_ona_rain21_soilsep21 (S_A), _soilnov21 (S_B), _soiloct22 (S_C).
+        Common: 337 hourly values, 17 coefficients; LE filled 9.2 %; rain 31.2 mm, ET 27.2 mm; water table
+        0.202 - 1.066 m; sensor 0.1077 - 0.3383; FEM converged 100 %; admissible (surface head >= -1.16 m).
+        The representation: the spline with 1-day knots misses the hourly record of the well by 4.85 cm rms
+        (bias -0.23 cm, max 26.3 cm at the burst, r 0.9789). The estimate is such a spline, so against the
+        hourly record it cannot be inside R3 (3 cm, r 0.98) on the whole window even with a perfect model.
+        Not changed (bh fixed it); the spline fit is the floor the scores are read against.
+        FEM with the OBSERVED water table (hourly record), fT = gldas, against the sensor (theta rmse / bias):
+                                                   S_A                S_B                S_C
+          whole window (337 h)                     0.0271 / +0.0197   0.0146 / +0.0117   0.0177 / +0.0144
+          before the rain of 28 Oct (24 h)         0.0044 / -0.0044   0.0012 / -0.0010   0.0070 / +0.0070
+          28 Oct 12:00 - 5 Nov 04:00 (185 h)       0.0150 / +0.0109   0.0114 / +0.0096   0.0158 / +0.0148
+          5 Nov 05:00 - 19:00 (15 h, first rain)   0.0184 / +0.0104   0.0213 / +0.0162   0.0313 / +0.0267
+          5 Nov 20:00 - end (113 h, from burst)    0.0422 / +0.0405   0.0190 / +0.0174   0.0196 / +0.0137
+        (spline instead of the record: 0.0271 / 0.0160 / 0.0172; fT 0 - 1: S_A 0.0274 - 0.0297.) The level of
+        the transfers that led to R3-level inversions is 0.007 - 0.010: only the first day is at that level.
+        FEM (dt 1 h, 101 nodes) against the finer FEM (15 min, 201 nodes): rmse 0.0034 - 0.0039, max 0.055 -
+        0.064, in the hour of the burst (13.8 mm in one hour = 2.4 Ks of S_A).
+        What the series shows (S_A; output/real_ona_rain21_soilsep21/real_check.png):
+        - 28 Oct, 4.6 mm: the sensor goes 0.121 -> 0.1385 within the hour. The FEM with the observed water
+          table is still at 0.1145 six hours later and reaches 0.134 - 0.146 half a day to 2.5 days later; from
+          31 Oct to 5 Nov it is 0.013 - 0.021 above the sensor, which dries faster than the model.
+        - after the burst the FEM has the sensor at saturation (0.3686) until 8 Nov and at 0.343 at the end.
+          The sensor peaks at 0.3383 (5 Nov 23:00, well at 0.22 m) and ends at 0.3016. In the 49 h after the
+          burst with the well above 0.5 m the sensor reads 0.323 - 0.338 (mean 0.331): 0.030 - 0.045 below
+          theta_s of S_A, 0.012 - 0.027 below S_B's (0.3498), 0.013 - 0.028 below S_C's (0.3511). This is what
+          bh wrote down from the records beforehand; no soil calibrated on a recession holds through the event.
+        Hand check, NOT the inversion: the hydrostatic reading of the sensor with each retention curve
+        (water table = 0.10 m + |h|(theta)), against the well (awk on real.npz):
+          S_A  before 28 Oct 2.0 cm rms (bias -0.2); 28 Oct - 5 Nov 5.6 (+4.7); first rain of 5 Nov 13.7
+               (+12.1); from the burst 22.7 (+19.9): 0.675 m where the well is at 0.202 m, 0.732 against
+               0.674 m at the end; whole window 14.1 cm rms, bias +9.8 cm
+          S_B  no reading for 36 h (sensor below theta_r 0.1114); from the burst 15.9 cm (+12.2): 0.580 m at
+               the peak, 0.667 against 0.674 m at the end; the 301 h with a reading 12.6 cm rms
+          S_C  no reading for 139 h (sensor below theta_r 0.1261, all of the first day); from the burst 14.3
+        EXPECTATION for the inversion with S_A (solver; and the PINN if it follows the solver as it did on the
+        recessions) - it differs from the hand check by the dynamics, so orders of magnitude only:
+          - the rise of 28 Oct (19 cm within the hour) is seen in part: about 1.0 -> 0.95 m where the well goes
+            1.04 -> 0.85 m; then 2 - 6 cm deeper than the well until 5 Nov;
+          - at the burst the estimate rises to 0.65 - 0.70 m, not to 0.20 m, and stays within 0.65 - 0.75 m to
+            the end while the well recedes from 0.20 to 0.67 m: about +45 cm right after the burst, +5 cm at
+            the end, of the order of 20 cm rms from the burst on;
+          - whole window of the order of 14 cm rms, bias about +10 cm: far outside R3. The cycle (deep - rise -
+            recession) is there in sign and timing, the size of the rise is not.
+          - R1 (starts agree) and R2 (PINN = solver within 1 cm): open. First window with rain, 17 coefficients
+            instead of 3 - 7, and a burst the hourly solver itself resolves to 0.06 theta only.
+        The miss, if it comes out as expected, is the retention curve (drying curve of a recession used on a
+        re-wetting soil; S_A also extrapolated below 0.221): the same for the solver and for the PINN, and not
+        something an inversion can repair.
+        ADDED after the forward check (not in bh; diagnostics on the solver side, never counted for R1 - R4):
+          - solver inversions with S_B and S_C too (four starts each): how much of the miss is the soil;
+          - calibration of a soil ON W_R1 (scripts/calibrate_soil.py, four starts; data set
+            output/real_ona_rain21 = the config's own soil, as for every calibration): is there ANY van
+            Genuchten soil that holds the sensor through the event with the observed water table? A misfit
+            well above the 0.004 - 0.005 of the recessions = the window is outside the single-valued model
+            whatever the soil; a misfit at that level = a rain window needs the soil of a rain window (and a
+            second rain window to test it on, which US-ONA does not have: bh).
+        Runs: PINN tag rfr1a (hpc/real_full_obs.sh, unchanged) on S_A; solver output/referee/ona_rain21_s{A,B,C}_s0-3.
