@@ -49,6 +49,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--members', nargs='+', required=True)
     ap.add_argument('--out', default=None)
+    ap.add_argument('--sensor', choices=['obs', 'fem'], default='obs',
+                    help="reference at the sensor: the data set's observations (twins: the twin) or, for a site "
+                         "data set, the solver at the same path (theta_fem[0])")
     a = ap.parse_args()
     dev = torch.device('cpu')
     out = {}
@@ -60,7 +63,7 @@ def main():
         tt = torch.as_tensor(t).reshape(-1, 1)
         with torch.no_grad():
             th5 = theta_obs_model(m, tt, cfg['obs']['depth_m'], c).numpy().ravel()
-        e5 = th5 - tw['theta_obs_hourly']
+        e5 = th5 - (tw['theta_fem'][0] if a.sensor == 'fem' else tw['theta_obs_hourly'])
         ep = theta_profile(m, torch.as_tensor(xi), torch.as_tensor(t), c).numpy() - tw['theta']      # (Nt, Nx)
         if ep.shape != tw['theta'].shape:
             raise ValueError(f'profile shapes {ep.shape} vs {tw["theta"].shape}')

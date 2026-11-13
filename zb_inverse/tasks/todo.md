@@ -2964,7 +2964,7 @@ Real-case spec (first slice):
         starts (theta_s 0.412 - 0.416, alpha 2.30 - 2.45, n 3.07 - 3.29, Ks 1.4 - 1.6e-6). The US-PAS recessions
         calibrate to 0.0045 - 0.0061: the cycle is NOT held by one retention curve to the level of a recession.
 
-    73 bo. (13 Nov, 05:50) US-PAS C1 SOIL: ONE SOIL FROM ALL FOUR STARTS. SOLVER CHAIN, FORWARD PINN AND PINN
+    73 bo. (13 Nov, 05:45) US-PAS C1 SOIL: ONE SOIL FROM ALL FOUR STARTS. SOLVER CHAIN, FORWARD PINN AND PINN
         DRIVER ON THE CYCLE WINDOW: PLAN AND EXPECTATIONS (written before any of the three runs).
         C1 calibration (jobs 15567730 - 15567733, all COMPLETED, 54 - 100 min, nothing on a bound):
           start  misfit    theta_s  theta_r   alpha   n      Ks
