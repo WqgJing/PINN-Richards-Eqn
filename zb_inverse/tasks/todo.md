@@ -5916,3 +5916,51 @@ Real-case spec (first slice):
           not transferable, solver and PINN alike" and no PINN is run on it (rule written above: PINN on
           the held-out pair only if the numerical inversion meets R3 with that soil). H3 stands for the
           in-sample rows.
+    74 ah. (14 Nov, 16:12) FORWARD REFERENCE WITH THE 1/1024 h LEVEL (job 15617357 fwdrefE, 9 h 59, exit=0, no
+        Traceback; output/paper/nc2_sep23c/forward_reference_d.json; plan and expectations G1 - G3 at 74 o).
+        Every step of every level converged (270 336 steps at 1/1024 h, at most 16 Picard iterations; solve
+        24 024 s). The 1 h level differs from the stored solution of the data set by 4.4e-6 at most (sensor).
+        REFERENCE AGAINST ITSELF, recorded BEFORE any network line of this job is read:
+          each level minus the one before, sensor RMS (max) | profile RMS (max), theta in m3/m3
+            1/4 h    - 1 h        2.95e-4 (3.14e-3) | 2.26e-4 (4.05e-3)
+            1/16 h   - 1/4 h      9.75e-5 (1.04e-3) | 7.49e-5 (1.33e-3)     3.02 x less
+            1/64 h   - 1/16 h     2.65e-5 (2.80e-4) | 2.04e-5 (3.58e-4)     3.68 x less
+            1/256 h  - 1/64 h     6.77e-6 (7.09e-5) | 5.21e-6 (9.00e-5)     3.92 x less
+            1/1024 h - 1/256 h    2.11e-6 (1.74e-5) | 1.59e-6 (2.22e-5)     3.21 x less
+            1/16 h: 201 - 101 nodes  8.0e-7 (1.4e-6) | 1.2e-7 (3.6e-6)
+          each level minus 1/1024 h, sensor | profile: 1 h 4.26e-4 | 3.27e-4; 1/4 h 1.32e-4 | 1.02e-4; 1/16 h
+            3.50e-5 | 2.69e-5; 1/64 h 8.59e-6 | 6.60e-6; 1/256 h 2.11e-6 | 1.59e-6.
+        G1 (1.5e-6 - 2.0e-6, 3.5 - 4.3 x less): NOT MET, by a small margin: 2.11e-6, 3.21 x. The ratio rose
+          3.02 -> 3.68 -> 3.92 towards the first-order value of 4 and has now dropped to 3.21: the last
+          difference is larger than first order in the step predicts (1.7e-6). What sets it was not examined
+          (the Picard tolerance of 1e-8 per step over 270 336 steps was named at 74 o as a possible floor; that
+          is not tested here and is not claimed).
+        DECISION RULE of 74 o read against this: its two branches were "G1 holds" and "falls by less than
+          3 x (stall)". 3.21 x is neither: the rule I wrote has a gap between 3 and 3.5. What decides is then
+          the reading rule of 74 e itself, which has no gap (two finest levels closer to each other than a
+          third of the network's distance from the finest): read after the network lines, below.
+        THE NETWORKS AGAINST 1/1024 h (read after the lines above), sensor RMS (max) | profile RMS (max),
+          and against 1/256 h (sensor) for comparison:
+            baseline   1.71e-5 (7.7e-5)  | 1.42e-5 (1.99e-4)        1.72e-5
+            s1         1.74e-5 (7.7e-5)  | 1.40e-5 (1.86e-4)        1.75e-5
+            s2         2.16e-5 (1.12e-4) | 1.78e-5 (3.20e-4)        2.16e-5
+            c2k        1.53e-5 (4.8e-5)  | 1.32e-5 (2.33e-4)        1.52e-5
+            w64        5.50e-5 (2.51e-4) | 4.24e-5 (6.18e-4)        5.53e-5
+            d3         5.35e-5 (2.71e-4) | 4.28e-5 (7.82e-4)        5.35e-5
+            w32        6.34e-5 (3.33e-4) | 4.88e-5 (6.91e-4)        6.35e-5
+          Baseline by day against 1/1024 h (1e-6): 17 14 22 9 10 10 14 12 24 24 20.
+        G2 (baseline 1.6e-5 - 1.75e-5 at the sensor): MET, 1.71e-5. The networks did not move when the
+          reference moved by 2.1e-6 (1.72 -> 1.71e-5; c2k 1.52 -> 1.53e-5): their distance from the numerical
+          solution is now their own, not the reference's step.
+        G3 (reading rule of 74 e: two finest levels closer than a third of the network's distance from the
+          finest): MET. Sensor 2.11e-6 against 1.71e-5 = 0.12; profile 1.59e-6 against 1.42e-5 = 0.11.
+        WHAT IS STATED NOW (replaces the bounded statement of 74 o): the forward network is 1.7e-5 (sensor) and
+          1.4e-5 (all depths) RMS in theta from the numerical solution at a 1/1024 h step, and that solution
+          is 2.1e-6 from the one at 1/256 h. With it stated: the last level difference fell 3.2 x, not the
+          3.5 - 4.3 x I had written (G1 missed); the numerical solution is not shown to be closer to its limit
+          than about 2e-6, which is an eighth of the network's distance.
+          The three width-128 networks: 1.5 - 2.2e-5; width 64, depth 3, width 32: 5.4 - 6.3e-5 (3.1 - 3.7 x).
+        NEXT: results set rebuilt with --forward-reference output/paper/nc2_sep23c/forward_reference_d (all
+          other arguments as job 15619728). EXPECTED: tables.md section 2 names 1/1024 h as the finest level
+          with 1.71e-5 | 1.42e-5 for the network and 4.26e-4 | 3.27e-4 for the 1 h solve; one more row in the
+          level table; every other section unchanged against the copy of 08:54 (diff).
