@@ -4,6 +4,8 @@ trains nothing, and no run reads its output).
 
   fig1_setup     the data: surface flux and root uptake, soil moisture at the sensor, observed water table
   fig2_forward   forward problem (water table given): PINN against the numerical solution of the same problem
+                 (--forward-reference: against that solution at the finest time step of
+                 scripts/forward_reference_check.py, next to the data set's own solve)
   fig3_inverse   inverse problem: water table of the PINN, the numerical inversion, the hydrostatic reading, the well
   fig4_training  held-out physics losses of the members through the stages
   fig5_stages    the estimate stage by stage
@@ -14,6 +16,7 @@ trains nothing, and no run reads its output).
 Usage: python -u scripts/paper_figures.py --data output/real_nc2_sep23c_own --tag rfnc1 --final runs/rfnc1dc_it1 \
            --referee output/referee/nc2_own_sep23c_s0 ... --forward runs/fwd_nc2c --out output/paper/nc2_sep23c \
            [--soil-note "calibrated on this window (in-sample)"] [--variants w64=runs/fs_nc2c_w64 ...] \
+           [--forward-reference output/paper/nc2_sep23c/forward_reference] \
            [--repeats seed1000=runs/rfnc1s1dc_it1 ...] [--single member0=runs/rfnc1_inv4_m0 ...]
   --tag     name of the hpc/real_full_obs.sh run: stages runs/<tag>_inv0..<rounds>, members runs/<tag>_w<k> and
             runs/<tag>_r<r>_m<k>; --final is the inversion that gives the estimate (last round of hpc/dc_loop.sh)
@@ -101,31 +104,59 @@ def physics_numbers(ph):
     return {k: ph[k] for k in ('flux_rel_rms', 'flux_rms_mmd', 'residual_rms', 'residual_max', 'sig_pde', 'sig_q')}
 
 
-def forward_eval(run, d, data_dir, k_fem):
+def step_label(dt_h):
+    return f'{dt_h:g} h' if dt_h >= 1 else f'1/{round(1 / dt_h)} h'
+
+
+def load_forward_reference(stem, d, data_dir, cfg):
+    """Result of scripts/forward_reference_check.py: its tables (json) and the numerical solution at its finest
+    level on the (t, xi) nodes of the data set (npz)."""
+    FR, z = read_json(stem + '.json'), read_npz(stem + '.npz')
+    if os.path.realpath(FR['data']) != os.path.realpath(data_dir):
+        raise SystemExit(f'{stem} belongs to another data set ({FR["data"]})')
+    if not np.allclose(z['t_days'], d['t_days']) or not np.allclose(z['xi'], d['xi']):
+        raise SystemExit(f'{stem}: times or nodes differ from the data set')
+    L = FR['levels'][-1]
+    return FR, {'theta': z['profile_ref_finest'], 'sensor': z[f"sensor_ref_{L['dt_h']:g}h_{L['n_nodes']}"],
+                'label': step_label(L['dt_h']), 'own_label': step_label(cfg['fem']['dt_hours']),
+                'dt_h': L['dt_h'], 'n_nodes': L['n_nodes'], 'tol': FR['checks']['picard']['tol']}
+
+
+def forward_errors(th5, prof, ref5, ref):
+    """Soil moisture of a network against a numerical solution on the same (t, xi) nodes."""
+    if prof.shape != ref.shape:
+        raise SystemExit(f'profile shapes {prof.shape} vs {ref.shape}')
+    e5, ep = th5 - ref5, prof - ref
+    return {'theta_rms': rms(ep), 'theta_max': float(np.abs(ep).max()),
+            'theta_rel_l2': float(np.sqrt(np.sum(ep ** 2) / np.sum(ref ** 2))),
+            'theta_rms_over_range': rms(ep) / float(ref.max() - ref.min()),
+            'sensor_rms': rms(e5), 'sensor_max': float(np.abs(e5).max())}, e5, ep
+
+
+def forward_eval(run, d, data_dir, k_fem, fine=None):
     """A forward PINN (trained at the spline of the observed water table) against the numerical solution of the
-    same problem: theta on the solver's (t, xi) nodes and at the sensor, surface flux, PDE residual."""
+    same problem: theta on the solver's (t, xi) nodes and at the sensor, surface flux, PDE residual. The solution
+    is the data set's own solve; with fine (load_forward_reference) the errors against the finest level are added
+    under 'vs_fine'."""
     m, cfg = load_member(run, data_dir)
     t, xi = np.asarray(d['t_days'], float), np.asarray(d['xi'], float)
     c = torch.as_tensor(np.asarray(d['truth_coef'], float))
     with torch.no_grad():
         th5 = theta_obs_model(m, torch.as_tensor(t).reshape(-1, 1), cfg['obs']['depth_m'], c).numpy().ravel()
     prof = theta_profile(m, torch.as_tensor(xi), torch.as_tensor(t), c).numpy()                 # (nt, nxi)
-    ref = np.asarray(d['theta'], float)
-    if prof.shape != ref.shape:
-        raise SystemExit(f'profile shapes {prof.shape} vs {ref.shape}')
-    e5, ep = th5 - d['theta_fem'][k_fem], prof - ref
+    err, e5, ep = forward_errors(th5, prof, d['theta_fem'][k_fem], np.asarray(d['theta'], float))
     ph = physics_at(m, cfg, d['truth_coef'], float(d['n_days']))
     s = read_json(os.path.join(run, 'summary.json'))
-    num = {'run': run, 'theta_rms': rms(ep), 'theta_max': float(np.abs(ep).max()),
-           'theta_rel_l2': float(np.sqrt(np.sum(ep ** 2) / np.sum(ref ** 2))),
-           'theta_rms_over_range': rms(ep) / float(ref.max() - ref.min()),
-           'sensor_rms': rms(e5), 'sensor_max': float(np.abs(e5).max()), **physics_numbers(ph),
+    num = {'run': run, **err, **physics_numbers(ph),
            'val_pde': s.get('val_pde'), 'val_flux': s.get('val_flux'), 'steps': s.get('steps'),
            'wall_s': s.get('wall_s'), 'width': cfg['model']['width'], 'depth': cfg['model']['depth'],
            'n_col': cfg['train']['n_col'], 'seed': cfg['train'].get('seed', 0),
            'n_params': int(sum(p.numel() for p in m.head.parameters())),
            'n_inputs': int(m.head.net[0].in_features)}
-    return num, {'th5': th5, 'prof': prof, 'e5': e5, 'ep': ep, 'ph': ph}
+    fw = {'th5': th5, 'prof': prof, 'e5': e5, 'ep': ep, 'ph': ph}
+    if fine is not None:
+        num['vs_fine'], fw['e5_fine'], fw['ep_fine'] = forward_errors(th5, prof, fine['sensor'], fine['theta'])
+    return num, fw
 
 
 def layer_label(depth_m):
@@ -149,31 +180,48 @@ def fig_setup(d, th_label, path):
     plots._finish(fig, path)
 
 
-def fig_forward(d, fw, k_fem, th_label, path):
+def fig_forward(d, fw, k_fem, th_label, path, fine=None):
+    """Without fine: the PINN against the data set's own numerical solve. With fine (load_forward_reference): the
+    upper panels show the solve at the finest time step, the lower panels the difference of the PINN from that
+    solve and from the data set's own, and the difference between the two solves."""
     t, xi = d['t_days'], d['xi']
+    ref, ref5 = (fine['theta'], fine['sensor']) if fine else (d['theta'], d['theta_fem'][k_fem])
     fig, ax = plt.subplots(2, 2, figsize=(10.5, 7.4))
     a = ax[0, 0]
     for col, k in zip(plots.SEQ_BLUE, np.linspace(0, t.size - 1, 6).astype(int)):
         depth = -xi * d['zb_spline'][k]
-        a.plot(d['theta'][k], depth, color=col, lw=2.4, label=f'day {t[k]:.1f}')
+        a.plot(ref[k], depth, color=col, lw=2.4, label=f'day {t[k]:.1f}')
         a.plot(fw['prof'][k], depth, color=plots.INK, lw=0.9, ls='--')
     a.plot([], [], color=plots.INK2, lw=2.4, label='numerical solution')
     a.plot([], [], color=plots.INK, lw=0.9, ls='--', label='PINN')
     a.invert_yaxis(); a.set_xlabel('soil moisture (m$^3$/m$^3$)'); a.set_ylabel('depth (m)'); a.legend(ncol=2)
     a = ax[0, 1]
-    a.plot(t, d['theta_fem'][k_fem], color=plots.C_TRUTH, lw=2.4, label='numerical solution')
+    a.plot(t, ref5, color=plots.C_TRUTH, lw=2.4, label='numerical solution')
     a.plot(t, fw['th5'], color=plots.C_PRED, lw=1.1, ls='--', label='PINN')
     a.set_xlabel(T_LABEL); a.set_ylabel(th_label); a.legend()
-    a = ax[1, 0]
-    a.plot(t, fw['e5'], color=plots.C_PRED, label='sensor layer, PINN − numerical')
-    a.plot(t, np.sqrt(np.mean(fw['ep'] ** 2, axis=1)), color=plots.C_TRUTH, label='RMS over depth')
-    a.axhline(0, color=plots.INK2, lw=0.6)
-    a.set_xlabel(T_LABEL); a.set_ylabel('soil-moisture error (m$^3$/m$^3$)'); a.legend()
-    a = ax[1, 1]
     order = np.argsort(-xi)
-    a.semilogy(-xi[order], np.sqrt(np.mean(fw['ep'] ** 2, axis=0))[order], color=plots.C_TRUTH)
-    a.set_xlabel('relative depth, 0 = surface, 1 = water table (–)')
-    a.set_ylabel('RMS over time of the soil-moisture error (m$^3$/m$^3$)')
+    if fine:
+        lines = [(fw['ep_fine'], plots.C_PRED, 1.6, '-', f"PINN − numerical, {fine['label']} step"),
+                 (fw['ep'], plots.C_TRUTH, 2.4, '-', f"PINN − numerical, {fine['own_label']} step"),
+                 (d['theta'] - fine['theta'], plots.INK, 0.9, '--',
+                  f"numerical, {fine['own_label']} step − {fine['label']} step")]
+        for e, col, lw, ls, lab in lines:
+            v = np.sqrt(np.mean(e ** 2, axis=1))
+            ax[1, 0].semilogy(t, np.where(v > 0, v, np.nan), color=col, lw=lw, ls=ls, label=lab)
+            v = np.sqrt(np.mean(e ** 2, axis=0))[order]
+            ax[1, 1].semilogy(-xi[order], np.where(v > 0, v, np.nan), color=col, lw=lw, ls=ls, label=lab)
+        ax[1, 0].set_xlabel(T_LABEL)
+        ax[1, 0].set_ylabel('RMS over depth of the soil-moisture difference (m$^3$/m$^3$)'); ax[1, 0].legend()
+        ax[1, 1].set_ylabel('RMS over time of the soil-moisture difference (m$^3$/m$^3$)'); ax[1, 1].legend()
+    else:
+        a = ax[1, 0]
+        a.plot(t, fw['e5'], color=plots.C_PRED, label='sensor layer, PINN − numerical')
+        a.plot(t, np.sqrt(np.mean(fw['ep'] ** 2, axis=1)), color=plots.C_TRUTH, label='RMS over depth')
+        a.axhline(0, color=plots.INK2, lw=0.6)
+        a.set_xlabel(T_LABEL); a.set_ylabel('soil-moisture error (m$^3$/m$^3$)'); a.legend()
+        ax[1, 1].semilogy(-xi[order], np.sqrt(np.mean(fw['ep'] ** 2, axis=0))[order], color=plots.C_TRUTH)
+        ax[1, 1].set_ylabel('RMS over time of the soil-moisture error (m$^3$/m$^3$)')
+    ax[1, 1].set_xlabel('relative depth, 0 = surface, 1 = water table (–)')
     plots._finish(fig, path)
 
 
@@ -287,6 +335,38 @@ def score_row(name, s):
 SCORE_HEAD = ['RMSE (cm)', 'bias (cm)', 'max (cm)', 'r']
 
 
+def rms_max(s):
+    return f"{s['rms']:.2e} ({s['max']:.2e})"
+
+
+def reference_table(FR):
+    """The numerical solution against itself (json of scripts/forward_reference_check.py): every level against the
+    finest one and against the level before it. Where a refinement of the time step follows another by the same
+    factor, the last column says how many times smaller the second change is (the factor itself for a first-order
+    scheme in its asymptotic range). Returns the rows of the table and the same numbers for metrics.json."""
+    rows, out, last = [], [], None                   # last: (step factor, sensor RMS) of the refinement before
+    for i, L in enumerate(FR['levels']):
+        prev = FR['consecutive'][i - 1] if i else None
+        ratio = None
+        if prev is not None:
+            factor = FR['levels'][i - 1]['dt_h'] / L['dt_h']
+            if factor > 1.0 + 1e-9:
+                if last is not None and abs(last[0] - factor) < 1e-9:
+                    ratio = last[1] / prev['sensor']['rms']
+                last = (factor, prev['sensor']['rms'])
+        v, finest = L['vs_finest'], i == len(FR['levels']) - 1
+        rows.append([step_label(L['dt_h']), L['n_nodes'], L['max_iters'], f"{L['seconds']:.0f}",
+                     '-' if finest else rms_max(v['sensor']), '-' if finest else rms_max(v['profile']),
+                     rms_max(prev['sensor']) if prev else '-', rms_max(prev['profile']) if prev else '-',
+                     f'{ratio:.2f}' if ratio is not None else '-'])
+        out.append({'level': L['level'], 'dt_h': L['dt_h'], 'n_nodes': L['n_nodes'], 'converged': L['converged'],
+                    'max_iters': L['max_iters'], 'seconds': L['seconds'],
+                    'vs_finest': {'sensor': v['sensor'], 'profile': v['profile']},
+                    'vs_level_before': {'sensor': prev['sensor'], 'profile': prev['profile']} if prev else None,
+                    'change_before_over_this_change': ratio})
+    return rows, out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--data', required=True, help='directory of a make_real.py data set')
@@ -296,6 +376,9 @@ def main():
     ap.add_argument('--members', type=int, default=4)
     ap.add_argument('--referee', nargs='*', default=[], help='directories of fem_referee.py results (one per start)')
     ap.add_argument('--forward', default=None, help='forward PINN at the spline of the observed water table')
+    ap.add_argument('--forward-reference', default=None,
+                    help='output stem of scripts/forward_reference_check.py: the forward PINNs are then also compared '
+                         'with the numerical solution at its finest time step')
     ap.add_argument('--variants', nargs='*', default=[], help='name=dir of further forward PINNs (sensitivity)')
     ap.add_argument('--repeats', nargs='*', default=[], help='name=dir of the final inversion of repeated runs')
     ap.add_argument('--single', nargs='*', default=[], help='name=dir of inversions with one member each')
@@ -342,25 +425,61 @@ def main():
                              f"{cm(s['spline_of_observed_vs_record']['rmse_m'])} cm RMS from the hourly record"]]))
 
     # ---- forward problem
+    FR = fine = None
+    if args.forward_reference:
+        FR, fine = load_forward_reference(args.forward_reference, d, args.data, cfg)
     if args.forward:
-        num, fw = forward_eval(args.forward, d, args.data, k_fem)
+        num, fw = forward_eval(args.forward, d, args.data, k_fem, fine)
         M['forward'] = num
-        fig_forward(d, fw, k_fem, th_label, os.path.join(args.out, 'fig2_forward.png'))
-        md.append('## 2. Forward problem: PINN against the numerical solution (water table given)\n\n' + md_table(
-            ['quantity', 'value'], [
-                ['run', args.forward],
-                ['network', f"{num['n_inputs']} inputs, {num['depth']} hidden layers of {num['width']}, tanh, "
-                            f"{num['n_params']} parameters"],
-                ['training', f"{num['steps']} steps, {num['wall_s'] / 60:.0f} min on one GPU"],
+        fig_forward(d, fw, k_fem, th_label, os.path.join(args.out, 'fig2_forward.png'), fine)
+        head = '## 2. Forward problem: PINN against the numerical solution (water table given)\n\n'
+        setup = [['run', args.forward],
+                 ['network', f"{num['n_inputs']} inputs, {num['depth']} hidden layers of {num['width']}, tanh, "
+                             f"{num['n_params']} parameters"],
+                 ['training', f"{num['steps']} steps, {num['wall_s'] / 60:.0f} min on one GPU"]]
+        physics = [['surface flux: RMS error / RMS of the prescribed flux', f"{100 * num['flux_rel_rms']:.2f} %"],
+                   ['PDE residual / sigma_pde: RMS (max)', f"{num['residual_rms']:.3f} ({num['residual_max']:.2f})"],
+                   ['held-out losses at the end: PDE, surface flux', f"{num['val_pde']:.4f}, {num['val_flux']:.4f}"]]
+        if fine is None:
+            md.append(head + md_table(['quantity', 'value'], setup + [
                 ['soil moisture, all depths and times: RMS', f"{num['theta_rms']:.2e}"],
                 ['soil moisture, all depths and times: relative L2', f"{100 * num['theta_rel_l2']:.3f} %"],
                 ['soil moisture, all depths and times: RMS / range', f"{100 * num['theta_rms_over_range']:.3f} %"],
                 ['soil moisture, all depths and times: max', f"{num['theta_max']:.2e}"],
                 ['soil moisture of the sensor layer: RMS', f"{num['sensor_rms']:.2e}"],
-                ['soil moisture of the sensor layer: max', f"{num['sensor_max']:.2e}"],
-                ['surface flux: RMS error / RMS of the prescribed flux', f"{100 * num['flux_rel_rms']:.2f} %"],
-                ['PDE residual / sigma_pde: RMS (max)', f"{num['residual_rms']:.3f} ({num['residual_max']:.2f})"],
-                ['held-out losses at the end: PDE, surface flux', f"{num['val_pde']:.4f}, {num['val_flux']:.4f}"]]))
+                ['soil moisture of the sensor layer: max', f"{num['sensor_max']:.2e}"]] + physics))
+        else:
+            # the data set's own solve against the finest level, in the same measures as the network
+            own = forward_errors(d['theta_fem'][k_fem], np.asarray(d['theta'], float), fine['sensor'], fine['theta'])[0]
+            rows, levels = reference_table(FR)
+            M['forward_reference'] = {
+                'stem': args.forward_reference, 'finest': {k: fine[k] for k in ('dt_h', 'n_nodes', 'tol')},
+                'picard': FR['checks']['picard'], 'first_level_vs_stored': FR['checks']['first_level_vs_stored'],
+                'data_set_solve_vs_finest': own, 'levels': levels}
+            cols = [num['vs_fine'], num, own]
+            md.append(
+                head + md_table(['quantity', 'value'], setup + physics)
+                + f"\n\nSoil-moisture difference (m3/m3). The numerical solution of the data set has a "
+                  f"{fine['own_label']} time step; the finest level of scripts/forward_reference_check.py has "
+                  f"{fine['label']} ({fine['n_nodes']} nodes, Picard tolerance {fine['tol']:g}).\n\n"
+                + md_table(['quantity', f"PINN − numerical, {fine['label']} step",
+                            f"PINN − numerical, {fine['own_label']} step (the data set's)",
+                            f"numerical, {fine['own_label']} step − {fine['label']} step"], [
+                    ['all depths and times: RMS'] + [f"{e['theta_rms']:.2e}" for e in cols],
+                    ['all depths and times: relative L2'] + [f"{100 * e['theta_rel_l2']:.2g} %" for e in cols],
+                    ['all depths and times: RMS / range'] + [f"{100 * e['theta_rms_over_range']:.2g} %" for e in cols],
+                    ['all depths and times: max'] + [f"{e['theta_max']:.2e}" for e in cols],
+                    ['sensor layer: RMS'] + [f"{e['sensor_rms']:.2e}" for e in cols],
+                    ['sensor layer: max'] + [f"{e['sensor_max']:.2e}" for e in cols]])
+                + f"\n\nThe numerical solution against itself, soil moisture, RMS (max). Picard tolerance "
+                  f"{FR['checks']['picard']['tol']:g} at every level (the data set's: "
+                  f"{FR['checks']['picard']['tol_of_the_data_set']:g}); the first level differs from the solve "
+                  f"stored in the data set by {FR['checks']['first_level_vs_stored']['sensor']['rms']:.1e} RMS "
+                  f"at the sensor.\n\n"
+                + md_table(['time step', 'nodes', 'Picard iterations, max', 'seconds',
+                            'minus the finest level: sensor layer', 'all depths',
+                            'minus the level before: sensor layer', 'all depths',
+                            'change of the refinement before / this change (sensor layer)'], rows))
 
     # ---- inverse problem
     pred = read_npz(os.path.join(args.final, 'predictions.npz'))
@@ -493,14 +612,30 @@ def main():
             if not os.path.isfile(os.path.join(p, 'model.pt')):
                 print(f'[paper] no model in {p}: variant {name} left out', flush=True)
                 continue
-            num = M['forward'] if p == args.forward else forward_eval(p, d, args.data, k_fem)[0]
+            if p == args.forward:
+                num, apart = M['forward'], '-'
+            else:
+                num, fwv = forward_eval(p, d, args.data, k_fem, fine)
+                apart = '-'
+                if args.forward:                             # this network minus the baseline network
+                    e5, ep = fwv['th5'] - fw['th5'], fwv['prof'] - fw['prof']
+                    num['minus_baseline'] = {'sensor_rms': rms(e5), 'sensor_max': float(np.abs(e5).max()),
+                                             'theta_rms': rms(ep), 'theta_max': float(np.abs(ep).max())}
+                    apart = f"{rms(e5):.2e}"
             M['forward_variants'][name] = num
-            rows.append([name, num['width'], num['depth'], num['n_col'], num['seed'], num['n_params'],
-                         f"{num['theta_rms']:.2e}", f"{num['sensor_rms']:.2e}", f"{100 * num['flux_rel_rms']:.2f} %",
-                         f"{num['residual_rms']:.3f}", f"{num['wall_s'] / 60:.0f}"])
-        md.append('## 7. Forward PINN: training seed, network size, collocation points\n\n' + md_table(
-            ['run', 'width', 'hidden layers', 'collocation points', 'seed', 'parameters', 'soil moisture RMS',
-             'sensor layer RMS', 'surface flux', 'PDE residual RMS', 'minutes'], rows))
+            rows.append([name, num['width'], num['depth'], num['n_col'], num['seed'], num['n_params']]
+                        + ([f"{num['vs_fine']['theta_rms']:.2e}", f"{num['vs_fine']['sensor_rms']:.2e}"]
+                           if fine is not None else [])
+                        + [f"{num['theta_rms']:.2e}", f"{num['sensor_rms']:.2e}", apart,
+                           f"{100 * num['flux_rel_rms']:.2f} %", f"{num['residual_rms']:.3f}",
+                           f"{num['wall_s'] / 60:.0f}"])
+        own_step = f", {step_label(cfg['fem']['dt_hours'])} step (the data set's)" if fine is not None else ''
+        md.append('## 7. Forward PINN: training seed, network size, collocation points\n\n'
+                  'Soil moisture RMS against the numerical solution (m3/m3).\n\n' + md_table(
+            ['run', 'width', 'hidden layers', 'collocation points', 'seed', 'parameters']
+            + ([f"all depths, {fine['label']} step", f"sensor layer, {fine['label']} step"] if fine is not None else [])
+            + ['all depths' + own_step, 'sensor layer' + own_step, 'sensor layer, minus the baseline network',
+               'surface flux', 'PDE residual RMS', 'minutes'], rows))
     if args.repeats:
         rows, reps, M['repeats'] = [score_row('first run', inv['pinn']) + ['-', '-']], [], {}
         for name, p in pairs(args.repeats):

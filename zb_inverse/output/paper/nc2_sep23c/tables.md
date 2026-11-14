@@ -23,15 +23,32 @@ Written by scripts/paper_figures.py; every number is in metrics.json.
 | run | runs/fwd_nc2c |
 | network | 38 inputs, 6 hidden layers of 128, tanh, 87681 parameters |
 | training | 28000 steps, 47 min on one GPU |
-| soil moisture, all depths and times: RMS | 3.27e-04 |
-| soil moisture, all depths and times: relative L2 | 0.080 % |
-| soil moisture, all depths and times: RMS / range | 0.514 % |
-| soil moisture, all depths and times: max | 5.82e-03 |
-| soil moisture of the sensor layer: RMS | 4.26e-04 |
-| soil moisture of the sensor layer: max | 4.54e-03 |
 | surface flux: RMS error / RMS of the prescribed flux | 4.82 % |
 | PDE residual / sigma_pde: RMS (max) | 0.659 (62.40) |
 | held-out losses at the end: PDE, surface flux | 0.0292, 0.0274 |
+
+
+Soil-moisture difference (m3/m3). The numerical solution of the data set has a 1 h time step; the finest level of scripts/forward_reference_check.py has 1/64 h (101 nodes, Picard tolerance 1e-08).
+
+| quantity | PINN − numerical, 1/64 h step | PINN − numerical, 1 h step (the data set's) | numerical, 1 h step − 1/64 h step |
+|---|---|---|---|
+| all depths and times: RMS | 1.55e-05 | 3.27e-04 | 3.20e-04 |
+| all depths and times: relative L2 | 0.0038 % | 0.08 % | 0.078 % |
+| all depths and times: RMS / range | 0.024 % | 0.51 % | 0.5 % |
+| all depths and times: max | 2.06e-04 | 5.82e-03 | 5.74e-03 |
+| sensor layer: RMS | 1.90e-05 | 4.26e-04 | 4.17e-04 |
+| sensor layer: max | 7.81e-05 | 4.54e-03 | 4.47e-03 |
+
+
+The numerical solution against itself, soil moisture, RMS (max). Picard tolerance 1e-08 at every level (the data set's: 1e-05); the first level differs from the solve stored in the data set by 1.8e-06 RMS at the sensor.
+
+| time step | nodes | Picard iterations, max | seconds | minus the finest level: sensor layer | all depths | minus the level before: sensor layer | all depths | change of the refinement before / this change (sensor layer) |
+|---|---|---|---|---|---|---|---|---|
+| 1 h | 101 | 24 | 53 | 4.18e-04 (4.47e-03) | 3.20e-04 (5.74e-03) | - | - | - |
+| 1/4 h | 101 | 22 | 189 | 1.24e-04 (1.32e-03) | 9.52e-05 (1.69e-03) | 2.95e-04 (3.14e-03) | 2.26e-04 (4.05e-03) | - |
+| 1/16 h | 101 | 20 | 658 | 2.65e-05 (2.79e-04) | 2.04e-05 (3.55e-04) | 9.75e-05 (1.04e-03) | 7.49e-05 (1.33e-03) | 3.02 |
+| 1/16 h | 201 | 20 | 1243 | 2.65e-05 (2.80e-04) | 2.04e-05 (3.58e-04) | 8.02e-07 (1.42e-06) | 1.21e-07 (3.56e-06) | - |
+| 1/64 h | 101 | 18 | 2255 | - | - | 2.65e-05 (2.80e-04) | 2.04e-05 (3.58e-04) | 3.68 |
 
 ## 3. Inverse problem: water-table depth against the well (hourly)
 
@@ -89,6 +106,20 @@ Written by scripts/paper_figures.py; every number is in metrics.json.
 | operator member 4 | 5.29 % | 0.874 | 77.10 |
 | forward network 1 of the value correction | 4.99 % | 0.563 | 49.24 |
 | forward network 2 of the value correction | 4.87 % | 0.496 | 44.49 |
+
+## 7. Forward PINN: training seed, network size, collocation points
+
+Soil moisture RMS against the numerical solution (m3/m3).
+
+| run | width | hidden layers | collocation points | seed | parameters | all depths, 1/64 h step | sensor layer, 1/64 h step | all depths, 1 h step (the data set's) | sensor layer, 1 h step (the data set's) | sensor layer, minus the baseline network | surface flux | PDE residual RMS | minutes |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| baseline | 128 | 6 | 8192 | 0 | 87681 | 1.55e-05 | 1.90e-05 | 3.27e-04 | 4.26e-04 | - | 4.82 % | 0.659 | 47 |
+| s1 | 128 | 6 | 8192 | 1 | 87681 | 1.55e-05 | 1.94e-05 | 3.27e-04 | 4.26e-04 | 1.90e-05 | 4.72 % | 0.728 | 47 |
+| s2 | 128 | 6 | 8192 | 2 | 87681 | 1.90e-05 | 2.32e-05 | 3.28e-04 | 4.27e-04 | 2.08e-05 | 4.95 % | 0.549 | 47 |
+| w64 | 64 | 6 | 8192 | 0 | 23361 | 4.32e-05 | 5.62e-05 | 3.31e-04 | 4.32e-04 | 5.47e-05 | 6.02 % | 0.727 | 48 |
+| w32 | 32 | 6 | 8192 | 0 | 6561 | 4.92e-05 | 6.39e-05 | 3.30e-04 | 4.30e-04 | 6.30e-05 | 6.29 % | 1.193 | 44 |
+| d3 | 128 | 3 | 8192 | 0 | 38145 | 4.31e-05 | 5.39e-05 | 3.29e-04 | 4.29e-04 | 5.35e-05 | 6.36 % | 1.132 | 40 |
+| c2k | 128 | 6 | 2048 | 0 | 87681 | 1.44e-05 | 1.70e-05 | 3.27e-04 | 4.25e-04 | 1.72e-05 | 4.83 % | 0.686 | 45 |
 
 ## 9. Inversion with one member of round 4 at a time (against the well)
 
