@@ -4092,3 +4092,113 @@ Real-case spec (first slice):
             either way, named as what they are.
           NOT TOUCHED by this: the inverse results. The numerical inversion and the data set keep the 1 h solve; a
             statement about them needs its own check (noted, not started).
+    74 f. (14 Nov, 02:46) REFERENCE CHECK, FIRST JOB (15612223, 52 min; logs/cpu_15612223.out;
+        output/paper/nc2_sep23c/forward_reference_a.json). THE 4.3e-4 WAS THE 1 h TIME STEP OF THE NUMERICAL
+        REFERENCE. Against the solve at 1/16 h the networks are 4.7e-5 - 7.6e-5 at the sensor, ordered as their losses.
+        E1 NOT MET as written: the 1 h / 101 level differs from the stored reference by 7e-7 RMS, 2.6e-6 max (sensor),
+          not < 1e-10. Read in wtd_pipeline/fem/fem_pytorch.py 747 - 758: the Picard loop iterates a batch until every
+          member has converged; the stored reference was member 0 of a batch of two (spline path, hourly record),
+          here it is solved alone and stops earlier. Not re-run as a batch of two; 600 x below what is measured here.
+        THE REFERENCE, each level minus the finest (1/16 h, 401 nodes), theta at the sensor, RMS (max):
+          1 h, 101 nodes      3.92e-4 (4.17e-3)   day 2: 1.2e-3      <- the data set's reference
+          1/4 h, 101          9.97e-5 (1.03e-3)   day 2: 2.9e-4
+          1/4 h, 201          9.96e-5 (1.03e-3)
+          1/16 h, 201         1.9e-7  (3.9e-7)
+          -> time step: 3.9 x smaller for a 4 x smaller step (first order). Grid: 101 -> 201 -> 401 nodes changes
+             nothing at this level (1e-7).
+          -> Picard tolerance: the finest level with tolerance 1e-7 instead of 1e-5 moves by 2.8e-5 RMS (7.4e-5 max,
+             mean +1.5e-5) at the sensor. Not expected; it is 60 % of the networks' distance to that level, so that
+             level is not yet a yardstick for them.
+        THE NETWORKS, sensor RMS (max):      1 h / 101          1/4 h / 101        1/16 h / 401       minus baseline
+          baseline                           4.26e-4 (4.54e-3)  1.33e-4 (1.39e-3)  4.74e-5 (3.63e-4)  -
+          s1                                 4.26e-4            1.34e-4            4.80e-5 (3.69e-4)  1.90e-5 (7.1e-5)
+          s2                                 4.27e-4            1.35e-4            5.05e-5 (3.69e-4)  2.08e-5 (8.0e-5)
+          c2k                                4.25e-4            1.33e-4            4.71e-5 (3.65e-4)  1.72e-5 (9.4e-5)
+          w64                                4.32e-4            1.45e-4            6.71e-5 (3.53e-4)  5.47e-5 (2.3e-4)
+          d3                                 4.29e-4            1.42e-4            6.94e-5 (3.24e-4)  5.35e-5 (2.7e-4)
+          w32                                4.30e-4            1.46e-4            7.58e-5 (3.64e-4)  6.30e-5 (2.6e-4)
+          Profile (stored grid), baseline: 3.27e-4 (5.82e-3) -> 1.03e-4 -> 3.63e-5 (4.71e-4).
+          Day 2 (rain), baseline: 1.3e-3 -> 3.9e-4 -> 1.1e-4.
+        AGAINST E2 (74 e): met. Distance <= 1.5e-4 at the finest level (4.7e-5 - 7.6e-5); day 2 <= 4e-4 (1.0 -
+          1.2e-4); seeds and c2k within 5e-5 of the baseline (1.7 - 2.1e-5); w64 / w32 / d3 in 5e-5 - 2e-4 (5.4 -
+          6.3e-5); order at the finest level = order of the losses, w32 and d3 swapped (their losses are 2 % apart).
+          E3 does not apply.
+        READING, limited to what was run:
+          - The networks agree with each other (2e-5 between seeds) twenty times better than with the 1 h solve
+            (4.3e-4), and they move toward the reference as its time step is refined. The forward error in the
+            results set (3.3e-4 / 4.3e-4, "largest at the surface during the rain pulses") is the reference's
+            time-step error, not the networks'.
+          - How large the networks' own error is has NOT been measured yet: the finest level still carries a
+            first-order time-step error (about 4.2e-4 per hour of step: 2.6e-5 at 1/16 h, an extrapolation) and
+            the tolerance error above. By the reading rule of 74 e the figure against it is an upper bound:
+            <= 4.7e-5 at the sensor for the baseline.
+          - Capacity now shows where it should: width 64, depth 3 and width 32 are 1.4 - 1.6 x the baseline
+            against the finest level, and 5 - 6e-5 from the baseline network. The written factors for w32
+            (2 - 5 x) and d3 (1.5 - 4 x) are still high.
+          - The inverse results are not touched by this (74 e). One consequence to carry into the write-up:
+            the numerical inversion used for comparison runs the 1 h solve. Its forward error is larger than
+            the networks'; both are far below the sensor's 0.005.
+        NEXT (second job; the first job's long sibling 15612224, same tolerance, is cancelled as superseded):
+          all levels with the Picard tolerance at 1e-8 (max 400 iterations), 101 nodes, time steps 1, 1/4, 1/16,
+          1/64, 1/256 h, and 1/16 h at 201 nodes for the grid. scripts/forward_reference_check.py gets --tol and
+          --max-iter (defaults: the data set's, so the first job's command is unchanged) and a table of the
+          difference between consecutive levels.
+          EXPECTATION, written before submission:
+            F1 consecutive levels differ 4 +- 0.5 x less each time (first order in the step).
+            F2 1/16 h at 101 and at 201 nodes: < 1e-6 RMS apart at the sensor.
+            F3 the two finest levels (1/64, 1/256 h) are < 1e-5 apart (first-order estimate 5e-6).
+            F4 against the finest level: baseline, seeds and c2k 2e-5 - 5e-5 at the sensor (they are 2e-5 from
+               each other, so not far below 1.5e-5 unless their errors are shared); w64 / w32 / d3 5e-5 - 8e-5;
+               day 2 still the largest day.
+          The reading rule of 74 e applies to this job as written.
+    74 g. (14 Nov, 04:05) REFERENCE CHECK, TIGHT TOLERANCE, FIRST OF TWO JOBS (15613446, 73 min; logs/cpu_15613446.out;
+        output/paper/nc2_sep23c/forward_reference_b.json). Picard tolerance 1e-8 at every level, at most 400
+        iterations (largest used: 24), every step converged. Finest level here 1/64 h. The 1/256 h job (15613447)
+        is on its last level; F3 and the reading rule wait for it.
+        THE REFERENCE AGAINST ITSELF, sensor RMS (max) | profile RMS (max), theta in m3/m3:
+          each level minus the one before:
+            1/4 h   - 1 h      (101 nodes)   2.95e-4 (3.14e-3) | 2.26e-4 (4.05e-3)
+            1/16 h  - 1/4 h    (101 nodes)   9.75e-5 (1.04e-3) | 7.49e-5 (1.33e-3)      3.02 x less
+            1/64 h  - 1/16 h   (101 nodes)   2.65e-5 (2.80e-4) | 2.04e-5 (3.58e-4)      3.68 x less
+            1/16 h: 201 - 101 nodes          8.0e-7  (1.4e-6)  | 1.2e-7  (3.6e-6)
+          each level minus 1/64 h: 1 h 4.18e-4 (4.47e-3) | 3.20e-4 (5.74e-3); 1/4 h 1.24e-4 (1.32e-3);
+            1/16 h 2.65e-5 (2.79e-4). Third day (the rain): 1.25e-3, 3.7e-4, 7.8e-5.
+          1 h level with tolerance 1e-8 minus the stored reference (1e-5): 1.8e-6 RMS, 4.4e-6 max at the sensor.
+          Solve times: 53 s, 189 s, 657 s, 1242 s (201 nodes), 2254 s.
+        THE NETWORKS, sensor RMS (max):      1 h                1/4 h              1/16 h             1/64 h
+          baseline                           4.26e-4 (4.54e-3)  1.33e-4 (1.39e-3)  3.86e-5 (3.50e-4)  1.90e-5 (7.8e-5)
+          s1                                 4.26e-4            1.34e-4            3.91e-5            1.94e-5 (7.8e-5)
+          s2                                 4.27e-4            1.35e-4            4.13e-5            2.32e-5 (1.14e-4)
+          c2k                                4.25e-4            1.32e-4            3.73e-5            1.70e-5 (7.4e-5)
+          w64                                4.32e-4            1.45e-4            6.62e-5            5.62e-5 (2.52e-4)
+          d3                                 4.29e-4            1.42e-4            6.31e-5            5.39e-5 (2.73e-4)
+          w32                                4.30e-4            1.46e-4            7.20e-5            6.39e-5 (3.34e-4)
+          Profile (stored grid), baseline: 3.27e-4 (5.82e-3) -> 1.03e-4 -> 3.02e-5 -> 1.55e-5 (2.06e-4).
+          Networks minus the baseline network (as in 74 f): s1 1.90e-5, s2 2.08e-5, c2k 1.72e-5; w64 5.47e-5,
+          d3 5.35e-5, w32 6.30e-5.
+          Baseline by day against 1/64 h (1e-6): 16 15 31 14 10 10 14 12 25 24 21. s2: largest on day 9 (46);
+          w32: largest on day 10 (123).
+        AGAINST THE EXPECTATIONS OF 74 f:
+          F1 (4 +- 0.5 x per level): NOT met at the first refinement (3.02), met at the second (3.68). The ratio
+             rises toward 4; the 1 h step is not yet in the first-order range. What makes it so (the hourly
+             forcing nodes, the rain pulses) has not been looked at.
+          F2 (grid, < 1e-6 at the sensor): met, 8.0e-7.
+          F3: waits for 15613447. From the last ratio, 1/256 h should be about 7e-6 from 1/64 h, and 1/64 h about
+             9e-6 to 1e-5 from the limit (an extrapolation, not a measurement).
+          F4, provisional (finest level here is 1/64 h): s2 inside 2e-5 - 5e-5; baseline, s1 and c2k just BELOW
+             it (1.7 - 1.9e-5); w64 / d3 / w32 inside 5e-5 - 8e-5. "Day 2 still the largest day" holds for the
+             baseline only: s2 and w32 have their largest day late in the window.
+        READING, limited to what was run:
+          - Against the 1/64 h solve the baseline is 1.9e-5 at the sensor, 22 x closer than the data set's own 1 h
+            solve is (4.2e-4). Seeds and the 2k-point run are 1.7 - 2.3e-5; they are also 1.7 - 2.1e-5 from each
+            other, so most of what is left is the networks' own, seed-dependent part, not a shared one.
+          - Width 64, depth 3 and width 32 are 2.8 - 3.4 x the baseline against this level. The factors written
+            in 74 e for w32 (2 - 5 x) and d3 (1.5 - 4 x) are inside now. They failed there because the yardstick
+            was the 1 h solve.
+          - The 1/64 h level is still an estimated 1e-5 from the limit, half the baseline's distance to it. The
+            reading rule of 74 e (two finest levels less than a third of the error apart) is applied when the
+            1/256 h level is in; until then the baseline's 1.9e-5 is given with that 1e-5 next to it.
+        NEXT: paper_figures.py reads the reference check (--forward-reference <stem>): the forward table and fig2
+          against the finest level, the 1 h figures kept and named as the data set's reference; a table of the
+          reference against itself; the sensitivity table with "against the finest level" and "minus the
+          baseline network". The script is finished before the job with the 1/256 h file is submitted.

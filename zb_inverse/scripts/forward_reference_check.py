@@ -46,6 +46,8 @@ def main():
     ap.add_argument('--data', required=True, help='data set directory of scripts/make_real.py')
     ap.add_argument('--members', nargs='+', required=True, help='name=run directory; the first is the baseline')
     ap.add_argument('--levels', nargs='+', required=True, help='<time step in hours>:<nodes>, coarse to fine')
+    ap.add_argument('--tol', type=float, default=None, help="Picard tolerance of every level (default: the data set's fem.tol)")
+    ap.add_argument('--max-iter', type=int, default=None, help="Picard iterations allowed (default: fem.max_iter)")
     ap.add_argument('--tol-factor', type=float, default=0.01,
                     help='the finest level is solved once more with the Picard tolerance times this (0: skip)')
     ap.add_argument('--out', required=True, help='output stem: <stem>.json and <stem>.npz')
@@ -55,6 +57,11 @@ def main():
         cfg = yaml.safe_load(f)
     ds = np.load(os.path.join(a.data, 'real.npz'), allow_pickle=True)
     fc, depth = cfg['fem'], cfg['obs']['depth_m']
+    stored_tol = fc['tol']
+    if a.tol is not None:
+        fc['tol'] = a.tol
+    if a.max_iter is not None:
+        fc['max_iter'] = a.max_iter
     n_days = int(ds['n_days'])
     t_h, t_n = np.asarray(ds['t_days'], float), np.asarray(ds['t_daily'], float)
     q_n, tp_n = np.asarray(ds['q_daily'], float), np.asarray(ds['tp_daily_mmd'], float)
@@ -93,7 +100,9 @@ def main():
     key = lambda L: f"{L['dt_h']:g}h/{L['n_nodes']}"
     fine = levels[-1]
 
-    # the first level against the stored reference (same settings when it is fem.dt_hours : fem.n_nodes)
+    # the first level against the stored reference (same settings when it is fem.dt_hours : fem.n_nodes and the
+    # tolerance is the data set's)
+    checks['picard'] = {'tol': fc['tol'], 'max_iter': fc['max_iter'], 'tol_of_the_data_set': stored_tol}
     checks['first_level_vs_stored'] = {'sensor': stats(levels[0]['sensor'] - ds['theta_fem'][0]),
                                        'profile': stats(levels[0]['profile'] - ds['theta'])}
     print(f"[ref] level {key(levels[0])} minus the stored reference: sensor max "
@@ -111,7 +120,15 @@ def main():
               f"{checks['finest_vs_tighter_tolerance']['sensor']['max']:.1e}, profile max "
               f"{checks['finest_vs_tighter_tolerance']['profile']['max']:.1e}", flush=True)
 
-    out = {'data': a.data, 'checks': checks, 'levels': [], 'networks': {}}
+    out = {'data': a.data, 'checks': checks, 'levels': [], 'consecutive': [], 'networks': {}}
+    print(f"\n[ref] Picard tolerance {fc['tol']:g}, at most {fc['max_iter']} iterations; each level minus the one before")
+    print('  levels                               sensor RMS   max        profile RMS  max')
+    for A, B in zip(levels[:-1], levels[1:]):
+        row = {'coarser': key(A), 'finer': key(B), 'sensor': stats(B['sensor'] - A['sensor']),
+               'profile': stats(B['profile'] - A['profile'])}
+        out['consecutive'].append(row)
+        print(f"  {key(B):15s} - {key(A):15s}    {row['sensor']['rms']:.2e}   {row['sensor']['max']:.2e}   "
+              f"{row['profile']['rms']:.2e}   {row['profile']['max']:.2e}", flush=True)
     print('\n[ref] each level minus the finest (theta, m3/m3)')
     print('  level            sensor RMS   max        profile RMS  max        sensor RMS by day')
     for L in levels:
