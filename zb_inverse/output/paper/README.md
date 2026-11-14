@@ -210,6 +210,7 @@ Final estimate of every scored PINN run (`output/real_*/result_*.json`), whole w
 |---|---|---|---|---|---|---|---|
 | US-NC2 | 10 Sep 2023, 11 d | this window | rfnc1 | 0.07 | 1.10 / +0.11, 0.990 | 1.11 | in-sample |
 | US-NC2 | 10 Sep 2023, 11 d | 1 Sep 2023 | rfnc1t | 3.89 | 4.53 / +1.24, 0.862 | 3.05 | diagnostic; (i) fails; loop not converged |
+| US-NC2 | 10 Sep 2023, 11 d | 1 Sep 2023 | rfnc1tc | 0.82 | 3.39 / -2.02, 0.949 | 3.05 | diagnostic; the data of `rfnc1t` with the second network form (`model.departure=conductive`); within the 1 cm of (i), not within 0.5 cm (last two days 1.0 and 2.4 cm); loop not converged |
 | US-NC2 | 1 May 2023, 15 d | this window | rfnm1 | 0.03 | 0.89 / +0.04, 0.998 | 0.89 | in-sample; recession (3.6 mm of rain); flux on daily nodes, 5-day spline knots; both estimates held by the 0.20 m bound of the box (without it the numerical one moves 0.45 cm RMS, see Reading) |
 | US-NC2 | 1 Sep 2023, 6 d | this window | rfna1 | 0.09 | 0.64 / +0.11, 0.998 | 0.63 | in-sample; recession (0.3 mm of rain); flux on daily nodes, 5-day spline knots; both estimates held by the 0.20 m bound of the box (without it the numerical one moves 0.23 cm RMS, see Reading) |
 | US-NC2 | 27 Sep 2023, 9 d | May 2023 | rfnd | 0.06 | 1.59 / +0.55, 0.998 | 1.64 | held-out soil, but a diagnostic, not the declared test; both estimates held by the 0.20 m bound of the box (without it the numerical one moves 0.40 cm RMS, see Reading) |
@@ -237,14 +238,23 @@ Reading:
   solves). `rfnm1`: 0.03 cm at both steps, not an offset (bias +0.01 cm); largest on the first two days
   (0.06 - 0.07 cm) and the last three (0.04 cm); posterior sd 0.31 cm; all solver steps converged.
   Where these remaining distances come from is not known.
+  The data set of `rfnc1t` and `rfnc1tc` (this window, soil of 1 Sep 2023) has one numerical inversion with
+  a 1/4 h step as well
+  ([nc2_sep23c/inversion_step_soilsep23a_rfnc1tc.json](nc2_sep23c/inversion_step_soilsep23a_rfnc1tc.json),
+  [nc2_sep23c/inversion_step_soilsep23a_rfnc1t.json](nc2_sep23c/inversion_step_soilsep23a_rfnc1t.json)).
+  The 1 h and the 1/4 h inversion differ by 0.16 cm RMS: 0.05 cm over days 1 - 10 and 0.50 cm on the last
+  day (largest 1.4 cm, at the end of the window). Against the well both read 3.05 - 3.07 cm. Neither is a
+  clean solve of this soil: up to 2.6 % of the solver's steps did not converge at 1 h and up to 1.8 % at
+  1/4 h. `rfnc1tc`: 0.82 cm at 1 h, 0.86 cm at 1/4 h; by day (1/4 h) 0.04 - 0.55 cm on days 1 - 8, then
+  0.67, 1.02 and 2.41 cm. `rfnc1t`: 3.89 and 3.91 cm.
 - Both inversions keep the spline coefficients in a box (water table 0.20 - 1.50 m, the range of paths the
-  operator networks are trained on). In 10 of the 14 rows a coefficient of the final estimate is on that box
+  operator networks are trained on). In 10 of the 15 rows a coefficient of the final estimate is on that box
   (`coef_on_bound` of each `summary.json`, for the numerical inversion the start named in `result_*.json`;
   coefficients counted from 1, "shallow" = 0.20 m, "deep" = 1.50 m):
 
   | rows | PINN | numerical inversion |
   |---|---|---|
-  | rfnc1, rfnc1t, rf22c, rf22 | none | none |
+  | rfnc1, rfnc1t, rfnc1tc, rf22c, rf22 | none | none |
   | rfnm1, rfna1, rfnd, rfn1 | 1st shallow | 1st shallow |
   | rfp2 | 1st shallow, 5th (last) deep | the same |
   | rfh1p | 1st and 6th (last) shallow | the same |
@@ -256,7 +266,8 @@ Reading:
   Where the same coefficient is on the same bound in both estimates, the two agree there because the box
   holds both, and "the starts end on one estimate" includes that coefficient. Of the 10 rows in which (i)
   holds, 3 have no coefficient on the box (rfnc1, rf22c, rf22), 6 share one or two (rfnm1, rfna1, rfnd, rfn1,
-  rfp2, rfh1p) and one has one in the numerical inversion only (rf22ob). Every US-NC2 row on another
+  rfp2, rfh1p) and one has one in the numerical inversion only (rf22ob); `rfnc1tc`, which holds (i) to
+  1 cm only, has none. Every US-NC2 row on another
   window than that of this results set is among the six.
   A coefficient on the box is not the path on the box: the path at the start of the window is set by the
   first three coefficients together (weights 1/6, 4/6, 1/6, before the transform to a depth). `rfna1`
@@ -301,8 +312,9 @@ Reading:
   paths shallower than 0.20 m.
   Not measured: the two rows at other sites that share a bound (rfp2, rfh1p), and a PINN trained on the
   wider range of paths (running, see "Not yet in this set").
-- (i) holds to 0.5 cm or better in 10 of 14 runs, at four sites, and in those the starts end on one estimate
-  (largest difference below 1e-5 cm). It fails in four: US-PAS Jul 2021 (2.9 cm), US-ONA Nov 2021 (2.7 cm),
+- (i) holds to 0.5 cm or better in 10 of 15 runs, at four sites, and in those the starts end on one estimate
+  (largest difference below 1e-5 cm). One more is inside the 1 cm asked of (i) but not inside 0.5 cm
+  (`rfnc1tc`, 0.82 cm; next paragraph). It fails in four: US-PAS Jul 2021 (2.9 cm), US-ONA Nov 2021 (2.7 cm),
   the US-ONA rain window (28 cm; starts 1.8 cm apart, value-correction loop not converged) and the window of
   this results set with the soil of 1 Sep 2023 instead of its own (`rfnc1t`, 3.9 cm; the starts end on one
   estimate, but the value-correction loop used its four iterations with steps of 1.3 - 4.4 posterior sd and
@@ -311,6 +323,26 @@ Reading:
   The last one matters for how the in-sample case is read: on the same 11 days of data, with the soil
   calibrated on the window that starts 9 days earlier, the PINN is 3.9 cm from the numerical inversion, and
   the numerical inversion is 3.05 cm from the well instead of 1.11.
+  The same data were run once more with a second form of the network (`rfnc1tc`,
+  `model.departure=conductive`: the network's departure from the hydrostatic profile is multiplied by a
+  factor between 0 and 1 that grows with suction; introduced because the first form did not learn the
+  surface flux on soils with Ks near 1e-3 m/s; default off, every other row uses the first form). The
+  configs of the four wide-stage members of the two runs differ in that one line. Rule and expectation
+  were written before the run
+  (`tasks/todo.md`, 73 bz: "the form matters for the inversion if PINN - numerical is at most 1 cm here
+  and above 1 cm in `rfnc1t`"). Result: 0.82 cm against 3.89 cm (0.86 against 3.91 with the 1/4 h
+  numerical inversion), so by that rule the form matters on this data set. The starts end on one estimate
+  (4e-6 cm), no coefficient is on the box, and the held-out surface-flux error of the operator networks
+  ends at 0.03 - 0.04 of its starting level (rms; about 0.1 % as a loss), where `rfnc1t` stayed at
+  0.96 - 1.00 of the starting loss.
+  What it does not show: (a) agreement at the level of the ten rows above: days 1 - 8 are at 0.04 - 0.55 cm,
+  the last three days at 0.67, 1.02 and 2.41 cm (largest 3.0 cm at t = 10.6 d); the value-correction loop
+  used its four iterations and ended at a step of 0.23 posterior sd, above the stop rule of 0.2, and the
+  two numerical inversions themselves differ by 0.50 cm on the last day; which of these the end of the
+  window comes from has not been checked. (b) That the interior equation is solved as on the own soil: the
+  held-out PDE loss stays at 4 - 25 (rms 2 - 5 sigma_pde on the held-out points) in every stage.
+  (c) Anything about the well: 3.39 cm, bias -2.02 cm, r 0.949, as the numerical inversion (3.05 cm).
+  It is one controlled pair, on one window with one soil.
 - The two further US-NC2 windows (`rfnm1`, `rfna1`) are recessions with their own soils (Ks at its upper
   bound of 1e-3 m/s), a surface flux given on daily nodes and 5-day spline knots; they are further windows
   of the same site, in-sample, not new sites. Their rows show (i), with the first coefficient on the box in
@@ -342,9 +374,6 @@ Reading:
 - After the box result of "Reading" (plan and expectations in `tasks/todo.md`, 74 ac): PINN runs of the two
   recession windows with networks trained on paths of 0.10 - 1.50 m (`rfna1b`, `rfnm1b`; wide stage done,
   refinement running), to be compared with the numerical inversion in the same box.
-- The same window with the soil of 1 Sep 2023 and a second network form (`rfnc1tc`; `rfnc1t` is in the table
-  above). It is trained and inverted but not scored: `rfnc1t` was scored against a numerical inversion with a
-  1 h step whose step error on that data set had not been measured, so a 1/4 h inversion of it runs first.
 
 ## Regenerate
 

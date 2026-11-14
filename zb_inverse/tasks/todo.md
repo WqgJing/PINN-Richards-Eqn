@@ -5481,3 +5481,76 @@ Real-case spec (first slice):
           kept there). The two comparisons with the PINN block are copied, unchanged (cmp), to
           output/paper/nc2_sep23b/inversion_box_rfnd.json and inversion_box_rfn1.json and committed from there;
           the *_ref.json (reference-only) versions stay in the data directories, untracked.
+    74 ad. (14 Nov, 12:28) rfnc1tc: THE 1/4 h NUMERICAL INVERSION OF ITS DATA SET HAS ENDED. REFERENCE ONLY, written
+        before any score of the PINN estimate is read (lesson rule; expectations L1 - L3 of 74 v).
+        rfqtc 15617906: COMPLETED, exit=0, no Traceback, 5 h 30 min (the solve itself 19148 s; 1 h step: 2593 s).
+        Compared by scripts/referee_step_check.py without --pinn (stepq 15624845, exit=0)
+        -> output/real_nc2_sep23c_soilsep23a/inversion_step_ref.json (untracked, reference only).
+                                  1 h step          1/4 h step
+          cost                    0.083249          0.074195
+          iterations (solves)     4 (117)           6 (181)
+          steps not converged     2.64 %            1.80 %      (largest fraction in one batch of solves)
+          coefficient on the box  none              none
+          theta fit rms           0.00144           0.00136
+          posterior sd, median    0.900 cm          0.891 cm
+          against the hourly well 3.054 cm, bias -1.640, max 5.14, r 0.948
+                                                    3.066 cm, bias -1.642, max 5.14, r 0.947
+          1 h minus 1/4 h         0.160 cm RMS, bias +0.001, max 1.43 cm at t = 11.0 d (the end of the window)
+            by day 1 .. 11        0.088 0.039 0.113 0.059 0.010 0.010 0.009 0.010 0.006 0.017 0.496 cm
+            (days 1 - 10 together 0.051 cm, from the per-day values; the last day carries 0.50 cm.)
+        AGAINST 74 v:
+          L1 (0.05 - 0.3 cm RMS)                    HOLDS: 0.160 cm. Not expected in this form: nine tenths of the
+             mean square is the last day (on C_N1 with its own soil the 1 h - 1/4 h difference was 0.044 cm with a
+             maximum of 0.22 cm). The end of the window is where the spline is least constrained; the posterior sd
+             by hour has not been read for it, so this is a place, not an explanation.
+          L2 (not-converged fraction below 1 %)     FAILS: 1.80 % (from 2.64 %). The 1/4 h inversion is still not
+             a clean solve of this soil; "the reference" on this data set has that written next to it.
+          L3 (well: within 0.1 cm of the 1 h one)   HOLDS: 3.054 -> 3.066 cm.
+        READING (74 v, as written): L1 holds -> the 73 bz rule is applied to rfnc1tc against the 1/4 h inversion,
+          with the 1 h figure next to it. Because the two references differ by 0.50 cm on the last day, the
+          PINN's distance is read by day as well, and the last day is named separately.
+        EXPECTATION for the PINN line, unchanged from 73 bz: R2 0.5 - 1.5 cm (limit 1 cm), against the well
+          2.8 - 3.5 cm, bias -1 to -2, r 0.94 - 0.96. Known before the score: the value-correction loop did not
+          reach its stop rule (74 v), so the estimate scored is "it 4, loop not converged".
+        PINN LINES (read after the above, 12:30; scq 15624911, stq1 15624913, stq2 15624914, all exit=0, no Traceback):
+          rfnc1tc = runs/rfnc1tcdc_it4 (conductive form), rfnc1t = runs/rfnc1tdc_it4 (additive form), same data.
+                                    rfnc1tc                                   rfnc1t
+          PINN - numerical, 1 h     0.821 cm RMS, bias -0.38, max 2.99        3.893 cm, bias +2.88, max 9.48
+                                    (t = 10.54 d)                             (t = 2.17 d)
+          PINN - numerical, 1/4 h   0.862 cm RMS, bias -0.38, max 3.03        3.907 cm, bias +2.88, max 9.58
+                                    (t = 10.63 d)                             (t = 2.17 d)
+            by day 1 .. 11, 1/4 h   0.27 0.22 0.55 0.34 0.18 0.04 0.25 0.14   1.21 5.32 8.31 2.87 0.49 1.23 1.55 1.50
+                                    0.67 1.02 2.41                            1.11 3.16 6.49
+            (rfnc1tc, days 1 - 8 together about 0.29 cm, from the per-day values.)
+          against the hourly well   3.39 cm, bias -2.02, max 5.46, r 0.949    4.53 cm, bias +1.24, max 11.2, r 0.862
+          numerical (1 h, best)     3.05 cm, bias -1.64, r 0.948              the same
+          starts (5)                largest difference 4e-6 cm                (74 g)
+          coefficient on the box    none (PINN), none (numerical)             none, none
+          posterior sd, median      0.905 cm                                  0.961 cm
+          loop                      NOT converged: last step 0.229 posterior sd (rule 0.2), it 4 scored
+        AGAINST THE EXPECTATION OF 73 bz:
+          R1 (starts within 0.2 cm)                 HOLDS (4e-6 cm).
+          R2 "0.5 - 1.5 cm, about even on the 1 cm" HOLDS: 0.82 cm (1 h), 0.86 cm (1/4 h); inside the 1 cm limit
+             against either reference.
+          "the shower days are the likeliest place for a local 1 - 2 cm"  WRONG on the place: the shower days
+             (days 3, 4) read 0.55 and 0.34 cm; the local 1 - 2.4 cm is the last two days, with the largest
+             difference 3.0 cm at t = 10.5 - 10.6 d. That is also where the two numerical inversions differ
+             from each other (0.50 cm on the last day), and the loop had not reached its stop rule; which of
+             the two it is has NOT been checked (no per-hour posterior sd read, no fifth iteration run).
+          against the well "2.8 - 3.5 cm, bias -1 to -2, r 0.94 - 0.96": 3.39 cm and r 0.949 inside; bias
+             -2.02 cm, outside by 0.02.
+        READING RULE OF 73 bz, as written ("the form matters for the inversion if R2 is <= 1 cm here and > 1 cm
+          in rfnc1t"): 0.86 cm against 3.91 cm (1/4 h reference; 0.82 against 3.89 at 1 h) -> THE FORM MATTERS
+          for the inversion on this data set. One controlled pair (same data, same soil, same seeds, the form
+          the only difference), one window, one soil.
+        WHAT THIS IS NOT: not a statement about the well (diagnostic data set; the numerical inversion is itself
+          3.05 cm from it), not (i) at the 0.5 cm level of the ten rows that hold it, and not evidence that the
+          interior equation is solved to sigma_pde on this soil (held-out PDE loss 4 - 25 in every stage, 74 v).
+        README: row rfnc1tc added (15 rows); step passage, box table, the (i) bullet and "Not yet" follow.
+        FILES: output/real_nc2_sep23c_soilsep23a/result_rfnc1tc.{json,png} (+ result_rfnc1tc_inv0.{json,png});
+          output/paper/nc2_sep23c/inversion_step_soilsep23a_rfnc1tc.json, inversion_step_soilsep23a_rfnc1t.json
+          (both references, by day).
+        CHECKED (12:31) before "controlled pair" went into the README: runs/rfnc1t_w{0..3}/config.yaml against
+          runs/rfnc1tc_w{0..3}/config.yaml (run name masked): the only difference is the line
+          "departure: conductive"; seeds 0 - 3 in both. The later stages come from the same driver and were
+          not compared file by file.
