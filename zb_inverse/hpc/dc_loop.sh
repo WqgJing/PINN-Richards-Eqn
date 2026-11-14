@@ -15,6 +15,7 @@ STOP=${STOP:-0.2}; KF=${KF:-2}; FJ=${FJ:-0}; SEC=${SEC:-0}; PREV=${PREV:-}; COAR
 # INIT="<model.pt of member 0> <model.pt of member 1> ...": the same for the first round (from an earlier loop)
 # a continued member starts at the lower learning rate WLR (lr 1e-3 from a trained state blows the loss up, finding 39)
 WARM=${WARM:-0}; INIT=(${INIT:-}); WLR=${WLR:-2.0e-4}
+SEED0=${SEED0:-0}   # added to the seeds of the forward PINNs (as hpc/param_pipeline.sh; default: seeds as before)
 R=$PWD/runs; C=configs/p1_param_synth_v3.yaml
 FWD_SET="--set sampling.mode=point --set train.adam_steps=25000 --set train.lr=1.0e-3 --set train.lr_final=1.0e-5 --set train.lbfgs_blocks=15"
 IX=""
@@ -80,7 +81,7 @@ for it in $(seq $IT0 $ITMAX); do
     if [ "$WARM" = 1 ] && [ -f $R/${TAG}_f$((it - 1))_m$k/model.pt ]; then ws="--set train.init_from=$R/${TAG}_f$((it - 1))_m$k/model.pt --set train.lr=$WLR"
     elif [ "$it" = "$IT0" ] && [ -n "${INIT[$k]:-}" ]; then ws="--set train.init_from=${INIT[$k]} --set train.lr=$WLR"; fi
     gpu_job ${TAG}_f${it}_m$k scripts/param_train.py --config $C $FWD_SET --set sampling.local_file=$CEN $ws \
-      --set train.seed=$((2000 + 10 * it + k)) $TSET --set output.dir=$R/${TAG}_f${it}_m$k &
+      --set train.seed=$((SEED0 + 2000 + 10 * it + k)) $TSET --set output.dir=$R/${TAG}_f${it}_m$k &
   done
   wait
   fwd=""

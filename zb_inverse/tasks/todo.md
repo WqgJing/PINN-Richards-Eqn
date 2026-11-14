@@ -3870,3 +3870,14 @@ Real-case spec (first slice):
          A4 SEED0: bash -n on both drivers; config.yaml of rfnc1s1_w0 shows train.seed 1000; the diff of the two
             drivers touches the seed expressions only.
          A5 the tables name the soil as in-sample and carry the held-out numbers.
+    74 a. (14 Nov, 00:19) LAUNCHED N0, N1, N2 of the plan above; and the user, while this was being set up:
+        "and need more site to prove this pinn works" -> a site track is added (74 b, written before any site job).
+        SEED0 (optional, default 0) added to hpc/param_pipeline.sh and hpc/dc_loop.sh: the diff is the two seed
+        expressions of the first and the one of the second (new files moved in by rename; bash -n passes; the
+        running drivers of rfnc1tc / rfnc1t keep their old copies). Settings of the repeat = the good run's: the
+        train sets of logs/pipe_rfnc1.log line 1 and of hpc/real_full_obs.sh today are byte-identical (cmp).
+          N1  rfnc1s1 (SEED0=1000), rfnc1s2 (SEED0=2000): hpc/real_full_obs.sh on output/real_nc2_sep23c_own,
+              "[0.0,0.30]"; process groups 2001871 / 2001874; logs/full_rfnc1s?.log.
+          N2  fs_nc2c_{s1,s2,w64,w32,d3,c2k}: hpc/fwd_truth.sh, same data set; logs/fwd_fs_nc2c_*.log.
+          N0  jobs 15609737 / 15609752 / 15609768 / 15609783 -> runs/rfnc1_inv4_m0..3.
+        Still to check for A4: train.seed in runs/rfnc1s1_w0/config.yaml (1000) and runs/fs_nc2c_s1 (1).
