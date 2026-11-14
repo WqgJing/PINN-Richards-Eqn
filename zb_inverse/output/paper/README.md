@@ -65,11 +65,17 @@ Inverse problem, hourly, against the well (265 hours):
 | spline fitted to the well (best a 14-coefficient path can do) | 0.81 | 0.00 | 3.46 | 0.995 |
 
 - PINN minus numerical inversion: 0.07 cm RMS, 0.30 cm max.
+- The numerical inversion of this table runs the solver with a 1 h step. Repeated with a 1/4 h step
+  ([inversion_step.json](nc2_sep23c/inversion_step.json)) it moves by 0.04 cm RMS (0.22 cm max, at the start
+  of the window), stays at 1.11 cm from the well, and its two starts end 0.0001 cm apart. The PINN is
+  0.03 cm RMS (0.09 cm max) from the 1/4 h inversion, closer than the 1 h inversion is to it. A 1/16 h
+  repeat is running; until it is in, nothing is said about the converged inversion.
 - Five starts end on one estimate (largest difference 5e-7 cm). Posterior sd 1.1 cm (median).
 - One network at a time instead of four (round 4): each estimate is within 0.01 - 0.02 cm RMS (max 0.09 cm)
   of the four-network estimate.
 - Cost: 13.6 GPU hours of training (22 training runs) and 0.07 hours of inversions. The numerical inversion
-  takes 26 min on a CPU for one start, 1.6 CPU hours for its four starts.
+  takes 26 min on a CPU for one start, 1.6 CPU hours for its four starts (1 h step; the two starts
+  repeated with a 1/4 h step take 55 and 102 min, against 12 and 34 min for the same two starts at 1 h).
 
 ## What to say plainly in a text built on this
 
@@ -82,7 +88,9 @@ Inverse problem, hourly, against the well (265 hours):
 3. The PDE residual is not uniformly small. On a grid clustered at the surface its RMS is 0.5 - 0.7 sigma_pde
    for the forward networks and 0.9 - 1.5 for the operator members, with maxima of 45 - 130 sigma_pde at the
    three rain pulses and at t = 0. The held-out losses in fig4 are lower because they are sampled as in training.
-4. The PINN is about 30 times more expensive than the numerical inversion on this window.
+4. The PINN is about 30 times more expensive than the numerical inversion with its 1 h step on this window
+   (13.6 GPU hours against 26 CPU minutes for one start), and 8 - 15 times more expensive than the numerical
+   inversion with a 1/4 h step (55 - 102 CPU minutes for one start).
 
 ## Synthetic verification (known truth)
 
@@ -128,9 +136,11 @@ Reading:
   the US-ONA rain window (28 cm; starts 1.8 cm apart, value-correction loop not converged) and the window of
   this results set with the soil of 1 Sep 2023 instead of its own (`rfnc1t`, 3.9 cm; the starts end on one
   estimate, but the value-correction loop used its four iterations with steps of 1.3 - 4.4 posterior sd and
-  did not reach the stop rule of 0.2). The last one matters for how the in-sample case is read: on the same
-  11 days of data, with the soil calibrated on the window that starts 9 days earlier, the PINN is 3.9 cm from
-  the numerical inversion, and the numerical inversion is 3.05 cm from the well instead of 1.11.
+  did not reach the stop rule of 0.2; the held-out surface-flux loss of its operator networks ended every
+  stage at 0.96 - 1.00 of its starting value, so these networks do not satisfy the flux condition).
+  The last one matters for how the in-sample case is read: on the same 11 days of data, with the soil
+  calibrated on the window that starts 9 days earlier, the PINN is 3.9 cm from the numerical inversion, and
+  the numerical inversion is 3.05 cm from the well instead of 1.11.
 - (ii) holds over the whole window (3 cm RMSE, 2 cm bias, r 0.98) only at US-NC2: in-sample (rfnc1) and with
   the May soil (rfnd, not the declared test). At US-ONA Nov 2022 with the Oct 2022 soil (rf22c, held-out) it
   holds for the 359 of 433 hours in which the sensor is below saturation and not over the whole window; on
