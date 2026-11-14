@@ -5554,3 +5554,119 @@ Real-case spec (first slice):
           runs/rfnc1tc_w{0..3}/config.yaml (run name masked): the only difference is the line
           "departure: conductive"; seeds 0 - 3 in both. The later stages come from the same driver and were
           not compared file by file.
+    74 ae. (14 Nov, 14:37) C of 74 ac: rfnm1b (ended 14:31) AND rfna1b (14:33), THE TWO RECESSION WINDOWS WITH NETWORKS
+        TRAINED ON PATHS OF 0.10 - 1.50 m. LOSSES, read from metrics.csv (first and last held-out row of every
+        stage) BEFORE any score job is submitted (lesson rule). 25 stages COMPLETED each, none failed; both
+        loops stopped after one iteration (final directories runs/rfnm1bdc_it1, runs/rfna1bdc_it1).
+        Held-out flux loss starts at 98 - 105 (as in 74 r), so "x r" is (rms flux error / rms prescribed flux)^2.
+          rfnm1b (1 May 2023 + 15 d)            flux, end value (x of the wide start)             pde, end value
+            wide, 42000 steps                   50.4, 59.4, 117.3, 9.26 (x0.50, 0.57, 1.20, 0.091) 7.97, 4.79, 6.26, 1.10 (start 0.84)
+            round 1                             28.4, 30.9, 29.2, 9.00                             3.35, 6.71, 22.2, 1.14
+            round 2                             24.0, 25.8, 27.8, 6.77                             10.9, 10.4, 16.6, 0.84
+            round 3                             20.9, 23.6, 23.7, 6.70                             4.50, 3.08, 5.41, 1.29
+            round 4                             18.7, 19.9, 19.6, 6.55 (x0.19, 0.19, 0.20, 0.064)  4.78, 7.48, 2.36, 1.17
+            forward nets of the loop, 28000     5.73, 4.10 (x0.055, 0.039)                         1.23, 0.73 (start 1.5)
+            loop: one iteration, step 0.057 sd (by segment 0.006 0.022 0.044 0.057), forward offset rms 6.0e-5
+            for comparison rfnm1 (74 r): round 4 10.1, 16.5, 5.98, 9.21 (x0.10, 0.16, 0.061, 0.090), pde 1.35,
+              1.80, 0.82, 0.99; forward 4.25, 5.40, pde 0.75, 0.63; offset 3.8e-5.
+          rfna1b (1 Sep 2023 + 6 d)
+            wide                                12.4, 1.62, 4.53, 0.91 (x0.126, 0.016, 0.046, 0.009) 5.19, 0.68, 0.79, 0.66 (start 0.69 - 0.72)
+            round 1                             4.71, 1.99, 3.98, 1.76                             1.00, 0.90, 0.96, 1.86
+            round 2                             2.65, 1.62, 3.52, 1.46                             0.68, 0.88, 0.80, 1.38
+            round 3                             1.77, 2.63, 3.33, 1.48 (member 1 rose 1.66 -> 2.63) 0.73, 1.02, 0.76, 1.34
+            round 4                             1.83, 2.21, 3.23, 1.62 (x0.019, 0.022, 0.033, 0.016) 0.76, 0.86, 0.82, 1.20
+            forward nets of the loop            1.65, 0.78 (x0.017, 0.008)                         0.47, 0.39 (start 1.4 - 1.5)
+            loop: one iteration, step 0.017 sd, forward offset rms 5.2e-5
+            for comparison rfna1 (74 r): round 4 1.45 - 2.51 (x0.015 - 0.026), pde 0.73 - 0.91; forward 0.69,
+              1.30, pde 0.37, 0.44; offset 4.5e-5.
+        FIELDS THAT LIMIT THE ESTIMATES, read with the losses (summary.json of the two final directories):
+          box [-2.971, 1.183] (0.10 - 1.50 m) in both; coef_on_bound [] in both; first coefficient of the
+          estimate -2.790 (rfnm1b) and -2.354 (rfna1b), i.e. inside the box and below the old bound (-1.821);
+          five starts 2e-8 and 2e-7 cm apart.
+          -> P1 (no coefficient of the PINN estimate on the box) HOLDS for both, before any score.
+        READ BEFORE THE SCORES:
+          - rfna1b is trained about as well as rfna1 (flux rms error of the round-4 members 13 - 18 % of the
+            flux rms, forward networks 9 - 13 %).
+          - rfnm1b is trained WORSE than rfnm1: three of four members end round 4 with the flux at x0.19 - 0.20
+            (44 % in rms; rfnm1 25 - 41 %) and a PDE loss of 2.4 - 7.5 (rfnm1 0.8 - 1.8); one wide member ended
+            ABOVE its starting flux loss (x1.20). The wider range of paths is harder for the additive form on
+            this soil (Ks 1e-3 m/s), as 73 bz says. The forward networks of the loop are as in rfnm1.
+          - As in 74 r: the loop's stop says operator and forward networks give the same soil moisture at
+            the estimate (offset 5 - 6e-5), not that either satisfies the flux condition.
+          - P2 and P3 of 74 ac stand as written (PINN minus numerical with the 0.10 m bound at most 0.3 cm on
+            both windows; against the well within 0.1 cm of 0.53 and 0.90 cm). On these losses rfnm1b is the
+            one more likely to miss P2.
+        SCORES (14 Nov, 14:41; jobs scmb 15630099, scab 15630100, bxmb 15630103, bxab 15630105, all exit=0, no
+        Traceback; read AFTER the block above). Whole window, hourly, cm. Numerical inversion = 1 h step,
+        bound 0.10 m, four starts (costs equal to 6 digits; 0.0002 and 0.002 cm between starts, 74 ab).
+          run      PINN vs well               PINN - numerical, same 0.10 m box    PINN - numerical   numerical (0.10 m)  post.   PINN starts  coef on box   numerical: steps
+                   RMSE / bias / max, r       RMS / bias / max (where)             of the 0.20 m box  vs well RMSE / max  sd      (largest)    PINN / num.   not converged
+          rfnm1b   0.887 / +0.034 / 3.23,     0.034 / +0.009 / 0.133 (t = 0)       0.441              0.900 / 3.26        0.306   7e-8         none / none   0
+                   0.9975
+          rfna1b   0.562 / +0.103 / 1.52,     0.111 / +0.098 / 0.31 (t = 6.0 d)    0.218              0.528 / 1.27        0.281   7e-7         none / none   2.1 % (largest
+                   0.9983                                                                                                                                    batch)
+          Hydrostatic reading of the sensor: 1.21 cm (May), 1.62 cm (Sep). Soil moisture of the PINN at its
+          estimate against the sensor: 0.0010 and 0.0018.
+        AGAINST P1 - P3 OF 74 ac:
+          P1 no coefficient of the PINN estimate on the box                       HOLDS (both; read before the scores)
+          P2 PINN - numerical (0.10 m, 1 h) at most 0.3 cm RMS on both windows    HOLDS (0.034 and 0.111 cm)
+          P3 against the well within 0.1 cm of the numerical 0.90 and 0.53 cm     HOLDS (0.887 vs 0.900; 0.562 vs 0.528)
+          DECISION of 74 ac (P1 and P2 hold): the README rows of the two windows are given by the wider-prior
+          runs; the 0.20 m rows stay, marked as held by the bound.
+        WHAT I READ WRONG BEFORE THE SCORES: "on these losses rfnm1b is the one more likely to miss P2". It is
+          the closer of the two (0.034 against 0.111 cm). The held-out losses of the operator members are
+          means over the whole distribution of paths; the estimate is one path, and its value is corrected by
+          the two forward networks of the loop, whose losses were as in rfnm1. So the ranking of two runs by
+          round-4 operator losses did not predict the ranking by distance to the numerical inversion here.
+          (One pair of runs; not a rule.)
+        WHAT THIS SHOWS: with the 0.20 m bound released in training and in both inversions, the PINN and the
+          numerical inversion end on the same path to 0.03 and 0.11 cm (a third and less of the posterior sd),
+          neither with a coefficient on the box. The agreement of the old rows was not made by the bound.
+        WHAT IT DOES NOT SHOW:
+          - anything new about the well: both windows are in-sample (soil calibrated on the window);
+          - that the networks of rfnm1b satisfy the equations at the estimate: only training losses over the
+            path distribution have been read (three operator members at 44 % rms flux error). Checked next
+            (74 af) with the statistics of the other figure sets;
+          - rfna1b is an offset (bias +0.098 of 0.111 cm, PINN deeper), as rfna1 was (+0.09 of 0.09); where
+            it comes from is still not known. The numerical inversion of that data set has up to 2.1 % of
+            its solver steps not converged.
+          - rfnd and rfn1 (27 Sep window) and the rows at other sites that share a bound are not repeated.
+    74 af. (14 Nov, 14:41) PLAN, written before the jobs: figure sets and equation statistics for the two wider-range
+        runs, same scripts and statistics as the sets of rfnm1 / rfna1 (scripts/paper_figures.py,
+        scripts/flux_grid_check.py --residual), into NEW directories output/paper/nc2_may23_b010 and
+        output/paper/nc2_sep23a_b010 (the old sets stay), numerical inversion = the four 0.10 m starts.
+        EXPECTATIONS:
+          F1 (consistency) tables.md of each new set gives the figures of result_*.json: PINN vs well 0.887 /
+             0.562 cm, PINN - numerical 0.034 / 0.111 cm. A difference above 0.001 cm is an error in a script.
+          F2 surface flux at the estimate after the first hour, six networks, % of the RMS of the prescribed
+             flux: rfna1b 1 - 3 % (rfna1 1.3 - 2.2); rfnm1b 4 - 15 % (rfnm1 3.4 - 8.5; its held-out flux
+             error over the path distribution is about 1.3 - 1.8 times that of rfnm1 in three members).
+          F3 PDE residual after the first hour, in sigma_pde: rfna1b 0.8 - 1.3 (rfna1 0.88 - 1.20); rfnm1b
+             0.8 - 2.5 (rfnm1 0.77 - 0.98; held-out PDE loss of its round-4 members 1.2 - 7.5 against 0.8 - 1.8).
+        DECISION: F2 of rfnm1b above 15 % -> the README row and text say that on the May window the two
+          estimates agree while the networks miss the flux condition at the estimate by that much.
+          Otherwise the two new sets are the figure sets of the two windows and the README points to them.
+        VERIFY: exit=0 and no Traceback in each log; figures looked at (line plots, no titles).
+        RESULT (14 Nov, 14:54; jobs pfigmb 15630316, pfigab 15630320, fgridmb 15630321, fgridab 15630322, all
+        exit=0, no Traceback; fig3 and fig6 of both sets looked at: line plots, no titles).
+          F1 consistency with result_*.json            HOLDS: 0.89 / 0.03 cm (rfnm1b), 0.56 / 0.11 cm (rfna1b);
+                                                       starts 7.2e-8 and 6.7e-7 cm
+          F2 flux after the first hour, six networks   HOLDS both: rfna1b 1.31 - 2.30 % (expected 1 - 3);
+                                                       rfnm1b 5.66 - 12.23 % (expected 4 - 15): operator members
+                                                       10.8, 11.2, 12.2, 5.7 %, forward networks 7.6, 7.3 %
+                                                       (rfnm1: 5.7, 8.5, 3.4, 6.5 and 6.6, 7.7 %)
+          F3 PDE residual after the first hour         rfnm1b 0.81 - 1.17 sigma_pde HOLDS (0.8 - 2.5);
+                                                       rfna1b 0.83 - 1.38: one member (1.38) is 0.08 ABOVE the
+                                                       expected 0.8 - 1.3, the other five inside
+             the same on 2/h, 12/h and 60/h grids; maxima 11 - 29 (rfnm1b) and 8 - 14 (rfna1b), all at the
+             water table (xi = -1); row t = 0: 1.8 - 2.1 and 1.1 - 1.4.
+          DECISION (F2 of rfnm1b below 15 %): output/paper/nc2_may23_b010 and nc2_sep23a_b010 are the figure
+          sets of the two windows; the README points to them and keeps the old sets as the runs held by the bound.
+        ALSO READ in the stage tables: the estimate of the wide stage alone is already 0.04 cm (rfnm1b) and
+          0.11 cm (rfna1b) from the numerical inversion; the four refinement rounds and the value correction
+          do not move it (0.03 - 0.05 and 0.11 - 0.13 cm). Not acted on (one configuration per window).
+        Training cost: 10.5 and 11.1 GPU hours; numerical inversion 60 and 78 CPU minutes for the best start.
+        FILES: output/real_nc2_may23_own/result_rfnm1b.{json,png}, output/real_nc2_sep23a_own_cal3/result_rfna1b.{json,png},
+          output/paper/nc2_may23/inversion_box_rfnm1b.json, output/paper/nc2_sep23a/inversion_box_rfna1b.json,
+          output/paper/nc2_may23_b010/, output/paper/nc2_sep23a_b010/; README: rows rfnm1b / rfna1b, box passage,
+          counts (12 of 17 runs, 10 of 14 data sets), equation statistics, regenerate commands.
