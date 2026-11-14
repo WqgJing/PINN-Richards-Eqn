@@ -4027,3 +4027,7 @@ Real-case spec (first slice):
         RUNNING at 01:18: N1 (eight wide members on V100, 31 - 54 min in), N2 (six forward runs on V100, 24 - 32
         min), S1 (rfnm1: three of four wide members running; rfna1 pending on Priority), rfnc1tc round 4 pending,
         US-HB2 calibration continuation (7 h 11 min).
+        A4 for N2, checked 01:21 from runs/fs_nc2c_*/config.yaml (written when the jobs started): s1 seed 1, s2 seed 2,
+        w64 width 64, w32 width 32, d3 depth 3, c2k n_col 2048 (lbfgs_n_col 8192); every other one of width 128,
+        depth 6, seed 0, n_col 8192 / 32768 as in runs/fwd_nc2c. Each variant differs from the baseline in the one
+        setting it is named for. A4 met; scores not read (runs at 24 - 32 min).
