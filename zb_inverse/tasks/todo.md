@@ -5301,3 +5301,104 @@ Real-case spec (first slice):
         SO, both recession windows: the 1 h step of the numerical inversion is not what separates it from
         the PINN (0.0005 and 0.0008 cm), unlike the rain window C_N1 (0.07 -> 0.03 -> 0.014 cm with the
         step). The README rows keep their 1 h figures; the reading says they are the same at 1/4 h.
+        RESULT, reference only, read first (09:47; rfbxsep 15619909 exit=0 38 min, rfbxmay 15619910 exit=0
+        55 min; boxchk 15620980 / 15620981 exit=0 -> output/paper/nc2_sep23a/inversion_box.json,
+        output/paper/nc2_may23/inversion_box.json):
+          window, shallow bound   cost       it  solves  not conv.  on box  vs well: RMSE / bias / max (cm), r   sd (cm)  theta rmse
+          sep23a  0.20 m          0.150581    5    57     2.8 %     [0]     0.629 / +0.017 / 1.815, 0.99780      0.285    1.940e-3
+          sep23a  0.10 m          0.131369    5    68     2.1 %     []      0.529 / +0.005 / 1.275, 0.99844      0.282    1.812e-3
+          may23   0.20 m          0.0884301   6    95     0.0 %     [0]     0.893 / +0.031 / 2.493, 0.99750      0.308    1.487e-3
+          may23   0.10 m          0.0438888   7   101     0.0 %     []      0.900 / +0.025 / 3.257, 0.99747      0.305    1.047e-3
+          0.20 m minus 0.10 m estimate:
+            sep23a 0.228 cm RMS, bias +0.012, max 0.751 at t = 6.0 d; by day 0.254 0.224 0.138 0.205 0.182 0.316
+            may23  0.447 cm RMS, bias +0.007, max 1.535 at t = 0.0 d; by day 0.885 0.399 0.706 0.471 0.201
+                   0.528 0.546 0.296 0.145 0.389 0.391 0.147 0.246 0.323 0.356
+          X1 HOLDS: no coefficient on the box with the bound at 0.10 m, and the cost falls by 13 % (sep23a)
+             and by 50 % (may23). The size of the fall on may23 I had no expectation for; it says the
+             estimate with the 0.20 m bound was far from the minimum the data ask for.
+          X2 HALF WRONG. Sizes hold (max 0.75 and 1.5 cm, limit 3; RMS 0.23 and 0.45, limit 1). The place
+             does not: I wrote "only where the first basis function has support, most at t = 0". The path
+             moves on every day of both windows (the other coefficients re-adjust), and on sep23a the
+             largest move is at the END of the window (t = 6 d), not at the start.
+          X3 HOLDS: against the well 0.629 -> 0.529 (sep23a) and 0.893 -> 0.900 cm (may23); the largest
+             error on may23 grows from 2.5 to 3.3 cm.
+          DECISION RULE applied: sep23a 0.228 cm < posterior sd 0.285 cm -> below. may23 0.447 cm > 0.308 cm
+             -> ABOVE: the estimate of the rfnm1 row depends on the box by 0.45 cm RMS (1.5 cm at the
+             start), which is more than its posterior sd and 13 times the PINN - numerical figure of the
+             row (0.03 cm). The README says so next to the rows; a PINN run on a wider prior is written
+             as a plan before anything is submitted.
+        PINN LINES and coefficients (read after the above, 09:48):
+          PINN minus numerical      bound 0.20 m      bound 0.10 m
+          rfna1                     0.093 cm          0.252 cm RMS, bias +0.102, max 0.879 (t = 6 d);
+                                                      by day 0.317 0.113 0.203 0.271 0.135 0.364
+          rfnm1                     0.035 cm          0.437 cm RMS, bias +0.016, max 1.609 (t = 0);
+                                                      by day 0.949 0.352 0.666 0.457 0.190 0.507 0.531 0.297
+                                                      0.127 0.359 0.373 0.150 0.206 0.284 0.320
+          coefficients (predictions.npz coef), numerical inversion, and the spline fitted to the well:
+            sep23a 0.20 m: -1.8212 -1.8081 -0.8670 -0.5596  0.5074
+            sep23a 0.10 m: -2.4066 -1.6989 -0.9299 -0.4726  0.1070
+            sep23a well  : -2.4037 -1.6867 -0.9491 -0.4190 -0.2584
+            may23  0.20 m: -1.8212 -1.3264 -0.4275 -0.3908  0.1440 -0.0311
+            may23  0.10 m: -2.8354 -1.1623 -0.4979 -0.3387  0.0693  0.3059
+            may23  well  : -2.2457 -1.2501 -0.4826 -0.3165  0.0648 -0.0580
+          path at the first and the last hour (zb_pred, zb_true; m):
+            sep23a: 0.20 m bound 0.2251 ... 0.5499; 0.10 m bound 0.2195 ... 0.5424; well 0.2177 ... 0.5331
+            may23 : 0.20 m bound 0.2999 ... 0.7561; 0.10 m bound 0.2846 ... 0.7637; well 0.2875 ... 0.7311
+          WHAT THIS SAYS:
+          - The 0.20 m bound was holding the start of both estimates too deep: start error against the well
+            +0.74 -> +0.18 cm (sep23a) and +1.24 -> -0.29 cm (may23) when it is released. On sep23a the
+            first coefficient lands on the well spline's (-2.407 against -2.404).
+          - On may23 the end of the window gets worse (+2.5 -> +3.3 cm; last coefficient 0.31 against the
+            well's -0.06), so the RMSE against the well does not improve (0.893 -> 0.900).
+          - "PINN - numerical 0.03 / 0.09 cm" of the two rows is the agreement of two estimates held by
+            the same bound. Against the numerical estimate without that bound the PINN (trained on
+            0.20 - 1.50 m) is 0.44 and 0.25 cm away. Both are still inside the 1 cm of criterion R2, but
+            it is not the like-for-like figure, and for rfnm1 it is above the posterior sd (0.31 cm).
+          - The posterior sd of the table rows (0.28, 0.31 cm) does not contain this: it is computed with
+            the first coefficient held.
+  74 ac. (09:49, 14 Nov) PLAN AFTER THE BOX RESULT (the decision rule of 74 aa asked for a written plan).
+        RULE, written now and used from here on: an estimate with a coefficient on the bound of the path
+        prior is not a finished estimate; the prior is widened on that side and the inversion repeated,
+        numerical and PINN. The prior is an input of the method (the range of water-table paths the
+        operator networks are trained on); nothing else changes. Only prior.clip_m changes, from
+        [0.20, 1.50] to [0.10, 1.50] m (zb_min of the transform is 0.05 m).
+        A. Is the 0.10 m numerical estimate one estimate from all starts? The other three starts
+           (hydrostatic, constant 1.0, constant 0.3) on both windows, same command as 74 aa.
+           -> output/referee/nc2_own_sep23a_cal3_box010_s{0,2,3}, output/referee/nc2_own_may23_box010_s{0,2,3}
+           EXPECT A1: the four starts end within 0.2 cm of each other with equal cost (4 digits), as with
+           the 0.20 m bound. Less sure on may23 (cost halved, last coefficient moved from -0.03 to 0.31).
+           If the starts differ: the lowest-cost one is the reference and the spread is written with it.
+        B. The two rows on the 27 Sep 2023 window (first coefficient on the shallow bound in both):
+           rfnd (May soil, start hydrostatic) and rfn1 (1 Sep soil, start hydrostatic_flat), 0.10 m bound.
+           -> output/referee/nc2_may23on_sep23b_box010_s0, output/referee/nc2_sep23aon_sep23b_cal3_box010_s1
+           EXPECT Y1: the first coefficient leaves 0.20 m, the cost falls. Y2: the estimate moves by
+           0.2 - 0.5 cm RMS (as on the two windows measured). Y3: rfn1 is too shallow by 9.3 cm with the
+           bound; released, the start can only go shallower, so its miss of the well does not shrink
+           (9.5 cm or more): the declared held-out test fails with or without the bound. rfnd (1.64 cm
+           numerical against the well) changes by less than 0.3 cm.
+           No PINN re-run is planned for these two rows from this alone.
+        C. PINN on the wider prior, the two recession windows, everything else as rfnm1 / rfna1:
+             hpc/real_full_x.sh rfnm1b output/real_nc2_may23_own       "[0.0,0.30]" "--set prior.clip_m=[0.10,1.5]"
+             hpc/real_full_x.sh rfna1b output/real_nc2_sep23a_own_cal3 "[0.0,0.30]" "--set prior.clip_m=[0.10,1.5]"
+           (about 6 h each on GPUs, as rfnm1 / rfna1.) CHECK at the first inversion: param_invert prints
+           "[box] estimate kept in the prior box [-2.971, 1.183]".
+           Losses (held-out flux and PDE per stage) are recorded before any score is read. Scored against
+           the four 0.10 m starts of A.
+           EXPECT P1: no coefficient of the PINN estimate on the box. P2: PINN minus numerical (0.10 m
+           bound, 1 h) at most 0.3 cm RMS on both windows; the like-for-like figures with the 0.20 m bound
+           were 0.03 and 0.09 cm, and I expect a wider range to be learned somewhat worse, not better.
+           P3: against the well within 0.1 cm of the numerical inversion's 0.53 (rfna1b) and 0.90 cm
+           (rfnm1b). Not expected to improve: how well the networks satisfy the flux condition on these
+           two windows (74 r: 8 - 23 % of the flux rms for the forward networks).
+           DECISION: P1 and P2 hold -> the README rows of the two windows are given by the wider-prior
+           runs (the 0.20 m rows stay, marked as held by the bound). P2 fails -> the README says that on
+           these windows PINN and numerical inversion agreed only under the shared bound.
+        CHECKED before launch (09:53): a prior.clip_m given at training reaches the box of the PINN's
+          inversion. scripts/param_train.py applies --set to the config and ParamTrainer.run() saves it
+          as <run>/config.yaml (src/zbinv/parametric.py line 459); scripts/param_invert.py takes cfg
+          from the first member's config.yaml (load_members, line 495) and fine_box = prior_box(cfg),
+          coarse_box = prior_box(ccfg) from the wide members' config.yaml. hpc/dc_loop.sh passes the
+          same members. runs/rfnm1_r4_m0/config.yaml has clip_m [0.2, 1.5] (the present box).
+          No runs/rfnm1b*, runs/rfna1b* exist.
+        README (09:53): box result written into "Reading" (table, what moved, what the two rows'
+          "PINN - numerical" figures are), into the status of the rfnm1 / rfna1 rows, and "Not yet".
