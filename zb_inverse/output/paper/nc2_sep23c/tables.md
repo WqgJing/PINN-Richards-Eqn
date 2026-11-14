@@ -113,15 +113,15 @@ The numerical solution against itself, soil moisture, RMS (max). Picard toleranc
 
 Soil moisture RMS against the numerical solution (m3/m3).
 
-| run | width | hidden layers | collocation points | seed | parameters | all depths, 1/256 h step | sensor layer, 1/256 h step | all depths, 1 h step (the data set's) | sensor layer, 1 h step (the data set's) | sensor layer, minus the baseline network | surface flux (time mean, 1-min grid) | PDE residual RMS, after the first hour (1-min grid) | minutes |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| baseline | 128 | 6 | 8192 | 0 | 87681 | 1.42e-05 | 1.72e-05 | 3.27e-04 | 4.26e-04 | - | 1.65 % | 0.177 | 47 |
-| s1 | 128 | 6 | 8192 | 1 | 87681 | 1.40e-05 | 1.75e-05 | 3.27e-04 | 4.26e-04 | 1.90e-05 | 1.58 % | 0.164 | 47 |
-| s2 | 128 | 6 | 8192 | 2 | 87681 | 1.78e-05 | 2.16e-05 | 3.28e-04 | 4.27e-04 | 2.08e-05 | 1.95 % | 0.176 | 47 |
-| w64 | 64 | 6 | 8192 | 0 | 23361 | 4.26e-05 | 5.53e-05 | 3.31e-04 | 4.32e-04 | 5.47e-05 | 3.48 % | 0.286 | 48 |
-| w32 | 32 | 6 | 8192 | 0 | 6561 | 4.89e-05 | 6.35e-05 | 3.30e-04 | 4.30e-04 | 6.30e-05 | 3.46 % | 0.362 | 44 |
-| d3 | 128 | 3 | 8192 | 0 | 38145 | 4.28e-05 | 5.35e-05 | 3.29e-04 | 4.29e-04 | 5.35e-05 | 3.54 % | 0.370 | 40 |
-| c2k | 128 | 6 | 2048 | 0 | 87681 | 1.32e-05 | 1.52e-05 | 3.27e-04 | 4.25e-04 | 1.72e-05 | 1.66 % | 0.186 | 45 |
+| run | width | hidden layers | collocation points | seed | parameters | all depths, 1/256 h step | sensor layer, 1/256 h step | all depths, 1 h step (the data set's) | sensor layer, 1 h step (the data set's) | sensor layer, minus the baseline network | surface flux (time mean, 1-min grid), whole window | surface flux, after the first hour | PDE residual RMS, after the first hour (1-min grid) | minutes |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| baseline | 128 | 6 | 8192 | 0 | 87681 | 1.42e-05 | 1.72e-05 | 3.27e-04 | 4.26e-04 | - | 1.65 % | 1.46 % | 0.177 | 47 |
+| s1 | 128 | 6 | 8192 | 1 | 87681 | 1.40e-05 | 1.75e-05 | 3.27e-04 | 4.26e-04 | 1.90e-05 | 1.58 % | 1.38 % | 0.164 | 47 |
+| s2 | 128 | 6 | 8192 | 2 | 87681 | 1.78e-05 | 2.16e-05 | 3.28e-04 | 4.27e-04 | 2.08e-05 | 1.95 % | 1.78 % | 0.176 | 47 |
+| w64 | 64 | 6 | 8192 | 0 | 23361 | 4.26e-05 | 5.53e-05 | 3.31e-04 | 4.32e-04 | 5.47e-05 | 3.48 % | 3.39 % | 0.286 | 48 |
+| w32 | 32 | 6 | 8192 | 0 | 6561 | 4.89e-05 | 6.35e-05 | 3.30e-04 | 4.30e-04 | 6.30e-05 | 3.46 % | 3.37 % | 0.362 | 44 |
+| d3 | 128 | 3 | 8192 | 0 | 38145 | 4.28e-05 | 5.35e-05 | 3.29e-04 | 4.29e-04 | 5.35e-05 | 3.54 % | 3.45 % | 0.370 | 40 |
+| c2k | 128 | 6 | 2048 | 0 | 87681 | 1.32e-05 | 1.52e-05 | 3.27e-04 | 4.25e-04 | 1.72e-05 | 1.66 % | 1.47 % | 0.186 | 45 |
 
 ## 8. Repeated runs with other training seeds (against the well)
 

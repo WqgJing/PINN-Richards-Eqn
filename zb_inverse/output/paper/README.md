@@ -64,8 +64,11 @@ solve with a 1/256 h step ([forward_reference.json](nc2_sep23c/forward_reference
 
 - Surface flux of the network, RMS error / RMS of the prescribed flux, time mean on a 1-min grid: 1.65 %
   over the whole window, 1.46 % after the first hour (the network has zero surface flux at t = 0 by
-  construction; point 3 below). The earlier version of this set gave 4.8 %: the same statistic on a
-  half-hourly grid, on which every second point is a forcing node.
+  construction; point 3 below). The second figure is the same on a 6-s grid (1.45 %). The first is not
+  (1.52 %): the single point t = 0 carries 22 % of its mean square on the 1-min grid. The earlier version
+  of this set gave 4.8 % on a half-hourly grid. 72 % of that mean square is the point t = 0 (2.6 % without
+  it); the rest of the difference is the forcing nodes, which are every second point of that grid (3.6 % at
+  the nodes without t = 0, 1.1 % half-way between them).
 - The 1/256 h solve is not the limit either. It is 6.8e-6 (sensor layer; all depths 5.2e-6) from the 1/64 h
   solve, and the change from one step to the next falls by 3.0, 3.7 and 3.9 per refinement (first order in
   the step). So 1.7e-5 is the distance to a reference that is itself known to about 7e-6; it is not written
@@ -79,7 +82,11 @@ solve with a 1/256 h step ([forward_reference.json](nc2_sep23c/forward_reference
 - Other forward networks on the same problem ([tables.md](nc2_sep23c/tables.md), section 7), sensor layer,
   against the 1/256 h solve: two other seeds 1.75e-5 and 2.2e-5; 2048 instead of 8192 collocation points
   1.5e-5; width 64 5.5e-5; width 32 6.4e-5; 3 hidden layers instead of 6 5.4e-5. Against the 1 h solution
-  all seven read 4.25e-4 to 4.32e-4, so that comparison cannot tell them apart.
+  all seven read 4.25e-4 to 4.32e-4, so that comparison cannot tell them apart. The equations separate the
+  same two groups: surface flux after the first hour 1.4 - 1.8 % and PDE residual 0.16 - 0.19 sigma_pde for
+  the three seeds and the 2048-point network, 3.4 - 3.5 % and 0.29 - 0.37 for width 64, width 32 and
+  3 layers (1-min grid; within 0.7 % of a 6-s grid for the flux and within 0.4 % of a 12-s grid for the
+  residual, [flux_grid_fine.json](nc2_sep23c/flux_grid_fine.json)).
 
 Inverse problem, hourly, against the well (265 hours):
 
@@ -126,8 +133,10 @@ Inverse problem, hourly, against the well (265 hours):
    are needed. Other windows do (US-ONA Nov 2022: 1.28 cm after the wide stage, 0.52 after four rounds,
    0.10 after the value correction).
 3. The PDE residual and the surface-flux error are not uniformly small, and their size depends on where
-   they are measured ([flux_grid.json](nc2_sep23c/flux_grid.json), `scripts/flux_grid_check.py`; the six
-   networks behind the estimate: four operator members, two forward networks of the value correction).
+   they are measured ([flux_grid.json](nc2_sep23c/flux_grid.json) and, on finer grids and with the seven
+   forward networks of sections 2 and 7, [flux_grid_fine.json](nc2_sep23c/flux_grid_fine.json);
+   `scripts/flux_grid_check.py`). Unless said otherwise the figures are for the six networks behind the
+   estimate: four operator members, two forward networks of the value correction.
    - The start. The network is hydrostatic with zero surface flux at t = 0 by construction, and the
      prescribed flux there is 11.3 mm/d. The residual of the row t = 0 (RMS over depth) is 19 - 33 sigma_pde
      for the members and 10 - 12 for the forward networks; it is about 1 after 10 min and 0.2 - 0.6 after
@@ -137,19 +146,34 @@ Inverse problem, hourly, against the well (265 hours):
      networks), maximum 7 - 12 sigma_pde, at the surface at t = 2.125 d. That is the forcing node at which
      the first rain pulse sets in (prescribed flux +1.5 mm/d at this node, -119 mm/d at the next).
      Surface flux, RMS error / RMS of the prescribed flux: 2.1 - 2.5 % (members), 2.0 and 1.7 %.
+     These figures do not depend on the grid, for all 13 networks of the tables: on a 12-s grid the
+     residual RMS is within 0.4 % of the 1-min figure and the maxima are the same numbers (the node is on
+     every grid); on a 6-s grid the flux figure is within 0.7 %.
    - Forcing nodes. Both errors are larger at the hourly nodes of the prescribed flux than between them:
      residual 0.31 - 0.33 sigma_pde on the node rows against 0.17 on the half-hour rows, flux error
-     7.5 - 7.6 % at the nodes against 1.6 - 1.8 % half-way between them (members). A half-hourly grid, on
-     which every second row is a node, reads higher than a fine one: residual after the first hour
-     0.25 - 0.26 on the half-hourly grid, 0.19 - 0.20 on a 5-min grid, 0.19 on the 1-min grid; flux
-     5.2 - 5.3 % on the half-hourly grid, 2.3 - 2.6 % on the 1-min grid, 2.2 - 2.5 % on a 6-s grid.
-   - Over the whole window the residual RMS is not a converged number: it is set by how many rows the grid
-     puts into the first minutes (0.25 - 0.35 for the members on the 1-min grid). The tables therefore give
-     the time after the first hour and the row t = 0 separately.
-   - Correction of the earlier version of this set, which gave 0.5 - 1.5 sigma_pde on the half-hourly grid
-     "with maxima of 45 - 130 sigma_pde at the three rain pulses and at t = 0". The maxima of the six
-     networks over the whole window (47 - 130 sigma_pde) are at t = 0 for the members and at 1 - 2 min for
-     the forward networks. "At the three rain pulses" had not been checked.
+     4.5 - 4.7 % at the nodes against 1.6 - 1.8 % half-way between them (members, node t = 0 left out).
+     A half-hourly grid, on which every second row is a node, reads higher than a fine one: residual after
+     the first hour 0.25 - 0.26 on the half-hourly grid, 0.19 - 0.20 on a 5-min grid, 0.19 on the 1-min
+     and 12-s grids.
+   - The whole-window flux figure is mostly a statement about one point. For the members it is 5.2 - 5.3 %
+     on the half-hourly grid, 2.3 - 2.6 % on the 1-min grid and 2.2 - 2.5 % on a 6-s grid. The point t = 0
+     carries 58 - 61 % of that mean square on the half-hourly grid (3.2 - 3.5 % without it), 9 - 11 % on
+     the 1-min grid and 1 % on the 6-s grid. For the forward networks of full size, whose error elsewhere
+     is smaller, its share on the 1-min grid is 13 - 24 %. The tables give this figure next to the one
+     after the first hour; only the second is the same on every grid it was computed on.
+   - Over the whole window the residual RMS is not a converged number either: it is set by how many rows
+     the grid puts into the first minutes (members: 0.40 - 0.63 on a 5-min grid, 0.25 - 0.35 on the 1-min
+     grid, 0.22 - 0.27 on a 12-s grid). The tables therefore give the time after the first hour and the
+     row t = 0 separately.
+   - Corrections of earlier versions of this set. (a) "0.5 - 1.5 sigma_pde on the half-hourly grid, with
+     maxima of 45 - 130 sigma_pde at the three rain pulses and at t = 0": the maxima over the whole window
+     are at t = 0 for the members (77 - 130 sigma_pde on every grid) and within the first 3 min for the
+     forward networks, where the figure still rises with the grid (the two of the value correction: 47 and
+     57 on the 1-min grid, 52 and 67 on a 12-s grid; the seven of sections 2 and 7: 94 - 144 and
+     95 - 149). "At the three rain pulses" had not been checked. (b) The version before this one explained
+     the half-hourly flux figures by the forcing nodes alone and gave "7.5 - 7.6 % at the nodes"; 61 - 64 %
+     of that mean square is the node t = 0, and the larger part of the half-hourly figure is that one
+     point, as stated above.
    - The held-out losses in fig4 are sampled as in training (10 % of the times log-uniform in the first
      day) and are not comparable with any of these figures.
 4. The PINN is about 30 times more expensive than the numerical inversion with its 1 h step on this window
@@ -201,7 +225,41 @@ Final estimate of every scored PINN run (`output/real_*/result_*.json`), whole w
 
 Reading:
 - Every "PINN - numerical" figure of this table is against the numerical inversion with a 1 h solver step.
-  Only `rfnc1` has been repeated at finer steps (0.07 cm at 1 h, 0.03 at 1/4 h, 0.014 at 1/16 h, see above).
+  Two rows have been repeated at finer steps. `rfnc1`: 0.07 cm at 1 h, 0.03 at 1/4 h, 0.014 at 1/16 h (see
+  above); there the distance is the solver's time step. `rfna1`: 0.09 cm at 1 h and 0.09 cm at 1/4 h
+  ([nc2_sep23a/inversion_step.json](nc2_sep23a/inversion_step.json)); the numerical estimate itself moves by
+  0.0008 cm between the two steps, so there the distance is not the solver's time step. It is mostly an
+  offset: bias +0.09 cm (the PINN deeper) with 0.02 cm of spread around it (RMS by day 0.06 - 0.11 cm;
+  posterior sd 0.28 cm). Its origin is not known. In that numerical inversion up to 2.8 % of the solver's
+  time steps did not converge at 1 h and up to 1.7 % at 1/4 h (largest fraction in one batch of solves).
+- Both inversions keep the spline coefficients in a box (water table 0.20 - 1.50 m, the range of paths the
+  operator networks are trained on). In 10 of the 14 rows a coefficient of the final estimate is on that box
+  (`coef_on_bound` of each `summary.json`, for the numerical inversion the start named in `result_*.json`;
+  coefficients counted from 1, "shallow" = 0.20 m, "deep" = 1.50 m):
+
+  | rows | PINN | numerical inversion |
+  |---|---|---|
+  | rfnc1, rfnc1t, rf22c, rf22 | none | none |
+  | rfnm1, rfna1, rfnd, rfn1 | 1st shallow | 1st shallow |
+  | rfp2 | 1st shallow, 5th (last) deep | the same |
+  | rfh1p | 1st and 6th (last) shallow | the same |
+  | rf21b | 1st shallow, 7th (last) deep | the same |
+  | rfpc1 | 1st and 8th shallow | 1st and 8th shallow, 5th deep |
+  | rf22ob | none | 1st deep |
+  | rfr1a | 9 of 17 deep | 4 of 17 deep |
+
+  Where the same coefficient is on the same bound in both estimates, the two agree there because the box
+  holds both, and "the starts end on one estimate" includes that coefficient. Of the 10 rows in which (i)
+  holds, 3 have no coefficient on the box (rfnc1, rf22c, rf22), 6 share one or two (rfnm1, rfna1, rfnd, rfn1,
+  rfp2, rfh1p) and one has one in the numerical inversion only (rf22ob). Every US-NC2 row on another
+  window than that of this results set is among the six.
+  A coefficient on the box is not the path on the box: the path at the start of the window is set by the
+  first three coefficients together (weights 1/6, 4/6, 1/6, before the transform to a depth). `rfna1`
+  starts at 0.226 m (PINN) and 0.225 m (numerical), the well at 0.218 m; `rfnm1` at 0.301 and 0.300 m, the
+  well at 0.288 m. The spline fitted to the well itself has its first coefficient outside the box in both
+  windows (0.14 and 0.15 m).
+  How far these estimates move when the box is widened has not been measured (numerical inversions of
+  `rfna1` and `rfnm1` with a shallow bound of 0.10 m are running).
 - (i) holds to 0.5 cm or better in 10 of 14 runs, at four sites, and in those the starts end on one estimate
   (largest difference below 1e-5 cm). It fails in four: US-PAS Jul 2021 (2.9 cm), US-ONA Nov 2021 (2.7 cm),
   the US-ONA rain window (28 cm; starts 1.8 cm apart, value-correction loop not converged) and the window of
@@ -214,7 +272,8 @@ Reading:
   the numerical inversion is 3.05 cm from the well instead of 1.11.
 - The two further US-NC2 windows (`rfnm1`, `rfna1`) are recessions with their own soils (Ks at its upper
   bound of 1e-3 m/s), a surface flux given on daily nodes and 5-day spline knots; they are further windows
-  of the same site, in-sample, not new sites. Their rows show (i). How well their networks satisfy the
+  of the same site, in-sample, not new sites. Their rows show (i), with the first coefficient on the box in
+  both estimates (see above). How well their networks satisfy the
   equations, same statistics as point 3 above ([nc2_may23/tables.md](nc2_may23/tables.md),
   [nc2_sep23a/tables.md](nc2_sep23a/tables.md), section 6; six networks each):
   surface flux after the first hour 3.4 - 8.5 % of the RMS of the prescribed flux in `rfnm1` and
@@ -239,11 +298,9 @@ Reading:
 ## Not yet in this set (running)
 
 - A 1/1024 h level of the forward reference (`forward_reference_d`).
-- A 12-s grid for the physics statistics of the tables (`flux_grid_fine`). So far: for the six networks
-  behind the estimate the flux has been on a 6-s grid (within 5 % of the 1-min figure) and the residual on a
-  5-min grid (within 4 %), not on a finer one; the seven forward networks of sections 2 and 7 of
-  [tables.md](nc2_sep23c/tables.md) have been on the 1-min grid only.
-- The numerical inversion of the two recession windows (`rfnm1`, `rfna1`) with a 1/4 h step.
+- The numerical inversion of the recession window `rfnm1` with a 1/4 h step (`rfna1` is done, see the
+  reading of the table).
+- Numerical inversions of `rfna1` and `rfnm1` with the shallow bound of the box at 0.10 m instead of 0.20 m.
 - The same window with the soil of 1 Sep 2023 and a second network form (`rfnc1tc`; `rfnc1t` is in the table
   above). It is trained and inverted but not scored: `rfnc1t` was scored against a numerical inversion with a
   1 h step whose step error on that data set had not been measured, so a 1/4 h inversion of it runs first.

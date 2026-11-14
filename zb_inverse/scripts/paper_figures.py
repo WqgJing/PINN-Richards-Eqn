@@ -657,15 +657,16 @@ def main():
                         + ([f"{num['vs_fine']['theta_rms']:.2e}", f"{num['vs_fine']['sensor_rms']:.2e}"]
                            if fine is not None else [])
                         + [f"{num['theta_rms']:.2e}", f"{num['sensor_rms']:.2e}", apart,
-                           f"{100 * num['flux_rel_rms']:.2f} %", f"{num['residual_rms_late']:.3f}",
-                           f"{num['wall_s'] / 60:.0f}"])
+                           f"{100 * num['flux_rel_rms']:.2f} %", f"{100 * num['flux_rel_rms_late']:.2f} %",
+                           f"{num['residual_rms_late']:.3f}", f"{num['wall_s'] / 60:.0f}"])
         own_step = f", {step_label(cfg['fem']['dt_hours'])} step (the data set's)" if fine is not None else ''
         md.append('## 7. Forward PINN: training seed, network size, collocation points\n\n'
                   'Soil moisture RMS against the numerical solution (m3/m3).\n\n' + md_table(
             ['run', 'width', 'hidden layers', 'collocation points', 'seed', 'parameters']
             + ([f"all depths, {fine['label']} step", f"sensor layer, {fine['label']} step"] if fine is not None else [])
             + ['all depths' + own_step, 'sensor layer' + own_step, 'sensor layer, minus the baseline network',
-               f'surface flux ({FLUX_GRID})', f'PDE residual RMS, after the first hour ({RESIDUAL_GRID})', 'minutes'],
+               f'surface flux ({FLUX_GRID}), whole window', 'surface flux, after the first hour',
+               f'PDE residual RMS, after the first hour ({RESIDUAL_GRID})', 'minutes'],
             rows))
     if args.repeats:
         rows, reps, M['repeats'] = [score_row('first run', inv['pinn']) + ['-', '-']], [], {}

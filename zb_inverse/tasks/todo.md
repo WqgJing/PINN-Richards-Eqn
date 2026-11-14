@@ -5066,3 +5066,212 @@ Real-case spec (first slice):
             stay in the table, named by their step; no PINN run is changed.
           COST, for point 4 of the README: one start of the numerical inversion 12.5 / 55 / 160 CPU-job
             minutes at 1 h / 1/4 h / 1/16 h (2 cpus each), against 13.6 GPU hours (816 min) for the PINN.
+  74 x. (08:39, 14 Nov) 12-s GRID CHECK OF THE TABLE STATISTICS: fluxfine 15618220, exit=0, 80 min ->
+        output/paper/nc2_sep23c/flux_grid_fine.json. 13 networks: 4 members, 2 forward networks of the loop,
+        7 forward networks at the path of the record. Before it, same day: commit 6c2ab4e pushed (rebuilt
+        sets, README); lessons entry "the convergence check stopped at the table's own grid"; waiters
+        boxd07urg (this job), br2e0x9oc (rfqtc 15617906), bhz6c682s (rfqmay 15617461, rfqsep 15617462),
+        bai1doyv8 (fwdrefE 15617357).
+        FLUX, % of the RMS of the prescribed flux. Whole window on 2/h, 60/h, 600/h; after the first hour
+        on 60/h (metrics.json, the tables) and 600/h (this job):
+          network          2/h    60/h   600/h  600/60 | late 60/h  late 600/h
+          rfnc1_r4_m0     5.205  2.290  2.190  0.957  |  2.151      2.144
+          rfnc1_r4_m1     5.252  2.616  2.535  0.969  |  2.497      2.492
+          rfnc1_r4_m2     5.342  2.567  2.477  0.965  |  2.450      2.443
+          rfnc1_r4_m3     5.294  2.438  2.354  0.965  |  2.304      2.297
+          rfnc1dc_f1_m0   4.991  2.116  2.025  0.957  |  1.963      1.956
+          rfnc1dc_f1_m1   4.870  1.855  1.755  0.946  |  1.673      1.665
+          fwd_nc2c        4.818  1.652  1.523  0.922  |  1.458      1.448
+          fs_nc2c_s1      4.724  1.585  1.457  0.919  |  1.378      1.369
+          fs_nc2c_s2      4.953  1.946  1.842  0.947  |  1.780      1.771
+          fs_nc2c_w64     6.025  3.475  3.422  0.985  |  3.386      3.380
+          fs_nc2c_w32     6.293  3.456  3.394  0.982  |  3.370      3.363
+          fs_nc2c_d3      6.361  3.540  3.481  0.984  |  3.453      3.445
+          fs_nc2c_c2k     4.827  1.659  1.529  0.922  |  1.467      1.457
+        RESIDUAL / sigma_pde after the first hour, RMS on 12/h, 60/h, 300/h and maximum (same number on
+        all three grids for every network):
+          rfnc1_r4_m0     0.1980 0.1916 0.1911  60/300 1.0026   max 10.143
+          rfnc1_r4_m1     0.2022 0.1939 0.1931         1.0039       10.440
+          rfnc1_r4_m2     0.1964 0.1887 0.1881         1.0033        9.312
+          rfnc1_r4_m3     0.1942 0.1861 0.1854         1.0037       10.336
+          rfnc1dc_f1_m0   0.1849 0.1789 0.1783         1.0034       11.704
+          rfnc1dc_f1_m1   0.1788 0.1746 0.1742         1.0024        6.902
+          fwd_nc2c        0.1833 0.1772 0.1767         1.0031        9.237
+          fs_nc2c_s1      0.1684 0.1640 0.1635         1.0028        8.171
+          fs_nc2c_s2      0.1821 0.1759 0.1754         1.0033        8.761
+          fs_nc2c_w64     0.2933 0.2863 0.2857         1.0021       14.075
+          fs_nc2c_w32     0.3702 0.3622 0.3615         1.0020       14.936
+          fs_nc2c_d3      0.3771 0.3696 0.3689         1.0018       14.425
+          fs_nc2c_c2k     0.1909 0.1856 0.1851         1.0028        8.183
+        AGAINST THE EXPECTATION OF 74 w:
+          T1 HOLDS. 60/h equals section 7 for the seven forward networks (1.652, 1.585, 1.946, 3.475,
+             3.456, 3.540, 1.659). 600/h is 1.5 - 8.1 % below 60/h for the 13 (limit 10 %); the six of
+             the estimate 3.1 - 5.4 % (I had written 3 - 5 %; rfnc1dc_f1_m1 is 5.4 %).
+          T2 HOLDS on its criterion: 60/h is 0.18 - 0.39 % above 300/h for all 13 (limit 10 %). My size
+             estimate (1 - 4 %) was about 5 times too high. It assumed that only the node rows are
+             raised; 12/h reads 2 - 4 % above 60/h, so the rows next to a node are raised too and the
+             1-min grid already resolves that.
+          T3 the maximum after the first hour does not rise: identical on 12/h, 60/h and 300/h for all
+             13. It is on the forcing node t = 2.125 d (argmax printed by pfigc for all 13), which every
+             grid contains. The README gives one figure.
+          RULE applied: T1 and T2 hold for every network with a row, so the rows of sections 2, 6, 7
+             stay as they are; no rebuild.
+        WHAT CARRIES THE 60/h - 600/h DIFFERENCE OF THE WHOLE-WINDOW FLUX (found while reading T1; computed
+        with jq from the job's err_rms_mmd, points and first_hour.err_mmd[0]): the single point t = 0.
+          The flux error there is -11.255 mm/d for every network (network flux zero by construction,
+          prescribed +11.255). Its share of the mean square, and the figure without that point:
+            network          2/h (529 pts)    60/h (15841)    600/h (158401)   nodes with / without t=0, between
+            rfnc1_r4_m0      61.4 %  3.236    11.4 %  2.155    1.2 %  2.177    7.446 / 4.454   1.629
+            rfnc1_r4_m1      60.3 %  3.311     8.7 %  2.499    0.9 %  2.524    7.472 / 4.497   1.826
+            rfnc1_r4_m2      58.3 %  3.454     9.1 %  2.448    1.0 %  2.465    7.619 / 4.738   1.782
+            rfnc1_r4_m3      59.4 %  3.379    10.0 %  2.312    1.1 %  2.341    7.579 / 4.673   1.639
+            rfnc1dc_f1_m0    66.8 %  2.879    13.3 %  1.970    1.5 %  2.011    7.177 / 3.986   1.385
+            rfnc1dc_f1_m1    70.1 %  2.664    17.3 %  1.687    1.9 %  1.738    7.021 / 3.697   1.254
+            fwd_nc2c         71.7 %  2.566    21.9 %  1.460    2.6 %  1.504    6.968 / 3.596   1.105
+            fs_nc2c_s1       74.5 %  2.386    23.8 %  1.384    2.8 %  1.436    6.841 / 3.341   1.036
+            fs_nc2c_s2       67.8 %  2.812    15.8 %  1.786    1.8 %  1.826    7.130 / 3.901   1.333
+            fs_nc2c_w64      45.8 %  4.438     4.9 %  3.388    0.5 %  3.413    8.391 / 5.904   2.731
+            fs_nc2c_w32      42.0 %  4.796     5.0 %  3.369    0.5 %  3.385    8.816 / 6.496   2.689
+            fs_nc2c_d3       41.1 %  4.885     4.8 %  3.455    0.5 %  3.473    8.955 / 6.684   2.569
+            fs_nc2c_c2k      71.4 %  2.584    21.7 %  1.468    2.6 %  1.509    6.997 / 3.652   1.006
+          (RMS of the prescribed flux: 11.997 mm/d on 2/h, 11.575 on 60/h and 600/h.)
+          After the first hour 60/h and 600/h agree to 0.2 - 0.7 % for all 13: that figure is converged.
+          The whole-window figure is not a property of the network alone: one point of the grid carries
+          5 - 24 % of its mean square on the 1-min grid.
+        MISTAKE (-> lessons.md): the README gave the reason for "4.8 % in the earlier version" as "a
+          half-hourly grid, on which every second point is a forcing node", and "7.5 - 7.6 % at the
+          nodes". Neither had been split by point. For fwd_nc2c on the half-hourly grid 72 % of the mean
+          square is the point t = 0 (2.57 % without it); the nodes without t = 0 read 3.60 % against
+          1.11 % between them. For the members the node t = 0 carries 61 - 64 % of the "at the nodes"
+          mean square (4.5 - 4.7 % without it). Both sentences are corrected in the README; the forcing-
+          node effect exists, but it is the smaller part.
+        WHOLE WINDOW, residual (metrics.json only, not a table figure): RMS on 12/h, 60/h, 300/h members
+          0.40 - 0.63, 0.25 - 0.35, 0.22 - 0.27 (not converged, as written). Maximum: members at t = 0 on
+          every grid (77 - 130). Forward networks: it rises with the grid and moves: loop 56.5 (t = 120 s)
+          -> 66.6 (24 s) and 46.9 (60 s) -> 52.3 (84 s, xi = -0.011); the seven at the path of the record
+          94 - 144 on 60/h (t = 60 - 180 s) and 95 - 149 on 300/h (t = 24 - 156 s), at the surface;
+          fwd_nc2c 108.7 (120 s) -> 133.4 (96 s). README: "at 1 - 2 min" becomes "within the first 3 min,
+          not converged".
+        README: point 3 and the forward flux line rewritten with these figures; the flux and residual of
+          the seven forward networks added to "Other forward networks"; the 12-s entry leaves "Not yet".
+        SECTION 7 (08:40): its flux column is the whole-window figure only, and for the full-size
+          forward networks 16 - 24 % of that mean square is the point t = 0 (new lesson: such a point is
+          reported apart). This goes beyond the RULE above (rows stay), so it is written down as a
+          change after the result: scripts/paper_figures.py gives section 7 the same two flux columns as
+          sections 2 and 6 (whole window, after the first hour). Nothing else in the script changes.
+          Rebuild of the C_N1 set (same arguments as pfigc 15617941, 13 min).
+          EXPECTATION: metrics.json byte-identical; tables.md differs in section 7 only, new column
+          1.46, 1.38, 1.78, 3.39, 3.37, 3.45, 1.47 % (baseline, s1, s2, w64, w32, d3, c2k: the
+          flux_rel_rms_late of metrics.json); the seven figures byte-identical. Copies of the files
+          before the rebuild: /tmp/pf_before2.
+  74 y. (08:40, 14 Nov) 1/4 h NUMERICAL INVERSION OF THE 1 Sep 2023 RECESSION WINDOW ENDED (rfqsep 15617462,
+        exit=0, 2 h 00 min -> output/referee/nc2_own_sep23a_cal3_dt025_s1). rfqmay 15617461 still running.
+        Step check submitted with the PINN estimate (runs/rfna1dc_it1) in the same job; the reference-only
+        lines (1 h against 1/4 h, not-converged fraction, against the well) are read and recorded against
+        K1 - K3 of 74 r BEFORE the PINN lines are read.
+        ADDED BEFORE THE JOB, K4: PINN minus the 1/4 h inversion is <= 0.09 cm RMS (its figure against the
+          1 h inversion), as on C_N1 where the distance fell with the step. If it is above 0.09 cm the
+          agreement at 1 h was partly the step error's doing and both figures go into the README table.
+        REFERENCE ONLY, read first (08:42; stepchk 15619733, exit=0 -> output/paper/nc2_sep23a/
+        inversion_step.json; 145 hours):
+          step    cost        it  solves  not converged (max)  on bound  wall     well: RMSE  bias    max    r
+          1 h     0.1505810   5   57      2.76 %               coef 0    23 min   0.629       +0.017  1.815  0.9978
+          1/4 h   0.1505885   5   61      1.73 %               coef 0    116 min  0.630       +0.017  1.818  0.9978
+          1 h minus 1/4 h: 0.0008 cm RMS, bias -0.0001, max 0.0032 cm (t = 6 d).
+          K1 HOLDS (limit 0.1 cm), by two orders of magnitude: on this recession the step of the solver
+             does not move the estimate. The cost does not move either (5e-5 relative; on C_N1 it fell by
+             17 %).
+          K2 FAILS: the not-converged fraction is 1.7 % at 1/4 h (I expected below 1 %; 2.8 % at 1 h).
+             So a quarter of the step removes about a third of them, not most. Which steps they are and
+             what the solution's error is in them has not been looked at; that the estimate is the same
+             to 0.001 cm at both steps says the step does not matter, not that those steps are harmless
+             (both solves may fail to converge at the same times).
+          K3 HOLDS: 0.629 -> 0.630 cm against the well.
+          READING of 74 r: K1 holds, so "PINN - numerical" of this window stays against the 1 h inversion
+             and the 1/4 h figure is added next to it.
+        PINN LINES (read after the above, 08:44): runs/rfna1dc_it1, posterior sd 0.283 cm, 0.644 cm from the well.
+          PINN minus 1 h inversion  : 0.0926 cm RMS, bias +0.0897, max 0.129 (t = 6 d);
+               by day 0.114 0.114 0.094 0.068 0.058 0.093
+          PINN minus 1/4 h inversion: 0.0924 cm RMS, bias +0.0896, max 0.126 (t = 6 d);
+               by day 0.114 0.114 0.094 0.068 0.058 0.092
+          K4 HOLDS, trivially: the figure does not move (0.0926 -> 0.0924) because the reference does not.
+          WHAT THIS SAYS, unlike C_N1: here the 0.09 cm between PINN and numerical inversion is not the
+          solver's time step. It is mostly an offset: bias +0.0897 of 0.0926 RMS (PINN deeper), i.e.
+          sqrt(0.0926^2 - 0.0897^2) = 0.023 cm of spread around it; a third of the posterior sd. ("Every
+          day" was written here first; the job prints RMS by day, not the sign by day.) Whether it is
+          the networks' or another difference between the two discretisations (grid, the 1.7 % of steps
+          not converged) is not known.
+  74 z. (08:44, 14 Nov) COEFFICIENTS ON THE BOX: KNOWN IN THIS FILE, NOT IN THE README. Reading coef_on_bound
+        of the two sep23a inversions ([0], both steps) I looked at every scored run of the README table:
+        summary.json of the final PINN inversion (last runs/<tag>dc_it*) and of the numerical inversion named
+        in result_<tag>.json; which bound from coef.npy against summary.json "box" (s = shallow bound 0.20 m,
+        d = deep bound 1.50 m; index from 0; n = number of coefficients):
+          run     n    PINN                 numerical
+          rfnc1   14   -                    -
+          rfnc1t  14   -                    -
+          rfnm1    6   0s                   0s
+          rfna1    5   0s                   0s
+          rfnd     5   0s                   0s
+          rfn1     5   0s                   0s
+          rfp2     5   0s 4d                0s 4d
+          rfpc1   12   0s 7s                0s 4d 7s
+          rf22c    7   -                    -
+          rf22     7   -                    -
+          rf22ob   6   -                    0d
+          rf21b    7   0s 6d                0s 6d
+          rfr1a   17   0d-6d, 8d, 9d (9)    2d 7d 8d 9d
+          rfh1p    6   0s 5s                0s 5s
+        10 of 14 runs have a coefficient on the box in at least one of the two estimates; 4 have none
+        (rfnc1, rfnc1t, rf22c, rf22). The numerical inversions' entries are in this file run by run (e.g.
+        "first coefficient on the box" for sep23a_cal3); the README table and its sentences "(i) holds in
+        10 of 14" and "the starts end on one estimate" never said it. Where the same coefficient is on
+        the same bound in both estimates, their agreement there is the box's, and "one estimate from all
+        starts" includes a coefficient the box holds.
+        A coefficient on the box is not the path on the box (predictions.npz, first hour): rfna1 starts at
+        0.226 m (PINN), 0.225 m (numerical), well 0.218 m; rfnm1 0.301, 0.300, well 0.288 m. The spline
+        fitted to the well has its first coefficient at 0.14 m (rfna1) and 0.15 m (rfnm1), outside the
+        box (zb_min 0.05 + softplus of -2.404 / -2.246: hand arithmetic).
+        -> README: a "Reading" bullet with this list; lessons.md.
+        NOT DONE, noted as a follow-up and not started: score_real.py does not print coef_on_bound, so
+        a row can be written without it; rfr1a's PINN has 9 of 17 on the deep bound (already "(i) fails").
+        CORRECTION to the list above (08:49): the PINN directory of each row is now read from the scoring
+        job's own argument line (logs/cpu_<job>.out, --pinn), not assumed. 12 rows were scored from the last
+        runs/<tag>dc_it*; rf22 and rf21b from runs/rf22_inv2 and runs/rf21b_inv2. Their coef_on_bound and
+        coefficients (predictions.npz coef): rf22_inv2 [] ; rf21b_inv2 [0, 6] = first on the shallow, last
+        on the deep bound. Same entries as in the list, which therefore stands.
+  74 aa. (08:49, 14 Nov) HOW MUCH DOES THE BOX MOVE THE ESTIMATE? Numerical inversion only, the two recession
+        windows, same command as nc2_own_sep23a_cal3_s1 / nc2_own_may23_s1 (start hydrostatic_flat, 1 h step)
+        with --set prior.clip_m=[0.10,1.5] (shallow bound 0.10 m instead of 0.20 m; zb_min is 0.05).
+        Output: output/referee/nc2_own_sep23a_cal3_box010_s1, output/referee/nc2_own_may23_box010_s1;
+        compared with scripts/referee_step_check.py (it compares any two inversions of one data set).
+        WHY: the first coefficient is held by the box in both estimates of four US-NC2 rows; the README is
+        about to say so, and the next question is what that does to the numbers of the rows.
+        EXPECTATIONS, written before the jobs:
+          X1 the first coefficient leaves 0.20 m in both windows and the cost goes down (the rule of
+             fem_referee.py line 107 holds a coefficient on a bound only while the descent direction points
+             out of the box). By how much the cost falls: not known.
+          X2 the path moves where the first basis function has support (first 5 days), most at t = 0, there
+             by at most 3 cm (hand arithmetic, rfna1: first coefficient at the new bound, others fixed:
+             start 0.225 -> 0.197 m); RMS over the window below 1 cm.
+          X3 RMSE against the well changes by less than 0.3 cm (now 0.63 and 0.89 cm).
+        DECISION RULE, fixed now: if the RMS difference between the two estimates over the window is above
+          the posterior sd of the window (rfna1 0.285 cm; rfnm1 from its summary), the README says that the
+          estimate of these rows depends on the box by that much, next to the rows; a PINN run on a wider
+          prior (networks retrained) is then written as a plan before anything is submitted. If below, the
+          README says the box holds a coefficient the data weigh at less than that.
+        NOT TESTED by this: the PINN. Its networks are trained on paths inside 0.20 - 1.50 m, and the box
+          of its inversion is that training range.
+        SUBMITTED (08:52): rfbxsep 15619909, rfbxmay 15619910 (waiter bnwamg3sl). Both logs print
+        "[ref] coefficients kept in the prior box [-2.971, 1.183]": the override is in effect
+        (ln(exp(0.05) - 1) = -2.971 by hand).
+        README (not yet committed): the reading of the table now has (1) rfna1 at 1/4 h, (2) a table of
+        the coefficients on the box per row, with what follows for "(i) holds" and for "one estimate from
+        all starts", (3) the start of the two paths against the well; "Not yet" lists the wider-box
+        inversions. pfigc 15619728 (section 7 rebuild) still running, waiter bz3m9d86c.
+        REBUILD RESULT (08:55): pfigc 15619728 exit=0, 14 min. Against the expectation written before it:
+          metrics.json byte-identical to /tmp/pf_before2 (cmp)                            HOLDS
+          tables.md differs in lines 116 - 124 only (section 7: header, rule, seven rows); new column
+          1.46, 1.38, 1.78, 3.39, 3.37, 3.45, 1.47 % (baseline, s1, s2, w64, w32, d3, c2k)   HOLDS
+          the seven figures byte-identical (md5sum -c)                                    HOLDS
+        Note: stat on the login node still showed the old time and size of tables.md after the job's
+        exit line while its content was new; the content was compared, not the time stamp.
