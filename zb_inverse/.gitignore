@@ -1,4 +1,4 @@
-# results: only the scored summary and figure of each try, the soil calibrations and the comparison figures
+# results: only the scored summary and figure of each try, the soil calibrations, the comparison figures and the results set (paper)
 /output/*
 !/output/*/
 /output/*/*
@@ -7,6 +7,7 @@
 !/output/soil_*/start*.json
 !/output/soil_*/start*.png
 !/output/compare/*
+!/output/paper/*
 # generated: caches, checkpoints, logs, data, scratch
 __pycache__/
 *.py[cod]
