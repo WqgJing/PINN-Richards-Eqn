@@ -10,6 +10,7 @@ set -u
 cd /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse
 TAG=$1; ROUNDS=$2; TSET=$3; ISET=$4; WIDE=${5:-$TAG}
 K=${K:-4}
+SEED0=${SEED0:-0}   # added to every training seed: an independent repeat of the whole pipeline (default: seeds as before)
 R=$PWD/runs; C=configs/p1_param_synth_v3.yaml
 WIDE_SET=${WIDE_SET:-"--set sampling.mode=prior --set train.adam_steps=40000 --set train.lbfgs_blocks=10"}
 LOCAL_SET=${LOCAL_SET:-"--set sampling.frac_local=0.7 --set train.adam_steps=15000 --set train.lr=3.0e-4 --set train.lbfgs_blocks=15"}
@@ -63,7 +64,7 @@ if [ "$START_ROUND" -le 1 ]; then
   # 1. wide stage (skipped if the members exist)
   for k in $(seq 0 $((K - 1))); do
     if [ ! -f $R/${WIDE}_w$k/model.pt ]; then
-      gpu_job ${WIDE}_w$k scripts/param_train.py --config $C $WIDE_SET --set train.seed=$k $TSET --set output.dir=$R/${WIDE}_w$k &
+      gpu_job ${WIDE}_w$k scripts/param_train.py --config $C $WIDE_SET --set train.seed=$((SEED0 + k)) $TSET --set output.dir=$R/${WIDE}_w$k &
     fi
   done
   wait
@@ -82,7 +83,7 @@ for r in $(seq $START_ROUND $ROUNDS); do
     pm=$(echo $prev_members | cut -d' ' -f$((k + 1)))
     gpu_job ${TAG}_r${r}_m$k scripts/param_train.py --config $C $LOCAL_SET --set sampling.mode=local_file \
       --set sampling.local_file=$R/${TAG}_inv$((r - 1))/local_center.npz --set train.init_from=$pm/model.pt \
-      --set train.seed=$((100 * r + k)) $TSET --set output.dir=$R/${TAG}_r${r}_m$k &
+      --set train.seed=$((SEED0 + 100 * r + k)) $TSET --set output.dir=$R/${TAG}_r${r}_m$k &
   done
   wait
   for k in $(seq 0 $((K - 1))); do ok $R/${TAG}_r${r}_m$k/model.pt; done
