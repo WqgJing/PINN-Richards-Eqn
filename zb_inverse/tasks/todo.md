@@ -3748,3 +3748,43 @@ Real-case spec (first slice):
         departure, the output directory and the name of the local file; seed 0 both).
         STARTED 18:22:15: PINN driver rfnc1tc (process group 2375444, logs/full_rfnc1tc.log, pipe_rfnc1tc.log).
         To check when its first job starts: runs/rfnc1tc_w0/config.yaml carries model.departure: conductive.
+    73 ca. (13 Nov, 19:38) rfnc1tc, WIDE STAGE (departure='conductive', C_N1 with S_W2; DIAGNOSTIC, 73 bz): THE FOUR
+        MEMBERS CARRY THE FLUX (kept states: 4 % of the zero-flux level left; additive rfnc1t: 100 %). Recorded
+        before any water-table score is used.
+        Jobs 15598190 (w2), 15598191 (w0), 15598192 (w3), 15598193 (w1) COMPLETED 19:29 - 19:31, no Python error;
+        config.yaml of the four carries model.departure: conductive. inv0: job 15600234 COMPLETED.
+        Held-out losses (runs/<member>/metrics.csv), rms ratio to step 0. "kept" = the evaluation with the lowest
+        val_total; it is the state in model.pt (parametric.py lines 452 - 454; log of w0: "[lbfgs] kept held-out
+        physics loss 3.1198e+01" = 30.209 + 0.988 + box; summary.json of the four holds the values of that row).
+          member  step 0 pde / flux   kept at   pde (ratio)      flux (ratio)      last row pde (ratio)  flux (ratio)
+          w0      48.942 / 612.03     40800     30.209 (0.786)   0.9883 (0.0402)   493.21 (3.174)        0.8272 (0.0368)
+          w1      52.485 / 576.18     41800     11.759 (0.473)   0.8812 (0.0391)    18.05 (0.586)        0.8486 (0.0384)
+          w2      47.766 / 609.09     41600     14.919 (0.559)   1.0046 (0.0406)    21.72 (0.674)        0.8884 (0.0382)
+          w3      51.433 / 604.12     41800     13.565 (0.514)   0.8597 (0.0377)    15.82 (0.555)        0.7708 (0.0357)
+          additive rfnc1t_w0..3 (same data, same held-out sets: step-0 values identical), kept states:
+                  pde 38.30 / 38.95 / 39.43 / 38.74 (ratio 0.885 / 0.861 / 0.909 / 0.868),
+                  flux 611.46 / 575.59 / 608.82 / 602.53 (ratio 0.9995 / 0.9995 / 0.9998 / 0.9987).
+        EXPECTATION (73 bz): flux ratio of the wide stage 0.03 - 0.10. ACTUAL 0.038 - 0.040 (kept states): inside.
+        The interior residual was not given a number beforehand; it ends lower than with the additive form in all
+        four members (0.47 - 0.79 against 0.86 - 0.91), and is still far from small: kept val_pde 12 - 30, i.e.
+        3.4 - 5.5 sigma_pde rms.
+        w0, CHECKED: its last row (val_pde 493, 3.2 x the step-0 level) is NOT the kept state. Its held-out pde
+        jumps between evaluations of the closing L-BFGS blocks (steps 39500 - 42000: 153 183 178 134 58 30.2 108
+        49 115 546 195 493) while the training-batch L_pde of the same rows is 5.2 - 11.3; over the run 13 of its
+        91 evaluations are above 3 x step 0 (w1 - w3: none). Not new with the form: the additive members have
+        11 / 23 / 19 / 13 of 91 evaluations above 3 x step 0 on the same held-out sets. NOT CHECKED: where in
+        (depth, time, path) the held-out residual of w0 sits (scripts/residual_map.py was not run) and why the
+        held-out value is 5 - 100 x the training-batch value. w0 enters round 1 as its kept state (pde ratio 0.79,
+        the weakest of the four); whether it recovers is read from the round-1 rows of rfnc1tc_r1_m0.
+        inv0 (four members, four starts; against the record, runs/<tag>_inv0/summary.json):
+          rfnc1tc_inv0  3.30 cm rms, bias -1.93, max 5.65; spread of the starts 1.9e-9 m; theta vs sensor 0.00139;
+                        sigma median 0.85 cm; no coefficient on the box.
+          rfnc1t_inv0   2.51 cm rms, bias -1.41, max 4.82; spread 2.5e-9 m; theta vs sensor 0.00208; sigma 0.87 cm.
+          (solver on this data set: 3.05 cm from the well, bias -1.64.) Distances to the well do not give the
+          distance PINN - solver; that is what R2 asks.
+        EARLY LOOK (no decision attached: the reading rule of 73 bz applies to the final estimates only):
+        scripts/score_real.py on the two inv0 against the four solver inversions nc2_sep23aon_sep23c_s0..3,
+        outputs output/real_nc2_sep23c_soilsep23a/result_rfnc1tc_inv0 / result_rfnc1t_inv0.
+        EXPECTATION, written before the jobs are submitted: PINN - solver rms 0.8 - 2 cm for rfnc1tc_inv0 (wide
+        stage only, no refinement, no value correction) and 1.5 - 3 cm for rfnc1t_inv0.
+        Driver (process group 2375444) is in refinement round 1 since 19:32.
