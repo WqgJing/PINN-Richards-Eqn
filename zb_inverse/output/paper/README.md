@@ -225,13 +225,18 @@ Final estimate of every scored PINN run (`output/real_*/result_*.json`), whole w
 
 Reading:
 - Every "PINN - numerical" figure of this table is against the numerical inversion with a 1 h solver step.
-  Two rows have been repeated at finer steps. `rfnc1`: 0.07 cm at 1 h, 0.03 at 1/4 h, 0.014 at 1/16 h (see
-  above); there the distance is the solver's time step. `rfna1`: 0.09 cm at 1 h and 0.09 cm at 1/4 h
-  ([nc2_sep23a/inversion_step.json](nc2_sep23a/inversion_step.json)); the numerical estimate itself moves by
-  0.0008 cm between the two steps, so there the distance is not the solver's time step. It is mostly an
-  offset: bias +0.09 cm (the PINN deeper) with 0.02 cm of spread around it (RMS by day 0.06 - 0.11 cm;
-  posterior sd 0.28 cm). Its origin is not known. In that numerical inversion up to 2.8 % of the solver's
-  time steps did not converge at 1 h and up to 1.7 % at 1/4 h (largest fraction in one batch of solves).
+  Three rows have been repeated at finer steps. `rfnc1`: 0.07 cm at 1 h, 0.03 at 1/4 h, 0.014 at 1/16 h (see
+  above); there the distance is the solver's time step. On the two recession windows it is not: the
+  numerical estimate itself moves by 0.0008 cm (`rfna1`) and 0.0005 cm (`rfnm1`) between a 1 h and a 1/4 h
+  step, and the PINN is as far from it at 1/4 h as at 1 h
+  ([nc2_sep23a/inversion_step.json](nc2_sep23a/inversion_step.json),
+  [nc2_may23/inversion_step.json](nc2_may23/inversion_step.json)).
+  `rfna1`: 0.09 cm at both steps, mostly an offset: bias +0.09 cm (the PINN deeper) with 0.02 cm of spread
+  around it (RMS by day 0.06 - 0.11 cm; posterior sd 0.28 cm). In that numerical inversion up to 2.8 % of the
+  solver's time steps did not converge at 1 h and up to 1.7 % at 1/4 h (largest fraction in one batch of
+  solves). `rfnm1`: 0.03 cm at both steps, not an offset (bias +0.01 cm); largest on the first two days
+  (0.06 - 0.07 cm) and the last three (0.04 cm); posterior sd 0.31 cm; all solver steps converged.
+  Where these remaining distances come from is not known.
 - Both inversions keep the spline coefficients in a box (water table 0.20 - 1.50 m, the range of paths the
   operator networks are trained on). In 10 of the 14 rows a coefficient of the final estimate is on that box
   (`coef_on_bound` of each `summary.json`, for the numerical inversion the start named in `result_*.json`;
@@ -298,8 +303,6 @@ Reading:
 ## Not yet in this set (running)
 
 - A 1/1024 h level of the forward reference (`forward_reference_d`).
-- The numerical inversion of the recession window `rfnm1` with a 1/4 h step (`rfna1` is done, see the
-  reading of the table).
 - Numerical inversions of `rfna1` and `rfnm1` with the shallow bound of the box at 0.10 m instead of 0.20 m.
 - The same window with the soil of 1 Sep 2023 and a second network form (`rfnc1tc`; `rfnc1t` is in the table
   above). It is trained and inverted but not scored: `rfnc1t` was scored against a numerical inversion with a

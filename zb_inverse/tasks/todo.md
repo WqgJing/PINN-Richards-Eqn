@@ -5275,3 +5275,29 @@ Real-case spec (first slice):
           the seven figures byte-identical (md5sum -c)                                    HOLDS
         Note: stat on the login node still showed the old time and size of tables.md after the job's
         exit line while its content was new; the content was compared, not the time stamp.
+  74 ab. (09:13, 14 Nov) 1/4 h NUMERICAL INVERSION OF THE 1 May 2023 RECESSION WINDOW ENDED (rfqmay 15617461,
+        exit=0, 2 h 53 min -> output/referee/nc2_own_may23_dt025_s1). Step check with the PINN estimate
+        (runs/rfnm1dc_it1, the directory its scoring job was given) in the same job; the reference-only lines
+        are read and recorded against K1 and K3 of 74 r (K2 was about sep23a_cal3) BEFORE the PINN lines.
+        ADDED BEFORE THE JOB, K4m: PINN minus the 1/4 h inversion is 0.03 cm RMS as against the 1 h
+          inversion (0.02 - 0.04), because I expect the reference not to move (K1), as on the 1 Sep
+          window. If it is above 0.04 cm, both figures go into the README row.
+        Also to be read: coef_on_bound of the 1/4 h inversion (1 h: [0], shallow bound).
+        REFERENCE ONLY, read first (09:15; stepchk 15620436, exit=0 -> output/paper/nc2_may23/
+        inversion_step.json; 361 hours):
+          step    cost       it  solves  not conv.  on box  wall     vs well: RMSE / bias / max (cm), r   sd (cm)
+          1 h     0.0884301   6    95     0.0 %     [0]     3643 s   0.893 / +0.031 / 2.493, 0.9975       0.308
+          1/4 h   0.0884393   5    76     0.0 %     [0]    10005 s   0.893 / +0.031 / 2.494, 0.9975       0.308
+          1 h minus 1/4 h: 0.0005 cm RMS, bias +0.0001, max 0.0011 (t = 13.3 d); by day 0.0001 - 0.0010.
+          K1 HOLDS (limit 0.1 cm): the step does not move the estimate (0.0005 cm).
+          K3 HOLDS: 0.893 -> 0.893 cm against the well.
+          The first coefficient is on the shallow bound of the box at both steps.
+        PINN LINES (read after the above, 09:15): runs/rfnm1dc_it1, posterior sd 0.308 cm, 0.889 cm from the well.
+          PINN minus 1 h inversion  : 0.0348 cm RMS, bias +0.0095, max 0.077 (t = 15 d)
+          PINN minus 1/4 h inversion: 0.0345 cm RMS, bias +0.0096, max 0.076 (t = 15 d)
+          by day (both): 0.072 0.061 0.040 0.015 0.013 0.022 0.015 0.007 0.023 0.030 0.019 0.015 0.040 0.040 0.036
+          K4m HOLDS (0.03 cm, unchanged). Not an offset here (bias 0.01 of 0.035 RMS): the distance is
+          largest on the first two days and the last three, a ninth of the posterior sd overall.
+        SO, both recession windows: the 1 h step of the numerical inversion is not what separates it from
+        the PINN (0.0005 and 0.0008 cm), unlike the rain window C_N1 (0.07 -> 0.03 -> 0.014 cm with the
+        step). The README rows keep their 1 h figures; the reading says they are the same at 1/4 h.
