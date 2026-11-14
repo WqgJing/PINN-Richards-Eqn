@@ -4559,3 +4559,424 @@ Real-case spec (first slice):
         and is not decided here.
         The dry run of the T_H4 chain (names _pre, does not count) is still in its waiter; its numerical-
         inversion job rf_hb2_aug20on_nov20_pre_s0 (15598032) ran into its 12 h limit. Recorded when it reports.
+    74 r. (14 Nov, 06:18) S1: rfna1 (06:11) AND rfnm1 (06:16) ENDED. LOSS RATIOS, read from metrics.csv (first and
+        last held-out row) BEFORE any score job is submitted. Both soils have Ks on the upper bound (1e-3 m/s);
+        both runs use the default (additive) form, as launched in 74 b.
+        Held-out flux loss starts at 98 - 105 in every wide member and forward network (zero-flux start with
+        sigma_q = 10 % of the flux rms), so "x r" below is (rms flux error / rms prescribed flux)^2.
+          rfna1 (W2, 1 Sep 2023 + 6 d, soil cal3)   flux, end value (x of the wide start)   pde, end value
+            wide, 4 members, 42000 steps            1.84 - 6.09  (x0.019 - 0.062)            0.68 - 2.89 (start 0.65 - 0.68)
+            round 1                                 2.03 - 4.26                              0.77 - 1.03
+            round 2                                 1.66 - 3.61                              0.77 - 1.00
+            round 3                                 1.28 - 2.86  (member 1 rose 2.01 -> 2.79) 0.72 - 0.96
+            round 4                                 1.45 - 2.51  (x0.015 - 0.026)            0.73 - 0.91
+            forward nets of the loop, 28000 steps   0.69, 1.30   (x0.007, 0.013)             0.37, 0.44 (start 1.3)
+            loop: one iteration, step 0.018 sd, forward offset rms 4.5e-5
+          rfnm1 (W1, 1 May 2023 + 15 d, own soil)
+            wide                                    41.0, 50.5, 6.44, 25.1 (x0.41, 0.49, 0.066, 0.25)   7.27, 6.30, 0.89, 5.09 (start 0.81)
+            round 1                                 24.7, 26.5, 6.89, 14.4                   4.51, 3.78, 0.79, 2.24
+            round 2                                 15.5, 20.7, 6.78, 11.6                   3.65, 2.61, 0.74, 1.67
+            round 3                                 11.7, 18.7, 6.18, 9.35                   1.91, 1.87, 0.88, 1.21
+            round 4                                 10.1, 16.5, 5.98, 9.21 (x0.10, 0.16, 0.061, 0.090)  1.35, 1.80, 0.82, 0.99
+            forward nets of the loop                4.25, 5.40   (x0.041, 0.051)             0.75, 0.63 (start 1.0)
+            loop: one iteration, step 0.057 sd (by segment 0.01 0.01 0.02 0.06), forward offset rms 3.8e-5
+          for comparison, rfnc1 and its seed repeats: wide x4.6e-4 - 6.4e-4, forward nets x3.6e-5 - 7.7e-5.
+        READ BEFORE THE SCORES:
+          - Neither run satisfies the surface-flux condition as rfnc1 does. In rms terms the forward networks
+            at the estimate miss the prescribed flux by 8 - 11 % (rfna1) and 20 - 23 % (rfnm1) of its rms on
+            held-out points, against 0.6 - 0.9 % for rfnc1; the operator members after round 4 by 12 - 16 %
+            (rfna1) and 25 - 41 % (rfnm1). In rfnm1 three of four wide members ended with the flux at x0.25 -
+            0.49 and the PDE loss 6 - 9 times its starting value.
+          - This is the weakness 73 bz found for the additive form on Ks 1e-3 soils (flux not learned), here in
+            a milder degree than in rfnc1t (x0.96 - 1.00 there). It is not as bad as that run, and not solved.
+          - The loop's stop (one iteration, 0.02 and 0.06 sd) says the operator and the forward networks give
+            the same soil moisture at the estimate. It does not say either satisfies the flux condition.
+          - So, whatever the scores: if the estimates are on the numerical inversion's, the rows show (i) on a
+            near-hydrostatic profile (the retention curve read through the network, 74 b), with the flux
+            ratio written in the row; they are not evidence that the network solved the flow problem on these
+            windows. The 74 b expectation (starts < 0.2 cm apart; PINN - solver <= 0.3 cm; 0.7 - 1.1 and
+            0.5 - 0.9 cm from the well) was written before any loss was seen and is kept as written; on
+            these losses rfnm1 is the one more likely to miss it.
+        THE NUMERICAL REFERENCE OF THESE TWO WINDOWS, before it is scored against (lesson of 74 g):
+          1 h step, four starts each; cost may 0.0884301 (all four, 5 - 9 iterations), sep23a_cal3 0.150580
+          (all four). Its solver did not converge in up to 2.8 % of the steps on sep23a_cal3 (summary.json,
+          fem_not_converged_max 0.009 - 0.028 by start; 0 on may23). Its dependence on the time step has not
+          been measured on these windows (on C_N1: 0.04 cm RMS at 1/4 h, 74 m).
+          -> one 1/4 h inversion per window, start hydrostatic_flat, same command as 74 h:
+               output/referee/nc2_own_may23_dt025_s1, output/referee/nc2_own_sep23a_cal3_dt025_s1
+          EXPECTATION, written before submission: K1 1/4 h minus 1 h <= 0.1 cm RMS on both (near-hydrostatic
+            profiles: the soil moisture at the sensor follows the water table within the step); K2 the
+            not-converged fraction on sep23a_cal3 falls below 1 %; K3 nothing moves against the well at the
+            level of the table (+- 0.05 cm). Uncertain: K1 on sep23a_cal3, because of the unconverged steps.
+          READING: the scores of rfnm1 / rfna1 against the 1 h inversion go into the table now, named as
+            1 h; the 1/4 h figures are added next to them when they are in. If K1 fails on a window (> 0.1 cm),
+            "PINN - numerical" of that window is given against both steps and (i) is read against the finer.
+        SCORING (CPU): scripts/score_real.py on both, referee = the four 1 h starts.
+    74 s. (14 Nov, 06:18) US-HB2: DRY RUN OF THE T_H4 CHAIN ENDED 06:14 (names _pre; DOES NOT COUNT, 73 by). NUMERICAL
+        SOLVER ONLY, NO PINN. Soil = start 2's of 18:04 on 13 Nov (theta_s 0.30001, alpha 19.996, n 1.7691,
+        Ks 3.32e-5), which is where start 2 then ended by xtol (74 q). logs/transfer_hb2_aug20_pre.log, read whole.
+          V4 (Aug 2020), in-sample: FEM over the record against the sensor 0.00094 (bias 8e-6, r 0.9993).
+            Numerical inversion, four starts, cost 0.051887 (all four): from the well 3.47 - 3.68 cm RMSE,
+            bias +1.25 - 1.33, max 14.6 - 15.6 cm; coefficient 0 on the box in all four (0 and 5 in one).
+          V5 (Nov 2020) with that soil: FEM over the record against the sensor 0.031 (bias +0.028, r 0.998).
+            Numerical inversion: starts 1 - 3 cost 0.60100 / 0.60100 / 0.60099, from the well 38.0 / 38.0 /
+            35.4 cm RMSE, bias +32.9 / +32.9 / +30.5, max 66 / 66 / 60 cm, coefficients 0, 2, 4, 5 on the box;
+            start 0 (15598032) ran into its 12 h limit, no result.
+        AGAINST THE EXPECTATION OF 73 by:
+          V4 FEM against the sensor "0.001": met (0.00094).
+          V4 in-sample inversion "1 - 2.5 cm from the well, usable-soil rule about even": NOT met, 3.5 - 3.7 cm.
+            By the 2 cm rule this soil is not usable even on its own window.
+          V5 "solver 8 - 20 cm from the well, bias positive, R3 failed": sign and outcome as expected, size
+            not: 35 - 38 cm, with four of the coefficients on the box and the starts 2.7 cm apart.
+        WHERE US-HB2 STANDS: T_H4 is not decided as a counting test (calibration not converged, 74 q), and the
+          dry run says the soil of V4 is not usable on V4 and misses V5 by 35 - 38 cm with the solver itself.
+          No PINN run is started on it. US-HB2 has no window that passes (ii); its one PINN row stays the dry
+          run rfh1p (0.22 cm from the numerical inversion, does not count).
+        SITE TRACK AFTER THIS: US-NC2 in-sample only; US-ONA rf22c below saturation only; US-PAS and US-HB2
+          fail with the solver itself. Open-data route exhausted (74 c, 74 l). The next site needs data that
+          is not on disk, and that needs the user's word (ICOS licence, asked; not answered).
+    74 t. (14 Nov, 06:20) S1 SCORED (jobs 15617459 / 15617460, exit=0; ratios in 74 r were written first).
+        BOTH WINDOWS: THE PINN IS ON THE NUMERICAL INVERSION (0.03 AND 0.09 cm) AND 0.9 / 0.6 cm FROM THE WELL.
+        BOTH IN-SAMPLE, BOTH RECESSIONS, FLUX CONDITION NOT LEARNED AS IN rfnc1. NO R4.
+        The reference first: the data sets' own solver check (real_summary.json, fem_vs_finer_fem, at the
+        observed water table, sensor layer): may23 4.3e-6, sep23a_cal3 2.8e-6 (C_N1: 2.9e-4, the 1 h - 1/4 h
+        figure of 74 g). The solver's step error at the sensor is 70 - 100 x smaller here than on C_N1. The
+        inversion's own step dependence (1/4 h, jobs 15617461 / 15617462) is running.
+                                                rfnm1 (1 May 2023, 15 d, 361 h)   rfna1 (1 Sep 2023, 6 d, 145 h)
+          PINN from the well: RMSE / bias / max, r   0.889 / +0.04 / 2.57, 0.9975     0.644 / +0.11 / 1.94, 0.9977
+          numerical inversion (1 h) from the well    0.893 / +0.03 / 2.49, 0.9975     0.629 / +0.02 / 1.82, 0.9978
+          PINN - numerical: RMS / bias / max         0.035 / +0.009 / 0.077           0.093 / +0.090 / 0.129
+          largest difference between the 5 starts    1.8e-7 cm                        3.5e-9 cm
+          posterior sd, median                       0.31 cm                          0.28 cm
+          soil-moisture misfit: PINN | numerical     0.001456 | 0.001487              0.001948 | 0.001940
+          hydrostatic reading, same soil             1.21 / -0.72 / 2.79, 0.9973      1.62 / -1.50 / 2.34, 0.9983
+          spline fitted to the well                  0.44                             0.47
+          rain / ET over the window (data set)       3.6 mm / 41.3 mm                 0.25 mm / 24.5 mm
+        AGAINST 74 b: starts < 0.2 cm: met. PINN - solver <= 0.3 cm: met (0.035, 0.093). From the well 0.7 - 1.1
+          (W1) and 0.5 - 0.9 (W2): met (0.89, 0.64). "The hydrostatic reading with the calibrated soil should
+          be about as good as the inversion": NOT met as written. Its correlation is the same (0.997 / 0.998)
+          but it is 0.7 and 1.5 cm too shallow on average, RMSE 1.21 and 1.62 against 0.89 and 0.63. Why the
+          static reading is biased with a soil calibrated through the flow model was not looked at.
+        AGAINST 74 r (written before the scores): rfnm1, the run with the worse flux losses, is the one closer
+          to the numerical inversion (0.035 against 0.093 cm), so "rfnm1 is the one more likely to miss" was
+          wrong. The reading rule of 74 r stands as written: these rows show (i) on two recessions (3.6 and
+          0.25 mm of rain), with forward networks that miss the prescribed flux by 20 - 23 % and 8 - 11 % of
+          its rms on held-out points; they are not evidence that the network solved the flow problem there.
+          rfna1's difference from the numerical inversion is almost all bias (+0.090 of 0.093 cm).
+        Figures looked at (result_rfnm1.png, result_rfna1.png): lines only, legends, axis labels with units.
+          Both estimates are smooth lines through a well record that carries a daily ripple the 6- and
+          15-day splines do not follow; the soil moisture falls monotonically in both.
+        TALLY AFTER S1: (i) holds to 0.5 cm in 10 of 14 scored runs (three more windows cannot be counted as
+          sites: all US-NC2). (ii) in-sample at US-NC2 on three windows (rfnc1 1.10, rfnm1 0.89, rfna1 0.64);
+          held out only rfnd (diagnostic) and rf22c below saturation. No window has passed R4.
+    74 u. (14 Nov, 06:21) ONE STATISTIC FOR "HOW WELL IS THE FLUX CONDITION MET" ACROSS WINDOWS: PLAN.
+        Found while writing 74 t into the README: the held-out flux loss does not start at 100 in rfnc1 but at
+        560 - 640 (runs/rfnc1dc_f1_m0 593 -> 0.0356). Read in the code: sigma_q = 0.1 x rms(q) over the hourly
+        record (parametric.py, physics_scales), and the sampler draws 30 % of the times from rain intervals
+        (train.py, Sampler.t, frac_rain_t). So last / first of the held-out flux loss is
+        (rms flux error / rms prescribed flux)^2 ON POINTS DRAWN AS IN TRAINING, if the network has zero flux
+        at step 0 (hydrostatic start; not checked separately). On that statistic: rfnc1 forward nets 0.74 and
+        0.77 %, seed repeats 0.60 - 0.87 %, fwd_nc2c 0.69 %; rfna1 8.4 and 11.5 %; rfnm1 20.3 and 22.7 %.
+        The results set quotes another one for rfnc1: 4.8 - 5.0 % for the forward networks, 5.2 - 5.3 % for
+        the operator members (tables.md section 6, on the evaluation grid of fig6). The two differ by a
+        factor of 7 for the same network; the cause was not looked at. Until the same statistic exists for
+        the two recession windows, the README must not put "20 %" next to "4.8 %".
+        -> scripts/paper_figures.py (unchanged, no --forward: no forward PINN at the well's spline exists for
+           these windows) on rfnm1 and rfna1 -> output/paper/nc2_may23, output/paper/nc2_sep23a. CPU, ~1 min.
+        EXPECTATION, written before submission: section 6, surface flux rms error / rms prescribed, forward
+          networks of the loop: rfna1 8 - 16 %, rfnm1 20 - 40 % (almost no rain in either window, so the
+          training points are close to uniform in time and the two statistics should be close; uncertain,
+          since for rfnc1 they are not). Operator members above the forward networks in both.
+        READING: the README row of each window carries the section-6 figure, the one rfnc1 is quoted with.
+          If either window comes out at rfnc1's level (<= 6 %) on that grid, the sentence "flux condition
+          not learned as in rfnc1" of 74 r / 74 t is withdrawn for it and the held-out figure is given as
+          what it is (a statistic on training-like points).
+        (06:26) Both figure jobs (15617488, 15617489) ended with exit=1 after 8 s: fig_setup plotted
+        tp_daily_mmd (on the forcing nodes, t_daily) against the hourly record t_days. On C_N1 the two have
+        the same length (forcing.node_hours 1), on the two recession data sets they do not
+        (forcing.node_hours 24: 16 and 7 nodes). Fixed in scripts/paper_figures.py (two lines: the plot and
+        the trapezoid of root_uptake_mm now use t_daily). Check on C_N1 when the results set is next rebuilt:
+        setup.root_uptake_mm stays 23.6617 (t_daily = t_days there).
+        NOT WRITTEN ANYWHERE IN 74 b / 74 r / 74 t / README SO FAR: the two recession data sets prescribe the
+        flux on DAILY nodes (linear in between), C_N1 on hourly nodes. They are older data sets
+        (make_real configs before the change of 73, line 2554). The README rows must say so.
+        Second thing read in the code (parametric.py, times / make_heldout / heldout_loss): the held-out flux
+        set is 2048 times, 10 % of them log-uniform in the first day (frac_early), the rest from Sampler.t
+        (30 % in rain intervals), each at its own path c drawn from the member's sampling distribution - not
+        at the estimate. The section-6 figure is at one path (the estimate, or c_fwd), on a half-hourly grid,
+        where every second point is a forcing node (a kink of the prescribed flux) on C_N1.
+        CHECK (scripts/flux_grid_check.py, new, scoring only): for the members and forward networks of
+          rfnc1, rfnm1, rfna1 at the same paths as section 6: rms error / rms prescribed on uniform grids of
+          1, 2, 4, 12, 60 points per hour, at the forcing nodes only, half-way between them, and by day on
+          the 1-min grid.
+        EXPECTATION, before submission:
+          F1 rfnc1 (hourly nodes): error at the nodes > on the 1-min grid > between nodes; the 1-min figure of
+             the forward networks is 2 - 4 % (half-hourly: 4.8 - 5.0 %), i.e. the half-hourly grid overstates
+             the time-mean error because half of its points are kinks. Uncertain: the other candidate is the
+             first day (by-day line shows it).
+          F2 rfnm1, rfna1 (daily nodes): 2/h and 60/h agree within 10 % (relative); figures as in 74 u above
+             (rfna1 8 - 16 %, rfnm1 20 - 40 % for the forward networks).
+        DECISION RULE: if the 60/h figure of rfnc1's forward networks differs from the 2/h one by more than
+          20 % (relative), section 6 of the results set is changed to the 60/h grid (a time mean; stated as
+          such) and the half-hourly figure is dropped; otherwise physics_at stays as it is. Either way the
+          README compares windows on one grid only.
+        (06:29) RESULT of the grid check (jobs 15617546 - 15617548, exit=0; output/paper/*/flux_grid.json).
+          Surface flux, rms error / rms prescribed (%), networks at the paths of section 6:
+            run     network            1/h    2/h    4/h   12/h   60/h | at nodes | half-way between nodes
+            rfnc1   forward 1, 2      6.30   4.99   3.81   2.69   2.12 |   7.18   |  1.39
+                                      6.16   4.87   3.67   2.49   1.86 |   7.02   |  1.25
+                    members (4)       6.5-6.7 5.2-5.3 4.0-4.2 2.9-3.1 2.3-2.6 | 7.5-7.6 | 1.6-1.8
+            rfna1   forward 1, 2      7.78   5.64   4.20   2.83   2.30 |  34.9    |  1.21
+                                      7.98   5.85   4.46   3.49   3.13 |  34.9    |  1.93
+                    members (4)       7.8-8.0 5.6-5.9 4.1-4.5 2.7-3.3 2.0-2.9 | 34.9-35.0 | 1.2-2.0
+            rfnm1   forward 1, 2     10.99   9.06   8.03   7.44   7.24 |  42.6    |  4.47
+                                     11.66   9.93   9.14   8.69   8.54 |  43.1    |  5.09
+                    members (4)       9.3-12.4 7.1-11.4 5.7-10.9 4.5-10.6 4.1-10.5 | 41.4-42.8 | 2.7-7.0
+          Absolute, 1-min grid: rfnc1 forward 0.21 - 0.24 mm/d of 11.6; rfna1 0.021 - 0.029 of 0.93;
+          rfnm1 0.066 - 0.078 of 0.91.
+          AGAINST THE EXPECTATIONS:
+          F1 (rfnc1: nodes > 1-min > between; forward networks 2 - 4 % on the 1-min grid): order MET; the
+             figures are 2.12 and 1.86 %, the second just below the range. The half-hourly figure (4.9 - 5.0)
+             is 2.3 x the 1-min one: half of that grid's points are the hourly nodes, where the error is
+             7 %; off the nodes it is 1.6 - 1.9 % whether the points are 15, 5 or 1 min apart (solved from
+             the grid figures), so the excess sits within about a minute of the nodes.
+          F2 (daily nodes: 2/h and 60/h agree within 10 %): NOT MET. rfna1 5.6 -> 2.3 and 5.9 -> 3.1,
+             rfnm1 9.1 -> 7.2 and 9.9 -> 8.5. The node figure is the same for all six networks of a window
+             (34.9, 41 - 43 %): with 7 and 16 nodes that is one point, t = 0, where the network is
+             hydrostatic by construction (zero flux) and the prescribed flux is not zero
+             (0.326 mm/d x sqrt(7) = 0.86 mm/d; the window's rms is 0.93). On the 2/h grid of rfna1 that one
+             point of 289 is 0.86 / sqrt(289) = 0.051 mm/d = 5.4 % of the 5.6 %. By day, the error of day 0
+             is 3 - 10 x that of the other days in rfna1 and 2 - 4 x in rfnm1.
+          Expectation of 74 u for section 6 (rfna1 8 - 16 %, rfnm1 20 - 40 % on the half-hourly grid):
+             NOT MET, both are far lower (5.6 - 5.9 and 9.1 - 9.9 %).
+          THE HELD-OUT FIGURE, in the same units (sqrt(last held-out flux loss) x 0.1 = rms error on the
+          held-out points / rms of q on the nodes): rfnc1 forward 1.89, 1.77 %  (x 1.139 for the 1-min rms
+          of q: 2.15, 2.02 %; the 1-min grid at the path gives 2.12, 1.86 %: the same within 10 %);
+          rfna1 8.3, 11.4 % (1-min grid 2.3, 3.1 %); rfnm1 20.6, 23.2 % (7.2, 8.5 %). So on C_N1 the held-out
+          set and the time mean agree, and "0.6 - 0.9 %" was that figure divided by the rain-weighted
+          starting value; on the two recession windows the held-out set reads 3 - 4 x the time mean.
+          Not checked: why. Candidate that fits the by-day lines: 10 % of the held-out times are log-uniform
+          in the first day (frac_early_t 0.1), where the error is concentrated on these windows; the held-out
+          points are also at sampled paths, not at the estimate.
+          WHAT THIS CHANGES:
+          - The sentence of 74 r / 74 t and of the README draft, "the forward networks miss the flux by
+            20 - 23 % and 8 - 11 % (0.6 - 0.9 % in rfnc1), so the rows are not evidence that the network
+            solved the flow problem", is WITHDRAWN. On one statistic (time mean, 1-min grid, at the
+            estimate) rfna1 is at rfnc1's level (2.3 - 3.1 against 1.9 - 2.1 %) and rfnm1 is 3.5 - 4 x
+            above it (7.2 - 8.5 %). By the reading rule written above (<= 6 % on the section-6 grid) the
+            sentence falls for rfna1 and stays, reworded, for rfnm1. The draft was not committed.
+          - Decision rule: 60/h differs from 2/h by 58 - 62 % on rfnc1 -> section 6 (and the forward
+            table's flux line) move to the 1-min grid, stated as a time mean; the half-hourly figure goes.
+        NEXT, before physics_at is changed (06:29): is 60/h itself converged, and is the first day the
+          reason for the held-out figure? flux_grid_check.py gets a 600/h grid and the error on 601
+          log-uniform times in [1e-3, 1] d (the frac_early sample).
+          EXPECTATION: G1 600/h within 10 % of 60/h on all three windows (rfnc1 forward 1.7 - 2.1 %).
+            G2 early-time rms error / rms of q over the window: rfna1 and rfnm1 30 - 70 % (the corner);
+               rfnc1 below 10 % (its rms is set by the rain bursts, q(0) is small against it).
+            If G2 holds, sqrt(0.1 x early^2 + 0.9 x (1-min figure)^2) should give the held-out figure of the
+            two recession windows within a factor 1.5 (it ignores the sampled paths).
+          RULE: G1 met -> section 6 uses 60/h. G1 not met -> section 6 uses 600/h and says so.
+        (06:31) SAME QUESTION FOR THE PDE RESIDUAL of section 6 (README point 3: "RMS 0.5 - 0.7 sigma_pde
+          for the forward networks, 0.9 - 1.5 for the members, maxima at the rain pulses and at t = 0"): it is
+          on the same half-hourly time grid. flux_grid_check.py also gets the residual on (t, xi) with 2, 12
+          and 60 times per hour (xi as in section 6), split into rows at forcing-node times and the others.
+          EXPECTATION: R1 C_N1: 12/h and 60/h below 2/h, by less than for the flux (a volume mean; the
+            kinks of q act at the surface only): forward networks 0.5 - 0.7 at 2/h -> 0.35 - 0.65; rows at
+            node times above the others. R2 daily-node windows: all three grids within 10 %.
+          RULE: if 60/h differs from 2/h by more than 20 % on a window, section 6 gives the residual on the
+            finer grid too (12/h if it is within 10 % of 60/h, to keep the figure job short; else 60/h).
+        (06:31) RESULT of the second flux check (jobs 15617598 - 15617600, exit=0).
+            run     network        60/h   600/h | early (601 log-uniform times in [1e-3, 1] d)
+            rfnc1   forward 1, 2   2.12   2.03  |   1.10
+                                   1.86   1.76  |   1.28          members 2.3-2.6 / 2.2-2.5 | 1.0 - 3.1
+            rfna1   forward 1, 2   2.30   2.19  |  23.7
+                                   3.13   3.06  |  34.0           members 2.0-2.9 / 1.9-2.8 | 15.9 - 26.1
+            rfnm1   forward 1, 2   7.24   7.20  |  68.1
+                                   8.54   8.50  |  79.6           members 4.1-10.5 / 4.0-10.5 | 45 - 107
+          G1 (600/h within 10 % of 60/h): MET on all 18 networks (largest change -6 %). -> section 6 uses
+             the 1-min grid.
+          G2 (early-time error: recession windows 30 - 70 %, rfnc1 < 10 %): rfnc1 MET (1.0 - 3.1 %);
+             rfnm1 45 - 107 %, four of six above the range; rfna1 16 - 34 %, five of six below it. NOT MET
+             as a range; the order (large on the recession windows, small on C_N1) holds.
+          Held-out figure rebuilt as sqrt(0.1 early^2 + 0.9 (600/h)^2): rfna1 7.8 and 11.1 % (held-out
+             8.3, 11.4), rfnm1 22.6 and 26.4 % (20.6, 23.2), rfnc1 1.96 % (2.15, same units). Within 14 %
+             everywhere: the held-out flux loss of the two recession windows is the error of the first day,
+             which the training sample weights with 10 % of its times.
+          READING: on these two windows the flux error is the start corner (the network is hydrostatic at
+             t = 0 by construction; the prescribed flux there is 0.86 mm/d, about the window's rms). Away
+             from it the networks follow the flux to 2 - 3 % (rfna1) and 7 - 8.5 % (rfnm1) in the time mean,
+             against 1.8 - 2.1 % on C_N1. How long the corner lasts was not measured (by day: day 0 carries
+             the error; nothing finer was computed).
+        (06:39) PLAN for a third check, written after the members' lines of the residual jobs and fig6 of
+          C_N1 were seen (2/h 0.87 - 1.48, 60/h 0.25 - 0.35; node rows 1.2 - 2.1, other rows 0.17 - 0.23)
+          and BEFORE any number of the first hour was computed. In fig6 of C_N1 the only row above 3 is
+          t = 0 (about 20 - 35). 2.080^2 x 265 node rows = 1147 = 33.9^2: one row would give the whole
+          node figure. So the node/other split may be the start corner again and not the forcing nodes.
+          flux_grid_check.py gets, per grid: the row t = 0, the node rows without it, the rows of the first
+          hour and those after it (rms and max), the time mean by the trapezoid rule, where the max is; by
+          day on 60/h; the rows at t = 0, 1, 6, 20, 60, 120, 300, 600, 1200, 1800, 3600 s; and the same
+          times and "after the first hour" for the flux error.
+          EXPECTATION: S1 C_N1 members: row t = 0 at 20 - 35 sigma_pde; node rows without it within 30 %
+            of the other rows. S2 C_N1: after the first hour 2/h, 12/h and 60/h agree within 10 %, at
+            0.15 - 0.22 for the members. S3 C_N1: the max (77 - 130) is at t = 0, and the row rms is below
+            1 by t = 600 s. S4 daily-node windows: row t = 0 at 2 - 5; after the first hour within 2 % of
+            the whole window. S5 C_N1 members: trapezoid time mean on 60/h 0.25 - 0.32, below the plain mean.
+          RULE (section 6 and the forward tables): the residual moves to the 1-min grid as a time mean
+            (rule of R: 60/h differs from 2/h by more than 20 % on C_N1, and 12/h is not within 10 % of
+            60/h). If S2 holds, the table gets a second residual column "after the first hour" and the
+            README gives the row t = 0 in words; the half-hourly figure goes. If S2 fails, the residual is
+            reported with its grid and the words "not converged in the time grid", and the question stays
+            open. The flux gets the same second column only if "after the first hour" differs from the
+            whole-window figure by more than 20 % on a window.
+        (06:40) RESULT of the residual grid check so far (15617619 rfna1 exit=0; 15617617 / 15617618
+          cancelled by me after 4 and 3 networks, because the third check repeats their grids and writes
+          the same json; third check = jobs 15617745 fgridc, 15617746 fgridm, 15617747 fgrida).
+          PDE residual / sigma_pde, rms (max) [rows at node times | other rows]:
+            rfnc1 members (4)   2/h 0.874 - 1.477 (77 - 130) [1.22 - 2.08 | 0.166 - 0.172]
+                                12/h 0.395 - 0.628            [same       | 0.183 - 0.189]
+                                60/h 0.252 - 0.352            [same       | 0.198 - 0.230]
+            rfnm1 members (3)   2/h = 12/h = 60/h to 0.001: 0.790 - 0.980 (9.6 - 16.1) [0.90 - 1.08 | 0.79 - 0.98]
+            rfna1 members (4)   2/h = 12/h = 60/h to 0.001: 0.981 - 1.201 (9.5 - 10.6) [1.01 - 1.20 | 0.98 - 1.20]
+            rfna1 forward (2)   0.884 / 0.882 / 0.881 and 0.973 / 0.972 / 0.972 (12.4, 13.4) [1.02 | 0.88, 0.97]
+          R1 (C_N1: finer grids below 2/h "by less than for the flux"): the direction holds, the size does
+             NOT: the members fall by a factor 3.5 - 4.2 from 2/h to 60/h (flux: 2.2 - 2.3), and 60/h is not
+             converged (12/h -> 60/h still -36 to -44 %). Forward networks of C_N1: in the third check.
+          R2 (daily-node windows within 10 %): MET (identical to 0.001 on the 9 networks read).
+          RULE applied: residual of section 6 on the 1-min grid (12/h is not within 10 % of 60/h).
+          Not known yet: whether the node rows of C_N1 are the forcing nodes or the single row t = 0
+          (third check, S1).
+        (06:52) RESULT of the third check, C_N1 (15617745, exit=0) and rfna1 (15617747, exit=0); rfnm1
+          (15617746) still running. PDE residual / sigma_pde, xi grid of section 6 (101 rows clustered at
+          the surface), one path (the estimate; forward networks at their own path).
+                               row t = 0   node rows     after the first hour (max)       trapezoid   max is at
+                               (rms)       without it    2/h     12/h    60/h             mean, 60/h
+            rfnc1 members (4)  19.2-33.5   0.312-0.329   0.252-0.261 0.194-0.202 0.186-0.194 (9.3-10.4)
+                                                                                          0.228-0.298 t = 0, surface
+            rfnc1 forward (2)  11.7, 10.2  0.304, 0.265  0.242, 0.220 | 0.185, 0.179 | 0.179, 0.175 (11.7, 6.9)
+                                                                                          0.231, 0.230 t = 2 min, 1 min
+            rfna1 members (4)  0.71-0.89   1.03-1.26     0.982-1.202 on all three grids (9.5-10.6)
+                                                                                          = plain mean  bottom, days 2-6
+            rfna1 forward (2)  1.33, 0.90  0.96, 1.04    0.883, 0.974 on all three grids (12.4, 13.4)
+                                                                                          = plain mean  bottom, day 6
+          Rows of the first hour, rms over xi (C_N1 members; t = 0, 1, 6, 20, 60, 120, 300, 600, 1200, 1800,
+            3600 s): 19-33, 19-32, 15-28, 5-14, 4-12, 4-9, 1.2-2.3, 0.6-1.1, 0.2-0.6, 0.2-0.3, 0.17-0.21.
+            Forward networks: 10-12 up to 120 s, 1.6-2.2 at 300 s, 0.5-0.8 at 600 s, 0.14-0.17 at 1 h.
+          Flux error in the first hour: at t = 0 it is minus the whole prescribed flux (C_N1 -11.26 mm/d,
+            rfna1 -0.86 mm/d: the ansatz has zero flux at t = 0 by construction); within 0.1 - 0.9 mm/d
+            from 120 s on C_N1, within 0.3 mm/d from 600 s on rfna1.
+            After the first hour, rms error / rms prescribed (600/h grid; whole window in brackets):
+            rfnc1 members 2.14 - 2.49 % (2.19 - 2.54), forward 1.96, 1.67 % (2.03, 1.76);
+            rfna1 members 1.35 - 2.19 % (1.91 - 2.80), forward 1.28, 2.00 % (2.19, 3.06).
+          AGAINST THE EXPECTATIONS:
+          S1 first half holds for three members (25.8, 27.1, 33.5; the fourth is at 19.2, just below the
+             20 - 35 I wrote). Second half FAILS: the rows at the forcing nodes without t = 0 are at
+             0.31 - 0.33, the half-hour rows at 0.166 - 0.172, a factor 1.8 - 2.0, not "within 30 %". So both
+             are true on C_N1: the row t = 0 carries the 2.08 I had read as "the node rows" (33.47^2 / 265
+             = 2.057^2), AND the residual at the hourly forcing nodes is about twice that between them.
+          S2 FAILS as written: after the first hour 2/h is 30 - 35 % above 60/h (half of its rows are node
+             rows). 12/h and 60/h agree within 4 % (0.194 - 0.202 against 0.186 - 0.194), inside the
+             0.15 - 0.22 I expected for the level. A finer grid than 60/h was not run for the residual.
+          S3 first half holds for the members (max at t = 0 at the surface), not for the forward networks
+             (max 56.5 and 46.9 at t = 2 min and 1 min, at or next to the surface). Second half FAILS for one
+             member (row rms 1.14 at 600 s; the others 0.61 - 0.95); all four are below 0.6 at 1200 s.
+          S4 first half FAILS: on rfna1 the row t = 0 is at 0.7 - 1.3, not above the window mean; there is
+             no start corner in the residual of this window. Second half holds (after the first hour = whole
+             window to 0.2 %). rfnm1: not in yet.
+          S5 holds for the direction (0.228 - 0.298 against a plain mean of 0.252 - 0.352) and for two of
+             four members for the range (0.25 - 0.32 expected; the others 0.228, 0.248).
+          WHAT THIS SAYS ABOUT THE STATISTIC. On C_N1 the whole-window RMS of the residual is not a
+            property of the network on a uniform grid of 1 min or coarser: the start corner lasts 5 - 20
+            min, its rows are 5 - 30 times the rest, and a uniform grid sees it through one to twenty
+            rows. From the rows above, the time integral over the first hour is of the size of the
+            integral over the other 263 h (member 0, trapezoid by hand on the eleven rows: 3.5e4 against
+            3.5e4 sigma_pde^2 s), i.e. a resolved time mean would be about 0.27 against 0.19 after the
+            first hour. NOT computed by a job; a hand estimate from eleven rows.
+          RULE, as it applies (neither branch of what I wrote covers a half-met S2, so the decision and
+            its reason are stated here instead of picking the branch that reads better):
+            - sections 6 / forward tables give the residual AFTER THE FIRST HOUR on the 1-min grid as the
+              headline figure (12/h and 60/h agree within 4 %; the half-hourly grid reads 30 - 35 % higher
+              because half its rows sit on forcing nodes), its max, and separately the row t = 0;
+            - the whole-window RMS stays in metrics.json with its grid and is not put in a table: it is
+              not converged in the time grid on C_N1;
+            - the README says in words: start corner (row t = 0 at 19 - 33 sigma_pde for the members,
+              10 - 12 for the forward networks, below 1 after 10 - 20 min), node rows twice the others,
+              and that "at the three rain pulses" in point 3 was NOT a checked statement: the maxima of
+              45 - 130 are at t = 0 (members) and within the first 2 min (forward networks). Where the
+              maximum after the first hour (7 - 12) sits is not known; paper_figures.py will record its
+              time.
+            - flux: "after the first hour" differs from the whole window by 22 - 42 % on rfna1 (rule:
+              more than 20 % on a window), so the flux gets the second column too.
+
+    74 v. (14 Nov, 06:52) rfnc1tc (conductive form on the second-soil data set of C_N1; DIAGNOSTIC, 73 bz):
+        THE LOOP HAS ENDED ("full rfnc1tc done"). LOSSES, written before any score of the final estimate
+        is read (lesson rule). Held-out sets of training: last val_pde; last val_flux and 10 * sqrt(val_flux)
+        = rms error on the held-out times / node rms of q, in % (2048 times, 10 % log-uniform in the first
+        day, each at its own sampled path: NOT the statistic of section 6).
+                         held-out PDE loss          held-out flux loss (% of node rms)
+          wide w0-w3     493 (w0), 18, 21.7, 15.8   0.827, 0.849, 0.888, 0.771   (8.8 - 9.4 %)
+          round 1        57.9, 10, 29.4, 16.8       0.556 - 0.684                (7.5 - 8.3 %)
+          round 2        68.6, 78, 237, 416         0.487 - 0.617                (7.0 - 7.9 %)
+          round 3        24.6, 8.38, 140, 22.6      0.395 - 0.474                (6.3 - 6.9 %)
+          round 4        9.15, 25.3, 5.42, 16.1     0.526, 0.448, 0.503, 0.452   (6.7 - 7.3 %)
+          forward f1     9.54, 4.16                 0.204, 0.148                 (4.5, 3.8 %)
+          forward f2     5.2, 4.09                  0.271, 0.179
+          forward f3     6.61, 3.41                 0.275, 0.166
+          forward f4     9.37, 4.1                  0.26, 0.224                  (5.1, 4.7 %)
+          (w0 ends at 10.1 times its step-0 PDE loss; flux at step 0 of the wide stage 576 - 612.)
+        Value-correction loop, largest step / posterior sd: it 1 0.365, it 2 0.262, it 3 0.259, it 4 0.229.
+          The stop rule (0.2) was NOT reached in the four iterations allowed; the estimate scored is it 4.
+          (rfnc1t, additive form, same data: 4.42, 1.33, 1.28, 1.88.) Forward offset rms 4.4e-4, 7.7e-4,
+          3.7e-4, 6.8e-4.
+        AGAINST 73 bz (ratio sqrt(last flux / wide step-0 flux)): wide 0.036 - 0.038 (expected 0.03 - 0.10),
+          rounds 0.027 - 0.030 (0.02 - 0.05), forward networks of the loop 0.016 - 0.021 (0.015 - 0.03): all
+          three inside. The held-out PDE loss stays at 4 - 25 (rms 2 - 5 sigma_pde on the held-out points)
+          in every stage: the "interior residual" caveat of 73 bz stands, and on that figure these networks
+          are NOT evidence that the flow problem is solved to the level of rfnc1 (same statistic there:
+          r4 0.14 - 0.29, forward 0.03; sigma_pde differs between the two soils, so the ratio is not
+          like-for-like). Same statistic on rfnc1t (additive): flux 241 - 255 % (not learned), pde 38 - 44.
+        THE NUMERICAL REFERENCE OF THIS DATA SET, before it is scored against (lesson of 74 g):
+          1 h step, four starts, one cost (0.0832493 +- 3e-8), 4 - 9 iterations, no coefficient on a bound;
+          the solver did not converge in up to 3.0 % of the steps (fem_not_converged_max 0.023 - 0.030).
+          The stored 1 h solve at the record water table is 5.6e-4 RMS (5.4e-3 max) in sensor theta from
+          the 1/4 h, 201-node one (real_summary.json; C_N1 own soil: 2.9e-4, 3.1e-3). Its dependence on the
+          time step has NOT been measured on this data set, and rfnc1t was scored against it (3.89 cm)
+          without that being written next to the score.
+          -> one 1/4 h inversion, start hydrostatic (the fastest of the four at 1 h: 4 iterations, 43 min),
+             same command as 74 h: output/referee/nc2_sep23aon_sep23c_dt025_s0. rfnc1tc is scored when it
+             has ended, not before.
+          EXPECTATION, written before submission: L1 1 h minus 1/4 h inversion 0.05 - 0.3 cm RMS (C_N1 own
+            soil: 0.044; here the step error in theta is twice that and 3 % of the 1 h steps did not
+            converge; I do not know the sensitivity well enough to narrow it). L2 the not-converged
+            fraction falls below 1 % at 1/4 h. L3 against the hourly well the 1/4 h inversion stays within
+            0.1 cm of the 1 h one (3.05 cm, bias -1.64, r 0.948).
+          READING: if L1 holds, the 73 bz reading rule is applied against the 1/4 h inversion and the 1 h
+            figure is given next to it. If the difference is above 0.5 cm, R2 on this data set (rfnc1t and
+            rfnc1tc) is read against the 1/4 h inversion only, and the 3.89 cm of rfnc1t is re-scored.
+        (06:54) Third check, rfnm1 (15617746, exit=0), same statistics:
+            rfnm1 members (4)  row t = 0 1.06 - 1.71; node rows without it 0.82 - 1.08; after the first hour
+                               0.767 - 0.979 on all three grids (9.6 - 16.1) = the whole window to 0.3 %;
+                               max at the water table (xi = -1), days 2.6 - 15
+            rfnm1 forward (2)  row t = 0 1.45, 1.20; after the first hour 0.820, 0.811 (13.7, 13.5)
+            flux, after the first hour (whole window, 600/h): members 3.39 - 8.45 % (4.04 - 10.49),
+                               forward 6.56, 7.74 % (7.20, 8.50): 9 - 19 % below the whole window; the flux
+                               error at t = 0 is -1.50 mm/d and is still 0.2 - 1.2 mm/d at 20 min.
+          S4 on rfnm1: first half FAILS as on rfna1 (row t = 0 at 1.1 - 1.7, not 2 - 5: no start corner in the
+            residual of the daily-node windows); second half holds.
+          So the start corner of the RESIDUAL is a feature of C_N1 (hourly nodes, q(0) = 11.3 mm/d at a
+            midday start), and the start corner of the FLUX is on all three windows (the ansatz has zero
+            flux at t = 0): 2 - 7 % of the whole-window figure on C_N1, 9 - 19 % on rfnm1, 22 - 42 % on rfna1.
+          In the recession windows the largest residual is at the water table, not at the surface. Not
+            looked at further here.
+        (06:54) scripts/paper_figures.py, final form of the statistic (physics_at): flux on the 1-min grid,
+          whole window and after the first hour (both over the RMS of the prescribed flux of the whole
+          window); PDE residual on the 1-min grid after the first hour (RMS, max, where the max is) and the
+          row t = 0; the whole-window residual RMS stays in metrics.json only. fig6, third panel: RMS over
+          the times after the first hour (axis label says so). Tables of sections 2, 6, 7 follow.
+          EXPECTATION for the rebuild (written before the jobs): section 6 of C_N1 gives, for the members,
+            flux 2.29 - 2.62 % / after 2.1 - 2.5 %, residual after the first hour 0.186 - 0.194 (9.3 - 10.4),
+            row t = 0 19.2 - 33.5; forward networks 2.12, 1.86 % / 1.9 - 2.0, 1.6 - 1.7 %, 0.179, 0.175
+            (11.7, 6.9), 11.7, 10.2 -- the figures of flux_grid_check (60/h flux; its "after" was on 600/h, so
+            the last digit may differ). Everything outside the physics columns is unchanged against
+            /tmp/pf_before (root uptake of C_N1 23.66 mm). If a physics figure differs from the check by
+            more than 2 % of itself, the two scripts disagree and the rebuild is not used until that is
+            found.
