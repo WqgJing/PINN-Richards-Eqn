@@ -5977,3 +5977,40 @@ Real-case spec (first slice):
           point 5 of the limits; the 1/1024 item leaves the "running" list (the four ICOS stations take its
           place); both regenerate commands. Checked against /tmp/tables_before_refd.md: the network was
           1.72e-5 against 1/256 h, 1.71e-5 against 1/1024 h. Job 15617357: 9 h 59 on 2 CPUs.
+    74 ai. (14 Nov, 17:20) SOIL CALIBRATIONS AT THE ICOS STATIONS, read as each data set gets its four starts
+        (expectations C1 - C4 and the chain: 74 ag). Job states of all 20 at 17:19: 7 COMPLETED, 13 RUNNING
+        (1 h 43); start files: sor_jun24 4, sor_dec24 2, bil_oct23 1, sr2_nov19 1, nor_oct23 0.
+        DK-Sor, 21 Jun - 2 Jul 2024 (output/soil_sor_jun24; jobs 15633887 - 15633890, all exit=0, no
+        Traceback, all ended by xtol; 22 - 94 min, 56 - 243 solves):
+          start        misfit   r      theta_s  theta_r  alpha   n      Ks        on bound
+          0 own soil   0.01478  0.593  0.3372   0.0000   0.805   3.116  9.00e-7   theta_r
+          1 sand       0.01479  0.591  0.3354   0.0319   0.836   3.291  9.23e-7   -
+          2 sandy loam 0.01477  0.593  0.3352   0.0016   0.806   3.277  8.93e-7   -
+          3 static     0.01466  0.596  0.3344   0.0000   0.814   3.503  1.33e-6   theta_r     <- the soil (lowest)
+          bias 0.00002 - 0.00005, max 0.049 - 0.054.
+          C1 (lowest misfit <= 0.005): MISSED here, 0.0147, three times the bound; r 0.60. The sensor moves
+            by 0.071 in this window, so the fitted model leaves a fifth of its range unexplained.
+          C3 (starts agree in misfit at no more than two data sets, in the parameters at none): this data set
+            is one that agrees in misfit (1 %), and the second half is CONTRADICTED here: the four starts
+            ended at one soil (theta_s within 0.003, alpha 4 %, n 12 %, Ks 1.5 x); only theta_r is free
+            (0 - 0.03). First site where that happens.
+          C2, C4: do not apply (not a sand; all four ended).
+          FIGURE (start3.png, looked at): the model answers three rain events (days 0.4, 6.5, 6.9) with
+            rises of 0.02 - 0.03 that the sensor does not show at all, and after the rain of day 8.9 the
+            sensor rises by 0.07 and is still 0.045 above its level two days later while the model is back
+            within a day. So the misfit is in what the model is driven with or in its structure, and the
+            four starts agree because no soil removes it. Cause NOT examined (rain is measured above a
+            beech canopy in leaf; not checked, not claimed).
+        NEXT: PYI=-I hpc/transfer_solver.sh sor jun24 "[0.05,0.05]" dec24 (as planned in 74 ag; numerical
+          inversions only: in-sample on June and held-out on December with the June soil).
+          EXPECTED, written before it is launched:
+            T1 in-sample (June, own soil): the numerical inversion misses the usable-soil rule (2 cm and
+               r >= 0.975 below saturation); my guess 8 - 30 cm from the well, because a sensor misfit of
+               0.015 that no soil removes has to go into the path. Starts may not agree (R1 may fail).
+            T2 held-out (December with the June soil): misses R3, as written in 74 ag (5 - 15 cm).
+          DECISION RULE: T1 as expected -> "no usable soil from the June window": the held-out row is
+            reported as such (numbers given) and is not a test of the method; no PINN on it. A coefficient
+            on the bound is handled by the rule of 74 ac (prior widened once, both repeated) only if the
+            estimate is within 5 cm of meeting its rule; further off, the bound does not decide anything
+            and the row is closed. If T1 is wrong (in-sample within 2 cm): the December row is judged by
+            R3, and the PINN is run on it only if the numerical inversion meets R3.
