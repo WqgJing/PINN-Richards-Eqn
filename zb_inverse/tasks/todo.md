@@ -3926,5 +3926,48 @@ Real-case spec (first slice):
         (hpc/real_full_obs.sh) on a window only if its soil is usable (lowest misfit AND in-sample inversion
         within 2 cm, r >= 0.975 below saturation); held-out test = the next window with that soil; R1 - R4 as
         they are.
+        S1 LAUNCHED 00:30: logs/full_rfnm1.log, logs/full_rfna1.log.
         WHAT WILL COUNT: a new site counts for (ii) only with a held-out window inside R3. An in-sample window
         inside R3 with R1 and R2 is reported as in-sample, as C_N1 is.
+    74 c. (14 Nov, 00:48) RESULTS SET BUILT FROM THE RUNS THAT EXIST (P1 - P9, N0). scripts/paper_figures.py (new, reporting
+        only; CPU jobs 15610384 and, after the label and layout fixes below, 15610522, exit=0) ->
+        output/paper/nc2_sep23c/{fig1_setup .. fig6_physics}.png, tables.md, metrics.json; write-up output/paper/README.md
+        (.gitignore: output/paper/* is now tracked).
+        Against the expectations of 74, part b):
+          P2 forward (runs/fwd_nc2c)  theta rms 3.27e-4 (expected 3e-4 - 1e-3: inside); relative L2 0.080 % (expected
+                                      0.1 - 0.3 %: slightly better); max 5.8e-3, at the surface at the rain pulses
+                                      (expected <= 0.01 there: as expected); flux 4.82 % (expected 1 - 6 %: inside)
+          P3 inverse                  1.10 / +0.11 / 3.16 / r 0.9905 against the well; solver 1.11; hydrostatic 3.41;
+                                      PINN - solver 0.07 (max 0.30); spline floor 0.81: as expected (= result_rfnc1.json)
+          P5 stages                   1.09 / 1.11 / 1.11 / 1.11 / 1.11 / 1.10 cm from the well, 0.10 / 0.06 / 0.07 / 0.06 /
+                                      0.07 / 0.07 from the solver: flat, as expected. On this window the wide stage is
+                                      already at the estimate; the README says so (and names US-ONA Nov 2022, 1.28 ->
+                                      0.52 -> 0.10 cm, as the window where the later stages are needed)
+          N0 single members           each within 0.01 - 0.02 cm rms (max 0.05 - 0.09) of the four-member estimate of
+                                      round 4 (expected 0.01 - 0.1: inside); against the well 1.10 - 1.11 cm
+        Not expected, found while building, and in the write-up:
+          - The training loss has THREE terms (PDE residual, surface flux, water balance of space-time boxes), and the
+            network has memory features of the forcing (38 inputs, 87 681 parameters): read from
+            runs/rfnc1_r4_m0/config.yaml and ParamTrainer.losses. Plan 74, part b), P4 said "PDE and flux losses": fig4 has
+            three panels.
+          - PDE residual on a grid clustered at the surface: rms 0.50 - 0.66 sigma_pde (forward networks), 0.87 - 1.48
+            (operator members), max 44 - 129 sigma_pde at the three rain pulses and at t = 0. Larger than the square
+            root of the held-out PDE losses (0.17 forward, 0.37 members of round 4; losses 0.029 and 0.134), which
+            are sampled as in training.
+          - Cost: 13.6 GPU hours of training (22 training runs) against 26 min CPU for one start of the solver
+            inversion (1.59 CPU h for four).
+        Fixes between the two jobs: stage label 'final' -> 'value correction' (the task log's name); y labels of fig6
+        on two lines (they ran into each other); --single added (table 9).
+        ACCEPTANCE: A1 met (table 3 = result_rfnc1.json: 1.10 / +0.11 / 3.16 / 0.9905; 0.07 / 0.30; 3.41; 0.81; sigma
+        1.11; theta 0.00134). A2 met (grep of the script for title / annotate / .text( / fill: no hit; the six PNGs
+        looked at: lines and markers only, axis labels with units, legends only with more than one line). A3 met
+        (sensor rms 4.26e-4 = 4.3e-4 of truth_profile.npz). A4 for N1: train.seed 1000 (rfnc1s1_w0), 1003 (_w3), 2000
+        (rfnc1s2_w0); for N2 still open (fs_nc2c_* pending on Priority since 00:19, no config.yaml yet). A5 met (data
+        table: "calibrated on this window (in-sample)"; README sections "What this case shows, and what it does not"
+        and "Other windows and sites").
+        P9 cross-site table (README): final estimate of the 11 scored runs, labels checked against w, z, as, at, ag,
+        73 bv, the rfh1p and rfr1a entries. (i) PINN = solver to <= 0.5 cm in 8 of 11 (starts < 1e-5 cm apart); fails
+        at US-PAS C1 (2.92), US-ONA B17 / S_D (2.67), US-ONA rain window (28.2). (ii) whole window only at US-NC2
+        (rfnc1 in-sample, rfnd diagnostic); rf22c below saturation only. No site has passed R4. Unchanged.
+        STILL RUNNING at 00:48: N1 (rfnc1s1 four wide members, rfnc1s2 three of four, on V100), N2 and S1 (all
+        pending on Priority), rfnc1tc round 3, rfnc1t, US-HB2 calibration continuation, site-search agent.
