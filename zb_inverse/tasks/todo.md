@@ -5412,3 +5412,72 @@ Real-case spec (first slice):
              logs/full_rfna1b.log; logs/pipe_*.log show the train options ending in
              "--set prior.clip_m=[0.10,1.5]", invert [--box]). rfnm1 / rfna1 were started with
              hpc/real_full_obs.sh, which differs from real_full_x.sh only by this fourth argument.
+        RESULT A and B, reference only (11:22; all eight jobs exit=0, 26 - 82 min; comparisons bxstsep
+        15622860, bxstmay 15622861, bxnd 15622863, bxn1 15622865, all exit=0; no PINN line read yet):
+          A, four starts with the 0.10 m bound (hydrostatic, hydrostatic_flat, constant 1.0, constant 0.3):
+                      cost (4 starts)                          it          on box  not conv.   largest pair
+            sep23a    0.131369 0.131369 0.131368 0.131369      5 5 11 5    none    1.4 - 2.1 % 0.0019 cm (t = 6 d)
+            may23     0.043889 0.043889 0.043889 0.043889      8 7 8 6     none    0 %         0.0002 cm
+            against the well, every start: sep23a 0.528 - 0.529 / +0.005 / 1.27 cm; may23 0.900 / +0.025 / 3.26.
+            -> output/paper/nc2_sep23a/inversion_box_starts.json, output/paper/nc2_may23/inversion_box_starts.json
+          A1 HOLDS: one estimate from all four starts on both windows (0.002 and 0.0002 cm, limit 0.2 cm),
+             equal cost to 5 digits. My doubt about may23 was not borne out.
+          B, the 27 Sep 2023 window, bound 0.20 m -> 0.10 m (same start as the original):
+                           cost        it  not conv.  on box  vs well rmse / bias / max (cm)   r       sd (cm)  theta rmse
+            rfnd  0.20 m   0.063035    8   0 %        [0]     1.638 / +0.546 / 2.653           0.9978  0.325    1.255e-3
+            rfnd  0.10 m   0.028000    8   0 %        []      1.636 / +0.520 / 3.070           0.9981  0.323    0.837e-3
+            rfn1  0.20 m   0.131741    9   2.3 %      [0]     9.528 / -9.305 / 12.678          0.9982  0.230    1.815e-3
+            rfn1  0.10 m   0.031917    8   2.3 %      [0]     9.542 / -9.330 / 12.614          0.9989  0.226    0.893e-3
+            0.20 m minus 0.10 m estimate:
+            rfnd  0.395 cm RMS, bias +0.026, max 1.241 (t = 0); by day 0.678 0.344 0.436 0.157 0.416 0.353 0.165
+                  0.379 0.382
+            rfn1  0.421 cm RMS, bias +0.025, max 1.189 (t = 0); by day 0.628 0.370 0.413 0.166 0.466 0.348 0.230
+                  0.457 0.514
+            coefficients: rfnd 0.20: -1.8212 -1.4884 -0.5228 -0.2519  0.2370;  0.10: -2.7623 -1.3263 -0.6111 -0.1381 -0.2452
+                          rfn1 0.20: -1.8212 -1.7153 -0.8647 -0.6582  0.1160;  0.10: -2.9706 -1.5064 -0.9852 -0.4946 -0.6087
+            path first ... last hour (m), well 0.2918 ... 0.6152:
+                          rfnd 0.20: 0.2738 ... 0.6412; 0.10: 0.2614 ... 0.6326
+                          rfn1 0.20: 0.2354 ... 0.5005; 0.10: 0.2235 ... 0.4891
+            -> output/real_nc2_sep23b_soilmay23/inversion_box_ref.json,
+               output/real_nc2_sep23b_soilsep23a_cal3/inversion_box_ref.json
+          Y1 HOLDS for rfnd (cost -56 %, no coefficient on the box). For rfn1 the cost falls (-76 %) and the
+             first coefficient leaves 0.20 m, but it ENDS ON THE NEW BOUND (-2.9706 = 0.10 m): by the rule of
+             this block that estimate is still not finished. NOT EXPECTED by me. The transform has its floor
+             at zb_min = 0.05 m, so the box can be widened once more at most (to about 0.06 m).
+          Y2 HOLDS: 0.395 and 0.421 cm RMS (expected 0.2 - 0.5).
+          Y3 HOLDS: rfn1 against the well 9.53 -> 9.54 cm (bias -9.31 -> -9.33): the declared held-out test
+             fails with either bound. rfnd 1.638 -> 1.636 cm (largest error 2.65 -> 3.07).
+          Both moves are above the posterior sd of the rows (0.33, 0.23 cm). On this window the bound was
+          holding the start CLOSER to the well (start error -1.8 -> -3.0 cm for rfnd, -5.6 -> -6.8 cm for
+          rfn1), the opposite of the two recession windows: releasing it is not a correction toward the
+          well, it is what the data and this soil ask for.
+          All four US-NC2 rows with the first coefficient on the shallow bound: the numerical estimate
+          moves by 0.23 / 0.45 / 0.40 / 0.42 cm RMS when it is released, in three of four more than the
+          posterior sd, and the misfit falls by 13 / 50 / 56 / 76 %.
+          NOT KNOWN: why the fit gains this much from the first coefficient alone. (Unchecked thought: the
+          column starts hydrostatic at zb(0), so the first coefficient also sets the initial profile.)
+        PINN LINES for B (read after the above, 11:24; bxndp 15622881, bxn1p 15622882, exit=0):
+          PINN minus numerical        bound 0.20 m   bound 0.10 m
+          rfnd (runs/rfnddc_it1)      0.056 cm       0.392 cm RMS, bias +0.033, max 1.351 (t = 0);
+                                                     by day 0.771 0.274 0.390 0.144 0.378 0.315 0.173 0.392 0.338
+          rfn1 (runs/rfn1dc_it1)      0.066 cm       0.435 cm RMS, bias +0.077, max 1.246 (t = 0);
+                                                     by day 0.679 0.294 0.323 0.212 0.549 0.402 0.225 0.468 0.523
+          coef_on_bound of both PINN estimates: [0] (trained and inverted in the 0.20 m box).
+          -> output/real_nc2_sep23b_soilmay23/inversion_box.json,
+             output/real_nc2_sep23b_soilsep23a_cal3/inversion_box.json
+          So for all four US-NC2 rows that share the shallow bound, the present PINN is 0.25 / 0.44 / 0.39 /
+          0.44 cm from the numerical estimate of the wider box (0.03 - 0.09 cm inside the shared box).
+          rfn1: its numerical estimate is still on a bound at 0.10 m and the row fails against the well by
+          9.5 cm with either bound (the soil of 1 Sep is the limit there). Not pursued further; the README
+          says the estimate is not finished in the sense of the rule.
+        CHECK of C at the first inversion (11:24): logs/cpu_15622654.out (rfnm1b_inv0) and
+          logs/cpu_15622826.out (rfna1b_inv0), both exit=0, print
+          "[box] estimate kept in the prior box [-2.971, 1.183]": the PINN inversion uses the 0.10 m box.
+          Only this line and the exit line were read from those logs. Wide stage done for both (4 members
+          each), round 1 of the refinement running or queued.
+        README (11:25): the box passage of "Reading" now has the four rows (table), the four-start result, and the
+          status of the rfnd / rfn1 rows; "Not yet" keeps only the PINN runs.
+        FILES (11:25): output/real_*/inversion_box*.json are ignored by .gitignore (only result_*.json|png are
+          kept there). The two comparisons with the PINN block are copied, unchanged (cmp), to
+          output/paper/nc2_sep23b/inversion_box_rfnd.json and inversion_box_rfn1.json and committed from there;
+          the *_ref.json (reference-only) versions stay in the data directories, untracked.

@@ -1,0 +1,216 @@
+{
+  "data": "output/real_nc2_sep23a_own_cal3",
+  "hours": 145,
+  "inversions": [
+    {
+      "dir": "output/referee/nc2_own_sep23a_cal3_box010_s0",
+      "fem_dt_hours": 1.0,
+      "start": "hydrostatic",
+      "cost": 0.13136862308597957,
+      "iterations": 5,
+      "member_solves": 67,
+      "wall_s": 2196.4,
+      "fem_not_converged_max": 0.020689655172413834,
+      "coef_on_bound": [],
+      "theta_rmse_vs_obs": 0.0018122404854625364,
+      "posterior_sigma_zb_median_m": 0.002823770173188988,
+      "vs_well": {
+        "rmse_m": 0.005284638802631215,
+        "bias_m": 4.629287287243629e-05,
+        "maxabs_m": 0.012740424095345038,
+        "r": 0.9984448423390615
+      }
+    },
+    {
+      "dir": "output/referee/nc2_own_sep23a_cal3_box010_s1",
+      "fem_dt_hours": 1.0,
+      "start": "hydrostatic_flat",
+      "cost": 0.13136853606400523,
+      "iterations": 5,
+      "member_solves": 68,
+      "wall_s": 2243.1,
+      "fem_not_converged_max": 0.020689655172413834,
+      "coef_on_bound": [],
+      "theta_rmse_vs_obs": 0.0018122398852249474,
+      "posterior_sigma_zb_median_m": 0.002823835281350704,
+      "vs_well": {
+        "rmse_m": 0.005285497377022133,
+        "bias_m": 4.640896069109036e-05,
+        "maxabs_m": 0.012746054942008644,
+        "r": 0.9984443422559991
+      }
+    },
+    {
+      "dir": "output/referee/nc2_own_sep23a_cal3_box010_s2",
+      "fem_dt_hours": 1.0,
+      "start": "constant:1.0",
+      "cost": 0.13136844384371082,
+      "iterations": 11,
+      "member_solves": 142,
+      "wall_s": 4692.8,
+      "fem_not_converged_max": 0.017931034482758568,
+      "coef_on_bound": [],
+      "theta_rmse_vs_obs": 0.0018122392491315186,
+      "posterior_sigma_zb_median_m": 0.002823824967884621,
+      "vs_well": {
+        "rmse_m": 0.005283643263243672,
+        "bias_m": 4.633122039156652e-05,
+        "maxabs_m": 0.012732814371247736,
+        "r": 0.9984454029054793
+      }
+    },
+    {
+      "dir": "output/referee/nc2_own_sep23a_cal3_box010_s3",
+      "fem_dt_hours": 1.0,
+      "start": "constant:0.3",
+      "cost": 0.13136902754264362,
+      "iterations": 5,
+      "member_solves": 57,
+      "wall_s": 1509.0,
+      "fem_not_converged_max": 0.01379310344827589,
+      "coef_on_bound": [],
+      "theta_rmse_vs_obs": 0.0018122432752161312,
+      "posterior_sigma_zb_median_m": 0.0028237684462811686,
+      "vs_well": {
+        "rmse_m": 0.00528392780492253,
+        "bias_m": 4.6500882595318565e-05,
+        "maxabs_m": 0.012735381066985796,
+        "r": 0.9984452585068985
+      }
+    }
+  ],
+  "pairs": [
+    {
+      "a": "output/referee/nc2_own_sep23a_cal3_box010_s0",
+      "b": "output/referee/nc2_own_sep23a_cal3_box010_s1",
+      "a_dt_h": 1.0,
+      "b_dt_h": 1.0,
+      "a_start": "hydrostatic",
+      "b_start": "hydrostatic_flat",
+      "a_minus_b": {
+        "rms_m": 1.8654587194878986e-06,
+        "bias_m": -1.1608781865407782e-07,
+        "maxabs_m": 7.831059941953988e-06,
+        "t_of_max_days": 6.0,
+        "rms_by_day_m": [
+          6.565700082322294e-07,
+          7.335486289290471e-07,
+          1.3861454420247605e-06,
+          7.881583087631304e-07,
+          2.3383152907629475e-06,
+          3.400488323885832e-06
+        ]
+      }
+    },
+    {
+      "a": "output/referee/nc2_own_sep23a_cal3_box010_s0",
+      "b": "output/referee/nc2_own_sep23a_cal3_box010_s2",
+      "a_dt_h": 1.0,
+      "b_dt_h": 1.0,
+      "a_start": "hydrostatic",
+      "b_start": "constant:1.0",
+      "a_minus_b": {
+        "rms_m": 3.385169607499565e-06,
+        "bias_m": -3.834751913023676e-08,
+        "maxabs_m": 1.1628748363579078e-05,
+        "t_of_max_days": 6.0,
+        "rms_by_day_m": [
+          2.90294696235655e-06,
+          3.498216926148966e-06,
+          2.2302179590913752e-06,
+          3.160339118919769e-06,
+          2.897978620699255e-06,
+          4.9194336463528665e-06
+        ]
+      }
+    },
+    {
+      "a": "output/referee/nc2_own_sep23a_cal3_box010_s0",
+      "b": "output/referee/nc2_own_sep23a_cal3_box010_s3",
+      "a_dt_h": 1.0,
+      "b_dt_h": 1.0,
+      "a_start": "hydrostatic",
+      "b_start": "constant:0.3",
+      "a_minus_b": {
+        "rms_m": 3.77240039194683e-06,
+        "bias_m": -2.0800972288227835e-07,
+        "maxabs_m": 8.881839659191648e-06,
+        "t_of_max_days": 6.0,
+        "rms_by_day_m": [
+          3.690409875344222e-06,
+          4.299348774526974e-06,
+          2.6954224848398847e-06,
+          4.174430531181809e-06,
+          3.0888899810050815e-06,
+          4.342502278115734e-06
+        ]
+      }
+    },
+    {
+      "a": "output/referee/nc2_own_sep23a_cal3_box010_s1",
+      "b": "output/referee/nc2_own_sep23a_cal3_box010_s2",
+      "a_dt_h": 1.0,
+      "b_dt_h": 1.0,
+      "a_start": "hydrostatic_flat",
+      "b_start": "constant:1.0",
+      "a_minus_b": {
+        "rms_m": 4.740769314903548e-06,
+        "bias_m": 7.774029952384107e-08,
+        "maxabs_m": 1.9459808305533066e-05,
+        "t_of_max_days": 6.0,
+        "rms_by_day_m": [
+          2.64033610008729e-06,
+          2.9766021419350084e-06,
+          3.2994403130843896e-06,
+          3.461073076071575e-06,
+          5.124875504895249e-06,
+          8.245702816619938e-06
+        ]
+      }
+    },
+    {
+      "a": "output/referee/nc2_own_sep23a_cal3_box010_s1",
+      "b": "output/referee/nc2_own_sep23a_cal3_box010_s3",
+      "a_dt_h": 1.0,
+      "b_dt_h": 1.0,
+      "a_start": "hydrostatic_flat",
+      "b_start": "constant:0.3",
+      "a_minus_b": {
+        "rms_m": 4.837726465196857e-06,
+        "bias_m": -9.192190422820054e-08,
+        "maxabs_m": 1.6712899601145637e-05,
+        "t_of_max_days": 6.0,
+        "rms_by_day_m": [
+          3.363710638885402e-06,
+          3.7594609037997023e-06,
+          3.7092946142320256e-06,
+          4.398317244549217e-06,
+          5.212761580056265e-06,
+          7.310596848520832e-06
+        ]
+      }
+    },
+    {
+      "a": "output/referee/nc2_own_sep23a_cal3_box010_s2",
+      "b": "output/referee/nc2_own_sep23a_cal3_box010_s3",
+      "a_dt_h": 1.0,
+      "b_dt_h": 1.0,
+      "a_start": "constant:1.0",
+      "b_start": "constant:0.3",
+      "a_minus_b": {
+        "rms_m": 1.06868153618243e-06,
+        "bias_m": -1.696622037520416e-07,
+        "maxabs_m": 2.7469087043874296e-06,
+        "t_of_max_days": 6.0,
+        "rms_by_day_m": [
+          8.322080309496783e-07,
+          8.046440060187232e-07,
+          4.774371705448953e-07,
+          1.0550314343789117e-06,
+          5.006052008622334e-07,
+          1.951836722940759e-06
+        ]
+      }
+    }
+  ]
+}

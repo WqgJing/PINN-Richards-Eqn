@@ -212,8 +212,8 @@ Final estimate of every scored PINN run (`output/real_*/result_*.json`), whole w
 | US-NC2 | 10 Sep 2023, 11 d | 1 Sep 2023 | rfnc1t | 3.89 | 4.53 / +1.24, 0.862 | 3.05 | diagnostic; (i) fails; loop not converged |
 | US-NC2 | 1 May 2023, 15 d | this window | rfnm1 | 0.03 | 0.89 / +0.04, 0.998 | 0.89 | in-sample; recession (3.6 mm of rain); flux on daily nodes, 5-day spline knots; both estimates held by the 0.20 m bound of the box (without it the numerical one moves 0.45 cm RMS, see Reading) |
 | US-NC2 | 1 Sep 2023, 6 d | this window | rfna1 | 0.09 | 0.64 / +0.11, 0.998 | 0.63 | in-sample; recession (0.3 mm of rain); flux on daily nodes, 5-day spline knots; both estimates held by the 0.20 m bound of the box (without it the numerical one moves 0.23 cm RMS, see Reading) |
-| US-NC2 | 27 Sep 2023, 9 d | May 2023 | rfnd | 0.06 | 1.59 / +0.55, 0.998 | 1.64 | held-out soil, but a diagnostic, not the declared test |
-| US-NC2 | 27 Sep 2023, 9 d | 1 Sep 2023 | rfn1 | 0.07 | 9.48 / -9.25, 0.998 | 9.53 | the declared held-out test: fails against the well |
+| US-NC2 | 27 Sep 2023, 9 d | May 2023 | rfnd | 0.06 | 1.59 / +0.55, 0.998 | 1.64 | held-out soil, but a diagnostic, not the declared test; both estimates held by the 0.20 m bound of the box (without it the numerical one moves 0.40 cm RMS, see Reading) |
+| US-NC2 | 27 Sep 2023, 9 d | 1 Sep 2023 | rfn1 | 0.07 | 9.48 / -9.25, 0.998 | 9.53 | the declared held-out test: fails against the well; both estimates held by the 0.20 m bound of the box (without it the numerical one moves 0.42 cm RMS, see Reading) |
 | US-PAS | 15 Oct 2021, 7 d | Sep 2021 | rfp2 | 0.03 | 4.52 / +0.17, 0.995 | 4.50 | run for (i) only |
 | US-PAS | 29 Jul 2021, 9 d | this window (soil not usable) | rfpc1 | 2.92 | 10.73 / -1.99, 0.907 | 11.88 | (i) fails |
 | US-ONA | 26 Nov 2022, 18 d | Oct 2022 | rf22c | 0.35 | 4.34 / +2.63, 0.986 | 4.37 | held-out; below saturation 2.37 / +1.47, 0.983 |
@@ -263,29 +263,44 @@ Reading:
   starts at 0.226 m (PINN) and 0.225 m (numerical), the well at 0.218 m; `rfnm1` at 0.301 and 0.300 m, the
   well at 0.288 m. The spline fitted to the well itself has its first coefficient outside the box in both
   windows (0.14 and 0.15 m).
-  How far an estimate moves when the box is widened has been measured for two rows, with the numerical
-  inversion only and from one start (`hydrostatic_flat`): shallow bound at 0.10 m instead of 0.20 m, 1 h
-  step ([nc2_sep23a/inversion_box.json](nc2_sep23a/inversion_box.json),
-  [nc2_may23/inversion_box.json](nc2_may23/inversion_box.json)):
+  How far an estimate moves when the box is widened has been measured with the numerical inversion for the
+  four US-NC2 rows that share the shallow bound: bound at 0.10 m instead of 0.20 m, 1 h step
+  ([nc2_sep23a/inversion_box.json](nc2_sep23a/inversion_box.json),
+  [nc2_may23/inversion_box.json](nc2_may23/inversion_box.json),
+  [nc2_sep23b/inversion_box_rfnd.json](nc2_sep23b/inversion_box_rfnd.json),
+  [nc2_sep23b/inversion_box_rfn1.json](nc2_sep23b/inversion_box_rfn1.json)):
 
-  | numerical inversion | `rfna1` data, bound 0.20 m | bound 0.10 m | `rfnm1` data, bound 0.20 m | bound 0.10 m |
-  |---|---|---|---|---|
-  | data misfit (cost) | 0.1506 | 0.1314 | 0.0884 | 0.0439 |
-  | coefficients on the box | 1st | none | 1st | none |
-  | start of the path minus the well (cm) | +0.74 | +0.18 | +1.24 | -0.29 |
-  | vs well: RMSE / largest error (cm) | 0.63 / 1.8 | 0.53 / 1.3 | 0.89 / 2.5 | 0.90 / 3.3 |
-  | PINN of the row (trained on 0.20 - 1.50 m) minus this estimate, RMS (cm) | 0.09 | 0.25 | 0.03 | 0.44 |
+  | data of row | shallow bound (m) | data misfit (cost) | coefficients on the box | start of the path minus the well (cm) | vs well: RMSE / largest error (cm) | moved from the 0.20 m estimate: RMS / largest (cm) | PINN of the row minus this estimate, RMS (cm) |
+  |---|---|---|---|---|---|---|---|
+  | rfna1 | 0.20 | 0.1506 | 1st | +0.74 | 0.63 / 1.8 | | 0.09 |
+  | | 0.10 | 0.1314 | none | +0.18 | 0.53 / 1.3 | 0.23 / 0.75 (end of the window) | 0.25 |
+  | rfnm1 | 0.20 | 0.0884 | 1st | +1.24 | 0.89 / 2.5 | | 0.03 |
+  | | 0.10 | 0.0439 | none | -0.29 | 0.90 / 3.3 | 0.45 / 1.5 (start) | 0.44 |
+  | rfnd | 0.20 | 0.0630 | 1st | -1.80 | 1.64 / 2.7 | | 0.06 |
+  | | 0.10 | 0.0280 | none | -3.04 | 1.64 / 3.1 | 0.40 / 1.2 (start) | 0.39 |
+  | rfn1 | 0.20 | 0.1317 | 1st | -5.65 | 9.53 / 12.7 | | 0.07 |
+  | | 0.10 | 0.0319 | 1st, on the 0.10 m bound | -6.83 | 9.54 / 12.6 | 0.42 / 1.2 (start) | 0.44 |
 
-  The numerical estimate moves by 0.23 cm RMS (`rfna1`; largest 0.75 cm, at the end of the window) and by
-  0.45 cm RMS (`rfnm1`; largest 1.5 cm, at its start) when the bound is released. The posterior sd of the
-  two rows (0.28 and 0.31 cm) is computed with the first coefficient held and does not contain this.
-  The bound was holding the start of both paths too deep. On `rfnm1` the end of the window gets worse when
-  it is released (largest error 2.5 -> 3.3 cm) and the RMSE against the well does not improve.
-  So the "PINN - numerical" figures of these two rows (0.09 and 0.03 cm) are the agreement of two estimates
-  held by the same bound. Against the numerical estimate without that bound the PINN of these rows, whose
-  networks were trained on paths of 0.20 - 1.50 m, is 0.25 and 0.44 cm away.
-  Not measured: the 0.10 m bound from the other three starts, the other four rows that share a bound
-  (rfnd, rfn1, rfp2, rfh1p), and a PINN trained on the wider range of paths (see "Not yet in this set").
+  The PINN of every row here was trained and inverted on paths of 0.20 - 1.50 m. With the 0.10 m bound the
+  numerical inversion ends on one estimate from all four starts on the `rfna1` and `rfnm1` data (largest
+  difference 0.002 and 0.0002 cm; [nc2_sep23a/inversion_box_starts.json](nc2_sep23a/inversion_box_starts.json),
+  [nc2_may23/inversion_box_starts.json](nc2_may23/inversion_box_starts.json)); `rfnd` and `rfn1` were run
+  from one start, that of their row.
+  The numerical estimate moves by 0.23 - 0.45 cm RMS when the bound is released, in three of the four rows
+  by more than the posterior sd of the row (0.28, 0.31, 0.33, 0.23 cm), which is computed with the first
+  coefficient held and does not contain this. The misfit falls by 13, 50, 56 and 76 %; why the fit gains
+  that much from one coefficient is not known.
+  Releasing the bound is not a move toward the well. On the two recession windows the bound held the start
+  of the path too deep, and on `rfnm1` the end of the window gets worse without it (largest error
+  2.5 -> 3.3 cm). On the 27 Sep 2023 window the start goes further from the well (`rfnd` -1.8 -> -3.0 cm).
+  The RMSE against the well changes by 0.1 cm (`rfna1`) or less. `rfn1` fails against the well by 9.5 cm
+  with either bound, and its estimate is on the bound again at 0.10 m, so it is not a finished estimate.
+  So the "PINN - numerical" figures of these four rows (0.03 - 0.09 cm) are the agreement of two estimates
+  held by the same bound. Against the numerical estimate of the wider box the PINN of these rows is
+  0.25 - 0.44 cm away: inside the 1 cm asked of (i), but not like-for-like, since these networks never saw
+  paths shallower than 0.20 m.
+  Not measured: the two rows at other sites that share a bound (rfp2, rfh1p), and a PINN trained on the
+  wider range of paths (running, see "Not yet in this set").
 - (i) holds to 0.5 cm or better in 10 of 14 runs, at four sites, and in those the starts end on one estimate
   (largest difference below 1e-5 cm). It fails in four: US-PAS Jul 2021 (2.9 cm), US-ONA Nov 2021 (2.7 cm),
   the US-ONA rain window (28 cm; starts 1.8 cm apart, value-correction loop not converged) and the window of
@@ -324,10 +339,9 @@ Reading:
 ## Not yet in this set (running)
 
 - A 1/1024 h level of the forward reference (`forward_reference_d`).
-- After the box result of "Reading" (plan and expectations in `tasks/todo.md`, 74 ac): the numerical
-  inversion with the 0.10 m bound from the other three starts on the `rfna1` and `rfnm1` data; the same
-  bound for `rfnd` and `rfn1`; and PINN runs of the two recession windows with networks trained on paths of
-  0.10 - 1.50 m (`rfna1b`, `rfnm1b`), to be compared with the numerical inversion in the same box.
+- After the box result of "Reading" (plan and expectations in `tasks/todo.md`, 74 ac): PINN runs of the two
+  recession windows with networks trained on paths of 0.10 - 1.50 m (`rfna1b`, `rfnm1b`; wide stage done,
+  refinement running), to be compared with the numerical inversion in the same box.
 - The same window with the soil of 1 Sep 2023 and a second network form (`rfnc1tc`; `rfnc1t` is in the table
   above). It is trained and inverted but not scored: `rfnc1t` was scored against a numerical inversion with a
   1 h step whose step error on that data set had not been measured, so a 1/4 h inversion of it runs first.
