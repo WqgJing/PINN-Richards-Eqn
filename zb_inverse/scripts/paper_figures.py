@@ -44,6 +44,11 @@ DEV = torch.device('cpu')
 MM_D = 86400e3                                   # m/s -> mm/d
 MEMBER_COLORS = [plots.C_TRUTH, plots.C_PRED, plots.C_3, plots.C_4]
 T_LABEL = 'time (days)'
+FLUX_PER_HOUR = 60                               # time grid of the surface-flux statistic (physics_at)
+RESIDUAL_PER_HOUR = 60                           # time grid of the PDE-residual statistic (physics_at)
+FLUX_GRID = f'time mean, {60 // FLUX_PER_HOUR}-min grid'
+RESIDUAL_GRID = f'{60 // RESIDUAL_PER_HOUR}-min grid'
+FIRST_HOUR_D = 1.0 / 24.0                        # the start corner: statistics are also given after it [d]
 
 
 def rms(x):
@@ -81,27 +86,48 @@ def load_member(run, data_dir):
     return m, cfg
 
 
-def physics_at(m, cfg, c, n_days, nxi=101, per_hour=2):
-    """One member at the path c: prescribed and network surface flux [mm/d] on a half-hourly grid, and the PDE
-    residual in units of sigma_pde on (t, xi), xi clustered at the surface as the grid of the numerical solver."""
+def physics_at(m, cfg, c, n_days, nxi=101, per_hour=RESIDUAL_PER_HOUR, flux_per_hour=FLUX_PER_HOUR):
+    """One member at the path c: prescribed and network surface flux [mm/d] on a uniform time grid of
+    flux_per_hour points an hour (a time mean: the flux is prescribed on forcing nodes and linear in between, and a
+    grid with a large share of its points on the nodes weights them, see scripts/flux_grid_check.py), and the PDE
+    residual in units of sigma_pde on (t, xi), per_hour times an hour, xi clustered at the surface as the grid of
+    the numerical solver. The network has zero surface flux at t = 0 by construction (hydrostatic start), so where
+    the prescribed flux is not zero there the first minutes carry a residual tens of times the rest, which a uniform
+    grid sees through a few rows only: the statistics are also given after the first hour ('_late', the flux error
+    still over the RMS of the prescribed flux of the whole window), and the row t = 0 on its own."""
     ds = load_dataset(cfg)
     sig_q, sig_pde = physics_scales(cfg, ds)
     cc = torch.as_tensor(np.asarray(c, float))
+    t_flux = np.linspace(0.0, n_days, int(round(24 * flux_per_hour * n_days)) + 1)
+    q_net = np.concatenate([surface_flux(m, torch.as_tensor(t_flux[i:i + 8192]).reshape(-1, 1), cc).detach().numpy()
+                            .ravel() for i in range(0, t_flux.size, 8192)]) * m.soil.Ks * MM_D
+    q_obs = np.interp(t_flux, np.asarray(ds['t_q'], float), np.asarray(ds['q_obs'], float)) * MM_D
     t = np.linspace(0.0, n_days, int(round(24 * per_hour * n_days)) + 1)
-    q_net = surface_flux(m, torch.as_tensor(t).reshape(-1, 1), cc).detach().numpy().ravel() * m.soil.Ks * MM_D
-    q_obs = np.interp(t, np.asarray(ds['t_q'], float), np.asarray(ds['q_obs'], float)) * MM_D
     xi = -(1.0 - np.linspace(0.0, 1.0, nxi)) ** 1.5
     X, T = np.meshgrid(xi, t, indexing='xy')                                   # (nt, nxi)
     xs, ts = torch.as_tensor(X.reshape(-1, 1)), torch.as_tensor(T.reshape(-1, 1))
     R = np.concatenate([pde_residual(m, xs[i:i + 8192], ts[i:i + 8192], cc).detach().numpy().ravel()
                         for i in range(0, xs.shape[0], 8192)]).reshape(T.shape) / sig_pde
-    return {'t': t, 'xi': xi, 'q_net': q_net, 'q_obs': q_obs, 'R': R, 'sig_pde': sig_pde, 'sig_q': sig_q,
-            'flux_rel_rms': rms(q_net - q_obs) / rms(q_obs), 'flux_rms_mmd': rms(q_net - q_obs),
-            'residual_rms': rms(R), 'residual_max': float(np.abs(R).max())}
+    e, late_flux, late = q_net - q_obs, t_flux >= FIRST_HOUR_D - 1e-12, t >= FIRST_HOUR_D - 1e-12
+    k, j = np.unravel_index(int(np.argmax(np.abs(R[late]))), R[late].shape)
+    return {'t': t, 't_flux': t_flux, 'xi': xi, 'q_net': q_net, 'q_obs': q_obs, 'R': R, 'late': late,
+            'sig_pde': sig_pde, 'sig_q': sig_q, 'flux_rel_rms': rms(e) / rms(q_obs),
+            'flux_rel_rms_late': rms(e[late_flux]) / rms(q_obs), 'flux_rms_mmd': rms(e), 'flux_per_hour': flux_per_hour,
+            'residual_rms': rms(R), 'residual_max': float(np.abs(R).max()), 'residual_rms_late': rms(R[late]),
+            'residual_max_late': float(np.abs(R[late]).max()), 'residual_max_late_t_days': float(t[late][k]),
+            'residual_max_late_xi': float(xi[j]), 'residual_rms_t0': rms(R[0]), 'residual_per_hour': per_hour}
 
 
 def physics_numbers(ph):
-    return {k: ph[k] for k in ('flux_rel_rms', 'flux_rms_mmd', 'residual_rms', 'residual_max', 'sig_pde', 'sig_q')}
+    return {k: ph[k] for k in ('flux_rel_rms', 'flux_rel_rms_late', 'flux_rms_mmd', 'flux_per_hour', 'residual_rms',
+                               'residual_max', 'residual_rms_late', 'residual_max_late', 'residual_max_late_t_days',
+                               'residual_max_late_xi', 'residual_rms_t0', 'residual_per_hour', 'sig_pde', 'sig_q')}
+
+
+def physics_row(ph):
+    """Cells of the physics table of section 6 for one network (headers in main)."""
+    return [f"{100 * ph['flux_rel_rms']:.2f} %", f"{100 * ph['flux_rel_rms_late']:.2f} %",
+            f"{ph['residual_rms_late']:.3f}", f"{ph['residual_max_late']:.2f}", f"{ph['residual_rms_t0']:.2f}"]
 
 
 def step_label(dt_h):
@@ -170,7 +196,7 @@ def fig_setup(d, th_label, path):
     t = d['t_days']
     fig, ax = plt.subplots(3, 1, figsize=(7.5, 7.0), sharex=True)
     ax[0].plot(t, d['qsurf'] * MM_D, color=plots.C_TRUTH, label='surface flux, upward positive')
-    ax[0].plot(t, d['tp_daily_mmd'], color=plots.C_PRED, label='root uptake')
+    ax[0].plot(d['t_daily'], d['tp_daily_mmd'], color=plots.C_PRED, label='root uptake')   # on the forcing nodes
     ax[0].axhline(0, color=plots.INK2, lw=0.6)
     ax[0].set_ylabel('flux (mm/d)'); ax[0].legend()
     ax[1].plot(t, d['theta_obs_hourly'], color=plots.INK)
@@ -288,17 +314,17 @@ def fig_stages(d, stages, path):
 
 def fig_physics(phys, path):
     fig, ax = plt.subplots(3, 1, figsize=(7.5, 8.8))
-    ax[0].plot(phys[0]['t'], phys[0]['q_obs'], color=plots.INK, lw=2.2, label='prescribed')
+    ax[0].plot(phys[0]['t_flux'], phys[0]['q_obs'], color=plots.INK, lw=2.2, label='prescribed')
     for k, ph in enumerate(phys):
-        ax[0].plot(ph['t'], ph['q_net'], color=MEMBER_COLORS[k % 4], lw=0.9, label=f'member {k + 1}')
+        ax[0].plot(ph['t_flux'], ph['q_net'], color=MEMBER_COLORS[k % 4], lw=0.9, label=f'member {k + 1}')
         ax[1].semilogy(ph['t'], np.sqrt(np.mean(ph['R'] ** 2, axis=1)), color=MEMBER_COLORS[k % 4], lw=1.1,
                        label=f'member {k + 1}')
-        ax[2].semilogy(-ph['xi'], np.sqrt(np.mean(ph['R'] ** 2, axis=0)), color=MEMBER_COLORS[k % 4], lw=1.1,
-                       label=f'member {k + 1}')
+        ax[2].semilogy(-ph['xi'], np.sqrt(np.mean(ph['R'][ph['late']] ** 2, axis=0)), color=MEMBER_COLORS[k % 4],
+                       lw=1.1, label=f'member {k + 1}')
     ax[0].set_xlabel(T_LABEL); ax[0].set_ylabel('surface flux, upward positive (mm/d)'); ax[0].legend(ncol=3)
     ax[1].set_xlabel(T_LABEL); ax[1].set_ylabel('PDE residual / $\\sigma_{pde}$,\nRMS over depth (–)')
     ax[2].set_xlabel('relative depth, 0 = surface, 1 = water table (–)')
-    ax[2].set_ylabel('PDE residual / $\\sigma_{pde}$,\nRMS over time (–)')
+    ax[2].set_ylabel('PDE residual / $\\sigma_{pde}$,\nRMS over time after the first hour (–)')
     ax[1].legend(ncol=4); ax[2].legend(ncol=4)
     plots._finish(fig, path)
 
@@ -408,7 +434,7 @@ def main():
         'theta_observed_range': [float(th_obs.min()), float(th_obs.max())],
         'downward_surface_flux_mm': float(np.trapezoid(np.clip(-q, 0, None), t)),
         'upward_surface_flux_mm': float(np.trapezoid(np.clip(q, 0, None), t)),
-        'root_uptake_mm': float(np.trapezoid(d['tp_daily_mmd'], t)),
+        'root_uptake_mm': float(np.trapezoid(d['tp_daily_mmd'], d['t_daily'])),
         'n_coef': int(d['truth_coef'].size), 'spline_of_observed_vs_record': score(d['zb_spline'], zb_obs)}
     s = M['setup']
     md.append('## 1. Data\n\n' + md_table(['quantity', 'value'], [
@@ -437,8 +463,12 @@ def main():
                  ['network', f"{num['n_inputs']} inputs, {num['depth']} hidden layers of {num['width']}, tanh, "
                              f"{num['n_params']} parameters"],
                  ['training', f"{num['steps']} steps, {num['wall_s'] / 60:.0f} min on one GPU"]]
-        physics = [['surface flux: RMS error / RMS of the prescribed flux', f"{100 * num['flux_rel_rms']:.2f} %"],
-                   ['PDE residual / sigma_pde: RMS (max)', f"{num['residual_rms']:.3f} ({num['residual_max']:.2f})"],
+        physics = [[f'surface flux: RMS error / RMS of the prescribed flux ({FLUX_GRID}): whole window, '
+                    'after the first hour',
+                    f"{100 * num['flux_rel_rms']:.2f} %, {100 * num['flux_rel_rms_late']:.2f} %"],
+                   [f'PDE residual / sigma_pde ({RESIDUAL_GRID}), after the first hour: RMS (max)',
+                    f"{num['residual_rms_late']:.3f} ({num['residual_max_late']:.2f})"],
+                   ['PDE residual / sigma_pde, the row t = 0: RMS', f"{num['residual_rms_t0']:.2f}"],
                    ['held-out losses at the end: PDE, surface flux', f"{num['val_pde']:.4f}, {num['val_flux']:.4f}"]]
         if fine is None:
             md.append(head + md_table(['quantity', 'value'], setup + [
@@ -592,17 +622,17 @@ def main():
         ph = physics_at(m, mc, pred['coef'], float(d['n_days']))
         phys.append(ph)
         M['physics'].append({'network': p, 'kind': 'operator member', **physics_numbers(ph)})
-        rows.append([f'operator member {k + 1}', f"{100 * ph['flux_rel_rms']:.2f} %", f"{ph['residual_rms']:.3f}",
-                     f"{ph['residual_max']:.2f}"])
+        rows.append([f'operator member {k + 1}'] + physics_row(ph))
     for k, p in enumerate(fs.get('fwd', {}).get('members', [])):
         m, mc = load_member(p, args.data)
         ph = physics_at(m, mc, fs['fwd']['c_fwd'], float(d['n_days']))
         M['physics'].append({'network': p, 'kind': 'forward network of the value correction', **physics_numbers(ph)})
-        rows.append([f'forward network {k + 1} of the value correction', f"{100 * ph['flux_rel_rms']:.2f} %",
-                     f"{ph['residual_rms']:.3f}", f"{ph['residual_max']:.2f}"])
+        rows.append([f'forward network {k + 1} of the value correction'] + physics_row(ph))
     fig_physics(phys, os.path.join(args.out, 'fig6_physics.png'))
     md.append('## 6. Physics of the trained networks at the estimate\n\n' + md_table(
-        ['network', 'surface flux: RMS error / RMS of the prescribed', 'PDE residual / sigma_pde: RMS', 'max'], rows))
+        ['network', f'surface flux: RMS error / RMS of the prescribed ({FLUX_GRID}), whole window',
+         'surface flux, after the first hour', f'PDE residual / sigma_pde ({RESIDUAL_GRID}), after the first hour: RMS',
+         'max', 'PDE residual / sigma_pde, the row t = 0: RMS'], rows))
 
     # ---- optional: sensitivity of the forward PINN, repeated runs, single members
     if args.variants:
@@ -627,7 +657,7 @@ def main():
                         + ([f"{num['vs_fine']['theta_rms']:.2e}", f"{num['vs_fine']['sensor_rms']:.2e}"]
                            if fine is not None else [])
                         + [f"{num['theta_rms']:.2e}", f"{num['sensor_rms']:.2e}", apart,
-                           f"{100 * num['flux_rel_rms']:.2f} %", f"{num['residual_rms']:.3f}",
+                           f"{100 * num['flux_rel_rms']:.2f} %", f"{num['residual_rms_late']:.3f}",
                            f"{num['wall_s'] / 60:.0f}"])
         own_step = f", {step_label(cfg['fem']['dt_hours'])} step (the data set's)" if fine is not None else ''
         md.append('## 7. Forward PINN: training seed, network size, collocation points\n\n'
@@ -635,7 +665,8 @@ def main():
             ['run', 'width', 'hidden layers', 'collocation points', 'seed', 'parameters']
             + ([f"all depths, {fine['label']} step", f"sensor layer, {fine['label']} step"] if fine is not None else [])
             + ['all depths' + own_step, 'sensor layer' + own_step, 'sensor layer, minus the baseline network',
-               'surface flux', 'PDE residual RMS', 'minutes'], rows))
+               f'surface flux ({FLUX_GRID})', f'PDE residual RMS, after the first hour ({RESIDUAL_GRID})', 'minutes'],
+            rows))
     if args.repeats:
         rows, reps, M['repeats'] = [score_row('first run', inv['pinn']) + ['-', '-']], [], {}
         for name, p in pairs(args.repeats):

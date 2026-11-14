@@ -3,15 +3,15 @@
 (scoring only)
 
 For the networks behind one estimate (operator members at the estimate, forward networks of the value correction
-at their path), the surface flux of the network minus the prescribed flux, as a fraction of the RMS of the
-prescribed flux, on uniform time grids of several steps, at the forcing nodes only, half-way between them, on
-log-uniform times in the first day (the early-time sample of training, train.frac_early_t), and by day on the
-finest grid. The prescribed flux is linear between the forcing nodes, as in training
-(parametric.ParamTrainer.q_surf) and in scripts/paper_figures.py (physics_at). With --residual also the PDE residual
-in units of sigma_pde on (t, xi), xi as in physics_at, for several time grids, split into the rows at forcing-node
-times and the others, the row t = 0, the first hour and the time after it. The network has zero surface flux at
-t = 0 by construction, so the first minutes are also given row by row (FIRST_HOUR_S) for the flux error and the
-residual. Nothing here is read by a PINN run.
+at their path; with --forward, forward networks trained at the path of the record), the surface flux of the network
+minus the prescribed flux, as a fraction of the RMS of the prescribed flux, on uniform time grids of several steps,
+at the forcing nodes only, half-way between them, on log-uniform times in the first day (the early-time sample of
+training, train.frac_early_t), and by day on the finest grid. The prescribed flux is linear between the forcing
+nodes, as in training (parametric.ParamTrainer.q_surf) and in scripts/paper_figures.py (physics_at). With --residual
+also the PDE residual in units of sigma_pde on (t, xi), xi as in physics_at, for several time grids, split into the
+rows at forcing-node times and the others, the row t = 0, the first hour and the time after it. The network has
+zero surface flux at t = 0 by construction, so the first minutes are also given row by row (FIRST_HOUR_S) for the
+flux error and the residual. Nothing here is read by a PINN run.
 
 Usage: python -u scripts/flux_grid_check.py --data output/real_nc2_sep23c_own --final runs/rfnc1dc_it1 \
            --out output/paper/nc2_sep23c/flux_grid
@@ -40,8 +40,8 @@ def flux_error(m, c, t, t_q, q_obs):
     return q_net - q, q
 
 
-def residual_on(m, cfg, c, n_days, nodes, nxi=101):
-    """PDE residual / sigma_pde on (t, xi). For the time grids RES_PER_HOUR: RMS, max and where it is, the RMS of
+def residual_on(m, cfg, c, n_days, nodes, res_per_hour=RES_PER_HOUR, nxi=101):
+    """PDE residual / sigma_pde on (t, xi). For the time grids res_per_hour: RMS, max and where it is, the RMS of
     the rows at forcing-node times and of the other rows, of the row t = 0, of the rows of the first hour and of
     the rows after it, and the time mean by the trapezoid rule. By day on the finest grid. The rows of the first
     hour at the times FIRST_HOUR_S (one row each, RMS over xi)."""
@@ -55,7 +55,7 @@ def residual_on(m, cfg, c, n_days, nodes, nxi=101):
                                for i in range(0, xs.shape[0], 8192)]).reshape(T.shape) / sig_pde
 
     out = {'grids': {}}
-    for per_hour in RES_PER_HOUR:
+    for per_hour in res_per_hour:
         t = np.linspace(0.0, n_days, int(round(24 * per_hour * n_days)) + 1)
         R = rows(t)
         ms = np.mean(R ** 2, axis=1)                                           # mean square over xi, row by row
@@ -78,7 +78,7 @@ def residual_on(m, cfg, c, n_days, nodes, nxi=101):
     return out
 
 
-def one_network(m, cfg, c, n_days, residual=False):
+def one_network(m, cfg, c, n_days, residual=False, res_per_hour=RES_PER_HOUR):
     ds = load_dataset(cfg)
     t_q, q_obs = np.asarray(ds['t_q'], float), np.asarray(ds['q_obs'], float)
     cc = torch.as_tensor(np.asarray(c, float))
@@ -106,24 +106,31 @@ def one_network(m, cfg, c, n_days, residual=False):
     late = t >= 1.0 / 24.0 - 1e-12                                              # t, e, q: the finest grid
     out['after_first_hour'] = {'err_rms_mmd': rms(e[late]), 'rel_to_fine_q_rms': rms(e[late]) / q_fine}
     if residual:
-        out['residual'] = residual_on(m, cfg, cc, n_days, nodes)
+        out['residual'] = residual_on(m, cfg, cc, n_days, nodes, res_per_hour)
     return out
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--data', required=True, help='directory of a make_real.py data set')
-    ap.add_argument('--final', required=True, help='directory of the inversion that gives the estimate')
+    ap.add_argument('--final', help='directory of the inversion that gives the estimate')
+    ap.add_argument('--forward', nargs='*', default=[], metavar='RUN',
+                    help='forward networks trained at the path of the record (truth_coef of the data set)')
     ap.add_argument('--residual', action='store_true', help='also the PDE residual on several time grids')
+    ap.add_argument('--res-per-hour', type=int, nargs='+', default=list(RES_PER_HOUR),
+                    help='time grids of the PDE residual, rows per hour, coarsest first')
     ap.add_argument('--out', required=True, help='path stem of the output (.json)')
     args = ap.parse_args()
     d = read_npz(os.path.join(args.data, 'real.npz'))
     n_days = float(d['n_days'])
-    pred = read_npz(os.path.join(args.final, 'predictions.npz'))
-    fs = read_json(os.path.join(args.final, 'summary.json'))
-    nets = [('operator member', p, pred['coef']) for p in fs['members']]
-    nets += [('forward network of the value correction', p, fs['fwd']['c_fwd'])
-             for p in fs.get('fwd', {}).get('members', [])]
+    nets = []
+    if args.final:
+        pred = read_npz(os.path.join(args.final, 'predictions.npz'))
+        fs = read_json(os.path.join(args.final, 'summary.json'))
+        nets += [('operator member', p, pred['coef']) for p in fs['members']]
+        nets += [('forward network of the value correction', p, fs['fwd']['c_fwd'])
+                 for p in fs.get('fwd', {}).get('members', [])]
+    nets += [('forward network at the path of the record', p, d['truth_coef']) for p in args.forward]
     res = {'data': args.data, 'final': args.final, 'n_days': n_days, 'networks': []}
     where = ('at_nodes', 'between_nodes', 'early')
     print(f"{'network':34s} " + ' '.join(f'{k:>6d}/h' for k in PER_HOUR) + ' '
@@ -131,7 +138,7 @@ def main():
           + '   (RMS error / RMS prescribed, %)')
     for kind, p, c in nets:
         m, cfg = load_member(p, args.data)
-        r = {'network': p, 'kind': kind, **one_network(m, cfg, c, n_days, args.residual)}
+        r = {'network': p, 'kind': kind, **one_network(m, cfg, c, n_days, args.residual, args.res_per_hour)}
         res['networks'].append(r)
         print(f"{os.path.basename(p):34s} " + ' '.join(f"{100 * r['grids'][str(k)]['rel']:8.2f}" for k in PER_HOUR)
               + ' ' + ' '.join(f"{100 * r[w]['rel_to_fine_q_rms']:8.2f}" for w in where), flush=True)
@@ -152,7 +159,7 @@ def main():
                       f"{v['rms_first_hour']:.3f} | {v['rms_after_first_hour']:.3f} "
                       f"({v['max_after_first_hour']:.1f}) | {v['rms_time_trapezoid']:.3f}"
                       for k, v in g.items()))
-            v = g[str(RES_PER_HOUR[-1])]
+            v = g[str(args.res_per_hour[-1])]
             print(f"    PDE residual: max at t = {v['max_at_t_days']:.4f} d, xi = {v['max_at_xi']:.4f}; by day (rms): "
                   + ' '.join(f'{x:.3f}' for x in r['residual']['by_day_rms']))
             print('    PDE residual, rows of the first hour (rms over xi) at t = '
