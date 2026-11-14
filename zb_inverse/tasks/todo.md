@@ -3881,3 +3881,50 @@ Real-case spec (first slice):
           N2  fs_nc2c_{s1,s2,w64,w32,d3,c2k}: hpc/fwd_truth.sh, same data set; logs/fwd_fs_nc2c_*.log.
           N0  jobs 15609737 / 15609752 / 15609768 / 15609783 -> runs/rfnc1_inv4_m0..3.
         Still to check for A4: train.seed in runs/rfnc1s1_w0/config.yaml (1000) and runs/fs_nc2c_s1 (1).
+    74 b. (14 Nov, 00:29) SITE TRACK, PLAN (written before any site job; asked: "need more site to prove this pinn works").
+        Two statements, kept apart as in 72 - 73:
+          (i)  the PINN returns the estimate of the numerical inversion of the same model from every start (R1, R2):
+               a statement about the PINN, testable on any window;
+          (ii) that estimate is the observed water table (R3): a statement about the soil-column model and its
+               calibrated soil at the site, which the PINN shares with the solver.
+        Where it stands: (i) at US-NC2 in three runs (rfnc1 0.065 cm, rfn1 0.07, rfnd 0.06), not at US-PAS C1
+        (2.92 cm); (ii) at US-NC2 on C_N1 in-sample (1.10 cm) and on W3 with the May soil (rfnd, 1.58 cm, held out
+        but NOT the pre-registered transfer); the pre-registered T_N1 fails by the 9.5 cm the solver has. No site
+        has passed R4.
+        DATA ON DISK, looked at today (headers only: head / grep on the login node, nothing fitted):
+          fem_validation/temp_extract, twelve half-hourly files not looked at in bf / bg:
+            both a soil-moisture and a water-table column: US-CRT (drainage tiles) and US-Uaf (permafrost), both
+            set aside in bf; water table without soil moisture: US-Los, US-Myb, US-OWC, US-Sne, US-Tw1, US-Tw4,
+            US-Tw5, US-Twt, US-WPT; US-Snd (BASE 2-1): SWC_1, SWC_2 and no water-table column.
+          fem_validation/uploaded_data: as bf / bg. CL-SDF stays the one candidate; the project's GLDAS tables
+            hold US wells only, so its transpiration fraction would be a number set by hand -> last in line.
+        => no NEW SITE can be started from the data on disk. New sites need new data.
+        TRACKS
+          S1 (now; further WINDOWS of US-NC2, not further sites; no new data). W1 (1 May 2023 + 15 d) and W2
+             (1 Sep 2023 + 6 d) with their own soils: the solver's in-sample inversions are 0.89 and 0.63 cm from
+             the well (az), both soils usable; the PINN was never run on them.
+               rfnm1  hpc/real_full_obs.sh on output/real_nc2_may23_own          "[0.0,0.30]"
+               rfna1  hpc/real_full_obs.sh on output/real_nc2_sep23a_own_cal3    "[0.0,0.30]"
+             (SEED0 0, i.e. the seeds of every run so far.)
+             EXPECTATION: four starts, one estimate (< 0.2 cm); PINN - solver <= 0.3 cm rms (three runs at this
+             site: 0.06 - 0.07); from the well 0.7 - 1.1 cm (W1) and 0.5 - 0.9 cm (W2). Both soils have Ks on the
+             upper bound (1e-3 m/s): the profile is then close to hydrostatic at every hour, and the hydrostatic
+             reading WITH THE CALIBRATED SOIL should be about as good as the inversion (scripts/score_real.py
+             prints it; said in the table whichever way it comes out). These two windows test (i) and the
+             retention curve, not the dynamics; C_N1 is the window with dynamics. In-sample: no R4.
+          S2 (running, agent; report -> tasks/site_candidates.md): sites with open data that carry, at one plot,
+             a soil-moisture sensor in the top 0.3 m, a well with the water table at 0.2 - 1.5 m moving by
+             >= 0.2 m, rain, and ET (eddy covariance or full meteorology), on mineral soil without peat / moss,
+             inundation, drains, irrigation, tides or frost. Two groups: downloadable with no account; needs an
+             account. It downloads and fits nothing.
+          S3 AmeriFlux sites not on disk (candidates from S2): a download is logged with the user's name, e-mail
+             and intended use and is sent to the site teams -> not started without the user's word.
+        PROTOCOL FOR A NEW SITE (unchanged: ay, az). Record first (sign of WTD checked against the sensor, depth
+        of the sensor from the measurement-height table, plateau of the sensor, shift between rain and the rise of
+        the well), nothing fitted; windows by the written rule of ay; configs/real_<site>_<window>.yaml;
+        hpc/cycle_solver.sh (data set, four calibration starts, in-sample solver inversions); the PINN
+        (hpc/real_full_obs.sh) on a window only if its soil is usable (lowest misfit AND in-sample inversion
+        within 2 cm, r >= 0.975 below saturation); held-out test = the next window with that soil; R1 - R4 as
+        they are.
+        WHAT WILL COUNT: a new site counts for (ii) only with a held-out window inside R3. An in-sample window
+        inside R3 with R1 and R2 is reported as in-sample, as C_N1 is.
