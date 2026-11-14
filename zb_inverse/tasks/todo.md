@@ -6104,3 +6104,13 @@ Real-case spec (first slice):
           DECISION RULE: as at DK-Sor. PINN at this station whatever T4 gives: tag rfbil1, data set
             output/real_bil_oct23_own, sensor "[0.05,0.05]", no extra options (Ks 6.4e-5: additive form).
             A coefficient on the bound is followed up (rule of 74 ac) only within 5 cm of R3.
+        (18:46) FR-Bil DATA SET WITH THE FITTED SOIL: output/real_bil_oct23_own (job 15643564, exit=0, no
+          Traceback; no gap filled; admissible; surface head never below -0.41 m). Forward solve against the
+          sensor: record water table 0.00698, r 0.950 (as the calibration); 1-day spline 0.00724, r 0.946;
+          f_T 0 / 0.5 / 1: 0.00710 / 0.00699 / 0.00696 (f_T hardly matters: ET 9.3 mm against 191 mm of
+          rain). NOT CLEAN: fem_converged_frac 0.9962, i.e. 0.4 % of the solver's steps did not converge
+          with this soil (n = 10); at the other data sets of today it is 1.0. Said with every number of
+          the numerical side at this station.
+        PINN LAUNCHED (18:46): setsid nohup hpc/real_full_x.sh rfbil1 output/real_bil_oct23_own "[0.05,0.05]" ""
+          > logs/full_rfbil1.log (final directory runs/rfbil1dc_it4). Read only after the numerical lines
+          of logs/transfer_bil_oct23.log are recorded.
