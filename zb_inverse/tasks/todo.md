@@ -6014,7 +6014,7 @@ Real-case spec (first slice):
             estimate is within 5 cm of meeting its rule; further off, the bound does not decide anything
             and the row is closed. If T1 is wrong (in-sample within 2 cm): the December row is judged by
             R3, and the PINN is run on it only if the numerical inversion meets R3.
-        (17:58) DK-Sor, 13 - 24 Dec 2024, the TEST window (output/soil_sor_dec24; jobs 15633599 - 15633602,
+        (17:58) DK-Sor, 8 - 19 Dec 2024, the TEST window (output/soil_sor_dec24; jobs 15633599 - 15633602,
         all exit=0, no Traceback, all ended by xtol; 71 - 138 min, 105 - 228 solves):
           start        misfit    r      theta_s  theta_r  alpha  n       Ks        on bound (flag)
           0 own soil   0.005241  0.502  0.3430   0.2000   7.71   1.1000  3.26e-4   theta_r, n
@@ -6052,3 +6052,14 @@ Real-case spec (first slice):
             is then compared with every start, and the row says "water table not determined by the
             sensor at this station" for solver and PINN alike. A coefficient on the bound: rule of 74 ac
             only if the estimate is within 5 cm of R3 (as written for T1).
+        (18:01) CORRECTION: the heading above read "13 - 24 Dec 2024"; the window is 2024-12-08T12:00 + 11 d
+          (configs/real_sor_dec24.yaml, real_summary.json), i.e. 8 - 19 Dec. I had written the dates from
+          memory. Corrected in place; nothing was computed from the wrong dates.
+        DATA SET WITH THE FITTED SOIL: output/real_sor_dec24_own (job 15642024, exit=0, no Traceback; no gap
+          filled; all solver steps converged; admissible). Forward solve with the record water table
+          against the sensor: rmse 0.00524, r 0.50 (as the calibration); with the 1-day spline 0.00527.
+          f_T makes no difference here (0.00524 - 0.00525 at 0, 0.5, 0.67): ET of the window 0.5 mm,
+          rain 22.2 mm.
+        PINN LAUNCHED (18:01): setsid nohup hpc/real_full_x.sh rfsor1 output/real_sor_dec24_own "[0.05,0.05]" ""
+          > logs/full_rfsor1.log (final directory runs/rfsor1dc_it4). Nothing of it is read before the
+          numerical lines of logs/transfer_sor_dec24.log are recorded.
