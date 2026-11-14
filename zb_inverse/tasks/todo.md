@@ -6063,3 +6063,44 @@ Real-case spec (first slice):
         PINN LAUNCHED (18:01): setsid nohup hpc/real_full_x.sh rfsor1 output/real_sor_dec24_own "[0.05,0.05]" ""
           > logs/full_rfsor1.log (final directory runs/rfsor1dc_it4). Nothing of it is read before the
           numerical lines of logs/transfer_sor_dec24.log are recorded.
+        (18:39) DK-Sor, NUMERICAL INVERSIONS WITH THE JUNE SOIL, all eight ended (logs/transfer_sor_jun24.log,
+        every job COMPLETED; reference only):
+          data set                              RMSE    bias    max    on bound      cost    starts
+          June, in-sample (sor_own_jun24)       13.97   -2.30   41.2   0, 11, 13     1.9169  four identical
+          December, June soil (sor_jun24on_dec24) 30.31  -25.84  71.2   13           0.1752  four identical
+          T1 (in-sample misses the 2 cm rule; guess 8 - 30 cm): AS EXPECTED, 14.0 cm. My "starts may not
+            agree" did not happen: R1 holds in both (one estimate from the four starts).
+          T2 (December misses R3; guess 5 - 15 cm): R3 missed, 30.3 cm, twice my upper guess.
+          BY THE RULE WRITTEN BEFORE: no usable soil from the June window; the December row with the June
+            soil is reported with these numbers as "no usable earlier soil", it is not a test of the
+            method, and no PINN is run on it. Both estimates are further than 5 cm from their rules, so
+            the coefficients on the bound are not followed up. DK-Sor has no held-out row.
+        (18:39) FR-Bil, 29 Oct - 9 Nov 2023 (window 2023-10-29T12:00 + 11 d from the config; rain 191.0 mm, ET
+        9.3 mm, f_T 0.55), output/soil_bil_oct23, jobs 15633587 - 15633590, all exit=0, no Traceback, all
+        ended by xtol; 91 - 183 min, 74 - 112 solves:
+          start        misfit    r      theta_s  theta_r  alpha  n      Ks        on bound (flag)
+          0 own soil   0.007008  0.949  0.3879   0.1246   3.88   9.989  1.56e-5   -
+          1 sand       0.007008  0.949  0.3879   0.1246   3.88   9.989  1.56e-5   -   (the station's class IS
+                                                                                     sand: starts 0 and 1 are
+                                                                                     one start, same numbers)
+          2 sandy loam 0.006998  0.949  0.3256   0.1245   3.78   9.984  7.39e-6   -
+          3 static     0.006982  0.950  0.5632   0.1250   4.11   9.996  6.41e-5   -   <- the soil (lowest)
+          bias < 0.00002, max 0.034 - 0.037. So three different starts, not four.
+          C1 (<= 0.005): MISSED, 0.0070. The sensor moves by 0.111 here, so 6 % of its range; r 0.95.
+          C2 (a sand ends with a parameter on a bound): holds in substance: n is 9.98 - 10.00 against an
+            upper bound of 10 in all of them; the flag is not set because none is exactly on it.
+          C3: third data set whose starts agree in misfit (0.4 %): the "no more than two" is MISSED. In the
+            parameters they do not agree (theta_s 0.33 - 0.56, Ks 7e-6 - 6e-5): that half holds.
+          C4 (a sand still moving at 12 h): not here, all ended within 3 h 03.
+          FIGURE (start3.png, looked at): the fitted model follows every rain pulse of the sensor in time
+            and height; first 6 h 0.03 too dry; days 7.3 - 7.8 and 9.2 - 9.5 0.01 off. What I cannot see in
+            it: the level the sensor drains back to is 0.14 on day 3 and 0.137 on day 10, while the well
+            rises from 1.375 m to 0.35 m. With n = 10 and alpha = 4 (a fringe of about 0.25 m) the 5 cm
+            sensor is fed by rain and may carry little of the water table until it is very shallow.
+        NEXT: PYI=-I hpc/transfer_solver.sh bil oct23 "[0.05,0.05]".
+          EXPECTED, written before it is launched:
+            T4 the numerical inversion misses R3 (guess 5 - 25 cm from the well), for the reason in the
+               last sentence above; whether the four starts agree I do not predict.
+          DECISION RULE: as at DK-Sor. PINN at this station whatever T4 gives: tag rfbil1, data set
+            output/real_bil_oct23_own, sensor "[0.05,0.05]", no extra options (Ks 6.4e-5: additive form).
+            A coefficient on the bound is followed up (rule of 74 ac) only within 5 cm of R3.
