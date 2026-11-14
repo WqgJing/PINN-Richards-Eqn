@@ -23,8 +23,9 @@ Written by scripts/paper_figures.py; every number is in metrics.json.
 | run | runs/fwd_nc2c |
 | network | 38 inputs, 6 hidden layers of 128, tanh, 87681 parameters |
 | training | 28000 steps, 47 min on one GPU |
-| surface flux: RMS error / RMS of the prescribed flux | 4.82 % |
-| PDE residual / sigma_pde: RMS (max) | 0.659 (62.40) |
+| surface flux: RMS error / RMS of the prescribed flux (time mean, 1-min grid): whole window, after the first hour | 1.65 %, 1.46 % |
+| PDE residual / sigma_pde (1-min grid), after the first hour: RMS (max) | 0.177 (9.24) |
+| PDE residual / sigma_pde, the row t = 0: RMS | 14.13 |
 | held-out losses at the end: PDE, surface flux | 0.0292, 0.0274 |
 
 
@@ -99,28 +100,28 @@ The numerical solution against itself, soil moisture, RMS (max). Picard toleranc
 
 ## 6. Physics of the trained networks at the estimate
 
-| network | surface flux: RMS error / RMS of the prescribed | PDE residual / sigma_pde: RMS | max |
-|---|---|---|---|
-| operator member 1 | 5.20 % | 1.477 | 129.45 |
-| operator member 2 | 5.25 % | 1.150 | 102.27 |
-| operator member 3 | 5.34 % | 1.207 | 114.54 |
-| operator member 4 | 5.29 % | 0.874 | 77.10 |
-| forward network 1 of the value correction | 4.99 % | 0.563 | 49.24 |
-| forward network 2 of the value correction | 4.87 % | 0.496 | 44.49 |
+| network | surface flux: RMS error / RMS of the prescribed (time mean, 1-min grid), whole window | surface flux, after the first hour | PDE residual / sigma_pde (1-min grid), after the first hour: RMS | max | PDE residual / sigma_pde, the row t = 0: RMS |
+|---|---|---|---|---|---|
+| operator member 1 | 2.29 % | 2.15 % | 0.192 | 10.14 | 33.47 |
+| operator member 2 | 2.62 % | 2.50 % | 0.194 | 10.44 | 25.77 |
+| operator member 3 | 2.57 % | 2.45 % | 0.189 | 9.31 | 27.13 |
+| operator member 4 | 2.44 % | 2.30 % | 0.186 | 10.34 | 19.19 |
+| forward network 1 of the value correction | 2.12 % | 1.96 % | 0.179 | 11.70 | 11.68 |
+| forward network 2 of the value correction | 1.86 % | 1.67 % | 0.175 | 6.90 | 10.23 |
 
 ## 7. Forward PINN: training seed, network size, collocation points
 
 Soil moisture RMS against the numerical solution (m3/m3).
 
-| run | width | hidden layers | collocation points | seed | parameters | all depths, 1/256 h step | sensor layer, 1/256 h step | all depths, 1 h step (the data set's) | sensor layer, 1 h step (the data set's) | sensor layer, minus the baseline network | surface flux | PDE residual RMS | minutes |
+| run | width | hidden layers | collocation points | seed | parameters | all depths, 1/256 h step | sensor layer, 1/256 h step | all depths, 1 h step (the data set's) | sensor layer, 1 h step (the data set's) | sensor layer, minus the baseline network | surface flux (time mean, 1-min grid) | PDE residual RMS, after the first hour (1-min grid) | minutes |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| baseline | 128 | 6 | 8192 | 0 | 87681 | 1.42e-05 | 1.72e-05 | 3.27e-04 | 4.26e-04 | - | 4.82 % | 0.659 | 47 |
-| s1 | 128 | 6 | 8192 | 1 | 87681 | 1.40e-05 | 1.75e-05 | 3.27e-04 | 4.26e-04 | 1.90e-05 | 4.72 % | 0.728 | 47 |
-| s2 | 128 | 6 | 8192 | 2 | 87681 | 1.78e-05 | 2.16e-05 | 3.28e-04 | 4.27e-04 | 2.08e-05 | 4.95 % | 0.549 | 47 |
-| w64 | 64 | 6 | 8192 | 0 | 23361 | 4.26e-05 | 5.53e-05 | 3.31e-04 | 4.32e-04 | 5.47e-05 | 6.02 % | 0.727 | 48 |
-| w32 | 32 | 6 | 8192 | 0 | 6561 | 4.89e-05 | 6.35e-05 | 3.30e-04 | 4.30e-04 | 6.30e-05 | 6.29 % | 1.193 | 44 |
-| d3 | 128 | 3 | 8192 | 0 | 38145 | 4.28e-05 | 5.35e-05 | 3.29e-04 | 4.29e-04 | 5.35e-05 | 6.36 % | 1.132 | 40 |
-| c2k | 128 | 6 | 2048 | 0 | 87681 | 1.32e-05 | 1.52e-05 | 3.27e-04 | 4.25e-04 | 1.72e-05 | 4.83 % | 0.686 | 45 |
+| baseline | 128 | 6 | 8192 | 0 | 87681 | 1.42e-05 | 1.72e-05 | 3.27e-04 | 4.26e-04 | - | 1.65 % | 0.177 | 47 |
+| s1 | 128 | 6 | 8192 | 1 | 87681 | 1.40e-05 | 1.75e-05 | 3.27e-04 | 4.26e-04 | 1.90e-05 | 1.58 % | 0.164 | 47 |
+| s2 | 128 | 6 | 8192 | 2 | 87681 | 1.78e-05 | 2.16e-05 | 3.28e-04 | 4.27e-04 | 2.08e-05 | 1.95 % | 0.176 | 47 |
+| w64 | 64 | 6 | 8192 | 0 | 23361 | 4.26e-05 | 5.53e-05 | 3.31e-04 | 4.32e-04 | 5.47e-05 | 3.48 % | 0.286 | 48 |
+| w32 | 32 | 6 | 8192 | 0 | 6561 | 4.89e-05 | 6.35e-05 | 3.30e-04 | 4.30e-04 | 6.30e-05 | 3.46 % | 0.362 | 44 |
+| d3 | 128 | 3 | 8192 | 0 | 38145 | 4.28e-05 | 5.35e-05 | 3.29e-04 | 4.29e-04 | 5.35e-05 | 3.54 % | 0.370 | 40 |
+| c2k | 128 | 6 | 2048 | 0 | 87681 | 1.32e-05 | 1.52e-05 | 3.27e-04 | 4.25e-04 | 1.72e-05 | 1.66 % | 0.186 | 45 |
 
 ## 8. Repeated runs with other training seeds (against the well)
 

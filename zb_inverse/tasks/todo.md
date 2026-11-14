@@ -4980,3 +4980,89 @@ Real-case spec (first slice):
             /tmp/pf_before (root uptake of C_N1 23.66 mm). If a physics figure differs from the check by
             more than 2 % of itself, the two scripts disagree and the rebuild is not used until that is
             found.
+    74 w. (14 Nov, 07:12) REBUILD OF THE THREE RESULTS SETS WITH THE FINAL STATISTIC; 1/16 h INVERSION OF C_N1.
+        Rebuild jobs pfigm 15617939, pfiga 15617940, pfigc 15617941: exit=0, no Traceback, nothing left out.
+        AGAINST THE EXPECTATION OF 06:54:
+          - C_N1, section 6: members flux 2.29 - 2.62 % / after the first hour 2.15 - 2.50 %; residual after
+            the first hour 0.186 - 0.194 (max 9.31 - 10.44); row t = 0 19.19 - 33.47. Forward networks of the
+            loop 2.12, 1.86 % / 1.96, 1.67 %; 0.179, 0.175 (11.70, 6.90); 11.68, 10.23. Equal to
+            flux_grid_check to the digits written there. HOLDS.
+          - nc2_may23 and nc2_sep23a, section 6: equal to flux_grid_check (rfnm1 members 4.11 - 10.52 % /
+            3.39 - 8.46 %, 0.767 - 0.977 (9.56 - 16.11), row t = 0 1.06 - 1.71; rfna1 members 2.04 - 2.89 % /
+            1.35 - 2.19 %, 0.982 - 1.202 (9.54 - 10.57), 0.71 - 0.89). HOLDS.
+          - outside the physics numbers: metrics.json identical in all three sets (jq diff with the twelve
+            physics keys removed is empty; root uptake of C_N1 23.6617 mm). tables.md differs in sections
+            2, 6, 7 of C_N1 and in section 6 of the other two only. Of the tracked figures of C_N1 only
+            fig6_physics.png changed (git status). HOLDS.
+        NEW IN THE REBUILD (networks that were not in flux_grid_check):
+          - the forward network at the path of the record (runs/fwd_nc2c; section 2): flux 1.65 % whole
+            window, 1.46 % after the first hour (the half-hourly figure in the committed set was 4.82 %);
+            residual after the first hour 0.177 (9.24); row t = 0 14.13.
+          - its six variants (section 7): flux 1.58, 1.95, 1.66 % (two seeds, 2048 points) and 3.48, 3.46,
+            3.54 % (width 64, 32, 3 layers); residual after the first hour 0.164, 0.176, 0.186 and 0.286,
+            0.362, 0.370. The ranking by size that the half-hourly column did not show (4.7 - 6.4 %) is
+            there on the 1-min grid: the three smaller networks have twice the flux error and 1.6 - 2.1
+            times the residual of the baseline.
+          - THESE SEVEN NETWORKS HAVE NOT BEEN ON A FINER GRID. Lesson of 14 Nov: a grid statistic enters a
+            table after a grid 5 times finer agrees within 10 %. For the residual that has not been done
+            for ANY network either: the check compared 12/h with 60/h (4 %), i.e. the table's grid with a
+            coarser one. Both are closed by the job below before the README is rewritten.
+        WHERE THE MAXIMUM AFTER THE FIRST HOUR IS (argmax written by the rebuild, metrics.json):
+          - C_N1, all 13 networks: t = 2.125 d, xi = 0 (surface). That is forcing node 51; the prescribed
+            flux at nodes 50 - 53 is +3.09, +1.46, -118.74, -35.17 mm/d (q_daily of real.npz, read with
+            unzip/od): the node at which the first rain pulse sets in.
+          - rfnm1 and rfna1, all 12 networks: xi = -1 (water table), t = 2.0 - 15 d and 2.1 - 6 d.
+        fig6 of the three sets viewed: line plots, axis labels with units, legend, no title or text.
+        FINER-GRID CHECK OF THE TABLE'S STATISTIC (C_N1, 13 networks). scripts/flux_grid_check.py gets two
+          options and no change of what it computes: --forward RUN... (forward networks at truth_coef of the
+          data set, loaded as in paper_figures.py) and --res-per-hour (grids of the residual; default as
+          before). Job: --final runs/rfnc1dc_it1 --forward runs/fwd_nc2c runs/fs_nc2c_{s1,s2,w64,w32,d3,c2k}
+          --residual --res-per-hour 12 60 300 --out output/paper/nc2_sep23c/flux_grid_fine.
+          EXPECTATION, written before submission:
+            T1 flux of the seven forward networks: 60/h equals section 7 (1.65, 1.58, 1.95, 3.48, 3.46,
+               3.54, 1.66 %) within 2 %, and 600/h is within 10 % of 60/h (the six networks of the
+               estimate: 3 - 5 % lower at 600/h).
+            T2 residual after the first hour, all 13 networks: 300/h within 10 % of 60/h; I expect 60/h to
+               be 1 - 4 % ABOVE 300/h (rows on forcing nodes weigh 1/60 there and carry about twice the
+               RMS).
+            T3 the maximum after the first hour is not a converged quantity by construction; it may rise
+               on the 12-s grid. If it rises by more than 10 % for a network the README gives both grids.
+          RULE: a row of sections 2, 6, 7 is used as it is if T1 and T2 hold for its network. If one fails,
+            the part of the time axis carrying the difference is found first (lesson of 14 Nov) and the
+            table names what its figure covers. The recession windows are not repeated: their residual is
+            the same on 2/h, 12/h and 60/h to 0.3 % (daily nodes), and their flux was on 600/h.
+        1/16 h NUMERICAL INVERSION OF C_N1 (job 15615138, exit=0; start s1, cpu=2 as the 1 h and 1/4 h jobs):
+          cost 0.072742, 6 iterations, 177 member solves, no step not converged, no coefficient on a bound,
+          9624 s (160 min; 1/4 h 55 min, 1 h 12.5 min for the same start).
+          stepchk 15618073 (exit=0) -> output/paper/nc2_sep23c/inversion_step.json:
+            step     cost       against the well: RMSE   bias    max     r
+            1 h      0.091780                     1.112  +0.114  3.129  0.9904
+            1/4 h    0.076227                     1.113  +0.116  3.178  0.9903
+            1/16 h   0.072742                     1.107  +0.111  3.149  0.9904
+            1 h    minus 1/4 h :  0.044 cm RMS, 0.222 max (t = 0)
+            1 h    minus 1/16 h:  0.056 cm RMS, 0.277 max (t = 0)
+            1/4 h  minus 1/16 h:  0.0175 cm RMS, 0.058 max (t = 11 d); by day
+                                  0.026 0.025 0.040 0.006 0.004 0.003 0.002 0.002 0.001 0.001 0.020
+            PINN (runs/rfnc1dc_it1) minus 1 h   : 0.065 cm RMS, bias -0.004, max 0.302 (t = 11 d)
+                                    minus 1/4 h : 0.027 cm RMS, bias -0.006, max 0.093 (t = 11 d)
+                                    minus 1/16 h: 0.0137 cm RMS, bias -0.001, max 0.040 (t = 0.38 d); by day
+                                  0.026 0.017 0.019 0.015 0.013 0.005 0.006 0.007 0.010 0.004 0.012
+          AGAINST 74 h:
+            H3 holds: 0.0175 is less than half of 0.044. The ratio is 2.5 for a step 4 times smaller
+               (first order would give 4): between these three levels the estimate converges with the
+               step, more slowly than first order. The misfit does fall like first order (0.0156, then
+               0.0035: ratio 4.5).
+            H4 holds at 1/16 h too: 1.107 cm against the well.
+            H5 holds: PINN minus numerical inversion is 0.065 / 0.027 / 0.014 cm RMS and 0.30 / 0.093 /
+               0.040 cm max at 1 h / 1/4 h / 1/16 h.
+          READING RULE of 74 h: both conditions met (RMS and max fall at 1/4 h and fall again at 1/16 h).
+            The sentence is written in this form: "the PINN estimate is the closer to the numerical
+            inversion the smaller the solver's step: 0.065, 0.027, 0.014 cm RMS at 1 h, 1/4 h, 1/16 h".
+            NOT written: "the PINN's error is 0.014 cm". The 1/16 h inversion is itself 0.0175 cm from the
+            1/4 h one; with the ratio 2.5 seen between the levels it would still be about 0.012 cm from
+            its limit (0.0175 / 1.5: a hand extrapolation from three levels, not computed by a job). The
+            PINN and the 1/16 h inversion agree to within what the step still moves the inversion; which
+            of the two is nearer the estimate of the continuous problem is not resolved. The 1 h figures
+            stay in the table, named by their step; no PINN run is changed.
+          COST, for point 4 of the README: one start of the numerical inversion 12.5 / 55 / 160 CPU-job
+            minutes at 1 h / 1/4 h / 1/16 h (2 cpus each), against 13.6 GPU hours (816 min) for the PINN.
