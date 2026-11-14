@@ -3788,3 +3788,21 @@ Real-case spec (first slice):
         EXPECTATION, written before the jobs are submitted: PINN - solver rms 0.8 - 2 cm for rfnc1tc_inv0 (wide
         stage only, no refinement, no value correction) and 1.5 - 3 cm for rfnc1t_inv0.
         Driver (process group 2375444) is in refinement round 1 since 19:32.
+        19:40. EARLY LOOK, RESULT (jobs 15600414 / 15600415, COMPLETED, exit 0; hourly, 265 h; "solver" = the
+        solver inversion with the lowest cost, nc2_sep23aon_sep23c_s1, the four starts equal in cost to 7 digits):
+                          PINN - solver: rms    bias     max     r        vs well: rms   bias    r       theta vs sensor
+          rfnc1tc_inv0    (conductive)   0.55   -0.29    2.46    0.9989            3.30  -1.93   0.948   0.00139
+          rfnc1t_inv0     (additive)     1.30   +0.23    3.36    0.9855            2.51  -1.41   0.966   0.00208
+          solver                                                                   3.05  -1.64   0.948   0.00144
+          (cm; files output/real_nc2_sep23c_soilsep23a/result_rfnc1tc_inv0.json, result_rfnc1t_inv0.json)
+        EXPECTATION: 0.8 - 2 cm and 1.5 - 3 cm. ACTUAL 0.55 and 1.30: both below the range (wrong on the good
+        side; the wide stage alone is closer to the solver than I assumed for either form).
+        READ FROM THE FIGURE result_rfnc1tc_inv0.png: the two curves lie on each other except in the last day,
+        where the PINN ends at 0.76 m and the solver at 0.79 m (the 2.46 cm), and slightly on days 1 - 2. Neither
+        follows the well's rise after the showers (well 0.47 m on day 3.3, both estimates 0.515 m).
+        What this is and is not: wide stage only, one data set, DIAGNOSTIC. It says that with the flux learnt
+        the wide-stage estimate is the solver's to 0.55 cm (and has the solver's fit to the sensor, 0.00139
+        against 0.00144), while the additive form's is at 1.30 cm with a worse fit (0.00208). The additive
+        estimate is closer to the WELL (2.51 against 3.30 cm): being nearer the well by departing from the
+        solver is not a merit under the criteria (R2), and nothing on this window counts for R3. The reading
+        rule of 73 bz is applied to the final estimates of the two runs, not to these.
