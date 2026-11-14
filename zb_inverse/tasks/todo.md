@@ -3806,3 +3806,67 @@ Real-case spec (first slice):
         estimate is closer to the WELL (2.51 against 3.30 cm): being nearer the well by departing from the
         solver is not a merit under the criteria (R2), and nothing on this window counts for R3. The reading
         rule of 73 bz is applied to the final estimates of the two runs, not to these.
+74. PAPER-STANDARD RESULT SET, built from the US-NC2 rain window (C_N1, own soil, PINN run rfnc1)
+    (14 Nov, 00:17; request: "lets work from there and try produce standard results a pinn paper would use".
+    PLAN, written before anything is built or submitted.)
+    a) What the case is, and what it is not. Window: 11 days, Sep 2023, hourly, sensor = mean over 0 - 0.30 m, 14
+       spline coefficients. Soil calibrated ON THIS WINDOW (in-sample), so the case shows that the network recovers
+       the water table from flux and soil moisture when the soil is right; it is not a held-out test. No site has
+       passed R4, and the held-out windows fail R3 on the solver side too (73). Every table of this set says so.
+    b) Results from runs that exist (no new training). One script, scripts/paper_figures.py (CPU batch job), output
+       output/paper/nc2_sep23c/:
+         P1 fig1_setup      forcing and data: surface flux q_surf and root uptake (mm/d), sensor soil moisture,
+                            observed water table (record)
+         P2 fig2_forward    FORWARD verification, PINN against the FEM solver, same soil, forcing and water table
+                            (the well's spline): theta(z) at six times, and the error over depth against time.
+                            Network: runs/fwd_nc2c (form of the rfnc1 run). Table: rms / relative L2 / max of
+                            theta over the whole (z, t) domain and at the sensor; flux boundary condition; residual
+         P3 fig3_inverse    INVERSE result: sensor theta observed / PINN; water table observed / PINN with +-1
+                            posterior sd (dotted lines) / FEM inversion / hydrostatic reading of the sensor; error
+                            against the well by hour. Table: rmse, bias, max, r of the three against the well,
+                            theta misfit, PINN - FEM, start spread, floor of the spline (0.81 cm)
+         P4 fig4_training   held-out PDE and flux losses of the four members against the step (log axis), wide
+                            stage then the four refinement rounds
+         P5 fig5_stages     the estimate by stage (wide, rounds 1 - 4, value-corrected) and its distance to the well
+                            and to the FEM inversion by stage; four starts (initial paths and where they end)
+         P6 fig6_physics    physics check at the estimate: prescribed against network surface flux; rms residual
+                            over depth against time and over time against xi (final members and forward PINN)
+         P7 tables.md       the tables above + cost (training seconds per stage from metrics.csv, inversion wall
+                            time from summary.json, FEM inversion wall time) + soil and settings
+         P8 synthetic       inverse verification with a known truth: the FINAL ACCEPTANCE TABLE of finding 62 and
+                            output/compare/final_*.png as they are (clean, noise 0.005, 0.01, second noise seed)
+         P9 limits          the held-out and other-site numbers of 73 as a table (not a success)
+       EXPECTATIONS, before the script is run. P2: theta rms over the domain 3e-4 - 1e-3 (at the sensor 4.3e-4 is
+       known from truth_profile.npz and has to be reproduced: check A3); relative L2 0.1 - 0.3 %; max error
+       <= 0.01, at the surface during the showers; flux at the surface within 1 - 6 % rms of the prescribed.
+       P5: flat. summary.json of the six inversions gives 1.093 / 1.111 / 1.105 / 1.106 / 1.109 / 1.105 cm against
+       the record (read today): on this window the wide stage is already there, and the figure will say that.
+       P3: the numbers of result_rfnc1.json (1.10 / 1.11 / 3.41 cm; PINN - FEM 0.065 cm).
+    c) New runs a paper would add (submitted after this entry is committed):
+         N0 single-member inversions: scripts/param_invert.py with ONE member of round 4 each (4 CPU jobs; --box,
+            --prev-center inv3, --coarse the four wide members; out runs/rfnc1_inv4_m<k>). Spread of the estimate
+            over independently seeded networks. EXPECTATION: each within 0.01 - 0.1 cm rms of the four-member
+            estimate (member sd of theta at the sensor is 3e-5, the fit residual 1.3e-3).
+         N1 independent repeats of the WHOLE pipeline, other seeds: tags rfnc1s1 (SEED0=1000) and rfnc1s2
+            (SEED0=2000). hpc/param_pipeline.sh and hpc/dc_loop.sh get an optional SEED0 (default 0: commands
+            unchanged), added to every training seed. EXPECTATION: final estimates within 0.3 cm rms (max 1 cm) of
+            rfnc1's and of each other; each 1.0 - 1.25 cm from the well, <= 0.3 cm from the FEM inversion, start
+            spread < 0.2 cm, loop converged within 2 iterations. READING RULE, fixed now: "independent of the
+            training seed" is stated only if all three runs satisfy R1 and R2 and their pairwise rms is <= 0.5 cm;
+            a run that does not is reported as it is and looked into before any such sentence is written.
+         N2 forward sensitivity (one light GPU job each, hpc/fwd_truth.sh on the same data set, scored against the
+            solver as fwd_nc2c): fs_nc2c_s1, _s2 (train.seed 1, 2), _w64, _w32 (model.width), _d3 (model.depth=3),
+            _c2k (train.n_col=2048, train.lbfgs_n_col=8192). Baseline: width 128, depth 6, 8192 / 32768.
+            EXPECTATION (weak, I have not varied these on site data): seeds 3e-4 - 8e-4 at the sensor; w64 within
+            2 x the baseline; w32 2 - 5 x; d3 1.5 - 4 x; c2k 1 - 2 x (the points are redrawn every step).
+       Not run: noise levels on site data (the sensor has its own; the noise study is the synthetic set P8), and
+       the departure form on this soil (the additive form learns the flux here, ratio 0.022 in the wide stage; the
+       comparison of the two forms is the pair rfnc1t / rfnc1tc on the other soil, running, 73 bz - ca).
+    d) Acceptance of this set.
+         A1 every number of tables.md that also stands in result_rfnc1.json or in a summary.json equals it (jq).
+         A2 figures: lines only, no fills, no titles / annotations / text; axis labels with units; a legend only
+            where there is more than one line. Checked on every PNG by eye and by grep of the script.
+         A3 P2 reproduces the sensor rms of runs/fwd_nc2c/truth_profile.npz (4.3e-4) from the model file.
+         A4 SEED0: bash -n on both drivers; config.yaml of rfnc1s1_w0 shows train.seed 1000; the diff of the two
+            drivers touches the seed expressions only.
+         A5 the tables name the soil as in-sample and carry the held-out numbers.
