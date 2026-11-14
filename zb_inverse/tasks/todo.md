@@ -5402,3 +5402,13 @@ Real-case spec (first slice):
           No runs/rfnm1b*, runs/rfna1b* exist.
         README (09:53): box result written into "Reading" (table, what moved, what the two rows'
           "PINN - numerical" figures are), into the status of the rfnm1 / rfna1 rows, and "Not yet".
+        SUBMITTED (09:55), after the plan was pushed (e9afcdd):
+          A  rfbxsep0 15621099, rfbxsep2 15621100, rfbxsep3 15621101 (sep23a; hydrostatic, constant 1.0, 0.3)
+             rfbxmay0 15621102, rfbxmay2 15621103, rfbxmay3 15621104 (may23; the same three starts)
+          B  rfbxnd 15621105 -> output/referee/nc2_may23on_sep23b_box010_s0 (start hydrostatic, as its original)
+             rfbxn1 15621106 -> output/referee/nc2_sep23aon_sep23b_cal3_box010_s1 (hydrostatic_flat, as its original)
+             all: fem_referee.py, command of 74 aa with the start / data changed, 2 cpus, 8G, 3 h.
+          C  hpc/real_full_x.sh rfnm1b ... and rfna1b ... as written above, 09:54 (logs/full_rfnm1b.log,
+             logs/full_rfna1b.log; logs/pipe_*.log show the train options ending in
+             "--set prior.clip_m=[0.10,1.5]", invert [--box]). rfnm1 / rfna1 were started with
+             hpc/real_full_obs.sh, which differs from real_full_x.sh only by this fourth argument.
