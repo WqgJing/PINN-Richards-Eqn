@@ -4031,3 +4031,64 @@ Real-case spec (first slice):
         w64 width 64, w32 width 32, d3 depth 3, c2k n_col 2048 (lbfgs_n_col 8192); every other one of width 128,
         depth 6, seed 0, n_col 8192 / 32768 as in runs/fwd_nc2c. Each variant differs from the baseline in the one
         setting it is named for. A4 met; scores not read (runs at 24 - 32 min).
+    74 e. (14 Nov, 01:50) N2 FORWARD SENSITIVITY: ALL SIX RUNS DONE. THE LOSSES RESPOND TO THE NETWORK, THE "ERROR"
+        AGAINST THE NUMERICAL SOLUTION DOES NOT. Cause not yet known; a check is planned below before anything is said.
+        ORDER, stated as it was: the waiter printed the tail of each forward log, per-day error rows included, before
+        I had read the held-out loss ratios. The ratios were read from metrics.csv right after and are given first
+        here, but the rule (ratios before any score) was not kept in time. Lesson entry written.
+        HELD-OUT LOSSES, step 0 -> 28000 (ratio), from runs/<run>/metrics.csv:
+          run          val_pde                    val_flux                  val_box
+          fwd_nc2c     5.249 -> 0.02912 (5.6e-3)  612.0 -> 0.02879 (4.7e-5)  23.97 -> 0.001772 (7.4e-5)   baseline
+          fs_nc2c_s1   4.948 -> 0.02508 (5.1e-3)  576.2 -> 0.02442 (4.2e-5)  25.54 -> 0.002103 (8.2e-5)
+          fs_nc2c_s2   4.943 -> 0.02752 (5.6e-3)  609.1 -> 0.04017 (6.6e-5)  17.72 -> 0.004546 (2.6e-4)
+          fs_nc2c_w64  5.249 -> 0.07152 (1.4e-2)  612.0 -> 0.1344  (2.2e-4)  23.97 -> 0.008587 (3.6e-4)
+          fs_nc2c_w32  5.249 -> 0.1220  (2.3e-2)  612.0 -> 0.1846  (3.0e-4)  23.97 -> 0.009954 (4.2e-4)
+          fs_nc2c_d3   5.249 -> 0.1243  (2.4e-2)  612.0 -> 0.2247  (3.7e-4)  23.97 -> 0.01424  (5.9e-4)
+          fs_nc2c_c2k  5.249 -> 0.03102 (5.9e-3)  612.0 -> 0.03233 (5.3e-5)  23.97 -> 0.002381 (9.9e-5)
+          -> every run learned the flux and the PDE (ratios 4e-5 - 4e-4 and 5e-3 - 2.4e-2). Width 64, width 32 and
+             depth 3 end 2.5 - 4.3 x higher in the PDE loss and 4.7 - 7.8 x higher in the flux loss than the
+             baseline; seeds and the 4 x smaller collocation set are within 1.4 x.
+        AGAINST THE NUMERICAL SOLUTION OF THE DATA SET ([truth] lines of logs/fwd_fs_nc2c_*.log, jobs 15611961,
+        15611734, 15611794, 15611688, 15611679, 15611785):
+          run        sensor RMS  max      profile RMS  max      day 2 (rain, -10.9 mm/d), sensor RMS
+          baseline   4.26e-4   4.54e-3   3.27e-4    5.82e-3
+          s1         4.26e-4   4.54e-3   3.27e-4    5.83e-3    1.30e-3
+          s2         4.27e-4   4.54e-3   3.28e-4    5.83e-3    1.29 - 1.30e-3 in all six
+          w64        4.32e-4   4.53e-3   3.31e-4    5.80e-3
+          w32        4.30e-4   4.54e-3   3.30e-4    5.81e-3
+          d3         4.29e-4   4.50e-3   3.29e-4    5.76e-3
+          c2k        4.25e-4   4.54e-3   3.27e-4    5.82e-3
+          Quiet days differ between runs (day 9: s1 1.8e-4, s2 1.9e-4, c2k 1.9e-4, w64 2.7e-4, w32 2.6e-4, d3 2.5e-4).
+        AGAINST THE EXPECTATION OF 74 (c, N2): seeds inside (4.3e-4 in 3e-4 - 8e-4); w64 inside (1.01 x); c2k inside
+          (1.00 x); w32 NOT met (1.01 x where 2 - 5 x was written); d3 NOT met (1.01 x where 1.5 - 4 x was written).
+          The expectation assumed that the figure measures the network. Seven networks with losses 8 x apart agree
+          on it to 1 %, and on its largest part (the rain day) to the last digit shown: it measures something they
+          have in common.
+        WHAT IS KNOWN, WHAT IS NOT:
+          - Known: the data set's reference is ONE solve at 1 h steps and 101 nodes (twin_config.yaml fem.dt_hours,
+            fem.n_nodes), and make_real.py compared it at the sensor with a finer solve (0.25 h, 201 nodes):
+            real_summary.json fem_vs_finer_fem rmse 2.9e-4, max 3.1e-3. That is the size of the "forward error"
+            (4.3e-4, 4.5e-3). The finer solve was not stored.
+          - Both codes take the forcing as hourly nodes, linear in between (forcing.node_hours 1; np.interp in
+            make_real.py, torch_interp in the networks).
+          - Not known: whether the networks sit on the refined solution. They could also share an error of their own
+            (same ansatz, same forcing-memory inputs, same sampling). Not stated either way until checked.
+        CHECK (scoring only; the solver is not used by the method): scripts/forward_reference_check.py, new.
+          The solve of the data set is repeated at 1 h / 101 nodes (must reproduce the stored reference), 0.25 h /
+          101, 0.25 h / 201, 0.0625 h / 201, 0.0625 h / 401 and 0.015625 h / 401, same path, forcing nodes and root
+          sink; the finest once more with the Picard tolerance / 100. Each of the seven networks is compared with
+          every level (sensor, and profile on the stored grid), and with the baseline network.
+          EXPECTATION, written before the job is submitted:
+            E1 level 1 h / 101 equals the stored reference (same code and inputs): difference < 1e-10.
+            E2 if the common part is the reference's time step: every network's sensor distance falls from 4.3e-4
+               to <= 1.5e-4 at the finest level and day 2 from 1.3e-3 to <= 4e-4; the seeds and c2k are within
+               5e-5 RMS of the baseline network, w64 / w32 / d3 within 5e-5 - 2e-4; against the finest level the
+               runs are ordered by their losses (w32 and d3 worst).
+            E3 if instead the distance falls by less than a factor of 2: the common part is in the networks, the
+               forward table stands, and the shared design is where to look (ansatz time scale, forcing inputs).
+          READING RULE, fixed now: the forward error of the results set becomes the one against the finest level
+            only if the two finest levels differ from each other by less than a third of it; otherwise it is given
+            as an upper bound with the reference's own difference next to it. The 1 h figures stay in the table
+            either way, named as what they are.
+          NOT TOUCHED by this: the inverse results. The numerical inversion and the data set keep the 1 h solve; a
+            statement about them needs its own check (noted, not started).
