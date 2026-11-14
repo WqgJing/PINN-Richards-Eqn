@@ -291,3 +291,64 @@ The same layout at the other ICOS stations with a water-table column on mineral 
 | BE-Lcr, IT-Lsn | - | no current deployment listed | - | closed records, not looked at further |
 
 Reading: ICOS stations follow one layout, a well 1 - 4 m from a soil-moisture profile with a 0.05 m sensor, with a rain gauge and eddy covariance at the same station. All objects carry the same ICOS licence, so one decision on that licence covers FR-Bil and the next stations (IT-SR2, SE-Nor, DK-Sor, BE-Dor).
+
+## Rain and evaporation sources for the two open sites, and the raw files taken (14 Nov, 04:50)
+
+Searched by a research subagent with no account, licence click or personal details; "requested" = a request it made and
+that answered. Of this I checked myself only what is marked (checked): that the files exist here and what their first
+and last rows and columns say.
+
+### A1 Point Reyes: no rain record good enough for a rain window
+
+| source | distance | step | what | state |
+|---|---|---|---|---|
+| Barnaby RAWS BBEC1 (IEM HADS, `mesonet.agron.iastate.edu/cgi-bin/request/hads.py?stations=BBEC1&sts=…&ets=…&what=txt`) | 6.8 km, on a ridge at 285 m | hourly | P, T, RH, wind; Dec 2010 on; over 99 % of the hours of the four wet seasons (16.9 / 20.3 / 58.3 / 45.7 in) | requested |
+| Woodacre WDAC1, Olema Valley OVYC1 (same service) | 7.8 km, 9.8 km | hourly | P | requested |
+| NCEI HPD v2, Mt Tamalpais 2 SW USC00045996 | 13.5 km | hourly | P | requested |
+| CoCoRaHS Bolinas US1CAMR0030 | 7.7 km | daily | P: 781 mm in 2022/23, Barnaby 1482 mm in the same season | requested |
+| IEMRE hourly point, Stage IV / MRMS at IEM, gridMET (pr, grass ETo), Daymet | grid | hourly / daily | gridded | requested |
+| KDVO airport, USCRN Bodega | 24.5 km, 48.9 km | hourly | P | too far |
+| Marin OneRain, CDEC, ERDDAP RAWS, CIMIS, Synoptic, NLDAS, ERA5-Land, OpenET | - | - | - | login or key needed, or (ERDDAP) 2015 - 2017 only: not used |
+
+No measured evaporation in any open archive. By the rule of todo 74 j (rain within a few km at hourly step) Point Reyes
+is "not good enough for a rain window": the nearest hourly gauge is 6.8 km away on a ridge, and two gauges 7 - 8 km
+from the site differ by a factor 1.9 over one season. Set aside; recession windows only, if it is taken up again.
+
+### A2 Shale Hills: rain in the watershed, no measured evaporation
+
+| source | where | step | what | state |
+|---|---|---|---|---|
+| CZO Level-1 precipitation, Wayback copies of `czo.psu.edu/downloads/Level1_Precip_Hourly-<year>.csv` (2009: `web.archive.org/web/20140303150344id_/…`; 2010: 20140303150347; 2011: 20140303150349; 2012: 20141028155049, host `www.czo.psu.edu:80`) | in the watershed | hourly | mm; laser disdrometer (LPM) 2009 - 10, OTT Pluvio 2011 - 12; 1 Jan 2009 - 7 Nov 2012 | files here (checked) |
+| MM-PIHM `input/ShaleHills/ShaleHills.meteo` (github.com/PSUmodeling/MM-PIHM, MIT) | in the watershed | hourly | P, air temperature, RH, wind at 10 m, short- and long-wave radiation, pressure; 2008-01-01 to 2012-07-31; its monthly P of Mar - Jun 2010 equals the CZO series | sample here (checked: header and units) |
+| CZO hydropedology tipping buckets (Wayback zip `hydropedology_public/Precip/YYYY_csv.zip`) | 6 gauges in the watershed | 10 min | P, 2007 - 2013 | requested, not taken |
+| SURFRAD Penn State (`gml.noaa.gov/aftp/data/radiation/surfrad/psu/YYYY/`) | 6.5 km | 1 - 3 min | radiation, T, RH, wind | requested, not taken |
+| ISD Rock Springs 99999954783 | about 10 km | hourly | meteorology, no P | requested |
+| GHCN-D State College USC00368449 | 14.7 km | daily | P | requested |
+| live czo.psu.edu (form), HydroShare precipitation resources (links only), NADP PA42 (password in the page), NLDAS | - | - | - | not used |
+
+No measured latent heat or evaporation for 2009 - 2012 in any open archive: the evaporation part of q_surf would have to
+be computed from the meteorology.
+
+Raw files taken (HydroShare, CC BY 4.0; each source in its own directory under `data/sites/shalehills/`, not in git):
+
+| directory | files | content (checked) |
+|---|---|---|
+| `hydroshare_gw/` (resource 0403737ef5b147c3916ab30d565db79c) | `2009..2012_gw.dat`, ReadMe.md | 10 min; `Well1,Well2,Well3` as `0.655:q=A`; 1 Jan 2009 - 4 Jun 2012; well depths 1.10 / 1.96 / 2.31 m |
+| `hydroshare_sm/` (resource fa5e043282894e7e97a663a99f9506ad, RTH3 files) | `2009..2012_sm.dat`, ReadMe.md | 10 min; nine Decagon Echo2 sensors, 1-3 at well 1, 4-6 at well 2, 7-9 at well 3, at 0.1 / 0.3 / 0.5 m; the 2011 and 2012 files have other column names, no flags and values of 0.84 - 0.95 in six of nine columns: not usable |
+| `wayback_precip/` | `Level1_Precip_Hourly-2009..2012.csv` | hourly mm; 2009 - 2011 with CR line ends; the column "Correlation" is Yes for 1427 h, all in Oct - Dec 2010 |
+
+Both ReadMe files ask for this line in any use: "Logistical support and/or data were provided by the NSF-supported
+Shale Hills Susquehanna Critical Zone Observatory."
+
+Read from the raw files on the login node (monthly means, flag A): the well value is the depth to water (it goes to the
+well depth in Aug - Sep, when the sensors are driest). Well 2 lies between 0.36 and 1.5 m from October to June in
+2009 - 2011 and never rises above 0.36 m; well 1 sits at its depth (dry) from late June to September; the 0.1 m sensor
+at well 2 reads 0.39 - 0.44 in spring, the 0.3 m sensor below it 0.32 - 0.34: wetter above than below with the water
+table at 0.6 m, so the profile is layered. Record check: `scripts/site_records_shalehills.py` (todo 74 k).
+
+**Outcome of the record check (todo 74 l, 14 Nov): Shale Hills is not taken on.** The wells and the rain are fine (well
+inside 0.2 - 1.5 m over many windows, rain and well aligned within an hour). The sensors are not: at nests 1 and 3
+the 0.1 m sensor reads one level (0.16 - 0.20) for every well reading from 0.5 to 1.1 m and leaves it only when the
+water table comes within about 0.3 m; at nest 2 the 0.1 m sensor drifts, steps and is flagged from March 2010; at
+nest 3 the 0.3 m sensor goes to its top level with the well 0.85 m below it while the 0.5 m sensor does not.
+Figures: `output/site_shalehills/result_records_2009_n1..3.png`, `result_records_2010-03-01_n1..3.png`.

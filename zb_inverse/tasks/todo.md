@@ -4286,3 +4286,107 @@ Real-case spec (first slice):
         water table inside 0.2 - 1.5 m; a daily or gridded rain is recorded as "not good enough for a rain
         window" (recession windows only, and then the evaporation source carries the whole flux).
         Nothing here changes the answer needed for FR-Bil.
+    74 k. (14 Nov, 04:42) OPEN SITES: RAIN SOURCES FOUND (agent report, its [V] marks are requests it made; I
+        checked that the sample files exist and read their heads). Written into tasks/site_candidates.md.
+          Shale Hills RTH3: hourly precipitation measured in the watershed (CZO Level-1, 2009 - 7 Nov 2012, mm,
+            disdrometer 2009-10, weighing gauge 2011-12; 1224 h of the 2010 windows flagged as filled by
+            correlation), served only as Wayback copies of czo.psu.edu. Hourly meteorology (T, RH, wind, short-
+            and long-wave, pressure) in the MM-PIHM example input (MIT), 2008 - Jul 2012. No measured latent heat
+            for 2009 - 2012 anywhere open.
+          Point Reyes: nearest hourly gauge is a ridge-top fire-weather station 6.8 km away (285 m); a coastal
+            gauge 7.7 km away caught 781 mm in 2022/23 against its 1482 mm. By the rule of 74 j: NOT good enough
+            for a rain window. Recession windows only, evaporation from a daily gridded reference ET. Set aside.
+        WHAT THIS CHANGES against 74 d: Shale Hills no longer needs borrowed rain. It still has no measured
+          evaporation: the evaporation part of q_surf would be a formula (reference ET from the hourly
+          meteorology), which no site so far has had. Before leaf-out (deciduous forest, valley floor) that part
+          is small against the rain; in June it is not.
+        PLAN, step V0 only (record check, nothing fitted, no GPU, no soil, no solver):
+          1. Raw files, each source in its own new empty directory under data/sites/shalehills/ (git-ignored):
+             ground water and soil moisture 10-min files of 2010 with their ReadMe (HydroShare, CC BY 4.0, no
+             account), the hourly precipitation of 2010 (Wayback copy). Read only by a batch job run with
+             python -I; the script lives in scripts/ and imports nothing from the data directories.
+          2. scripts/site_records_shalehills.py prints, for the three nests (well 1 / sensors 1-3, well 2 /
+             sensors 4-6, well 3 / sensors 7-9; sensors at 0.1, 0.3, 0.5 m):
+               - flags: share of 10-min values with flag A, by month;
+               - hours by month with the well inside 0.2 - 1.5 m (and at its dry cap);
+               - sign and reference of the well against the sensors: the 0.3 m and 0.5 m sensors must sit on
+                 their highest level while the well says the water table is above them;
+               - range and plateau of the 0.1 m sensor by month;
+               - rain by month, hours flagged "correlation"; delay from rain to the rise of the well and of the
+                 0.1 m sensor (lag of the largest cross-correlation of hourly increments, -12 .. +12 h): this is
+                 also the check of the time zones of the three files against each other;
+               - frost: not in these files; air temperature comes with the meteorology, read in the next step.
+             and draws rain, the three sensors and the well of each nest, Mar - Jun 2010 (lines only).
+        EXPECTATION, written before the files are read beyond their first lines:
+          K1 well 2 (1.96 m deep) is inside 0.2 - 1.5 m for most of Mar - Jun 2010 (the agent read 0.37 - 1.45 m);
+             well 1 (1.10 m) is dry from June; well 3 mostly flagged.
+          K2 the sensors are not consistent with the well as a hydrostatic column in a simple way: sensor 4
+             (0.1 m) read 0.401 and sensor 5 (0.3 m) 0.331 on 1 Jan 2010 with the well at 0.655 m, the deeper one
+             drier. In a uniform soil above a water table that order is impossible; rock fragments or layering
+             (a 1-D uniform column is then the wrong model for more than one depth at a time).
+          K3 the well rises within 0 - 3 h of rain (valley floor by the stream), i.e. faster than a column with
+             the measured rain alone would lift it: lateral inflow. That does not break the inverse problem
+             (the water table is the unknown) but it means storms carry most of the signal.
+        WHAT IT DECIDES: Shale Hills goes on to a data set (one sensor, one well, windows by the written rule)
+          only if a nest has (a) the well inside the box with flag A over at least two windows of 10 days or
+          more in different seasons or years (one to calibrate, the next to test), (b) a 0.1 m sensor that moves
+          with the well without sitting on a plateau, (c) rain and well aligned in time to the hour. If K2
+          holds, only the 0.1 m sensor is used and the text says the deeper sensors contradict a uniform column.
+          How the evaporation is computed is planned after this check, not before.
+    74 l. (14 Nov, 04:51) SHALE HILLS RECORD CHECK (V0 of 74 k) DONE: THE SITE DOES NOT GO ON TO A DATA SET.
+        Run: job 15615875, `python -I scripts/site_records_shalehills.py --raw data/sites/shalehills --years 2009
+          2010 2011 2012 --zoom 2010-03-01 2010-07-01 --out output/site_shalehills/result_records` (16 s, exit 0;
+          all four years were taken, not 2010 alone as step 1 said). Nothing fitted, no solver, no GPU.
+        CORRECTION to 74 k: the precipitation hours filled by correlation are 1427, all in Oct - Dec 2010 (the
+          agent's "1224 h of the 2010 windows" was not that); Mar - Jun 2010 has none. The type "No data" in that
+          file is the missing precipitation type of the disdrometer, not a missing amount.
+        WHAT THE FILES ARE:
+          - Well value = depth to water: it goes to the well depth in Aug - Sep; it falls by 0.02 - 0.20 m in the
+            6 h after an hour with >= 2 mm (all nests, all years); r with the 0.1 m sensor is negative.
+          - Soil moisture exists as flagged volumetric water content in 2009 and 2010 only. The 2011 and 2012
+            files have other column names, no flags and values of 0.84 - 0.95 in six of nine columns: not used.
+          - Rain against the hourly rise of the well, largest correlation: lag 0 - 1 h in 2009 and 2010 (0.38 -
+            0.92), lag -1 - 0 h in 2011, 0 - 3 h in 2012. Aligned within one hour; the 2011 rain (other gauge)
+            is stamped about an hour later than the 2009 - 10 rain. (Sep - Nov 2009 at nest 1 gave lag -10 h:
+            the values at -2 .. 6 h are all 0.12 - 0.19, no clear peak.)
+        AGAINST THE EXPECTATIONS:
+          K1 half right. Well 2 is inside 0.2 - 1.5 m for all of Mar - Jun 2009 and 2010 (0.42 - 1.45 m), yes.
+             Well 1 at its depth from late June, yes. "Well 3 mostly flagged": wrong, well 3 has flag A
+             throughout 2009 and reads 0.69 - 1.9 m. What I did not expect: the 0.1 m sensor of nest 2 (sensor
+             4) has flag A for only 2533 h of 2010 (to 12 Mar), and the 0.5 m sensor of nest 2 for none of 2009.
+          K2 holds, and more strongly than written. Nest 2: 0.1 m median 0.393, 0.3 m median 0.337 (wetter
+             above). Nests 1 and 3: every sensor has two levels and switches between them in hours:
+               nest 1 (figure, Mar - Jun 2010): 0.5 m and 0.3 m read 0.24 - 0.26, and 0.35 - 0.39 while the well
+                 reads less than about 0.6 - 0.7 m; the 0.1 m sensor reads 0.16 - 0.20 for any well reading from
+                 0.5 to 1.1 m and jumps to 0.42 (13 Mar) only when the well reaches 0.42 m.
+               nest 3 (2009, Mar - Jun 2010): the 0.3 m sensor sits at 0.31 - 0.35 for days while the well reads
+                 less than about 1.15 m, the 0.5 m sensor below it does not (short peaks to 0.36 - 0.38 only
+                 when the well reaches 0.7 - 0.8 m). The well never reads above 0.69 m. A single water table
+                 under a uniform column cannot wet the 0.3 m sensor to its top level from 0.85 m below while
+                 the 0.5 m sensor stays down: layering with a perched zone, or the well and the sensors are not
+                 one column. Not decided here, and it does not need to be.
+          K3 holds: the well rises in the hour of the rain or the next.
+        AGAINST THE RULE OF 74 k:
+          (a) yes for all three wells (nest 2 with a usable 0.1 m sensor: 1 Jan 2009 + 204 d, 26 Jul 2009 + 33 d,
+              16 Dec 2009 + 15 d, 25 Jan 2010 + 46 d).
+          (b) NO at every nest. Nest 1: the 0.1 m sensor sits on its lower level (0.16 - 0.20) over the whole
+              range 0.5 - 1.1 m of the well, so it carries no information on the water table there; it leaves
+              that level only in the few hours when the water table is within about 0.3 m of it. Nest 2: the
+              0.1 m sensor drifts from 0.40 to 0.455 between January and May 2009 while the well stays at 0.6 -
+              0.9 m, steps down and up by 0.03 - 0.05 within hours, becomes erratic from July 2009 and is
+              flagged from March 2010 (figure). Nest 3: as nest 1 for the 0.1 m sensor (0.15 - 0.22, one peak to
+              0.43 per large storm), and the two-level sensors contradict the well as above.
+          (c) yes, within one hour.
+        DECISION (the rule was written before the check): Shale Hills is NOT taken on. The reason is the
+          sensors, not the rain and not the missing evaporation: a near-surface sensor that reads one value for
+          every water-table depth between 0.5 and 1.1 m cannot determine that depth, with any method. No
+          evaporation formula is planned, no data set is built, no GPU time is spent on this site.
+        WHERE THE SITE TRACK STANDS: of the four open sites of tasks/site_candidates.md, Point Reyes has no rain
+          record good enough (74 k), Shale Hills fails on its sensors (here), Bondville has a daily well only,
+          Kopcany has its shallowest sensor at 0.3 m and no measured evaporation. No new site can be built from
+          open data that I have found. The one candidate with all four variables at one station on sand with a
+          shallow water table is FR-Bil, and it waits on the user's answer on the ICOS licence (74 d); nothing
+          has been requested from data.icos-cp.eu.
+        FILES: scripts/site_records_shalehills.py; output/site_shalehills/result_records.json and the figures
+          result_records_2009_n1..3.png, result_records_2010-03-01_n1..3.png (the 2010 - 2012 whole-year
+          figures are left out of git: nothing in them is used).
