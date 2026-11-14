@@ -43,17 +43,37 @@ Figures and tables are written by `scripts/paper_figures.py`; every number below
 | [fig4_training](nc2_sep23c/fig4_training.png) | held-out PDE, surface-flux and water-balance losses of the four members through all stages |
 | [fig5_stages](nc2_sep23c/fig5_stages.png) | the estimate stage by stage and its distance to the well and to the numerical inversion |
 | [fig6_physics](nc2_sep23c/fig6_physics.png) | physics at the estimate: prescribed against network surface flux; PDE residual over time and over depth |
+| [fig7_seeds](nc2_sep23c/fig7_seeds.png) | the whole pipeline repeated with two other training seeds: the three estimates and their differences from the first run |
 
 ## Main numbers
 
-Forward problem (water table given; `runs/fwd_nc2c`, 47 min on one GPU), against the numerical solution:
+Forward problem (water table given; `runs/fwd_nc2c`, 47 min on one GPU). Soil-moisture difference in m3/m3.
+The numerical solution stored in the data set has a 1 h time step and is itself 4.2e-4 (sensor layer) from a
+solve with a 1/256 h step ([forward_reference.json](nc2_sep23c/forward_reference.json),
+`scripts/forward_reference_check.py`), so the network is given against both:
 
-| quantity | value |
-|---|---|
-| soil moisture over all depths and times, RMS | 3.3e-4 m3/m3 (relative L2 0.080 %, 0.51 % of the range) |
-| largest error | 5.8e-3, at the surface during the rain pulses |
-| sensor layer, RMS | 4.3e-4 |
-| surface flux, RMS error / RMS of the prescribed flux | 4.8 % |
+| quantity | PINN − numerical, 1/256 h step | PINN − numerical, 1 h step (the data set's) | numerical, 1 h step − 1/256 h step |
+|---|---|---|---|
+| all depths and times, RMS | 1.4e-5 (relative L2 0.0035 %, 0.022 % of the range) | 3.3e-4 (0.080 %, 0.51 %) | 3.3e-4 |
+| all depths and times, max | 2.0e-4 | 5.8e-3 | 5.8e-3 |
+| sensor layer, RMS | 1.7e-5 | 4.3e-4 | 4.2e-4 |
+| sensor layer, max | 7.8e-5 | 4.5e-3 | 4.5e-3 |
+
+- Surface flux of the network, RMS error / RMS of the prescribed flux: 4.8 %.
+- The 1/256 h solve is not the limit either. It is 6.8e-6 (sensor layer; all depths 5.2e-6) from the 1/64 h
+  solve, and the change from one step to the next falls by 3.0, 3.7 and 3.9 per refinement (first order in
+  the step). So 1.7e-5 is the distance to a reference that is itself known to about 7e-6; it is not written
+  as "the forward error is 1.7e-5". A 1/1024 h level is running.
+- At a 1/16 h step, 201 nodes instead of 101 move the solution by 8e-7: the time step limits the reference,
+  not the grid.
+- The difference from the 1 h solution is the 1 h solver's step error, not the network's: in fig2 (lower
+  panels) the curve "PINN − 1 h" lies on the curve "1 h − 1/256 h" in time, and over depth except close to
+  the water table, where both are below 1e-5; the 5.8e-3 maximum is the solver's (5.8e-3), against 2.0e-4
+  for the network.
+- Other forward networks on the same problem ([tables.md](nc2_sep23c/tables.md), section 7), sensor layer,
+  against the 1/256 h solve: two other seeds 1.75e-5 and 2.2e-5; 2048 instead of 8192 collocation points
+  1.5e-5; width 64 5.5e-5; width 32 6.4e-5; 3 hidden layers instead of 6 5.4e-5. Against the 1 h solution
+  all seven read 4.25e-4 to 4.32e-4, so that comparison cannot tell them apart.
 
 Inverse problem, hourly, against the well (265 hours):
 
@@ -71,6 +91,10 @@ Inverse problem, hourly, against the well (265 hours):
   0.03 cm RMS (0.09 cm max) from the 1/4 h inversion, closer than the 1 h inversion is to it. A 1/16 h
   repeat is running; until it is in, nothing is said about the converged inversion.
 - Five starts end on one estimate (largest difference 5e-7 cm). Posterior sd 1.1 cm (median).
+- The whole pipeline repeated with two other training seeds (`rfnc1s1`, `rfnc1s2`; fig7 and
+  [tables.md](nc2_sep23c/tables.md), section 8): each is 1.10 cm from the well and 0.06 cm from the numerical
+  inversion, and 0.005 and 0.006 cm RMS (0.02 cm max) from the first run. On this window, with its in-sample
+  soil, the estimate does not depend on the training seed. No other window has been repeated.
 - One network at a time instead of four (round 4): each estimate is within 0.01 - 0.02 cm RMS (max 0.09 cm)
   of the four-network estimate.
 - Cost: 13.6 GPU hours of training (22 training runs) and 0.07 hours of inversions. The numerical inversion
@@ -91,6 +115,8 @@ Inverse problem, hourly, against the well (265 hours):
 4. The PINN is about 30 times more expensive than the numerical inversion with its 1 h step on this window
    (13.6 GPU hours against 26 CPU minutes for one start), and 8 - 15 times more expensive than the numerical
    inversion with a 1/4 h step (55 - 102 CPU minutes for one start).
+5. A forward error quoted against the data set's own 1 h solution (3.3e-4) measures that solution's time
+   step. The network's distance is 1.4e-5, against a 1/256 h solve that is itself 5e-6 from the level before.
 
 ## Synthetic verification (known truth)
 
@@ -153,8 +179,8 @@ Reading:
 
 ## Not yet in this set (running)
 
-- Whole-pipeline repeats with other training seeds (`rfnc1s1`, `rfnc1s2`).
-- Forward sensitivity to seed, width, depth and number of collocation points (`fs_nc2c_*`).
+- A 1/1024 h level of the forward reference (`forward_reference_d`).
+- The numerical inversion with a 1/16 h step.
 - Two further US-NC2 windows with their own soils (`rfnm1`, `rfna1`), both in-sample.
 - The same window with the soil of 1 Sep 2023 and a second network form (`rfnc1tc`; `rfnc1t` is in the table above).
 
@@ -166,6 +192,22 @@ sbatch ... hpc/run_script_cpu.slurm scripts/paper_figures.py \
   --referee output/referee/nc2_own_sep23c_s0 output/referee/nc2_own_sep23c_s1 \
             output/referee/nc2_own_sep23c_s2 output/referee/nc2_own_sep23c_s3 \
   --forward runs/fwd_nc2c \
+  --forward-reference output/paper/nc2_sep23c/forward_reference \
+  --variants s1=runs/fs_nc2c_s1 s2=runs/fs_nc2c_s2 w64=runs/fs_nc2c_w64 w32=runs/fs_nc2c_w32 \
+             d3=runs/fs_nc2c_d3 c2k=runs/fs_nc2c_c2k \
   --single member1=runs/rfnc1_inv4_m0 member2=runs/rfnc1_inv4_m1 member3=runs/rfnc1_inv4_m2 member4=runs/rfnc1_inv4_m3 \
+  --repeats seed1000=runs/rfnc1s1dc_it1 seed2000=runs/rfnc1s2dc_it1 \
   --soil-note "calibrated on this window (in-sample)" --out output/paper/nc2_sep23c
+```
+
+The forward reference itself (about 3.3 CPU hours; its `.npz` is not in the repository):
+
+```
+sbatch ... hpc/run_script_cpu.slurm scripts/forward_reference_check.py \
+  --data output/real_nc2_sep23c_own \
+  --members baseline=runs/fwd_nc2c s1=runs/fs_nc2c_s1 s2=runs/fs_nc2c_s2 w64=runs/fs_nc2c_w64 \
+            w32=runs/fs_nc2c_w32 d3=runs/fs_nc2c_d3 c2k=runs/fs_nc2c_c2k \
+  --tol 1e-8 --max-iter 400 --tol-factor 0 \
+  --levels 1:101 0.25:101 0.0625:101 0.0625:201 0.015625:101 0.00390625:101 \
+  --out output/paper/nc2_sep23c/forward_reference
 ```

@@ -4424,3 +4424,138 @@ Real-case spec (first slice):
           (0.0918 -> 0.0762), i.e. part of the 1 h inversion's misfit is its own time-step error; and one start
           costs 55 - 102 min at 1/4 h against 12 - 34 min at 1 h. The cost comparison in the write-up
           ("about 30 times") is against the 1 h inversion and has to say so.
+    74 n. (14 Nov, 06:06) N1 SEED REPEATS ENDED (rfnc1s1 SEED0=1000, rfnc1s2 SEED0=2000; whole pipeline on
+        output/real_nc2_sep23c_own, in-sample soil). Both drivers print "full ... done" (05:41, 06:01).
+        LOSS RATIOS, read from metrics.csv (first and last held-out row) BEFORE any score of these runs:
+          stage             held-out flux, last / first (values)             held-out pde, last / first (values)
+          rfnc1s1 wide      5.3e-4 5.2e-4 6.4e-4 5.4e-4 (565-624 -> 0.30-0.39) 0.053 0.048 0.053 0.055 (8.1-8.5 -> 0.41-0.45)
+          rfnc1s1 round 1   0.53 0.55 0.58 0.52 (-> 0.16-0.18)                0.18 0.31 0.35 0.27 (-> 0.20-0.27)
+          rfnc1s1 round 2   0.77 0.78 0.83 0.75 (-> 0.12-0.16)                0.77 0.75 0.77 0.81 (-> 0.16-0.21)
+          rfnc1s1 round 3   0.94 0.72 0.86 0.86 (-> 0.10-0.12)                0.79 0.80 0.99 0.79 (-> 0.13-0.20)
+          rfnc1s1 round 4   0.84 0.87 0.85 0.94 (-> 0.096-0.116)              0.97 0.95 0.72 0.93 (-> 0.12-0.16)
+          rfnc1s1 forward   3.6e-5 7.7e-5 (614, 636 -> 0.022, 0.049)          4.7e-3 6.1e-3 (5.0, 5.1 -> 0.023, 0.031)
+          rfnc1s2 wide      6.0e-4 4.6e-4 4.6e-4 4.9e-4 (580-603 -> 0.27-0.36) 0.051 0.048 0.044 0.050 (8.2-8.6 -> 0.37-0.44)
+          rfnc1s2 round 1   0.49 0.52 0.49 0.52 (-> 0.13-0.15)                0.35 0.31 0.32 0.30 (-> 0.17-0.26)
+          rfnc1s2 round 2   0.74 0.74 0.80 0.83 (-> 0.10-0.13)                0.71 0.75 0.84 0.79 (-> 0.15-0.19)
+          rfnc1s2 round 3   0.79 0.80 0.89 0.83 (-> 0.095-0.106)              0.84 0.76 0.89 0.89 (-> 0.12-0.15)
+          rfnc1s2 round 4   0.85 0.96 0.88 0.95 (-> 0.083-0.106)              0.99 0.92 1.02 0.99 (-> 0.12-0.22)
+          rfnc1s2 forward   6.6e-5 6.8e-5 (560, 587 -> 0.037, 0.040)          5.1e-3 4.9e-3 (5.2, 5.1 -> 0.026, 0.025)
+          (rfnc1, seed 0, for comparison: wide w0 flux 612 -> 0.307, x 5e-4; forward f1_m0 593 -> 0.036.)
+        READING OF THE RATIOS: every stage of both repeats carries the surface flux and the PDE as the seed-0
+          run does: the wide stage takes the flux loss down by 5e-4 and each round lowers both losses further
+          (round 4 by 4 - 16 % in flux); one member (rfnc1s2 r4 m2) ends its last round with the PDE loss 2 %
+          above its start, the flux loss 12 % below. The forward networks of the loop reach 0.02 - 0.05 in
+          flux and 0.02 - 0.03 in PDE. Nothing in the ratios says a stage did not train.
+        VALUE-CORRECTION LOOP (logs/dc_rfnc1s<k>dc.log, step measure only): one iteration each, largest step
+          0.010 and 0.012 posterior sd (stop rule < 0.2 met at once; rfnc1: one iteration too), forward offset
+          rms 2.6e-5 in both. Final directories runs/rfnc1s1dc_it1, runs/rfnc1s2dc_it1.
+        EXPECTATION for the scores (73/74 plan N1, unchanged): final estimates within 0.3 cm rms (max 1 cm) of
+          rfnc1's and of each other; each 1.0 - 1.25 cm from the well, <= 0.3 cm from the numerical inversion,
+          start spread < 0.2 cm, loop converged within 2 iterations (met: 1). READING RULE: "independent of the
+          training seed" only if all three runs satisfy R1 and R2 and their pairwise rms is <= 0.5 cm.
+        06:07. SCORES of the two repeats (jobs 15617300 / 15617301, exit 0; output/real_nc2_sep23c_own/
+          result_rfnc1s1.json, result_rfnc1s2.json), read after the ratios above:
+                              PINN - numerical inversion (cm)    against the hourly well (cm)       starts
+                              rms     bias     max               rmse    bias    r                  spread (cm)
+          rfnc1   (seed 0)    0.065   -0.004   0.303             1.105   +0.111  0.9905             4.9e-7
+          rfnc1s1 (seed 1000) 0.062   -0.003   0.288             1.104   +0.111  0.9905             9.3e-7
+          rfnc1s2 (seed 2000) 0.063   -0.004   0.279             1.105   +0.110  0.9905             2.0e-6
+          (numerical inversion against the well: 1.112; posterior sd, median: 1.111 cm in all three)
+          AGAINST THE EXPECTATION: each 1.0 - 1.25 cm from the well: yes (1.10). <= 0.3 cm from the numerical
+          inversion: yes (0.06). Start spread < 0.2 cm: yes (1e-6). Loop within 2 iterations: yes (1).
+          R1 and R2 hold in all three runs. The distance to the 1 h numerical inversion is the same in all
+          three (0.062 - 0.065 cm): it does not come from the training seed (74 m: against the 1/4 h inversion
+          the seed-0 run is at 0.027).
+        06:10. RUN-TO-RUN DIFFERENCE (paper_figures.py --repeats, job 15617310, exit 0; metrics.json "repeats",
+          tables.md section 8, fig7_seeds.png viewed: lines only, three estimates on one curve in the upper
+          panel, differences in the lower one):
+            seed 1000 minus first run: 0.0047 cm RMS, 0.021 cm max;  seed 2000 minus first run: 0.0059, 0.024.
+            seed 1000 minus seed 2000 was not computed; it is at most 0.0047 + 0.0059 = 0.011 cm RMS (triangle
+            inequality), 0.045 cm max.
+          READING RULE of N1 met: R1 and R2 hold in all three runs and every pair is within 0.011 cm (rule:
+          <= 0.5). The sentence "the estimate is independent of the training seed (three runs of the whole
+          pipeline, 0.006 cm RMS apart)" is written, for THIS window and its in-sample soil only. It says
+          nothing about held-out windows.
+    74 o. (14 Nov, 06:10) FORWARD REFERENCE, SECOND JOB WITH THE 1/256 h LEVEL (15613447, 3 h 19, exit 0;
+        output/paper/nc2_sep23c/forward_reference.json; plan 74 f, first job 74 g). Picard tolerance 1e-8, every
+        step of every level converged (largest iteration count 24 at 1 h, 17 at 1/256 h); 1/256 h solve 7527 s.
+        THE REFERENCE AGAINST ITSELF, sensor RMS (max) | profile RMS (max), theta in m3/m3:
+            1/4 h   - 1 h                    2.95e-4 (3.14e-3) | 2.26e-4 (4.05e-3)
+            1/16 h  - 1/4 h                  9.75e-5 (1.04e-3) | 7.49e-5 (1.33e-3)      3.02 x less
+            1/64 h  - 1/16 h                 2.65e-5 (2.80e-4) | 2.04e-5 (3.58e-4)      3.68 x less
+            1/256 h - 1/64 h                 6.77e-6 (7.09e-5) | 5.21e-6 (9.00e-5)      3.92 x less
+            1/16 h: 201 - 101 nodes          8.0e-7  (1.4e-6)  | 1.2e-7  (3.6e-6)
+          each level minus 1/256 h, sensor | profile: 1 h 4.24e-4 | 3.25e-4 (max 5.83e-3); 1/4 h 1.31e-4 |
+            1.00e-4; 1/16 h 3.32e-5 | 2.56e-5; 1/64 h 6.77e-6 | 5.21e-6.
+        THE NETWORKS AGAINST 1/256 h, sensor RMS (max) | profile RMS (max)        (against 1/64 h, sensor)
+          baseline   1.72e-5 (7.8e-5)  | 1.42e-5 (2.01e-4)                        1.90e-5
+          s1         1.75e-5 (7.8e-5)  | 1.40e-5 (1.87e-4)                        1.94e-5
+          s2         2.16e-5 (1.13e-4) | 1.78e-5 (3.20e-4)                        2.32e-5
+          c2k        1.52e-5 (4.7e-5)  | 1.32e-5 (2.35e-4)                        1.70e-5
+          w64        5.53e-5 (2.52e-4) | 4.26e-5 (6.19e-4)                        5.62e-5
+          d3         5.35e-5 (2.71e-4) | 4.28e-5 (7.82e-4)                        5.39e-5
+          w32        6.35e-5 (3.33e-4) | 4.89e-5 (6.92e-4)                        6.39e-5
+          Baseline by day against 1/256 h (1e-6): 17 14 22 10 10 10 14 12 24 24 20.
+        AGAINST THE EXPECTATIONS OF 74 f:
+          F1 (4 +- 0.5 x per level): met at the second and third refinement (3.68, 3.92), not at the first
+             (3.02), as recorded in 74 g. First order in the step from 1/4 h on.
+          F3 (two finest levels < 1e-5 apart): met, 6.8e-6 at the sensor (74 g's estimate from the ratio: 7e-6).
+          F4 against the finest level: s2 inside 2e-5 - 5e-5; baseline, s1 and c2k below it (1.5 - 1.8e-5);
+             w64 / d3 / w32 inside 5e-5 - 8e-5. "Day 2 still the largest day": NOT met for the baseline, days
+             8 and 9 (24) are above day 2 (22) once the reference's own step error is out of the comparison.
+        READING RULE OF 74 e ("the forward error of the results set becomes the one against the finest level
+          only if the two finest levels differ from each other by less than a third of it; otherwise it is
+          given as an upper bound with the reference's own difference next to it"): the two finest levels
+          differ by 6.77e-6 at the sensor, the baseline is 1.72e-5 from the finest: 0.39, not below a third
+          (profile: 5.21e-6 against 1.42e-5, 0.37). NOT MET, by a small margin. So the write-up does not say
+          "the forward error is 1.7e-5". It says: 1.7e-5 at the sensor against the 1/256 h solve, which is
+          itself 6.8e-6 from the 1/64 h solve; and it keeps the 1 h figures (4.3e-4), named as the data set's
+          reference. A first-order extrapolation puts the 1/256 h solve about 2e-6 from the limit; that is an
+          extrapolation, not a measurement, and is given as such or left out.
+        WHAT STANDS, limited to what was run: the three width-128 networks are 1.5 - 2.2e-5 from the finest
+          solve at the sensor, 25 x closer than the 1 h solve of the data set is (4.24e-4); width 64, depth 3
+          and width 32 are 3.1 - 3.7 x the baseline.
+        NEXT, decided at 06:11: one more level, 1/1024 h, because the rule is missed by a small margin and the
+          level costs one CPU core for about 7 h (solve times so far 53, 191, 661, 2261, 7527 s: x 3.4 per
+          level). Same script, same members, same tolerance, all earlier levels again so that one file holds
+          the whole table -> output/paper/nc2_sep23c/forward_reference_d.{json,npz} (job D's file stays).
+          EXPECTATION, written before submission:
+            G1 1/1024 h - 1/256 h: 1.5e-6 - 2.0e-6 RMS at the sensor (3.5 - 4.3 x less than the step before).
+            G2 baseline against 1/1024 h: 1.6e-5 - 1.75e-5 at the sensor (it went 1.90 -> 1.72e-5 when the
+               reference moved by 6.8e-6; this step moves the reference by a quarter of that).
+            G3 the 74 e rule is then met (about 0.1 against a third).
+          DECISION RULE: if G1 holds, the forward error is stated against the 1/1024 h level, with the level
+            difference next to it. If the level difference does NOT fall by at least 3 x (the Picard tolerance
+            of 1e-8 per step over 270 000 steps may set a floor), the stall is reported and the statement
+            stays the bounded one of this entry. No network run depends on it.
+    74 p. (14 Nov, 06:15) RESULTS SET REBUILT WITH THE 1/256 h REFERENCE AND THE SEED REPEATS; README UPDATED.
+        Job 15617329 (pfig2), 53 s, exit=0. output/paper/nc2_sep23c/tables.md read whole: section 2 names
+        1/256 h as the finest level and gives the three columns (PINN - 1/256 h | PINN - 1 h | 1 h - 1/256 h):
+        all depths RMS 1.42e-5 | 3.27e-4 | 3.25e-4, max 2.01e-4 | 5.82e-3 | 5.83e-3; sensor RMS 1.72e-5 |
+        4.26e-4 | 4.24e-4, max 7.77e-5 | 4.54e-3 | 4.54e-3. Same numbers as 74 o read from the json.
+        Section 7 (seven forward networks) and section 8 (seed repeats) as in 74 n / 74 o.
+        fig2_forward.png looked at: lines only, legends, axis labels with units, no title. In its lower panels
+        "PINN - 1 h" lies on "1 h - 1/256 h" in time, and over depth except close to the water table (both
+        below 1e-5 there): what was called the network's forward error against the data set's solution is
+        that solution's step error. The 5.8e-3 "largest error at the surface during the rain pulses" of the
+        earlier README was the solver's; by the triangle inequality the network's share of it is <= 2.0e-4.
+        output/paper/README.md: forward table replaced by the three columns with the bounded statement of
+        74 o (1.7e-5 against a reference itself 6.8e-6 from the level before); sensitivity line; fig7 row;
+        seed sentence limited to this window and its in-sample soil; point 5 under "What to say plainly";
+        "Not yet" list (1/1024 h level, 1/16 h inversion, rfnm1 / rfna1, rfnc1tc); both commands.
+    74 q. (14 Nov, 06:15) US-HB2 V4 (aug20) CALIBRATION AFTER THE THIRD AND LAST CONTINUATION: NOT CONVERGED.
+        T_H4 IS NOT DECIDED UNDER THE RULE OF 73 by. NO FURTHER CONTINUATION.
+        Jobs 15597939 / 15597940 (s0e / s1e): TIMEOUT at 12:00:22; 15597941 (s2e): COMPLETED after 9:11:36.
+          start 0  not ended (40 h)  misfit 0.000940  theta_s 0.30002  theta_r 0.0573  alpha 19.87  n 1.777  Ks 3.24e-5
+          start 1  not ended (40 h)         0.001395          0.3428           0.0835        19.95    2.156     2.78e-5
+          start 2  ended by xtol            0.000933          0.30000 (lower bound)  0.0568  20.00 (upper bound)  1.770  3.34e-5
+          start 3  ended by xtol, 12 Nov    0.003651          0.3013           0.0016        18.74    1.653     3.40e-6
+        (output/soil_hb2_aug20/progress0..2.json, start2.json, start3.json.) Two of four starts did not end by
+        xtol in 40 h, so by the rule written before this continuation V4 is "calibration not converged" and
+        T_H4 is not run as a counting test. What the four starts do show: the lowest misfit (start 2) sits
+        on two bounds of the box (theta_s at its lower, alpha at its upper), start 0 is next to it (misfit
+        0.7 % higher, same n and Ks to 3 %), and starts 1 and 3 are elsewhere at 1.5 x and 3.9 x the
+        misfit. Whether a soil on two bounds of the box would be usable is not covered by a written rule
+        and is not decided here.
+        The dry run of the T_H4 chain (names _pre, does not count) is still in its waiter; its numerical-
+        inversion job rf_hb2_aug20on_nov20_pre_s0 (15598032) ran into its 12 h limit. Recorded when it reports.
