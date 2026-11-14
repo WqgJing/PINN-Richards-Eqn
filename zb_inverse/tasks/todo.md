@@ -3971,3 +3971,59 @@ Real-case spec (first slice):
         (rfnc1 in-sample, rfnd diagnostic); rf22c below saturation only. No site has passed R4. Unchanged.
         STILL RUNNING at 00:48: N1 (rfnc1s1 four wide members, rfnc1s2 three of four, on V100), N2 and S1 (all
         pending on Priority), rfnc1tc round 3, rfnc1t, US-HB2 calibration continuation, site-search agent.
+    74 d. (14 Nov, 01:19) SITE SEARCH REPORTED (S2 of 74 b): tasks/site_candidates.md. Checked before use; nothing
+        fitted, no data file downloaded, no licence accepted, no account used.
+        WHAT THE REPORT SAYS
+          - Open with no account: NO site carries soil moisture, water table, rain and ET in one archive. Two have a
+            sensor and a well about 1 m apart: Point Reyes (ESS-DIVE; hillslope; no rain or ET in the package) and
+            Shale Hills RTH3 (HydroShare, 2009 - 2012; valley floor by the stream; the rain and LE entries are dead
+            links).
+          - AmeriFlux: nothing new on mineral soil. The one new site with both columns that is not peat, muck or
+            marsh is BR-Xpw (Pantanal pasture, under water half the year).
+          - NEON (token since 30 Jun 2026) and EDI / LTER (login since 30 Jul 2026) answer HTTP 403 without one.
+          - ICOS (Europe): no account; the ICOS data licence (CC BY 4.0) is accepted at each download. FR-Bil
+            (Bilos, pine on sandy podzol) first.
+        MY CHECKS (01:12 - 01:19), from the cached samples and open ICOS metadata (meta.icos-cp.eu landing pages as
+        JSON, SPARQL); written into the last section of tasks/site_candidates.md:
+          - held as written: ICOS column lists and periods of FR-Bil / BE-Bra; the three FR-Bil objects resolve
+            (19, 37, 62 MB; "ICOS CCBY4 Data Licence"); ESS-DIVE licence and file list; Shale Hills well 2 by month.
+          - corrected: the BE-Bra Meteosens link was the final 2020 - 2023 file, not the interim one; Shale Hills
+            well 1 is at its bottom in Feb and Jun - Aug, and November has no accepted value.
+          - NEW, and the main point: the ICOS metadata lists every sensor with position and depth. At FR-Bil the
+            co-location the report had only inferred is there: plot 1 well 1.8 m from a profile at 0.05 / 0.08 /
+            0.12 / 0.24 / 0.47 / 1.05 / 1.97 m, plot 2 well 2.5 m from one at 0.05 / 0.08 / 0.10 / 0.16 / 0.54 /
+            0.94 / 1.25 m; plots 90 m apart (two columns at one station); pressure sensors at 1.95 and 1.70 m
+            (1.85 m since Mar 2026). The same layout (well 1 - 4 m from a 0.05 m sensor, rain gauge and eddy
+            covariance at the station) at IT-SR2 (pine, coastal plain near Pisa), SE-Nor (sandy till; frost),
+            DK-Sor (beech), BE-Dor (grassland), FR-Fon / FR-Hes (wells 0.8 - 0.96 m deep: perched winter water
+            table, inferred), BE-Bra. Wells 3.75 - 9.6 m deep at IT-Cp2, DE-RuS, DK-Vng, NL-Loo: set aside.
+          - NOT checked, because it needs the data: the water-table range of any ICOS station, the ditches and the
+            hardpan at FR-Bil. The 0-0.5 m winter / 1-1.5 m summer range in the report is a regional figure.
+        READING
+          - The site track rests on one decision that is the user's: accepting the ICOS data licence at download
+            (attribution; the same licence on every ICOS object, so one decision covers FR-Bil and the next
+            stations). Asked at the end of this turn; default recommended: yes, FR-Bil first.
+          - Without it: Point Reyes and Shale Hills are the only sites that can be opened, and both need rain (and
+            ET) borrowed from somewhere else, on a hillslope and a valley floor. A result there would test (i) and
+            say little about (ii). Not started; a rain source for either has not been looked for.
+          - BR-Xpw (AmeriFlux account) stays last: flooded half the year, no rain in the dry half.
+        PLAN ON A YES (protocol of 74 b unchanged; written before any ICOS number is seen)
+          1. The three FR-Bil objects, each into its own new empty directory; listed with unzip -l before anything
+             is extracted; read only by batch jobs (python -I), scripts kept elsewhere.
+          2. Record check, nothing fitted: sign and reference of WTD_1 / WTD_2 against the 0.47 m and 1.05 m
+             sensors (they must saturate when the well says the water table is above them); hours by month with
+             the water table inside 0.2 - 1.5 m; plateau of the 0.05 - 0.24 m sensors; delay from rain to the rise
+             of the well; a ditch signature (recessions that flatten at one level); a hardpan signature (0.47 m
+             sensor saturated while the well is below 0.75 m).
+          3. Sensor layer: the mean of the four upper sensors as the model's layer [top, bottom] is NOT assumed:
+             the layer is fixed from the depths in the metadata before a window is chosen (0.05 - 0.24 m at plot 1,
+             0.05 - 0.16 m at plot 2), one sensor first if the four disagree.
+          4. Windows by the written rule of ay; the calibration window first, the held-out test = the NEXT window
+             with that soil, declared before it is run; hpc/cycle_solver.sh; PINN only on a usable soil; R1 - R4.
+          EXPECTATION, written now: (i) to <= 0.5 cm where the water table stays inside the box (8 of 11 so far).
+          (ii) open: sand with a shallow water table is where it held (US-NC2); the ditches and the hardpan are
+          the two ways it can fail here, and the record check is meant to show them before a GPU hour is spent.
+        COUNTS AS BEFORE: a new site counts for (ii) only with a held-out window inside R3.
+        RUNNING at 01:18: N1 (eight wide members on V100, 31 - 54 min in), N2 (six forward runs on V100, 24 - 32
+        min), S1 (rfnm1: three of four wide members running; rfna1 pending on Priority), rfnc1tc round 4 pending,
+        US-HB2 calibration continuation (7 h 11 min).
