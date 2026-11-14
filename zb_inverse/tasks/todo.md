@@ -4276,3 +4276,13 @@ Real-case spec (first slice):
         READ FROM THE FIGURE result_rfnc1t.png: the estimate leaves the solver's on days 1 - 3.5 (it deepens to
           0.72 m before the showers of day 2, the solver's stays at 0.63) and in the last day and a half (0.84
           against 0.78 m); between days 4 and 9 the two lie within a centimetre or two.
+    74 j. (14 Nov, 04:17) SITE TRACK, the part that needs no answer: the ICOS question (74 d) is still open, nothing
+        has been downloaded from ICOS. Started meanwhile: a search (research agent, read-only, no account, no
+        licence step, no personal details, samples only under output/site_search/) for a precipitation record
+        (hourly or finer) and an evaporation source for the two open sites of tasks/site_candidates.md that
+        have a co-located sensor and well but no rain: Point Reyes (A1) and Shale Hills RTH3 (A2).
+        WHAT IT DECIDES: whether either open site can be forced at all. A site goes on to a data set only if
+        the rain record is within a few km, at hourly step or finer, and covers a wet-season window with the
+        water table inside 0.2 - 1.5 m; a daily or gridded rain is recorded as "not good enough for a rain
+        window" (recession windows only, and then the evaporation source carries the whole flux).
+        Nothing here changes the answer needed for FR-Bil.
