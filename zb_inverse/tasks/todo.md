@@ -5964,3 +5964,16 @@ Real-case spec (first slice):
           other arguments as job 15619728). EXPECTED: tables.md section 2 names 1/1024 h as the finest level
           with 1.71e-5 | 1.42e-5 for the network and 4.26e-4 | 3.27e-4 for the 1 h solve; one more row in the
           level table; every other section unchanged against the copy of 08:54 (diff).
+        RESULT (16:30): job 15635688 pfig_refd, 12 min 52 s, exit=0, no Traceback. Against the expectation:
+          as written. tables.md section 2 names 1/1024 h (101 nodes, Picard tolerance 1e-08); network
+          1.71e-5 | 1.42e-5, 1 h solve 4.26e-4 | 3.27e-4; one more row in the level table (ratio 3.21);
+          section 7 headers say 1/1024 h and move in the third digit (s1 1.74e-5, w64 5.50e-5, w32 6.34e-5,
+          c2k 1.53e-5; s2 2.16e-5 and d3 5.35e-5 as before). Every other section identical to the copy of
+          08:54 (diff). Of the seven figures only fig2_forward.png changed (git status); looked at: lines
+          only, three legend entries, axis labels with units, no title.
+          README: main-numbers table and its text name the 1/1024 h reference (forward_reference_d.json); the
+          "not the limit either" bullet is replaced by what is known about the reference (2.1e-6, an eighth
+          of the network's distance; refinements 3.0, 3.7, 3.9, 3.2; cause of the last one not examined);
+          point 5 of the limits; the 1/1024 item leaves the "running" list (the four ICOS stations take its
+          place); both regenerate commands. Checked against /tmp/tables_before_refd.md: the network was
+          1.72e-5 against 1/256 h, 1.71e-5 against 1/1024 h. Job 15617357: 9 h 59 on 2 CPUs.

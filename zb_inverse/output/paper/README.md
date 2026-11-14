@@ -53,16 +53,16 @@ have no forward-problem part and no seed repeats (no fig2, fig7).
 ## Main numbers
 
 Forward problem (water table given; `runs/fwd_nc2c`, 47 min on one GPU). Soil-moisture difference in m3/m3.
-The numerical solution stored in the data set has a 1 h time step and is itself 4.2e-4 (sensor layer) from a
-solve with a 1/256 h step ([forward_reference.json](nc2_sep23c/forward_reference.json),
+The numerical solution stored in the data set has a 1 h time step and is itself 4.3e-4 (sensor layer) from a
+solve with a 1/1024 h step ([forward_reference_d.json](nc2_sep23c/forward_reference_d.json),
 `scripts/forward_reference_check.py`), so the network is given against both:
 
-| quantity | PINN − numerical, 1/256 h step | PINN − numerical, 1 h step (the data set's) | numerical, 1 h step − 1/256 h step |
+| quantity | PINN − numerical, 1/1024 h step | PINN − numerical, 1 h step (the data set's) | numerical, 1 h step − 1/1024 h step |
 |---|---|---|---|
 | all depths and times, RMS | 1.4e-5 (relative L2 0.0035 %, 0.022 % of the range) | 3.3e-4 (0.080 %, 0.51 %) | 3.3e-4 |
-| all depths and times, max | 2.0e-4 | 5.8e-3 | 5.8e-3 |
-| sensor layer, RMS | 1.7e-5 | 4.3e-4 | 4.2e-4 |
-| sensor layer, max | 7.8e-5 | 4.5e-3 | 4.5e-3 |
+| all depths and times, max | 2.0e-4 | 5.8e-3 | 5.9e-3 |
+| sensor layer, RMS | 1.7e-5 | 4.3e-4 | 4.3e-4 |
+| sensor layer, max | 7.7e-5 | 4.5e-3 | 4.6e-3 |
 
 - Surface flux of the network, RMS error / RMS of the prescribed flux, time mean on a 1-min grid: 1.65 %
   over the whole window, 1.46 % after the first hour (the network has zero surface flux at t = 0 by
@@ -71,19 +71,22 @@ solve with a 1/256 h step ([forward_reference.json](nc2_sep23c/forward_reference
   of this set gave 4.8 % on a half-hourly grid. 72 % of that mean square is the point t = 0 (2.6 % without
   it); the rest of the difference is the forcing nodes, which are every second point of that grid (3.6 % at
   the nodes without t = 0, 1.1 % half-way between them).
-- The 1/256 h solve is not the limit either. It is 6.8e-6 (sensor layer; all depths 5.2e-6) from the 1/64 h
-  solve, and the change from one step to the next falls by 3.0, 3.7 and 3.9 per refinement (first order in
-  the step). So 1.7e-5 is the distance to a reference that is itself known to about 7e-6; it is not written
-  as "the forward error is 1.7e-5". A 1/1024 h level is running.
+- How well the reference itself is known: the 1/1024 h solve is 2.1e-6 (sensor layer; all depths 1.6e-6)
+  from the 1/256 h solve, an eighth of the network's distance from it. The network's figures did not move
+  when the reference went from 1/256 h to 1/1024 h (1.72e-5 to 1.71e-5 at the sensor). So 1.7e-5 (sensor) and
+  1.4e-5 (all depths) are given as the forward error of the network, with 2e-6 as what is known about the
+  reference. The change from one step to the next fell by 3.0, 3.7, 3.9 and then 3.2 per refinement: first
+  order in the step up to 1/256 h, less than that at the last level, for a reason that was not examined. The
+  1/1024 h solve is therefore not claimed to be closer to the limit than about 2e-6.
 - At a 1/16 h step, 201 nodes instead of 101 move the solution by 8e-7: the time step limits the reference,
   not the grid.
 - The difference from the 1 h solution is the 1 h solver's step error, not the network's: in fig2 (lower
-  panels) the curve "PINN − 1 h" lies on the curve "1 h − 1/256 h" in time, and over depth except close to
-  the water table, where both are below 1e-5; the 5.8e-3 maximum is the solver's (5.8e-3), against 2.0e-4
+  panels) the curve "PINN − 1 h" lies on the curve "1 h − 1/1024 h" in time, and over depth except close to
+  the water table, where both are below 1e-5; the 5.8e-3 maximum is the solver's (5.9e-3), against 2.0e-4
   for the network.
 - Other forward networks on the same problem ([tables.md](nc2_sep23c/tables.md), section 7), sensor layer,
-  against the 1/256 h solve: two other seeds 1.75e-5 and 2.2e-5; 2048 instead of 8192 collocation points
-  1.5e-5; width 64 5.5e-5; width 32 6.4e-5; 3 hidden layers instead of 6 5.4e-5. Against the 1 h solution
+  against the 1/1024 h solve: two other seeds 1.74e-5 and 2.2e-5; 2048 instead of 8192 collocation points
+  1.5e-5; width 64 5.5e-5; width 32 6.3e-5; 3 hidden layers instead of 6 5.4e-5. Against the 1 h solution
   all seven read 4.25e-4 to 4.32e-4, so that comparison cannot tell them apart. The equations separate the
   same two groups: surface flux after the first hour 1.4 - 1.8 % and PDE residual 0.16 - 0.19 sigma_pde for
   the three seeds and the 2048-point network, 3.4 - 3.5 % and 0.29 - 0.37 for width 64, width 32 and
@@ -183,7 +186,8 @@ Inverse problem, hourly, against the well (265 hours):
    inversion with a 1/4 h step (55 - 102 CPU minutes for one start), and 5 times more expensive than one
    start with a 1/16 h step (160 CPU minutes), the step at which the two estimates agree to 0.014 cm.
 5. A forward error quoted against the data set's own 1 h solution (3.3e-4) measures that solution's time
-   step. The network's distance is 1.4e-5, against a 1/256 h solve that is itself 5e-6 from the level before.
+   step. The network's distance is 1.4e-5, against a 1/1024 h solve that is itself 1.6e-6 from the level
+   before.
 
 ## Synthetic verification (known truth)
 
@@ -451,7 +455,7 @@ each object.)
 
 ## Not yet in this set (running)
 
-- A 1/1024 h level of the forward reference (`forward_reference_d`).
+- The four ICOS stations of the section above: soil calibration, numerical inversion, PINN, scores.
 
 ## Regenerate
 
@@ -461,7 +465,7 @@ sbatch ... hpc/run_script_cpu.slurm scripts/paper_figures.py \
   --referee output/referee/nc2_own_sep23c_s0 output/referee/nc2_own_sep23c_s1 \
             output/referee/nc2_own_sep23c_s2 output/referee/nc2_own_sep23c_s3 \
   --forward runs/fwd_nc2c \
-  --forward-reference output/paper/nc2_sep23c/forward_reference \
+  --forward-reference output/paper/nc2_sep23c/forward_reference_d \
   --variants s1=runs/fs_nc2c_s1 s2=runs/fs_nc2c_s2 w64=runs/fs_nc2c_w64 w32=runs/fs_nc2c_w32 \
              d3=runs/fs_nc2c_d3 c2k=runs/fs_nc2c_c2k \
   --single member1=runs/rfnc1_inv4_m0 member2=runs/rfnc1_inv4_m1 member3=runs/rfnc1_inv4_m2 member4=runs/rfnc1_inv4_m3 \
@@ -499,7 +503,8 @@ sbatch ... hpc/run_script_cpu.slurm scripts/paper_figures.py \
   --soil-note "calibrated on this window (in-sample)" --out output/paper/nc2_sep23a_b010
 ```
 
-The forward reference itself (about 3.3 CPU hours; its `.npz` is not in the repository):
+The forward reference itself (10 hours on two CPU cores, 6.7 of them for the 1/1024 h level; its `.npz` is
+not in the repository; `forward_reference.json` is the earlier file that ends at 1/256 h):
 
 ```
 sbatch ... hpc/run_script_cpu.slurm scripts/forward_reference_check.py \
@@ -507,6 +512,6 @@ sbatch ... hpc/run_script_cpu.slurm scripts/forward_reference_check.py \
   --members baseline=runs/fwd_nc2c s1=runs/fs_nc2c_s1 s2=runs/fs_nc2c_s2 w64=runs/fs_nc2c_w64 \
             w32=runs/fs_nc2c_w32 d3=runs/fs_nc2c_d3 c2k=runs/fs_nc2c_c2k \
   --tol 1e-8 --max-iter 400 --tol-factor 0 \
-  --levels 1:101 0.25:101 0.0625:101 0.0625:201 0.015625:101 0.00390625:101 \
-  --out output/paper/nc2_sep23c/forward_reference
+  --levels 1:101 0.25:101 0.0625:101 0.0625:201 0.015625:101 0.00390625:101 0.0009765625:101 \
+  --out output/paper/nc2_sep23c/forward_reference_d
 ```

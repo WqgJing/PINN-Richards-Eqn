@@ -29,28 +29,29 @@ Written by scripts/paper_figures.py; every number is in metrics.json.
 | held-out losses at the end: PDE, surface flux | 0.0292, 0.0274 |
 
 
-Soil-moisture difference (m3/m3). The numerical solution of the data set has a 1 h time step; the finest level of scripts/forward_reference_check.py has 1/256 h (101 nodes, Picard tolerance 1e-08).
+Soil-moisture difference (m3/m3). The numerical solution of the data set has a 1 h time step; the finest level of scripts/forward_reference_check.py has 1/1024 h (101 nodes, Picard tolerance 1e-08).
 
-| quantity | PINN − numerical, 1/256 h step | PINN − numerical, 1 h step (the data set's) | numerical, 1 h step − 1/256 h step |
+| quantity | PINN − numerical, 1/1024 h step | PINN − numerical, 1 h step (the data set's) | numerical, 1 h step − 1/1024 h step |
 |---|---|---|---|
-| all depths and times: RMS | 1.42e-05 | 3.27e-04 | 3.25e-04 |
+| all depths and times: RMS | 1.42e-05 | 3.27e-04 | 3.27e-04 |
 | all depths and times: relative L2 | 0.0035 % | 0.08 % | 0.08 % |
 | all depths and times: RMS / range | 0.022 % | 0.51 % | 0.51 % |
-| all depths and times: max | 2.01e-04 | 5.82e-03 | 5.83e-03 |
-| sensor layer: RMS | 1.72e-05 | 4.26e-04 | 4.24e-04 |
-| sensor layer: max | 7.77e-05 | 4.54e-03 | 4.54e-03 |
+| all depths and times: max | 1.99e-04 | 5.82e-03 | 5.85e-03 |
+| sensor layer: RMS | 1.71e-05 | 4.26e-04 | 4.26e-04 |
+| sensor layer: max | 7.72e-05 | 4.54e-03 | 4.55e-03 |
 
 
 The numerical solution against itself, soil moisture, RMS (max). Picard tolerance 1e-08 at every level (the data set's: 1e-05); the first level differs from the solve stored in the data set by 1.8e-06 RMS at the sensor.
 
 | time step | nodes | Picard iterations, max | seconds | minus the finest level: sensor layer | all depths | minus the level before: sensor layer | all depths | change of the refinement before / this change (sensor layer) |
 |---|---|---|---|---|---|---|---|---|
-| 1 h | 101 | 24 | 54 | 4.24e-04 (4.54e-03) | 3.25e-04 (5.83e-03) | - | - | - |
-| 1/4 h | 101 | 22 | 191 | 1.31e-04 (1.39e-03) | 1.00e-04 (1.78e-03) | 2.95e-04 (3.14e-03) | 2.26e-04 (4.05e-03) | - |
-| 1/16 h | 101 | 20 | 661 | 3.32e-05 (3.50e-04) | 2.56e-05 (4.45e-04) | 9.75e-05 (1.04e-03) | 7.49e-05 (1.33e-03) | 3.02 |
-| 1/16 h | 201 | 20 | 1243 | 3.33e-05 (3.51e-04) | 2.56e-05 (4.48e-04) | 8.02e-07 (1.42e-06) | 1.21e-07 (3.56e-06) | - |
-| 1/64 h | 101 | 18 | 2261 | 6.77e-06 (7.09e-05) | 5.21e-06 (9.00e-05) | 2.65e-05 (2.80e-04) | 2.04e-05 (3.58e-04) | 3.68 |
-| 1/256 h | 101 | 17 | 7527 | - | - | 6.77e-06 (7.09e-05) | 5.21e-06 (9.00e-05) | 3.92 |
+| 1 h | 101 | 24 | 53 | 4.26e-04 (4.55e-03) | 3.27e-04 (5.85e-03) | - | - | - |
+| 1/4 h | 101 | 22 | 189 | 1.32e-04 (1.41e-03) | 1.02e-04 (1.80e-03) | 2.95e-04 (3.14e-03) | 2.26e-04 (4.05e-03) | - |
+| 1/16 h | 101 | 20 | 656 | 3.50e-05 (3.67e-04) | 2.69e-05 (4.67e-04) | 9.75e-05 (1.04e-03) | 7.49e-05 (1.33e-03) | 3.02 |
+| 1/16 h | 201 | 20 | 1239 | 3.50e-05 (3.68e-04) | 2.70e-05 (4.70e-04) | 8.02e-07 (1.42e-06) | 1.21e-07 (3.56e-06) | - |
+| 1/64 h | 101 | 18 | 2251 | 8.59e-06 (8.83e-05) | 6.60e-06 (1.12e-04) | 2.65e-05 (2.80e-04) | 2.04e-05 (3.58e-04) | 3.68 |
+| 1/256 h | 101 | 17 | 7525 | 2.11e-06 (1.74e-05) | 1.59e-06 (2.22e-05) | 6.77e-06 (7.09e-05) | 5.21e-06 (9.00e-05) | 3.92 |
+| 1/1024 h | 101 | 16 | 24024 | - | - | 2.11e-06 (1.74e-05) | 1.59e-06 (2.22e-05) | 3.21 |
 
 ## 3. Inverse problem: water-table depth against the well (hourly)
 
@@ -113,15 +114,15 @@ The numerical solution against itself, soil moisture, RMS (max). Picard toleranc
 
 Soil moisture RMS against the numerical solution (m3/m3).
 
-| run | width | hidden layers | collocation points | seed | parameters | all depths, 1/256 h step | sensor layer, 1/256 h step | all depths, 1 h step (the data set's) | sensor layer, 1 h step (the data set's) | sensor layer, minus the baseline network | surface flux (time mean, 1-min grid), whole window | surface flux, after the first hour | PDE residual RMS, after the first hour (1-min grid) | minutes |
+| run | width | hidden layers | collocation points | seed | parameters | all depths, 1/1024 h step | sensor layer, 1/1024 h step | all depths, 1 h step (the data set's) | sensor layer, 1 h step (the data set's) | sensor layer, minus the baseline network | surface flux (time mean, 1-min grid), whole window | surface flux, after the first hour | PDE residual RMS, after the first hour (1-min grid) | minutes |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| baseline | 128 | 6 | 8192 | 0 | 87681 | 1.42e-05 | 1.72e-05 | 3.27e-04 | 4.26e-04 | - | 1.65 % | 1.46 % | 0.177 | 47 |
-| s1 | 128 | 6 | 8192 | 1 | 87681 | 1.40e-05 | 1.75e-05 | 3.27e-04 | 4.26e-04 | 1.90e-05 | 1.58 % | 1.38 % | 0.164 | 47 |
+| baseline | 128 | 6 | 8192 | 0 | 87681 | 1.42e-05 | 1.71e-05 | 3.27e-04 | 4.26e-04 | - | 1.65 % | 1.46 % | 0.177 | 47 |
+| s1 | 128 | 6 | 8192 | 1 | 87681 | 1.40e-05 | 1.74e-05 | 3.27e-04 | 4.26e-04 | 1.90e-05 | 1.58 % | 1.38 % | 0.164 | 47 |
 | s2 | 128 | 6 | 8192 | 2 | 87681 | 1.78e-05 | 2.16e-05 | 3.28e-04 | 4.27e-04 | 2.08e-05 | 1.95 % | 1.78 % | 0.176 | 47 |
-| w64 | 64 | 6 | 8192 | 0 | 23361 | 4.26e-05 | 5.53e-05 | 3.31e-04 | 4.32e-04 | 5.47e-05 | 3.48 % | 3.39 % | 0.286 | 48 |
-| w32 | 32 | 6 | 8192 | 0 | 6561 | 4.89e-05 | 6.35e-05 | 3.30e-04 | 4.30e-04 | 6.30e-05 | 3.46 % | 3.37 % | 0.362 | 44 |
+| w64 | 64 | 6 | 8192 | 0 | 23361 | 4.24e-05 | 5.50e-05 | 3.31e-04 | 4.32e-04 | 5.47e-05 | 3.48 % | 3.39 % | 0.286 | 48 |
+| w32 | 32 | 6 | 8192 | 0 | 6561 | 4.88e-05 | 6.34e-05 | 3.30e-04 | 4.30e-04 | 6.30e-05 | 3.46 % | 3.37 % | 0.362 | 44 |
 | d3 | 128 | 3 | 8192 | 0 | 38145 | 4.28e-05 | 5.35e-05 | 3.29e-04 | 4.29e-04 | 5.35e-05 | 3.54 % | 3.45 % | 0.370 | 40 |
-| c2k | 128 | 6 | 2048 | 0 | 87681 | 1.32e-05 | 1.52e-05 | 3.27e-04 | 4.25e-04 | 1.72e-05 | 1.66 % | 1.47 % | 0.186 | 45 |
+| c2k | 128 | 6 | 2048 | 0 | 87681 | 1.32e-05 | 1.53e-05 | 3.27e-04 | 4.25e-04 | 1.72e-05 | 1.66 % | 1.47 % | 0.186 | 45 |
 
 ## 8. Repeated runs with other training seeds (against the well)
 
