@@ -4202,3 +4202,29 @@ Real-case spec (first slice):
           against the finest level, the 1 h figures kept and named as the data set's reference; a table of the
           reference against itself; the sensitivity table with "against the finest level" and "minus the
           baseline network". The script is finished before the job with the 1/256 h file is submitted.
+    74 h. (14 Nov, 04:10) PLAN: DOES THE TIME STEP OF THE NUMERICAL INVERSION MOVE ITS ESTIMATE? (scoring only; no
+        PINN run reads it). Why: the results set says "PINN minus numerical inversion 0.07 cm RMS, 0.30 cm max"
+        (rfnc1), and the numerical inversion runs the 1 h solve whose soil moisture at the sensor is 4.2e-4 from
+        the converged one (74 g), twenty times the forward network's distance. Which of the two that 0.07 cm
+        belongs to has not been measured.
+        WHAT: scripts/fem_referee.py gets --dt_hours (default: the hourly grid of the data set, so every earlier
+          command is unchanged): the solver runs on the finer grid, forcing linear between its hourly nodes as
+          before, the observations are read at their own times. Same data set, soil, starts, box, tolerance
+          (1e-8 for the differences, as before). Three jobs on output/real_nc2_sep23c_own:
+            1/4 h, start hydrostatic_flat   -> output/referee/nc2_own_sep23c_dt025_s1
+            1/4 h, start constant:0.3       -> output/referee/nc2_own_sep23c_dt025_s3
+            1/16 h, start hydrostatic_flat  -> output/referee/nc2_own_sep23c_dt00625_s1
+        EXPECTATION, written before submission:
+          H1 the two 1/4 h starts end on one estimate (< 0.01 cm apart), as the four 1 h starts do.
+          H2 numerical inversion, 1/4 h minus 1 h: 0.03 - 0.15 cm RMS, largest on the rain days (days 2 - 4).
+             Basis: 4.2e-4 in theta against a sensor sd of 0.005 that gives a posterior sd of 1.1 cm is about
+             0.1 cm; the step error sits on the rain days.
+          H3 1/16 h minus 1/4 h: less than half of H2's number (the estimate converges with the step).
+          H4 against the well nothing moves at the level of the table: 1.11 +- 0.03 cm RMS at both steps.
+          H5 the PINN estimate (runs/rfnc1dc_it1) is closer to the 1/4 h and the 1/16 h inversion than to the
+             1 h one (0.07 cm RMS, 0.30 max). This is the uncertain one: it holds only if the step error of the
+             solver is the larger part of the 0.07 cm.
+        READING RULE: "the PINN is closer to the converged numerical inversion" is written only if the RMS and
+          the max both fall at 1/4 h and do not rise again at 1/16 h. If they do not fall, the 0.07 cm is the
+          PINN's own and the text says that. Either way the 1 h figures stay in the table, named as such, and
+          no PINN run is changed.
