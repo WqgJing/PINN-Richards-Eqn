@@ -110,6 +110,7 @@ Final estimate of every scored PINN run (`output/real_*/result_*.json`), whole w
 | site | window | soil calibrated on | run | PINN - numerical, RMS (cm) | PINN vs well: RMSE / bias (cm), r | numerical vs well (cm) | status |
 |---|---|---|---|---|---|---|---|
 | US-NC2 | 10 Sep 2023, 11 d | this window | rfnc1 | 0.07 | 1.10 / +0.11, 0.990 | 1.11 | in-sample |
+| US-NC2 | 10 Sep 2023, 11 d | 1 Sep 2023 | rfnc1t | 3.89 | 4.53 / +1.24, 0.862 | 3.05 | diagnostic; (i) fails; loop not converged |
 | US-NC2 | 27 Sep 2023, 9 d | May 2023 | rfnd | 0.06 | 1.59 / +0.55, 0.998 | 1.64 | held-out soil, but a diagnostic, not the declared test |
 | US-NC2 | 27 Sep 2023, 9 d | 1 Sep 2023 | rfn1 | 0.07 | 9.48 / -9.25, 0.998 | 9.53 | the declared held-out test: fails against the well |
 | US-PAS | 15 Oct 2021, 7 d | Sep 2021 | rfp2 | 0.03 | 4.52 / +0.17, 0.995 | 4.50 | run for (i) only |
@@ -122,9 +123,14 @@ Final estimate of every scored PINN run (`output/real_*/result_*.json`), whole w
 | US-HB2 | 7 Mar 2020, 15 d | dry-run soil | rfh1p | 0.22 | 2.57 / +1.15, 0.965 | 2.50 | dry run, does not count |
 
 Reading:
-- (i) holds to 0.5 cm or better in 8 of 11 runs, at four sites, and in those the starts end on one estimate
-  (largest difference below 1e-5 cm). It fails in three: US-PAS Jul 2021 (2.9 cm), US-ONA Nov 2021 (2.7 cm)
-  and the US-ONA rain window (28 cm; starts 1.8 cm apart, value-correction loop not converged).
+- (i) holds to 0.5 cm or better in 8 of 12 runs, at four sites, and in those the starts end on one estimate
+  (largest difference below 1e-5 cm). It fails in four: US-PAS Jul 2021 (2.9 cm), US-ONA Nov 2021 (2.7 cm),
+  the US-ONA rain window (28 cm; starts 1.8 cm apart, value-correction loop not converged) and the window of
+  this results set with the soil of 1 Sep 2023 instead of its own (`rfnc1t`, 3.9 cm; the starts end on one
+  estimate, but the value-correction loop used its four iterations with steps of 1.3 - 4.4 posterior sd and
+  did not reach the stop rule of 0.2). The last one matters for how the in-sample case is read: on the same
+  11 days of data, with the soil calibrated on the window that starts 9 days earlier, the PINN is 3.9 cm from
+  the numerical inversion, and the numerical inversion is 3.05 cm from the well instead of 1.11.
 - (ii) holds over the whole window (3 cm RMSE, 2 cm bias, r 0.98) only at US-NC2: in-sample (rfnc1) and with
   the May soil (rfnd, not the declared test). At US-ONA Nov 2022 with the Oct 2022 soil (rf22c, held-out) it
   holds for the 359 of 433 hours in which the sensor is below saturation and not over the whole window; on
@@ -140,7 +146,7 @@ Reading:
 - Whole-pipeline repeats with other training seeds (`rfnc1s1`, `rfnc1s2`).
 - Forward sensitivity to seed, width, depth and number of collocation points (`fs_nc2c_*`).
 - Two further US-NC2 windows with their own soils (`rfnm1`, `rfna1`), both in-sample.
-- The same window with the soil of 1 Sep 2023, two network forms (`rfnc1t`, `rfnc1tc`).
+- The same window with the soil of 1 Sep 2023 and a second network form (`rfnc1tc`; `rfnc1t` is in the table above).
 
 ## Regenerate
 
