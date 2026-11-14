@@ -1,0 +1,340 @@
+{
+ "station": "DK-Sor",
+ "record": [
+  "2021-01-01 00:00",
+  "2026-08-31 22:00"
+ ],
+ "box_m": [
+  0.15,
+  1.45
+ ],
+ "window_days": 11,
+ "pairs": {
+  "WTD_18_1_1+SWC_18_1_1": {
+   "well_percentiles_m": [
+    0.19,
+    0.38,
+    1.165,
+    2.88,
+    3.38
+   ],
+   "sensor_percentiles": [
+    0.0067,
+    0.0316,
+    0.0928,
+    0.1513,
+    0.24651250000000036
+   ],
+   "plateau": 0.9523882500000005,
+   "S5_lag_h": 1,
+   "S5": true,
+   "windows": 2053,
+   "passed": {
+    "S1": 360,
+    "S1+S2": 160,
+    "S1+S2+S3": 13,
+    "all": 13
+   },
+   "S3_fail_reasons": {
+    "rain_below_10mm": 41,
+    "rain_not_measured": 145,
+    "le_missing": 0,
+    "le_poor": 0
+   },
+   "windows_qualifying": 13,
+   "qualifying_by_year": {
+    "2026": 13
+   },
+   "test": {
+    "start": "2026-02-16 12:00",
+    "i": 44940,
+    "well_m": [
+     0.18,
+     0.78
+    ],
+    "well_range_m": 0.6000000000000001,
+    "sensor": [
+     0.0942,
+     0.1355
+    ],
+    "plateau_share": 0.0,
+    "rain_mm": 23.43,
+    "le_poor_share": 0.0,
+    "temp_min_C": 1.62,
+    "temp_from": "TS_18_1_1",
+    "well_gap_h": 0,
+    "sensor_gap_h": 0
+   },
+   "earlier": null,
+   "profile": {
+    "SWC_18_4_1": {
+     "depth_m": 0.5,
+     "hours_well_above": 5338,
+     "median_then": 0.20847500000000002,
+     "plateau": 0.2625
+    },
+    "SWC_18_5_1": {
+     "depth_m": 1.0,
+     "hours_well_above": 16303,
+     "median_then": 0.1418,
+     "plateau": 0.2539
+    }
+   }
+  },
+  "WTD_2_1_1+SWC_2_1_1": {
+   "well_percentiles_m": [
+    0.14,
+    0.34,
+    0.64,
+    2.57,
+    2.57
+   ],
+   "sensor_percentiles": [
+    0.1961,
+    0.21170000000000003,
+    0.3143,
+    0.3471,
+    0.3678
+   ],
+   "plateau": 0.3788927500000013,
+   "S5_lag_h": 0,
+   "S5": true,
+   "windows": 2053,
+   "passed": {
+    "S1": 314,
+    "S1+S2": 138,
+    "S1+S2+S3": 23,
+    "all": 23
+   },
+   "S3_fail_reasons": {
+    "rain_below_10mm": 41,
+    "rain_not_measured": 104,
+    "le_missing": 0,
+    "le_poor": 0
+   },
+   "windows_qualifying": 23,
+   "qualifying_by_year": {
+    "2024": 20,
+    "2025": 2,
+    "2026": 1
+   },
+   "test": {
+    "start": "2024-12-08 12:00",
+    "i": 34500,
+    "well_m": [
+     0.39,
+     1.25
+    ],
+    "well_range_m": 0.86,
+    "sensor": [
+     0.3111,
+     0.34645000000000004
+    ],
+    "plateau_share": 0.0,
+    "rain_mm": 22.150000000000006,
+    "le_poor_share": 0.0,
+    "temp_min_C": 4.585,
+    "temp_from": "TS_2_1_1",
+    "well_gap_h": 0,
+    "sensor_gap_h": 0
+   },
+   "earlier": {
+    "start": "2024-06-21 12:00",
+    "i": 30420,
+    "well_m": [
+     0.69,
+     0.93
+    ],
+    "well_range_m": 0.2400000000000001,
+    "sensor": [
+     0.27204999999999996,
+     0.3428
+    ],
+    "plateau_share": 0.0,
+    "rain_mm": 41.599999999999994,
+    "le_poor_share": 0.007575757575757576,
+    "temp_min_C": 12.399999999999999,
+    "temp_from": "TS_2_1_1",
+    "well_gap_h": 0,
+    "sensor_gap_h": 0
+   },
+   "profile": {
+    "SWC_2_4_1": {
+     "depth_m": 0.5,
+     "hours_well_above": 13461,
+     "median_then": 0.33399999999999996,
+     "plateau": 0.3835
+    },
+    "SWC_2_5_1": {
+     "depth_m": 1.0,
+     "hours_well_above": 25188,
+     "median_then": 0.3696,
+     "plateau": 0.3738
+    }
+   }
+  },
+  "WTD_3_1_1+SWC_3_1_1": {
+   "well_percentiles_m": [
+    0.13,
+    0.32,
+    1.4,
+    2.2,
+    2.51
+   ],
+   "sensor_percentiles": [
+    0.1215,
+    0.1392,
+    0.36905,
+    0.46395,
+    0.53105
+   ],
+   "plateau": 0.6310304000000003,
+   "S5_lag_h": 0,
+   "S5": true,
+   "windows": 2053,
+   "passed": {
+    "S1": 231,
+    "S1+S2": 213,
+    "S1+S2+S3": 18,
+    "all": 18
+   },
+   "S3_fail_reasons": {
+    "rain_below_10mm": 45,
+    "rain_not_measured": 189,
+    "le_missing": 0,
+    "le_poor": 0
+   },
+   "windows_qualifying": 18,
+   "qualifying_by_year": {
+    "2025": 11,
+    "2026": 7
+   },
+   "test": {
+    "start": "2026-02-21 12:00",
+    "i": 45060,
+    "well_m": [
+     0.96,
+     1.4
+    ],
+    "well_range_m": 0.43999999999999995,
+    "sensor": [
+     0.42405000000000004,
+     0.48719999999999997
+    ],
+    "plateau_share": 0.0,
+    "rain_mm": 26.28,
+    "le_poor_share": 0.0,
+    "temp_min_C": 1.02,
+    "temp_from": "TS_3_1_1",
+    "well_gap_h": 0,
+    "sensor_gap_h": 0
+   },
+   "earlier": null,
+   "profile": {
+    "SWC_3_4_1": {
+     "depth_m": 0.5,
+     "hours_well_above": 6992,
+     "median_then": 0.3307,
+     "plateau": 0.36200000000000004
+    },
+    "SWC_3_5_1": {
+     "depth_m": 1.0,
+     "hours_well_above": 12645,
+     "median_then": 0.3446,
+     "plateau": 0.43835
+    }
+   }
+  },
+  "WTD_4_1_1+SWC_4_1_1": {
+   "well_percentiles_m": [
+    -0.35,
+    -0.07,
+    1.22,
+    2.78,
+    2.96
+   ],
+   "sensor_percentiles": [
+    0.0698,
+    0.10610500000000002,
+    0.25387499999999996,
+    0.32805,
+    0.37012949999999983
+   ],
+   "plateau": 0.49230670000000903,
+   "S5_lag_h": 0,
+   "S5": true,
+   "windows": 2053,
+   "passed": {
+    "S1": 239,
+    "S1+S2": 181,
+    "S1+S2+S3": 52,
+    "all": 52
+   },
+   "S3_fail_reasons": {
+    "rain_below_10mm": 55,
+    "rain_not_measured": 113,
+    "le_missing": 0,
+    "le_poor": 0
+   },
+   "windows_qualifying": 52,
+   "qualifying_by_year": {
+    "2025": 12,
+    "2026": 40
+   },
+   "test": {
+    "start": "2026-02-16 12:00",
+    "i": 44940,
+    "well_m": [
+     0.28500000000000003,
+     1.07
+    ],
+    "well_range_m": 0.785,
+    "sensor": [
+     0.2619,
+     0.32675
+    ],
+    "plateau_share": 0.0,
+    "rain_mm": 23.43,
+    "le_poor_share": 0.0,
+    "temp_min_C": 1.06,
+    "temp_from": "TS_4_1_1",
+    "well_gap_h": 0,
+    "sensor_gap_h": 0
+   },
+   "earlier": {
+    "start": "2025-01-13 12:00",
+    "i": 35364,
+    "well_m": [
+     0.97,
+     1.395
+    ],
+    "well_range_m": 0.42500000000000004,
+    "sensor": [
+     0.24309999999999998,
+     0.33155
+    ],
+    "plateau_share": 0.0,
+    "rain_mm": 10.290000000000001,
+    "le_poor_share": 0.0,
+    "temp_min_C": 1.67,
+    "temp_from": "TS_4_1_1",
+    "well_gap_h": 0,
+    "sensor_gap_h": 0
+   },
+   "profile": {
+    "SWC_4_4_1": {
+     "depth_m": 0.5,
+     "hours_well_above": 4978,
+     "median_then": 0.33240000000000003,
+     "plateau": 0.4382
+    },
+    "SWC_4_5_1": {
+     "depth_m": 1.0,
+     "hours_well_above": 8682,
+     "median_then": 0.49439999999999995,
+     "plateau": 0.5202829500000004
+    }
+   }
+  }
+ }
+}

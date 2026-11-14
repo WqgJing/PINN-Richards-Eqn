@@ -5670,3 +5670,197 @@ Real-case spec (first slice):
           output/paper/nc2_may23/inversion_box_rfnm1b.json, output/paper/nc2_sep23a/inversion_box_rfna1b.json,
           output/paper/nc2_may23_b010/, output/paper/nc2_sep23a_b010/; README: rows rfnm1b / rfna1b, box passage,
           counts (12 of 17 runs, 10 of 14 data sets), equation statistics, regenerate commands.
+    74 ag. (14 Nov, 15:15) NEW SITES FROM ICOS: PLAN, SCREENING RULE AND PASS MARKS, WRITTEN BEFORE ANY ICOS DATA
+        FILE IS REQUESTED OR READ.
+        REQUEST (user, verbatim): "just do 3-4 more sites to prove this method works".
+        APPROVAL (user, verbatim, to the question whether I may accept the ICOS licence and download the
+          stations FR-Bil, IT-SR2, SE-Nor, DK-Sor, BE-Dor): "Yes, accept and download (Recommended)".
+          Scope of that approval: the ICOS CC BY 4.0 licence click-through and the station files of the ICOS
+          Carbon Portal. No account, no personal details, a generic client name. It does NOT cover anything
+          account-bound (AmeriFlux, Earth Engine, Earthdata, NEON token, EDI login).
+          OBLIGATION: ICOS data must be cited in anything published from these results (per-object citation
+          strings are in the object metadata; they go into the README with the rows).
+        DATA HANDLING: every object into its own new, empty directory data/sites/icos/<station>/<object>/
+          (git-ignored; the repository is public and raw station files are not committed); archives listed
+          before they are unpacked; on the login node text tools only; Python only through sbatch, with -I,
+          scripts in scripts/, paths as arguments.
+        WHAT COUNTS (unchanged, fixed before): on each new data set
+          R1 all starts of the PINN inversion give one estimate (spread < 0.2 cm);
+          R2 PINN - numerical inversion <= 1 cm rms (the 0.5 cm level is the one reported in the README count);
+          R3 against the well, hourly: RMSE <= 3 cm, |bias| <= 2 cm, r >= 0.98.
+          A station counts as "the method works there" when R1 - R3 hold on its data set with the soil fitted
+          on the same period (as the three US-NC2 rows of the README), stated as in-sample. Where the record
+          has an earlier qualifying window, the soil fitted there is tried too (numerical inversion first; the
+          PINN is run on it only if the numerical inversion meets R3 with that soil: rule of E5, unchanged).
+        SCREEN, per station, from the records alone (no solver run, no soil), in this order of stations:
+          FR-Bil, IT-SR2, SE-Nor, DK-Sor, BE-Dor; then FR-Fon, FR-Hes, BE-Bra, CZ-Lnz only if fewer than three
+          pass. The first four that pass are taken; nothing is dropped after its solver or PINN result is seen.
+          Pair = a well and the shallowest soil-moisture sensor (<= 0.10 m) of the same plot (metadata: 1 - 5 m
+          apart). A window = 11 days from 12:00 (the length and the 1-hour flux nodes / 1-day spline knots of
+          the US-NC2 rain window, configs/real_nc2_sep23c.yaml). A window QUALIFIES when, over all its hours,
+          S1 the well is inside 0.15 - 1.45 m below ground (the path range of the networks, 0.10 - 1.50 m, less
+             0.05 m) and its range in the window is >= 0.20 m;
+          S2 the sensor has no gap above 3 h, its range in the window is >= 0.03 m3/m3, and it is not within
+             0.005 of its own highest level of the record for more than a quarter of the hours (plateau);
+          S3 rain >= 10 mm in the window, measured at the station for every half hour (not filled from a
+             reanalysis); latent heat flux: at most 10 % of the half hours with the poorest gap-filling class;
+          S4 soil temperature at the sensor depth (air temperature if there is none) above 1 C in the window
+             and in the 5 days before it;
+          S5 timing: the lag of the largest cross-correlation between hourly rain and the hourly increments of
+             the sensor, over the station's record, is 0 - 3 h (this is also the check of the time base of the
+             files against each other). Checked once per station, not per window.
+          Also read, and stated with the result, but NOT a reason to reject: sign and reference of the well
+          (the deeper sensors of the profile must be at their highest level while the well is above them);
+          ditches, drains and hardpans (they move the water table, which is the unknown of the inverse problem;
+          a layered soil is a limit of the uniform column and is said so).
+          WINDOW RULE (records only): the test window of a station is the qualifying window with the largest
+          range of the well; among equal ranges (to 0.01 m) the earliest. The earlier window for the second
+          soil, if any, is the qualifying window with the largest range of the well that ends before the test
+          window starts and whose sensor range contains the test's (to 0.005). No window is changed after a
+          solver or PINN result.
+          A station FAILS the screen when no window qualifies or S5 fails.
+        FORCING (same construction as before, scripts/make_real.py): ET from the latent heat flux, rain from
+          the station gauge, q_surf = (1 - f_T) ET - P, root sink f_T ET.
+          f_T: the daily GLDAS ratio used at the US sites comes from an Earth Engine extraction (account-bound,
+          not approved, not used). RULE instead, no fitted number: f_T = the biome mean of Schlesinger &
+          Jasechko (2014, Agric. For. Meteorol. 189, 115-117): temperate coniferous forest 0.55, temperate
+          deciduous forest 0.67, temperate grassland 0.57 (the three values confirmed against a citing paper,
+          Nelson et al. 2020 GCB; the paper's own table was not opened), constant in the window, with the
+          forward check at f_T = 0, 0.5 and 1 written next to it (forcing.check_fractions), as before.
+        SOIL: scripts/calibrate_soil.py unchanged (four starts: the data set's own = Carsel & Parrish values of
+          the station's texture class from its site description, sand, sandy loam, static fit; accepted only if
+          the starts agree); usable-soil rule of E5 unchanged (numerical inversion within 2 cm in-sample).
+          Ks near 1e-3 m/s: network form model.departure=conductive by the rule of rfnc1tc, not otherwise.
+        ORDER OF WORK: (1) download; (2) records check per station (one sbatch job, line plots), result
+          written against S1 - S5 BEFORE any data set is built; (3) data sets + soil; (4) numerical inversion,
+          four starts, coefficients on the bound of the path prior -> prior widened on that side, both
+          inversions (rule of 74 ac); (5) PINN by hpc/real_full_x.sh, held-out losses per stage recorded
+          before any score; (6) score_real.py + referee_step_check.py, README rows and counts, commit, push.
+        EXPECTATIONS, written now:
+          H1 at least two of the five stations fail the screen, on S1 (wells 2 - 3.4 m deep were put in for
+             water tables that are mostly deeper than 1.5 m in the warm season) or on S2 (sands at 0.05 m sit
+             near their dry end with the water table below about 1 m: range of the sensor set by rain, not by
+             the well).
+          H2 on the stations that go through, PINN - numerical <= 0.5 cm in at least three of four (12 of 17
+             runs so far; the failures were soils with Ks near 1e-3 m/s or estimates held by the box).
+          H3 R3 in-sample holds on at most half of them: a 0.05 m sensor 0.5 - 1.4 m above the water table
+             carries less of the well than the 0 - 0.30 m layer at US-NC2 (in-sample rows at the two Florida
+             sands: 4.3 - 4.5 cm). A station where the NUMERICAL inversion itself misses R3 is reported as
+             "the sensor does not determine the well there", not as a PINN failure and not as a success.
+        COST: about 11 - 14 GPU h and 6 h of wall time per PINN run; runs of different stations in parallel.
+        (15:19) DOWNLOADED (scripts/icos_fetch.sh; licence accepted through /licence_accept as approved; every
+          object's sha256 equals the one in the open metadata; one csv per archive): FR-Bil, IT-SR2, SE-Nor,
+          DK-Sor, BE-Dor, three objects each (ETC L2 Meteosens, Fluxnet half-hourly, Meteo), in
+          data/sites/icos/<station>/<object id>/{raw,csv}. Read so far: column names and the first rows of
+          FR-Bil (WTD negative below ground, in m; SWC in %; quality columns are composite codes, bad values
+          are already -9999), no series.
+        ADDED TO THE SCREEN BEFORE THE RECORD CHECK IS RUN (scripts/site_records_icos.py):
+          - pairs, from the positions in the open metadata (well -> 0.05 m sensor of the profile next to it):
+              FR-Bil  WTD_1_1_1 + SWC_1_1_1 (1.8 m), WTD_2_1_1 + SWC_2_1_1 (2.5 m)
+              IT-SR2  WTD_2_1_1 + SWC_3_1_1 (3.8 m), WTD_3_1_1 + SWC_4_1_1 (3.0 m)
+              SE-Nor  WTD_1_1_1 + SWC_2_1_1 (1.5 m), WTD_2_1_1 + SWC_4_1_1 (1.9 m)
+              DK-Sor  WTD_18_1_1 + SWC_18_1_1 (2.4 m), WTD_2_1_1 + SWC_2_1_1 (2.5 m), WTD_3_1_1 + SWC_3_1_1
+                      (1.9 m), WTD_4_1_1 + SWC_4_1_1 (3.0 m)
+              BE-Dor  WTD_1_1_1 + SWC_1_1_1 (4.4 m), WTD_2_1_1 + SWC_2_1_1 (4.6 m; a second well, 1.40 m then
+                      1.12 m deep, not in the earlier notes)
+            soil temperature = TS of the same profile index, first depth.
+          - a station with several pairs: the pair whose test window has the largest range of the well.
+          - "highest level of the record" of a sensor (S2) = the 99.9th percentile of its hourly record (a
+            single spike would otherwise set it).
+          - S1 and S2 "no gap above 3 h" is counted on hourly means of the half-hourly values present.
+          - rain and its measured / filled class, latent heat flux and its gap-filling class, air temperature:
+            P_F, P_F_QC (0 = measured), LE_F_MDS, LE_F_MDS_QC (3 = poorest), TA_F of the Fluxnet file.
+        (15:26) RECORD CHECK, FIRST RUN (jobs 15632656 - 15632660, all exit=0, no Traceback), AND AN ERROR IN
+          MY S5 MEASURE, FOUND IN ITS OUTPUT AND WRITTEN HERE BEFORE THE RE-RUN.
+          What the first run printed for S5 (lag of the largest correlation; correlations at -1 / 0 / +1 h):
+            FR-Bil  WTD_1+SWC_1   -1 h "FAILS"   0.445 / 0.401 / (lower)
+            FR-Bil  WTD_2+SWC_2    0 h           (lower) / 0.437 / ...
+            SE-Nor  WTD_1+SWC_2   -1 h "FAILS"   0.425 / 0.232 / ...
+            every other pair (IT-SR2 x2, SE-Nor WTD_2, DK-Sor x4, BE-Dor x2)  0 h, with -1 h close behind
+            (BE-Dor WTD_1: 0.513 / 0.518; DK-Sor WTD_2: 0.290 / 0.330).
+          The error: the script paired the rain of hour k (a sum over the hour) with theta[k+1] - theta[k] of
+          the hourly MEANS, which is the rate at the END of the rain hour, not in it; theta[k] - theta[k-1] is
+          the rate at its start. An immediate response is therefore split between the script's lags -1 and 0
+          by construction, and "-1" does not mean that a sensor leads the rain. The pattern in every pair (two
+          neighbouring lags of nearly equal size, nothing at -2) is that split.
+          This is an error of implementation, not a change of the rule: S5 stays "lag 0 - 3 h". The measure is
+          replaced by the one with no offset: the rate of the sensor in the same hour = the centred difference
+          (theta[k+1] - theta[k-1]) / 2 (scripts/site_records_icos.py, lag_of_largest_correlation).
+          It is made after the first output was seen, and it matters at one station: at FR-Bil the pair rule
+          (largest range of the well in the test window) picks WTD_1+SWC_1 (1.020 m) over WTD_2+SWC_2 (1.010 m)
+          only if WTD_1+SWC_1 holds S5. Stated so that it can be checked, not hidden.
+          EXPECTED from the re-run, written now: every one of the 12 pairs has its largest correlation at lag 0
+          with the centred rate (the two neighbours -1 and +1 lower); the windows, counts and test windows are
+          unchanged (nothing else in the script was touched). If a pair shows its largest value at -1 h or
+          below with the centred rate, S5 FAILS for that pair and it is not used.
+        (15:28) RE-RUN WITH THE CENTRED RATE (jobs 15633030 - 15633034, all exit=0, no Traceback) AND THE RESULT
+          OF THE SCREEN, WRITTEN BEFORE ANY DATA SET IS BUILT. Figures looked at: the four test windows below.
+          Against the expectation of the re-run: 11 of 12 pairs have the largest correlation at lag 0; DK-Sor
+          WTD_18+SWC_18 at lag +1 (0.134 against 0.132 at 0: weak sensor response, sensor mostly below 0.15).
+          "Every pair at 0" was wrong for that one; S5 (0 - 3 h) holds for all 12. Counts, windows and test
+          windows are identical to the first run, as expected.
+          Lag 0 correlations: FR-Bil 0.533 / 0.478, IT-SR2 0.492 / 0.486, SE-Nor 0.423 / 0.375, DK-Sor 0.132 /
+          0.377 / 0.328 / 0.318, BE-Dor 0.605 / 0.529.
+          PER STATION (pair chosen by the rule = largest range of the well in its test window):
+                     pairs  windows qualifying (S1-S4) per pair   chosen pair          test window (12:00 + 11 d)
+            FR-Bil   2      251 / 126 of 2784                     WTD_1_1_1+SWC_1_1_1  29 Oct 2023
+            IT-SR2   2      9 / 21 of 2541 (all in 2019)          WTD_3_1_1+SWC_4_1_1  13 Nov 2019
+            SE-Nor   2      138 / 176 of 3149                     WTD_2_1_1+SWC_4_1_1  30 Oct 2023
+            DK-Sor   4      13 / 23 / 18 / 52 of 2053             WTD_2_1_1+SWC_2_1_1   8 Dec 2024
+            BE-Dor   2      18 / 76 of 1688                       (tie 1.160 m; not taken, see below)
+          The four test windows:
+            FR-Bil  well 1.370 -> 0.350 m (range 1.020), sensor 0.136 - 0.247, rain 191.2 mm, min soil T 9.1 C;
+                    no earlier window for this pair (the other pair has one, 23 Feb 2020; not the chosen pair).
+            IT-SR2  well 1.060 -> 0.390 m (0.670), sensor 0.099 - 0.175, rain 188.2 mm, min soil T 12.7 C; no
+                    earlier window (rain is "measured" in the Fluxnet file only in 2019).
+            SE-Nor  well 1.270 -> 0.360 m (0.910), sensor 0.194 - 0.231 (range 0.037, just above the 0.03 of S2),
+                    rain 93.6 mm, min soil T 3.8 C; no earlier window.
+            DK-Sor  well 1.250 -> 0.390 m (0.860), sensor 0.311 - 0.346, rain 22.2 mm, min soil T 4.6 C;
+                    EARLIER window 21 Jun 2024: well 0.690 - 0.930 m, sensor 0.272 - 0.343, rain 41.6 mm.
+          THE SCREEN: all five stations pass (every station has qualifying windows and S5 holds).
+          H1 ("at least two of the five fail, on S1 or S2") is WRONG: none fails. What I had not expected: every
+          one of these wells comes inside 0.15 - 1.45 m in the wet season, and the 0.05 m sensors keep a range
+          above 0.03 there because the windows the rule picks are autumn and winter rewetting with rain.
+          TAKEN, by the rule "the first four that pass, in the order written": FR-Bil, IT-SR2, SE-Nor, DK-Sor.
+          BE-Dor passes and is NOT run (fifth in the order; its two pairs tie at 1.160 m).
+          STATED WITH THE RESULT, NOT REASONS TO REJECT (as written above):
+          - All four windows are water tables RISING by 0.7 - 1.0 m in 11 days. That is what "largest range of
+            the well" selects; it is the hard case for the path prior (steps of 0.15 m per day s.d.), and the
+            opposite of the recessions of the earlier sites.
+          - DK-Sor: from 8 to 14 Dec the well rises from 1.25 to 0.82 m with NO rain while the 0.05 m sensor
+            falls (0.325 -> 0.311). The water table there is moved from the side or from below, not through
+            this column from above, and the sensor does not follow it in those days. Expected consequence
+            (this is H3): the numerical inversion itself may miss R3 at DK-Sor.
+          - SE-Nor: with the well above them, the 0.3 m and 0.5 m sensors of the same profile are NOT at
+            their highest level (0.5 m: median 0.173 against a plateau of 0.357 over 1188 h). Either the well
+            and the profile do not see the same water table (till, 1.9 m apart) or the well's reference is
+            off. The uniform column cannot represent that; said here before any solver run.
+          - FR-Bil: a hardpan at 0.75 m (station text); the four upper sensors of profile 1 were replaced on
+            5 Jul 2023, before the test window (one sensor for the whole window).
+          SOIL TO START FROM (Carsel & Parrish values of the texture class; a start only, the calibration has
+          three more starts): FR-Bil sand (sandy podzol, station text); IT-SR2 sand (about 95 % sand, 2 - 3 %
+          clay at both San Rossore towers: Arriga et al. 2025, Agric. For. Meteorol.); SE-Nor sandy loam
+          (sandy-loamy till, station text); DK-Sor loam (no texture found: Alfisols / Mollisols on Weichselian
+          moraine, Pilegaard & Ibrom 2020; loam taken as the middle class and said so).
+          f_T by the rule above: FR-Bil 0.55, IT-SR2 0.55, SE-Nor 0.55 (coniferous), DK-Sor 0.67 (deciduous;
+          the beech has no leaves in December: the rule is kept as written, and the forward check at f_T = 0,
+          0.5 and 1 says how much it matters).
+          DECIDED NOW, before any solver run: the PINN is run at all four (R1 and R2 are tested at every
+          station; R3 only counts where it is met). No station is dropped after its solver result.
+        (15:35) DATA SETS BUILT (scripts/make_real.py with the optional site.sources = two files of a station,
+          default unchanged; python -I; jobs 15633207 - 15633210, all exit=0, no Traceback). Configs
+          configs/real_{bil_oct23,sr2_nov19,nor_oct23,sor_dec24}.yaml, data sets output/real_<same>/.
+          No gap filled anywhere (LE, rain, sensor, well: 0 records / 0 hours).
+                     rain    ET     well [m]        sensor          spline vs hourly well   forward check with the
+                     [mm]    [mm]                                   (14 coef.) RMSE / max   class soil (RMSE, r)
+            FR-Bil   191.0   9.3    0.350 - 1.375   0.137 - 0.248   1.40 / 5.67 cm          0.045, 0.906 (sand)
+            IT-SR2   188.2   12.7   0.390 - 1.060   0.099 - 0.174   1.23 / 3.56 cm          0.029, 0.790 (sand)
+            SE-Nor    93.6   0.5    0.360 - 1.270   0.194 - 0.231   1.80 / 4.95 cm          0.025, 0.916 (sandy loam)
+            DK-Sor    22.2   0.5    0.375 - 1.250   0.311 - 0.347   1.18 / 7.00 cm          0.076, 0.826 (loam)
+          - ET is 0.5 - 13 mm against 22 - 191 mm of rain: the forward check at f_T = 0, 0.5 and 1 moves the
+            sensor RMSE by less than 0.002 at every station. The f_T rule does not matter in these windows.
+          - The 1-day spline itself differs from the hourly well by 1.2 - 1.8 cm rms (up to 7 cm in the hour of
+            the fastest rise). R3 is scored against the hourly well, so this is part of every score.
+          - IT-SR2: the 1-hour solver with the class sand converged in 99.3 % of the steps (0.25 h: 100 %).
+          NEXT, rule unchanged: scripts/calibrate_soil.py, starts 0 - 3 per data set (cal_<tag>_s<k>). The soil
+          of a data set = the start with the lowest misfit; whether the starts agree is stated with it.

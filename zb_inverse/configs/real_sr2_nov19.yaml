@@ -1,0 +1,75 @@
+# Real data, ICOS station IT-SR2 (San Rossore 2, Italy), RAIN window chosen from the records alone by the rule of
+# tasks/todo.md 74 ag
+# (the qualifying 11-day window with the largest range of the well): 2019-11-13T12:00 + 11 d.
+# Well 1.06 -> 0.39 m, sensor 0.099 - 0.175, rain 188 mm, soil temperature above 12 C.
+# Pair: well WTD_3_1_1 and the 0.05 m sensor SWC_4_1_1 of the profile next to it.
+# Data: ICOS ETC L2 Fluxnet (LE_F_MDS, P_F) and Meteosens (well, soil moisture) half-hourly files, CC BY 4.0, to be
+# cited (output/site_search/icos/meta/<object id>.json: citationString). Fetched by scripts/icos_fetch.sh into
+# data/sites/icos/ (not committed). Run scripts/make_real.py with python -I on these files.
+# Set-up of configs/real_nc2_sep23c.yaml (1-hour flux nodes, 1-day spline knots). What differs:
+#   site.sources               two files of the station instead of one
+#   transpiration_fraction     no GLDAS extraction here: biome mean of Schlesinger & Jasechko (2014).
+#                              Stone pine: temperate coniferous forest, f_T 0.55
+#   soil                       Carsel & Parrish values of the texture class, a start for scripts/calibrate_soil.py:
+#                              sand (about 95 % sand at both San Rossore towers, Arriga et al. 2025)
+#   obs.depth_m                point sensor at 0.05 m
+site:
+  name: IT-SR2
+  sources:
+    - csv: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/data/sites/icos/IT-SR2/WS8nG-HsUoOnF77ONczKH-pA/csv/ICOSETC_IT-SR2_FLUXNET_FLUXMET_HH_2019-2025_v1.3_r1.csv
+      columns: {le: LE_F_MDS, p: P_F}
+    - csv: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/data/sites/icos/IT-SR2/isAlyY_8bvG704lyz5clDp9c/csv/ICOSETC_IT-SR2_METEOSENS_L2.csv
+      columns: {wtd: WTD_3_1_1, swc: SWC_4_1_1}
+
+forcing:
+  node_hours: 1
+  fill_half_window_days: 7    # mean-diurnal-cycle filling of missing LE
+  transpiration_fraction: 0.55
+  check_fractions: [0.0, 0.5, 1.0]
+
+fem:                          # as configs/twin_gldas_fl.yaml (forward check and scoring only)
+  root: /storage/project/r-rbras6-0/jjason3/wtd_pipeline
+  L: 12.0
+  n_nodes: 101
+  max_iter: 50
+  tol: 1.0e-5
+  omega: 0.5
+  dt_hours: 1.0
+  check_dt_hours: 0.25
+  check_n_nodes: 201
+
+soil:
+  theta_s: 0.43
+  theta_r: 0.045
+  alpha: 14.5
+  n: 2.68
+  Ks: 8.25e-5
+  l: 0.5
+  Ss: 1.0e-5
+  blend_width_m: 0.02
+  abs_smooth_m: 1.0e-3
+
+scaling:
+  L: 2.0
+
+window:
+  start: '2019-11-13T12:00'
+  n_days: 11
+
+zb_spline:
+  knot_days: 1.0
+  zb_min: 0.05
+
+reference:
+  h_surf_admissible_m: -10.0
+
+obs:
+  depth_m: [0.05, 0.05]       # point sensor
+  interval_hours: 24
+  max_gap_hours: 3
+
+truth:
+  max_gap_hours: 3
+
+output:
+  dir: /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/real_sr2_nov19

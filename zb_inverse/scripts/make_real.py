@@ -21,8 +21,12 @@ import copy
 import csv
 import json
 import os
+import sys
 import numpy as np
 
+# the script's own directory, named explicitly: with `python -I` (required when the station files are downloads:
+# nothing is imported from the current or the data directories) it is not on the path by itself
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import load_with_overrides, hourly_times
 from make_twin_fem import load_fem, run_fem
 from zbinv import plots, sitedata
@@ -51,8 +55,18 @@ def site_series(cfg):
     shift = float(sc.get('p_shift_hours', 0.0))
     half = int(fc.get('fill_half_window_days', 7))
     pad = np.timedelta64(half + 1 + int(np.ceil(abs(shift) / 24.0)), 'D')
-    t_rec, rec = sitedata.read_amf_halfhourly(sc['amf_csv'], sc['columns'], t0 - pad,
-                                              t0 + np.timedelta64(n_days, 'D') + pad)
+    # one file with all four columns (AmeriFlux BASE), or site.sources: several files of the same station in the
+    # same format (ICOS ETC L2: fluxes and rain in the Fluxnet file, well and soil moisture in the Meteosens file).
+    # The reader raises unless each file is the complete half-hourly grid of the period, so the columns line up.
+    sources = sc.get('sources') or [{'csv': sc['amf_csv'], 'columns': sc['columns']}]
+    rec = {}
+    for src in sources:
+        t_rec, part = sitedata.read_amf_halfhourly(src['csv'], src['columns'], t0 - pad,
+                                                   t0 + np.timedelta64(n_days, 'D') + pad)
+        rec.update(part)
+    absent = [k for k in ('le', 'p', 'wtd', 'swc') if k not in rec]
+    if absent:
+        raise ValueError(f'site: no source gives {absent}')
     t_c = ((t_rec - t0) / np.timedelta64(1, 'm') + 15.0) / 1440.0     # record centres, days from the window start
     used = (t_c >= -w / 2) & (t_c < n_days + w / 2)                   # records the forcing nodes are made of
 
