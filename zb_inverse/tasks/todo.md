@@ -6014,3 +6014,41 @@ Real-case spec (first slice):
             estimate is within 5 cm of meeting its rule; further off, the bound does not decide anything
             and the row is closed. If T1 is wrong (in-sample within 2 cm): the December row is judged by
             R3, and the PINN is run on it only if the numerical inversion meets R3.
+        (17:58) DK-Sor, 13 - 24 Dec 2024, the TEST window (output/soil_sor_dec24; jobs 15633599 - 15633602,
+        all exit=0, no Traceback, all ended by xtol; 71 - 138 min, 105 - 228 solves):
+          start        misfit    r      theta_s  theta_r  alpha  n       Ks        on bound (flag)
+          0 own soil   0.005241  0.502  0.3430   0.2000   7.71   1.1000  3.26e-4   theta_r, n
+          1 sand       0.005246  0.497  0.3408   0.2000   6.42   1.1000  2.49e-4   (at both, flag not set)
+          2 sandy loam 0.005239  0.502  0.3439   0.2000   8.27   1.1000  3.97e-4   theta_r, n      <- the soil
+          3 static     0.005250  0.541  0.3333   0.2000   3.48   1.1005  1.49e-5   (at both, flag not set)
+          bias < 0.00002, max 0.016 - 0.017.
+          C1 (<= 0.005): MISSED by 0.0002 (0.00524). The sensor moves by 0.036 in the window; r 0.50.
+          C3: second data set whose starts agree in misfit (0.2 %); in the parameters they do not (alpha
+            3.5 - 8.3, Ks 1.5e-5 - 4.0e-4): holds here.
+          NOT EXPECTED, and it matters more than C1: all four starts end with theta_r at its upper bound
+            (0.20) and n at its lower bound (1.10), i.e. at the flattest retention curve the bounds allow.
+            FIGURE (start2.png, looked at): the sensor stays within 0.015 for ten days while the well
+            rises from 1.25 m to 0.375 m; the fitted model is a nearly constant 0.315 - 0.33. The soil that
+            fits best is the one whose 5 cm moisture hardly depends on the water table. (Known before the
+            fit, 74 ag: "the well moves without rain while the sensor falls".)
+            The screen did not test this: S2 asks for the sensor below its plateau and S5 for rain and
+            sensor in step; neither asks whether the sensor moves when the well does. Not changed now (the
+            stations were chosen by the screen as written; none is dropped after a result).
+        HELD-OUT ROW so far (logs/transfer_sor_jun24.log; reference only): December with the June soil,
+          starts 0, 1, 2: 30.31 cm RMSE, bias -25.84, max 71.2, coefficient 13 on the bound, cost 0.1752,
+          the three identical. T2 (misses R3; guess 5 - 15 cm): R3 missed as expected, by twice my upper
+          guess. Start 3 and the four in-sample June starts are running (T1 open).
+        NEXT: PYI=-I hpc/transfer_solver.sh sor dec24 "[0.05,0.05]"  (in-sample row of DK-Sor).
+          EXPECTED, written before it is launched:
+            T3 the numerical inversion misses R3 (my guess 10 - 40 cm from the well) and has coefficients on
+               the bound of the path prior: with this soil the sensor says little about the water table,
+               so its 0.005 of misfit is put into the path. R1 (starts within 0.2 cm) may fail too.
+          DECISION RULE (stands from 74 ag): the PINN is run at this station whatever T3 gives
+            (tag rfsor1, data set output/real_sor_dec24_own, sensor "[0.05,0.05]", no extra options:
+            Ks 4.0e-4 is not at the 1e-3 bound, so the additive form, by the rule "not otherwise").
+            It is launched when the data set exists; its lines are read only after the numerical ones
+            are recorded, and its held-out flux and PDE losses per stage before any score.
+            If R1 fails for the numerical inversion, "PINN - numerical" has no single reference: the PINN
+            is then compared with every start, and the row says "water table not determined by the
+            sensor at this station" for solver and PINN alike. A coefficient on the bound: rule of 74 ac
+            only if the estimate is within 5 cm of R3 (as written for T1).
