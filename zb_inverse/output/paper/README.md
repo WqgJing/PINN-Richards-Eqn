@@ -403,6 +403,52 @@ Reading:
 - "Soil not usable" is the written rule: lowest-misfit calibration and an in-sample numerical inversion within
   2 cm of the well.
 
+## New stations (ICOS): data source, licence, state
+
+Five European stations with a well next to a 0.05 m soil-moisture sensor were screened by the rule written in
+`tasks/todo.md` (74 ag) before any series was read: well inside 0.15 - 1.45 m, sensor below its plateau, rain
+measured at the station, no frost, rain and sensor in step. All five meet it as written. The first four in the written order
+are run (FR-Bil conifer forest on a sandy podzol, IT-SR2 pine forest on sand, SE-Nor conifer forest on
+sandy-loamy till, DK-Sor beech forest on moraine); BE-Dor (grassland) is not run: its wells end at 1.40 m, inside the
+accepted range, and both of its candidate windows start with the well at that depth, which the screen did not test
+(the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
+test windows are in `output/site_icos/<station>/`.
+
+State: data sets built, soils being calibrated. No inversion result (numerical or PINN) exists yet for these
+stations, and they are not in the counts above.
+
+The station files are ICOS ETC L2 products under the ICOS CC BY 4.0 data licence
+(https://data.icos-cp.eu/licence). The raw files are not in this repository; the figures and numbers derived from
+them are, and any use of them must cite:
+
+- Domec, J.C., Loustau, D., Aluome, C., Chipeaux, C., Denou, J.-L., Depuydt, J., Garrigou, C., Kruszewski, A.,
+  Lafont, S. (2026). ETC L2 Meteosens from Bilos, 2018-12-31–2026-08-31, ICOS RI,
+  https://hdl.handle.net/11676/z3RB-bxCZ56yThkccIDCqxuM
+- Domec, J.C., et al. (2026). ETC L2 Fluxnet (half-hourly) from Bilos, 2018-12-31–2026-08-31, ICOS RI,
+  https://hdl.handle.net/11676/xFrwVCA1RxiQ4UyGinPgeqSZ
+- Arriga, N., Goded, I., Dell'Acqua, A., Matteucci, M. (2026). ETC L2 Meteosens from San Rossore 2,
+  2018-12-31–2025-12-31, ICOS RI, https://hdl.handle.net/11676/isAlyY_8bvG704lyz5clDp9c
+- Arriga, N., et al. (2026). ETC L2 Fluxnet (half-hourly) from San Rossore 2, 2018-12-31–2025-12-31, ICOS RI,
+  https://hdl.handle.net/11676/WS8nG-HsUoOnF77ONczKH-pA
+- Kljun, N., Molder, M., Lehner, I., Bergström, G., Båth, A., Holst, J., Linderson, M.-L., Marchenko, S. (2026).
+  ETC L2 Meteosens from Norunda, 2017-12-31–2026-08-31, ICOS RI,
+  https://hdl.handle.net/11676/TSarBUGLFApGPGDtep9Ji9AV
+- Kljun, N., et al. (2026). ETC L2 Fluxnet (half-hourly) from Norunda, 2017-12-31–2026-08-31, ICOS RI,
+  https://hdl.handle.net/11676/Klxz5lfzgiDTWAumSw--KnsR
+- Ibrom, A., Lange Rønn, E., Lodsgaard Justesen, M., Møller, F., Pilegaard, K., Schaarup Sørensen, J. (2026).
+  ETC L2 Meteosens from Soroe, 2020-12-31–2026-08-31, ICOS RI,
+  https://hdl.handle.net/11676/fte-hEuae8Vqr4sDn3XrFYnS
+- Ibrom, A., et al. (2026). ETC L2 Fluxnet (half-hourly) from Soroe, 2020-12-31–2026-08-31, ICOS RI,
+  https://hdl.handle.net/11676/DF5vN_t_JS_Mx_1YU8d0pbx0
+- Heinesch, B., Bogaerts, G., Chopin, H., Clément, T., Demoulin, L., Faurès, A., Hoang, K., Longdoz, B.,
+  Manise, T., Orgun, A. (2026). ETC L2 Meteosens from Dorinne, 2021-12-31–2026-08-31, ICOS RI,
+  https://hdl.handle.net/11676/Mf1KLjlrMSIMjJcRr2aVDmo7
+- Heinesch, B., et al. (2026). ETC L2 Fluxnet (half-hourly) from Dorinne, 2021-12-31–2026-08-31, ICOS RI,
+  https://hdl.handle.net/11676/wzNQuCZPRUwFL-AFiLzzVWYq
+
+("et al." stands for the same author list as the entry above it; the full strings are in the open metadata of
+each object.)
+
 ## Not yet in this set (running)
 
 - A 1/1024 h level of the forward reference (`forward_reference_d`).

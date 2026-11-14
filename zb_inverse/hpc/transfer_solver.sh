@@ -13,11 +13,14 @@
 #   RT=08:00:00 : time limit of the solver inversions (default 03:00:00)
 #   SOIL_SET="--set soil.theta_s=.. ..." : dry run of the chain with that soil; every name then ends in _pre
 #   OWN=0 : test windows only; the data set and inversions of the calibration window exist and are not rewritten
+#   PYI=-I : scripts/make_real.py under python -I (station files that are downloads: nothing imported from the
+#            current or the data directories)
 set -u
 cd /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse
 SITE=$1; CAL=$2; DEPTH=$3; shift 3
 O=$PWD/output
 RT=${RT:-03:00:00}   # time limit of one solver inversion (US-HB2: 10 - 25 min per LM iteration)
+PYI=${PYI:-}
 
 submit() {   # name, cpus, mem, time, script args... ; as hpc/param_pipeline.sh: retried until the controller answers
   local name=$1 cpus=$2 mem=$3 tl=$4 j i; shift 4
@@ -61,7 +64,7 @@ fi
 
 one() {   # window, data-set dir, referee name
   local w=$1 d=$2 r=$3 j st k s ids=""
-  j=$(submit mr_${r} 4 16G 00:40:00 scripts/make_real.py --config configs/real_${SITE}_$w.yaml $S --set output.dir=$d)
+  j=$(submit mr_${r} 4 16G 00:40:00 $PYI scripts/make_real.py --config configs/real_${SITE}_$w.yaml $S --set output.dir=$d)
   st=$(wait_job $j); echo "$r: make_real job $j $st"
   ok $d/real.npz
   echo "$r: FEM over the record vs sensor $(jq -c '.fem_vs_obs["fT=gldas, record water table"]' $d/real_summary.json)"

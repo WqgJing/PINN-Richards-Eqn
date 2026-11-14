@@ -5864,3 +5864,55 @@ Real-case spec (first slice):
           - IT-SR2: the 1-hour solver with the class sand converged in 99.3 % of the steps (0.25 h: 100 %).
           NEXT, rule unchanged: scripts/calibrate_soil.py, starts 0 - 3 per data set (cal_<tag>_s<k>). The soil
           of a data set = the start with the lowest misfit; whether the starts agree is stated with it.
+        (15:43) COMMITTED 162db92 (scripts, five configs, todo; also, by `git add -f` because /output/*/* is
+          ignored, the five screen records output/site_icos/<station>/result_records.json and the four
+          test-window plots). The plots are derived from CC BY 4.0 data, so the citation strings of the ten
+          objects used (Meteosens + Fluxnet of the five stations) are now in output/paper/README.md, section
+          "New stations (ICOS)". Raw files stay outside the repository (data/ is ignored).
+        (15:43) A GAP IN THE SCREEN, found while looking at BE-Dor for a possible held-out pair: the screen
+          compared the well with the path range only (S1), not with the well's own bottom. BE-Dor's two wells
+          read 1.37 - 1.40 m at their 50th / 90th / 99th percentiles (WTD_1: 1.37, 1.40, 1.40; WTD_2: 0.92,
+          1.40, 1.40): 1.40 m is the end of the well, inside the range 0.15 - 1.45 m. Both BE-Dor test windows
+          START there (well 0.23 - 1.39 m and 0.24 - 1.40 m): their first hours are a dry well, not a water
+          table. So "BE-Dor passes" was not established for those windows. BE-Dor is not run (as decided), and
+          the README sentence is corrected.
+          The same check on the four stations taken (largest value of the well in the test window against the
+          90th / 99th percentile of that well's record): FR-Bil 1.37 m against 1.92 / 1.99; IT-SR2 1.06 against
+          1.70 / 1.79; SE-Nor 1.27 against 1.97 / 2.25; DK-Sor 1.25 against 2.57 / 2.57. None of the four test
+          windows comes within 0.5 m of the end of its well. No choice changes. Lesson recorded.
+        (15:43) DK-Sor EARLIER WINDOW built for a held-out soil: configs/real_sor_jun24.yaml ->
+          output/real_sor_jun24 (job 15633610, exit=0, no Traceback; no gap filled). 21 Jun - 2 Jul 2024: rain
+          41.6 mm, ET 32.8 mm, well 0.690 - 0.930 m (1-day spline vs hourly well 0.47 cm rms, 1.2 cm max),
+          sensor 0.272 - 0.343. Forward check with the class loam: RMSE 0.029, r 0.68 at f_T 0.67; 0.039 at
+          f_T 0 and 0.024 at f_T 1. UNLIKE the four test windows, f_T matters here (ET is four fifths of the
+          rain): a soil fitted on this window carries whatever is wrong with f_T = 0.67.
+          The window covers 0.24 m of the well; the test window (8 - 19 Dec 2024) covers 0.375 - 1.25 m. The
+          soil is asked to extrapolate on both sides.
+        (15:43) CALIBRATIONS RUNNING, 20 jobs (2 CPUs, 8G, 12 h limit; ids in logs/cal_icos.ids):
+          cal_{bil_oct23,sr2_nov19,nor_oct23,sor_dec24}_s0..3 = 15633587 - 15633602; cal_sor_jun24_s0..3 =
+          15633887 - 15633890.
+          EXPECTATIONS, written before any progress file or start file is read:
+            C1 lowest misfit <= 0.005 at each of the five data sets (class soils: 0.025 - 0.076; earlier fits at
+               other sites 0.001 - 0.004; the sensor moves by 0.035 - 0.11 in these windows).
+            C2 at the two sands (FR-Bil, IT-SR2) the lowest-misfit start has at least one parameter on a bound
+               (as at US-HB2: theta_s at 0.30 or alpha at 20 1/m).
+            C3 the four starts agree in misfit (within 10 %) at no more than two of the five data sets, and in
+               the parameters at none (flat directions: every earlier site).
+            C4 at least one sand start is still moving at the 12 h limit (US-HB2 took 40 h and did not end).
+               A start that has not ended is continued once with --resume (12 h); the rule (four ended
+               starts, lowest misfit) is not changed. If a data set then still has no four ended starts, it
+               is run with the lowest misfit so far and its row says "calibration not converged".
+          AFTER THEM (the existing driver, unchanged except for the optional PYI=-I for scripts/make_real.py):
+            PYI=-I hpc/transfer_solver.sh bil oct23 "[0.05,0.05]"          -> real_bil_oct23_own, bil_own_oct23_s0..3
+            PYI=-I hpc/transfer_solver.sh sr2 nov19 "[0.05,0.05]"
+            PYI=-I hpc/transfer_solver.sh nor oct23 "[0.05,0.05]"
+            PYI=-I hpc/transfer_solver.sh sor dec24 "[0.05,0.05]"
+            PYI=-I hpc/transfer_solver.sh sor jun24 "[0.05,0.05]" dec24    -> the held-out pair sor_jun24on_dec24
+          These are the in-sample rows (soil fitted on the window, with its well: R1 - R3; R4 does not apply)
+          and ONE held-out row (DK-Sor, soil of June on December).
+          EXPECTATION for the held-out row, written now: the numerical inversion misses R3 (more than 3 cm
+          from the well; my guess 5 - 15 cm, sign not predicted), because the June window covers a quarter
+          of the range of the well in December and its soil carries the f_T error. Then the row reads "soil
+          not transferable, solver and PINN alike" and no PINN is run on it (rule written above: PINN on
+          the held-out pair only if the numerical inversion meets R3 with that soil). H3 stands for the
+          in-sample rows.
