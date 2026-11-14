@@ -4228,3 +4228,51 @@ Real-case spec (first slice):
           the max both fall at 1/4 h and do not rise again at 1/16 h. If they do not fall, the 0.07 cm is the
           PINN's own and the text says that. Either way the 1 h figures stay in the table, named as such, and
           no PINN run is changed.
+        04:13. Jobs 15615136 / 15615137 (1/4 h) and 15615138 (1/16 h) running. fig2_forward.png of the regenerated
+          set viewed: lines only, three differences in the lower panels, legends readable. Pushed as 551f8c4
+          (paper_figures.py and the regenerated set; fem_referee.py --dt_hours and this plan, two commits).
+    74 i. (14 Nov, 04:15) rfnc1t ENDED (additive form, C_N1 with the soil of 1 Sep 2023 S_W2; DIAGNOSTIC, 73 bu /
+        73 bw f). LOSS RATIOS, read from metrics.csv (first and last held-out row) BEFORE the score job's output:
+          stage                 held-out flux, last / first        held-out pde, last / first
+          wide w0..w3           0.999 0.999 0.999 0.997            0.79 0.75 0.83 0.76   (flux 576 - 612 -> 576 - 611)
+          round 1 m0..m3        0.998 0.999 1.000 0.962            0.96 0.95 0.98 1.09
+          round 2               0.997 1.000 0.999 0.993            0.94 0.98 1.05 0.89
+          round 3               0.988 0.998 0.999 0.984            1.09 1.03 0.98 1.03
+          round 4               0.982 0.999 0.999 0.990            1.15 1.01 0.97 0.69
+          loop, forward f1      0.68 0.48  (593 -> 405, 562 -> 268)   2.75 3.07 (15.5 -> 42.8, 15.9 -> 48.8)
+          loop, forward f2      0.87 0.47                          0.023 0.011 (from 2.6e3, 7.6e3)
+          loop, forward f3      0.71 0.60                          0.053 0.13
+          loop, forward f4      0.73 0.62                          0.042 0.23
+          (for comparison, the own-soil run rfnc1: wide w0 flux 612 -> 0.307, x 5e-4; forward f1_m0 593 -> 0.036)
+        READING OF THE RATIOS: no stage of this run carries the surface flux. The operator's held-out flux loss
+          is where it started (576 - 650 in sigma_q^2 units) in the wide stage and in all four rounds; the
+          forward networks of the loop keep 47 - 87 % of it. So its inversion is that of networks which do not
+          satisfy the flux condition, as 73 bw f) said of the wide stage, now for every stage.
+        VALUE-CORRECTION LOOP (logs/dc_rfnc1tdc.log, its own step measure, no score): four iterations, largest
+          step 4.42, 1.33, 1.28, 1.88 posterior sd; the stop rule (< 0.2) was not reached. Forward offset rms
+          0.0058, 0.0054, 0.0054, 0.0051. The loop did not converge; the final directory runs/rfnc1tdc_it4 is its
+          last iterate, not a converged estimate.
+        EXPECTATION for the score (73 bw f, unchanged): PINN - solver 1.5 - 3 cm, R2 failed.
+        Score job 15615202 (score_real.py, referees output/referee/nc2_sep23aon_sep23c_s0..3) -> result_rfnc1t.
+        04:16. SCORE of the last iterate runs/rfnc1tdc_it4 (job 15615202; output/real_nc2_sep23c_soilsep23a/
+          result_rfnc1t.json), read after the ratios above:
+                                        PINN - solver (cm)            against the hourly well (cm)
+                                        rms    bias    max    r       rms    bias    max     r
+          rfnc1t, last iterate          3.89  +2.88   9.48  0.961     4.53  +1.24  11.19   0.862
+          rfnc1t_inv0 (wide stage only) 1.30  +0.23   3.36  0.986     2.51  -1.41   4.82   0.966   (73 ca)
+          solver (same data, soil)                                    3.05  -1.64   5.14   0.948
+          hydrostatic reading                                         3.38  -2.37  13.20   0.953
+          starts: one estimate (largest difference 1.3e-6 cm). theta against the sensor 0.0022.
+        AGAINST THE EXPECTATION (1.5 - 3 cm, R2 failed): R2 failed, as written; the number is outside the range
+          on the high side (3.89). What I had not expected: the stages after the wide one moved the estimate
+          AWAY from the solver's (1.30 -> 3.89 cm). I had written the range from the wide operator's forward
+          difference alone and had not thought about the loop, whose forward networks here keep half of the
+          flux loss; a value correction taken from networks that do not satisfy the flux condition is not a
+          correction. That is a reading of the ratios and the loop's step sizes, not a tested cause.
+        WHAT IT SAYS, limited to this run: with the additive form on this soil the method does not return the
+          numerical inversion's estimate on the rain window, and the loss ratios said so before any score. The
+          run stays a diagnostic. Whether the conductive form does (rfnc1tc, value-correction loop running) is
+          read with the rule of 73 bz when it ends.
+        READ FROM THE FIGURE result_rfnc1t.png: the estimate leaves the solver's on days 1 - 3.5 (it deepens to
+          0.72 m before the showers of day 2, the solver's stays at 0.63) and in the last day and a half (0.84
+          against 0.78 m); between days 4 and 9 the two lie within a centimetre or two.
