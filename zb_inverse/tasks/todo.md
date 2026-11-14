@@ -4390,3 +4390,37 @@ Real-case spec (first slice):
         FILES: scripts/site_records_shalehills.py; output/site_shalehills/result_records.json and the figures
           result_records_2009_n1..3.png, result_records_2010-03-01_n1..3.png (the 2010 - 2012 whole-year
           figures are left out of git: nothing in them is used).
+    74 m. (14 Nov, 06:00) TIME STEP OF THE NUMERICAL INVERSION, 1/4 h AGAINST 1 h (74 h; scoring only). Jobs 15615136
+        (start hydrostatic_flat, 7 iterations, 55 min) and 15615137 (start constant:0.3, 12 iterations, 102 min)
+        COMPLETED, summary.json written, no coefficient on a bound, no solve unconverged. Compared by
+        scripts/referee_step_check.py (job 15617222, exit 0) -> output/paper/nc2_sep23c/inversion_step.json.
+                                         step    cost       vs well (cm): rmse   bias    max     r
+          1 h, start hydrostatic_flat    1       0.091780                 1.112  +0.114  3.129  0.9904
+          1 h, start constant:0.3        1       0.091780                 1.112  +0.114  3.129  0.9904
+          1/4 h, start hydrostatic_flat  0.25    0.076227                 1.113  +0.116  3.178  0.9903
+          1/4 h, start constant:0.3      0.25    0.076227                 1.113  +0.116  3.178  0.9903
+          between the two 1/4 h starts:  0.0001 cm RMS, 0.0006 max      (1 h starts: 0.0004, 0.0014)
+          1 h minus 1/4 h inversion:     0.044 cm RMS, 0.22 max at t = 0; by day
+                                         0.092 0.037 0.046 0.059 0.011 0.005 0.006 0.007 0.004 0.003 0.072
+          PINN (runs/rfnc1dc_it1) minus  1 h inversion:    0.065 cm RMS, 0.30 max (last hour); by day
+                                         0.131 0.077 0.083 0.069 0.019 0.004 0.010 0.010 0.015 0.007 0.105
+                                         1/4 h inversion:  0.027 cm RMS, 0.093 max (last hour); by day
+                                         0.045 0.040 0.052 0.011 0.010 0.002 0.005 0.007 0.011 0.005 0.032
+        AGAINST THE EXPECTATIONS OF 74 h:
+          H1 holds: the two 1/4 h starts are 0.0001 cm apart.
+          H2 holds for the size (0.044 cm; expected 0.03 - 0.15) and is wrong about the place: the largest
+             differences are on the first day (0.092, maximum at t = 0) and the last day (0.072), then days
+             1 - 3 (0.037 - 0.059); days 4 - 9 are at 0.003 - 0.011. I had written "largest on the rain days".
+             Why the two ends carry it has not been looked at and is not stated.
+          H3 waits for the 1/16 h inversion (job 15615138, running, 16 h limit).
+          H4 holds: 1.112 -> 1.113 cm against the well, bias and r unchanged at the level of the table.
+          H5 holds at 1/4 h: PINN minus numerical inversion falls from 0.065 to 0.027 cm RMS and from 0.30 to
+             0.093 cm max. The PINN estimate is closer to the 1/4 h inversion (0.027) than the 1 h inversion is
+             (0.044).
+        READING RULE of 74 h: first half met (RMS and max both fall at 1/4 h). The sentence "the PINN is
+          closer to the converged numerical inversion" is NOT written yet: it needs the 1/16 h result not to
+          rise again. Until then the write-up gives both rows, named by their step.
+        ALSO SEEN, stated as what it is: the misfit of the numerical inversion falls by 17 % with the step
+          (0.0918 -> 0.0762), i.e. part of the 1 h inversion's misfit is its own time-step error; and one start
+          costs 55 - 102 min at 1/4 h against 12 - 34 min at 1 h. The cost comparison in the write-up
+          ("about 30 times") is against the 1 h inversion and has to say so.
