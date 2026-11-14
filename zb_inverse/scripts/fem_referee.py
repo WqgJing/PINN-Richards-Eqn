@@ -18,7 +18,7 @@ import os
 import time
 import numpy as np
 
-from common import load_with_overrides
+from common import load_with_overrides, hourly_times
 from make_twin_fem import load_fem, run_fem
 from zbinv.train import load_dataset, initial_coef
 from zbinv.spline import CubicBSpline1D, ZbSplineNumpy
@@ -33,6 +33,9 @@ def main():
     ap.add_argument('--delta', type=float, default=0.01, help='FD step in spline-coefficient units')
     ap.add_argument('--max_iter', type=int, default=40)
     ap.add_argument('--box', action='store_true', help='keep the coefficients in the support of the path prior')
+    ap.add_argument('--dt_hours', type=float, default=None,
+                    help='time step of the FEM (default: the hourly grid of the data set); the forcing stays linear '
+                         'between its nodes and the observations are read at their own times')
     args = ap.parse_args()
     cfg = load_with_overrides(args.config, args.set)
     os.makedirs(args.out, exist_ok=True)
@@ -46,11 +49,12 @@ def main():
     coef0, _ = initial_coef(dict(cfg, zb_init={'kind': kind, 'zb_max': 3.0, **({'value': float(val)} if val else {})}),
                             ds, spline)
     t_h, t_obs, y = ds['t_hourly'], ds['t_obs'], ds['theta_obs']
-    k_obs = np.round((t_obs - t_h[0]) / (t_h[1] - t_h[0])).astype(int)
-    if not np.allclose(t_h[k_obs], t_obs, rtol=0, atol=1e-9):
+    t_s = t_h if args.dt_hours is None else hourly_times(ds['n_days'], args.dt_hours)      # time grid of the solver
+    k_obs = np.round((t_obs - t_s[0]) / (t_s[1] - t_s[0])).astype(int)
+    if not np.allclose(t_s[k_obs], t_obs, rtol=0, atol=1e-9):
         raise SystemExit('observation times are not on the FEM time grid')
-    q = np.interp(t_h, ds['t_q'], ds['q_obs'])
-    tp = np.zeros_like(t_h) if ds['tp_mmd'] is None else np.interp(t_h, ds['t_tp'], ds['tp_mmd'])
+    q = np.interp(t_s, ds['t_q'], ds['q_obs'])
+    tp = np.zeros_like(t_s) if ds['tp_mmd'] is None else np.interp(t_s, ds['t_tp'], ds['tp_mmd'])
     depth = cfg['obs']['depth_m']
     Solver, Sink = load_fem(fc['root'])
     sig = float(cfg['sigmas']['theta'])
@@ -59,10 +63,10 @@ def main():
     def forward(C):
         """theta at the sensor [B, n_obs] for coefficient rows C [B, n_coef]; NaN rows where the solve failed."""
         C = np.atleast_2d(C)
-        zb = np.stack([ZbSplineNumpy(spline, c, ds['zb_min']).zb(t_h) for c in C])
+        zb = np.stack([ZbSplineNumpy(spline, c, ds['zb_min']).zb(t_s) for c in C])
         info['solves'] += C.shape[0]
         try:
-            A = run_fem(Solver, Sink, tcfg, t_h, zb, q, np.tile(tp, (C.shape[0], 1)), fc['n_nodes'], depth, quiet=True)
+            A = run_fem(Solver, Sink, tcfg, t_s, zb, q, np.tile(tp, (C.shape[0], 1)), fc['n_nodes'], depth, quiet=True)
         except Exception as e:
             print(f"[ref] solver failed: {type(e).__name__}: {e}", flush=True)
             return np.full((C.shape[0], t_obs.size), np.nan)
@@ -134,7 +138,7 @@ def main():
     cov_c = np.linalg.pinv(A, rcond=1e-12)                    # J already divided by sigma
     s_zb = np.sqrt(np.maximum(np.einsum('ij,jk,ik->i', G, cov_c, G), 0.0))
     summary = {
-        'start': args.start, 'zb_rmse': float(np.sqrt(np.mean(e ** 2))),
+        'start': args.start, 'fem_dt_hours': float((t_s[1] - t_s[0]) * 24.0), 'zb_rmse': float(np.sqrt(np.mean(e ** 2))),
         'zb_rmse_inner': float(np.sqrt(np.mean(e[inner] ** 2))), 'zb_bias': float(e.mean()),
         'zb_maxabs': float(np.abs(e).max()), 'theta_rmse_vs_obs': float(np.sqrt(np.mean((th - y) ** 2))),
         'cost': cost, 'posterior_sigma_zb_median_m': float(np.median(s_zb)),
