@@ -1,6 +1,6 @@
 #!/bin/bash
 # early_flux.sh <tag> ...: held-out PDE and flux loss of the running wide networks (losses only, from the live job logs)
-cd /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse || exit 1
+cd "$(dirname "$0")/.." || exit 1
 for tag in "$@"; do for k in 0 1 2 3; do
   j=$(squeue -u "$USER" -h -t RUNNING -o "%i %j" | awk -v n="${tag}_w$k" '$2==n{print $1}' | head -1)
   [ -z "$j" ] && j=$(grep -E "^${tag}_w$k: [0-9]+ " logs/pipe_$tag.log 2>/dev/null | awk '{print $2}' | head -1)
