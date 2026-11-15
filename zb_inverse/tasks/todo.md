@@ -6147,3 +6147,13 @@ Real-case spec (first slice):
                (74 ag). Up to a few % of the solver's steps may not converge (US-NC2 second soil: 3 %).
           DECISION RULE: as at the other stations; PINN whatever T5 gives:
             hpc/real_full_x.sh rfnor1c output/real_nor_oct23_own "[0.05,0.05]" "--set model.departure=conductive".
+        (19:19) SE-Nor DATA SET WITH THE FITTED SOIL: output/real_nor_oct23_own (job 15645588, exit=0, no
+          Traceback; no gap filled; every solver step converged; admissible; surface head never below
+          -1.28 m). Forward solve against the sensor: record water table 0.00458, r 0.719 (as the
+          calibration); 1-day spline 0.00466, r 0.710; f_T 0 / 0.5 / 1: 0.00459 / 0.00458 / 0.00458 (no
+          difference: ET 0.5 mm). The stored 1 h solve is 2.9e-4 RMS (1.5e-3 max) in sensor theta from
+          the finer solve of the data-set check.
+        PINN LAUNCHED (19:19): setsid nohup hpc/real_full_x.sh rfnor1c output/real_nor_oct23_own "[0.05,0.05]"
+          "--set model.departure=conductive" > logs/full_rfnor1c.log (final directory runs/rfnor1cdc_it4).
+          To check when its first job starts: runs/rfnor1c_w0/config.yaml carries model.departure:
+          conductive. Read only after the numerical lines of logs/transfer_nor_oct23.log are recorded.
