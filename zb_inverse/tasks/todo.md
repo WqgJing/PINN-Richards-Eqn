@@ -6230,3 +6230,35 @@ Real-case spec (first slice):
         STATE 20:05: all four stations have a soil, a numerical inversion running (rf_{sor_own_dec24,
           bil_own_oct23,nor_own_oct23,sr2_own_nov19}_s0..3) and a PINN run training (rfsor1c, rfbil1,
           rfnor1c, rfsr21c). Still to apply: the wide-stage flux criterion to rfbil1 (additive).
+        (20:12) rfbil1 (FR-Bil, additive form) WIDE STAGE, held-out losses only (runs/rfbil1_w?/metrics.csv,
+          columns val_pde and val_flux; no score and no inversion line read; no Traceback in logs/pipe_rfbil1.log):
+            w0   step 0: PDE 58.10  flux 170.8   step 42000: PDE 37.69  flux 29.88   flux fell by a factor 5.7   (55 % of node rms)
+            w1   step 0: PDE 63.80  flux 163.2   step 42000: PDE 38.26  flux 31.76   flux fell by a factor 5.1   (56 % of node rms)
+            w2   step 0: PDE 61.79  flux 155.8   step 42000: PDE 33.03  flux 25.57   flux fell by a factor 6.1   (51 % of node rms)
+            w3   step 0: PDE 61.37  flux 150.8   step 42000: PDE 39.39  flux 39.77   flux fell by a factor 3.8   (63 % of node rms)
+          AGAINST THE CRITERION (flux loss down by less than a factor 10 in all four wide networks -> not
+            learned -> stop, repeat in the conductive form): MET, factors 3.8 - 6.1. Not the flat failure
+            of DK-Sor (1.0 - 1.1): the loss fell, but the surface flux is still half the node rms wrong
+            after 42000 steps, where rfnc1 was at a factor 2000. Rule applied as written, no second look.
+            FR-Bil soil (start3.json): theta_s 0.563, theta_r 0.125, alpha 4.11, n 10, Ks 0.00006409023871307039.
+            So the additive form has now missed the criterion at both new soils it was tried on, at Ks
+            4.0e-4 and at Ks 6.4e-5. My rule "conductive only near Ks 1e-3" was too narrow; WHAT in these
+            soils the additive form cannot follow (n at 10 here, n at 1.10 and theta_r at 0.20 at DK-Sor)
+            is not examined.
+          DONE (20:11 - 20:12): rfbil1 stopped (driver and param_pipeline child killed, my job rfbil1_inv0
+            15648235 cancelled before any line of it was read; nothing with that tag left in the queue).
+            runs/rfbil1_* kept as the record. RELAUNCHED: setsid nohup hpc/real_full_x.sh rfbil1c
+            output/real_bil_oct23_own "[0.05,0.05]" "--set model.departure=conductive" >
+            logs/full_rfbil1c.log (final directory runs/rfbil1cdc_it4). The FR-Bil row will say so.
+          All four station runs are now in the conductive form: rfsor1c, rfbil1c, rfnor1c, rfsr21c.
+          WRITTEN NOW, BEFORE ANY METRIC OF A CONDUCTIVE RUN AT THESE STATIONS IS READ:
+            EXPECTED: the conductive wide networks pass the factor 10 at SE-Nor and IT-SR2 (Ks 1e-3, the
+              case the form was made for: rfnc1tc 650 - 790). At DK-Sor and FR-Bil I do not know; guess:
+              passes at FR-Bil, uncertain at DK-Sor (n 1.10 and theta_r 0.20 are outside every soil a
+              network of this project has been trained on).
+            RULE if the conductive form also falls by less than a factor 10 in all four wide networks at a
+              station: there is no third form and none is invented during this test. The run goes on to
+              its end (the refinement rounds train further), its row carries "surface flux not learned
+              in the wide stage (factor x)" with the final-stage held-out losses, and its score is
+              reported as it comes out, next to the numerical one. Such a row does not count as support
+              for the method whatever its score.
