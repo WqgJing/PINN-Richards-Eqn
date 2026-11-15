@@ -6926,3 +6926,22 @@ Real-case spec (first slice):
           around day 6.8). T3 said "R1 may fail too": it did not. So there is ONE numerical reference for the
           PINN at this station (start hydrostatic, the 1 h lines above, unless the step check (b) moves it by
           more than 1 cm). The estimate follows the well poorly in shape as well as in level (r 0.33).
+        (03:09) SECOND SELECTION, DK-Sor soil fit (window from 2026-02-23 12:00; jobs 15651969 - 15651972, each exit=0,
+          no Traceback, all ended by xtol; output/soil_sor_feb26, copied by jq in this command):
+            start0: rmse 0.01261 (start 0.2467), r 0.889, max 0.057, on bound [], theta_s 0.3247, theta_r 0.0579, alpha 10.718, n 3.569, Ks 1.547e-06, 102 solves, 302 min
+            start1: rmse 0.01221 (start 0.0247), r 0.894, max 0.0571, on bound [], theta_s 0.4353, theta_r 0.0519, alpha 15.413, n 2.891, Ks 7.115e-06, 101 solves, 290 min
+            start2: rmse 0.01259 (start 0.1428), r 0.889, max 0.0569, on bound [], theta_s 0.3371, theta_r 0.0548, alpha 11.229, n 3.388, Ks 1.852e-06, 84 solves, 176 min
+            start3: rmse 0.01085 (start 0.0417), r 0.919, max 0.0563, on bound [], theta_s 0.312, theta_r 0.1007, alpha 8.518, n 9.939, Ks 2.173e-06, 83 solves, 38 min
+          UNLIKE the other four stations of this selection, the four starts do NOT end at one soil: misfit 0.0109
+          (start 3) against 0.0122 - 0.0126 (starts 0 - 2); theta_s 0.31 - 0.44, alpha 8.5 - 15.4 /m, n 2.9 - 9.9,
+          Ks 1.5e-6 - 7.1e-6 m/s. No parameter is flagged on a bound; start 3 has n = 9.939, 0.06 below the upper
+          bound of 10 (the retention curve is close to the steepest the bounds allow, as at FR-Bil's first window).
+          Misfit 0.0109 against a sensor range of 0.150 (0.110 - 0.260), r 0.92.
+          FIGURE (start3.png, looked at): the calibrated run follows the rain peak of day 4.5 and the recession
+          after it (days 6 - 11 within about 0.003). It misses in three places: the peak (model 0.224, sensor
+          0.260), a rise on day 3 that the model overdoes (0.160 against 0.135), and days 0 - 2 (model 0.108,
+          sensor 0.118 - 0.120).
+          RULE (written before the fits, 22:05): the lowest-rmse start is taken by the driver, as at every site
+          -> start3.json. Nothing is changed because the starts disagree; the row says "soil not unique: four
+          starts, four soils, misfit 0.0109 - 0.0126".
+          Expectation for this station stays as written before the data set was built: NOT within 5 cm.
