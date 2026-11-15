@@ -6623,3 +6623,19 @@ Real-case spec (first slice):
           (scripts/referee_step_check.py: the estimate re-run on finer time steps) before the SE-Nor row is
           written; until then the 11.5 cm stands as "numerical inversion, convergence of its solver not yet
           checked".
+        (22:29) SE-Nor, STEP CHECK OF THE NUMERICAL INVERSION (reference only; nothing here is read by a PINN run).
+          fem_not_converged_max is the largest share of non-converged steps over all 298 solves of an inversion
+          (scripts/fem_referee.py lines 61-73), so the summary cannot say whether the estimate itself is affected.
+          WHAT: the same inversion with the solver on 1/4 h steps (--dt_hours 0.25, as 74 for US-NC2), start
+          hydrostatic_flat (the four 1 h starts are one estimate), same data set, soil, box and tolerance ->
+          output/referee/nor_own_oct23_dt025_s1. 2 cpus, 8G, 24 h (1 h steps: 10270 s for 298 solves; four times
+          that is 11.4 h).
+          EXPECTED, written before submission:
+            Q1 with 1/4 h steps the worst solve has under 1 % of its steps not converged.
+            Q2 the 1/4 h estimate is 0.5 - 3 cm rms from the 1 h estimate, and still more than 8 cm from the well
+               (the conclusion "misses R3" does not depend on the step).
+          RULE: if the two estimates differ by more than 1 cm rms, the 1/4 h estimate is the numerical reference
+          of the SE-Nor row (the PINN solves the continuous equation, so it is compared with the solver that has
+          converged in the step), and a 1/16 h run is added to show that the 1/4 h one has converged. If they
+          differ by less, the 1 h lines above stand and the row says so.
+          Submitted: rfq_nor_dt025_s1: job 15652974.
