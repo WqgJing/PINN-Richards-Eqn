@@ -6588,3 +6588,15 @@ Real-case spec (first slice):
             cal_dor_mar24_s0 15651973 cal_dor_mar24_s1 15651974 cal_dor_mar24_s2 15651975 cal_dor_mar24_s3 15651976
             cal_sr2_nov19b_s0 15651977 cal_sr2_nov19b_s1 15651978 cal_sr2_nov19b_s2 15651979 cal_sr2_nov19b_s3
             15651980
+        (22:06) FIRST SELECTION, FR-Bil rfbil1c: the fourth wide network has ended (runs/rfbil1c_w3/metrics.csv, losses only):
+            rfbil1c_w3   step 0: PDE 61.37  flux 150.8   step 42000: PDE 24.91  flux 15.73   flux factor 9.6   (40 % of node rms)
+          All four: 11.6, 8.8, 10.1, 9.6. The rule as written ("less than a factor 10 in ALL FOUR") is NOT met (two
+          networks are above 10), so the run goes on and is not repeated in another form; as written before the
+          fourth ended, the row carries these factors and the text calls the training at FR-Bil marginal, whatever
+          the score. The first inversion of this run (rfbil1c_inv0) is queued.
+        (22:09) FIRST SELECTION, IT-SR2 rfsr21c: all four wide networks have ended (runs/rfsr21c_w?/metrics.csv, losses only):
+            rfsr21c_w0   step 0: PDE 21.54  flux 193.3   step 42000: PDE 4.52  flux 1.956   flux factor 98.8   (14.0 % of node rms)
+            rfsr21c_w1   step 0: PDE 21.44  flux 181.3   step 42000: PDE 4.04  flux 1.757   flux factor 103.2   (13.3 % of node rms)
+            rfsr21c_w2   step 0: PDE 21.29  flux 195.6   step 42000: PDE 3.84  flux 1.838   flux factor 106.4   (13.6 % of node rms)
+            rfsr21c_w3   step 0: PDE 20.47  flux 183.1   step 42000: PDE 4.08  flux 1.872   flux factor 97.8   (13.7 % of node rms)
+          CRITERION (factor 10): PASSED in all four. The run goes on in the conductive form.
