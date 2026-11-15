@@ -6952,3 +6952,71 @@ Real-case spec (first slice):
           nor dec19: 3 lines; this one: 0 lines, no log file); after the launch: 3 driver processes and the
           driver's own first log lines seen. All five stations of the second selection now have step 4 running
           or done (BE-Dor done: 5.41 cm).
+        (03:21) IT-SR2, FIRST SELECTION (window of configs/real_sr2_nov19.yaml, in-sample soil): THE FOUR NUMERICAL
+          INVERSIONS HAVE ENDED (jobs 15647968 - 15647971, each exit=0 in logs/cpu_<id>.out, no Traceback, 4 h 39 min -
+          7 h 15 min; their 24 h copies 15650039/41/43/45 were cancelled before they wrote anything: the summary
+          files carry the end times of the first four). output/referee/sr2_own_nov19_s?/summary.json, copied by jq
+          in this command; REFERENCE lines only, no PINN estimate has been read at this station:
+            sr2_own_nov19_s0  hydrostatic: cost 2.991206, from the well 40.22 cm rms, bias 6.47 cm, max 88.17 cm, coefficients on the bound [0,3,6,7,8,13], 18 iterations, sensor misfit 0.0086, posterior sigma (median) 8.25 cm, 365 min
+            sr2_own_nov19_s1  hydrostatic_flat: cost 2.991205, from the well 40.23 cm rms, bias 6.47 cm, max 88.17 cm, coefficients on the bound [0,3,6,7,8,13], 20 iterations, sensor misfit 0.0086, posterior sigma (median) 8.25 cm, 407 min
+            sr2_own_nov19_s2  constant:1.0: cost 3.084979, from the well 39.38 cm rms, bias 18.23 cm, max 88.17 cm, coefficients on the bound [0,2,3,6,7,8,13], 14 iterations, sensor misfit 0.0088, posterior sigma (median) 52.84 cm, 274 min
+            sr2_own_nov19_s3  constant:0.3: cost 2.991205, from the well 40.23 cm rms, bias 6.47 cm, max 88.17 cm, coefficients on the bound [0,3,6,7,8,13], 21 iterations, sensor misfit 0.0086, posterior sigma (median) 8.27 cm, 430 min
+          solver steps not converged (largest share over the solves of an inversion), per start: 24.9 %, 27.1 %, 24.5 %, 25.7 %
+          AGAINST T6, written before the launch (misses R3, guess 8 - 30 cm; largest errors in the first two days,
+          coefficients on a bound there; some unconverged steps):
+            - misses R3: HOLDS, by more than my guess: 39.4 - 40.2 cm rms from the well (top of the guess 30),
+              88 cm at the worst hour.
+            - coefficients on the bound: 6 of 14 (0, 3, 6 - 8, 13) from three starts, 7 from the 1.0 m start; not
+              only in the first two days as I wrote (coefficients 6 - 8 are days 4 - 7). Where the largest error
+              falls is not in the summary; not looked up.
+            - "some unconverged steps": far more than "some". A QUARTER of the 1 h steps did not converge in the
+              worst solve of each inversion (24.5 - 27.1 %; the data-set solve on the well's own path: 0.75 %).
+              The trial paths of the inversion are much harder for the solver than the record's path.
+          THE STARTS: hydrostatic, flat and 0.3 m end at one cost (2.99120 - 2.99121) and the same numbers against
+          the well; the 1.0 m start ends at a cost 3 % higher after 14 iterations with another bias (18.2 against
+          6.5 cm) and a posterior sigma of 53 cm: another end point. The spread between the paths is measured by
+          (a). The estimates fit the sensor slightly better (0.0086) than the well itself does in this model
+          (0.0092, 20:05): as at FR-Bil, what is left is fitted to model error.
+          WHAT IT MEANS FOR THE IT-SR2 ROW: statement (ii) (estimate = well) cannot be shown here (the numerical
+          inversion of the same model is 40 cm off). Statement (i) needs a numerical reference whose solver has
+          converged; with a quarter of the steps not converged the 1 h lines are not that yet -> (b).
+          All four first-selection stations are now recorded: the numerical inversion misses R3 at every one
+          (SE-Nor 11.5, DK-Sor 40.8, IT-SR2 39 - 40, FR-Bil 53 - 71 cm), as T3 - T6 said and at or above the top
+          of my guesses at three of them.
+          NEXT, reference only:
+            (a) spread between the four starts' paths: scripts/referee_step_check.py without --pinn ->
+                output/real_sr2_nov19_own/inversion_starts_ref.json (untracked). If the three agreeing starts are
+                within 0.2 cm of each other, they are the reference and the 1.0 m start is reported as a second
+                end point at higher cost (the PINN is compared with both, rule of 17:58).
+            (b) step check as at SE-Nor and DK-Sor: the same inversion with 1/4 h steps (--dt_hours 0.25), start
+                hydrostatic (fewest iterations of the three agreeing starts), same data set, soil, box and
+                tolerance -> output/referee/sr2_own_nov19_dt025_s0. 2 cpus, 8G.
+                TIME, from the 1 h run of this start: 21909 s for 18 iterations = 1217 s each; four times that is 4869 s each, 24.3 h for 18 iterations and 54.1 h for the cap of 40.
+                Limit 60 h (sbatch --test-only accepts it on cpu-small).
+                EXPECTED, written before submission:
+                  QR1 with 1/4 h steps the worst solve has under 5 % of its steps not converged (at 1 h: 25 %).
+                  QR2 the 1/4 h estimate is 2 - 15 cm rms from the 1 h estimate, i.e. the step DOES move the
+                      estimate here (unlike my guess at SE-Nor), and it is still more than 25 cm from the well.
+                RULE (as at SE-Nor): if the two differ by more than 1 cm rms, the 1/4 h estimate is the numerical
+                reference of the IT-SR2 row; a 1/16 h run is not added (it would take a week), the row then says
+                "step convergence of the reference shown by one refinement only". If they differ by less, the
+                1 h lines above stand and the row says so.
+          The PINN run rfsr21c is in its value-correction loop (rfsr21cdc_f1 running); its stage losses and then
+          its lines are read after its driver has ended.
+          Submitted (03:22): (a) stepq_sr2_starts: job 15662570; (b) rfq_sr2_dt025_s0: job 15662571 (60 h limit).
+        (03:23) IT-SR2, SPREAD BETWEEN THE FOUR STARTS of the numerical inversion (job 15662570, exit=0, no Traceback;
+          output/real_sr2_nov19_own/inversion_starts_ref.json, copied by jq in this command; reference only), on
+          the 265 hours of the record, path a minus path b:
+            hydrostatic - hydrostatic_flat: rms 0.03 cm, bias 0 cm, largest 0.13 cm at day 0
+            hydrostatic - constant:1.0: rms 30.54 cm, bias -11.76 cm, largest 98.63 cm at day 1.8
+            hydrostatic - constant:0.3: rms 0.05 cm, bias -0 cm, largest 0.2 cm at day 0
+            hydrostatic_flat - constant:1.0: rms 30.55 cm, bias -11.76 cm, largest 98.65 cm at day 1.8
+            hydrostatic_flat - constant:0.3: rms 0.02 cm, bias -0 cm, largest 0.08 cm at day 0
+            constant:1.0 - constant:0.3: rms 30.56 cm, bias 11.76 cm, largest 98.66 cm at day 1.8
+          Correlation of each estimate with the well: hydrostatic 0.105; hydrostatic_flat 0.105; constant:1.0 0.496; constant:0.3 0.105.
+          READ: hydrostatic, flat and 0.3 m are ONE estimate (pairs 0.02 - 0.05 cm rms, below 0.2 cm). The 1.0 m
+          start is 30.5 cm rms from it, up to 99 cm on day 1.8: R1 FAILS for the numerical inversion at IT-SR2
+          (two end points; the second has the higher cost, 3.085 against 2.991, and stopped after 14 iterations).
+          By the rule of 17:58 the PINN is compared with both, and the row says "water table not determined by the
+          sensor at this station" for solver and PINN alike. Neither end point follows the well (r 0.11 and 0.50).
+          This is the second first-selection station with more than one numerical end point (FR-Bil the other).
