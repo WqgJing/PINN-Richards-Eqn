@@ -6778,3 +6778,23 @@ Real-case spec (first slice):
           forced by switching the default branch away and back in the repository settings (website login), or it
           happens on GitHub's own schedule. /tmp/wait_contrib.sh reads the fragment every 10 min and ends when
           claude is gone. Asked the owner whether to do the switch through their browser.
+      75d. (02:02, 2026-11-15) Owner: "Yes, do it" (force the refresh of the box through their browser). DONE,
+          in the owner's Chrome (logged in as the owner), repository Settings -> General -> Default branch:
+          - temporary branch refresh-contributors pushed (same commit as master), default switched to it (01:42),
+            switched back to master (01:43), temporary branch deleted (push exit 0);
+          - master renamed to master-tmp (01:47:52) and back to master (01:49:07).
+          STATE LEFT (checked 01:59): GitHub holds one ref, refs/heads/master 3fe3363; default branch master;
+          this clone's master == origin/master; no tags. Nothing else in the account was touched.
+          THE BOX (02:01, data the page loads: <repo>/_sidebar, and a screenshot of the owner's page):
+          - listed accounts: WqgJing only. Claude's name and picture are gone from the box.
+          - the number next to "Contributors": still 2 (GitHub's cached count; not rebuilt yet).
+          - the older fragment contributors_list still returns WqgJing + claude; the page does not load it any
+            more (MY ERROR: the watcher of 75c read that fragment; lessons, sixteenth). The watcher
+            /tmp/wait_contrib.sh now reads _sidebar every 10 min and ends when the number is 1.
+          Not known: whether the switch / rename or GitHub's own schedule removed the name (the box was not read
+          through _sidebar before 01:59), and when the number follows (reports: minutes to weeks).
+          If the number stays: a request to GitHub Support to rebuild the repository's contributor data (the
+          owner's to send). Not approved and not done: blocking an account, transferring or re-creating the
+          repository.
+          Reports used (community, not GitHub documentation): github.com/orgs/community/discussions/209019,
+          /210496, /191565, /197389; gist.github.com/khasky/3939637b842510c4ff44d2e4d84acd0f.
