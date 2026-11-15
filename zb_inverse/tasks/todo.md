@@ -7992,3 +7992,8 @@ Real-case spec (first slice):
           0.10 - 1.50 m as in the numerical inversion:
             hpc/real_full_x.sh rfnor2c output/real_nor_dec19_own "[0.05,0.05]"
                 "--set model.departure=conductive --set prior.clip_m=[0.10,1.5]"
+        (09:13) LAUNCHED, after the plan above was pushed (2b2650a): PINN driver rfnor2c (SE-Nor, 6 Dec 2019; pid
+          2747027, logs/full_rfnor2c.log; wide jobs rfnor2c_w0..3 waiting for a GPU) and the numerical inversion
+          with 1/4 h steps started on the 1 h estimate (rfq_nor2_dt025, job 15671454, running; event stepq_nor2).
+          The waiter now also watches rfnor2c (TAGS line of /tmp/wait_icos2.sh); a second background loop prints
+          the held-out losses when the first wide network reaches step 5000. Nothing of this run has been read.
