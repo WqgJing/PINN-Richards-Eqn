@@ -7377,3 +7377,119 @@ Real-case spec (first slice):
           E1 HOLDS: tests job 15668649, 64 PASS, "0 failed" (the earlier 62 and the two new ones, tests/test_parametric.py
           test_local_draws_projected_onto_the_prior_box and test_local_box_switch_is_off_by_default).
           rfnor1e launched (logs/full_rfnor1e.log; runs/rfnor1e_w{0..3} are links to runs/rfnor1c_w{0..3}); the waiter knows the tag.
+        (07:08) BE-Dor rfdor1c (second selection, OUTSIDE the 5 cm gate, path range 0.10 - 1.50 m) HAS ENDED. Event
+          rfdor1c_driver_gone at 07:03. Checks made in this command (driver logs with the scoring part cut):
+            training jobs: 22, with exit=0: 22, Traceback lines: 0 | inversion jobs: 6, with exit=0: 6, Traceback lines: 0 | FAILED/TIMEOUT/CANCELLED lines in the driver logs: 0
+            last line of logs/full_rfdor1c.log: full rfdor1c done at Sun Nov 15 06:55:42 EST 2026
+            it 1: step/sigma max 0.010087945235247944, by segment [0,0.01,0.01,0.01], fwd offset rms 0.000025006243396002386
+            converged at it 1
+          HELD-OUT LOSSES by stage (runs/<stage>/metrics.csv, last row; nothing here is a score):
+            rfdor1c_w0   step 42000: PDE 3.39  flux 0.174   (4.2 % of node rms)
+            rfdor1c_w1   step 42000: PDE 1.83  flux 0.182   (4.3 % of node rms)
+            rfdor1c_w2   step 42000: PDE 2.53  flux 0.161   (4.0 % of node rms)
+            rfdor1c_w3   step 42000: PDE 8.18  flux 0.177   (4.2 % of node rms)
+            rfdor1c_r1_m0   step 18000: PDE 2.16  flux 0.152   (3.9 % of node rms)
+            rfdor1c_r1_m1   step 18000: PDE 3.75  flux 0.156   (4.0 % of node rms)
+            rfdor1c_r1_m2   step 18000: PDE 1.97  flux 0.167   (4.1 % of node rms)
+            rfdor1c_r1_m3   step 18000: PDE 2.68  flux 0.155   (3.9 % of node rms)
+            rfdor1c_r2_m0   step 18000: PDE 8.10  flux 0.143   (3.8 % of node rms)
+            rfdor1c_r2_m1   step 18000: PDE 6.04  flux 0.122   (3.5 % of node rms)
+            rfdor1c_r2_m2   step 18000: PDE 53.39  flux 0.116   (3.4 % of node rms)
+            rfdor1c_r2_m3   step 18000: PDE 5.86  flux 0.139   (3.7 % of node rms)
+            rfdor1c_r3_m0   step 18000: PDE 1.55  flux 0.144   (3.8 % of node rms)
+            rfdor1c_r3_m1   step 18000: PDE 7.49  flux 0.098   (3.1 % of node rms)
+            rfdor1c_r3_m2   step 18000: PDE 8.46  flux 0.115   (3.4 % of node rms)
+            rfdor1c_r3_m3   step 18000: PDE 1.90  flux 0.121   (3.5 % of node rms)
+            rfdor1c_r4_m0   step 18000: PDE 4.49  flux 0.095   (3.1 % of node rms)
+            rfdor1c_r4_m1   step 18000: PDE 2.62  flux 0.098   (3.1 % of node rms)
+            rfdor1c_r4_m2   step 18000: PDE 1.10  flux 0.096   (3.1 % of node rms)
+            rfdor1c_r4_m3   step 18000: PDE 1.30  flux 0.123   (3.5 % of node rms)
+            rfdor1cdc_f1_m0   step 28000: PDE 1.39  flux 0.060   (2.4 % of node rms)
+            rfdor1cdc_f1_m1   step 28000: PDE 4.91  flux 0.063   (2.5 % of node rms)
+          final directory: runs/rfdor1cdc_it1
+          Read: every stage ended (22 of 22 training jobs, 6 of 6 inversion jobs). Held-out flux loss 4.0 - 4.3 % of node
+          rms after the wide stage, 3.1 - 3.5 % after round 4, 2.4 - 2.5 % in the two forward networks; held-out PDE
+          loss 1.1 - 8.5 in every stage except r2_m2 (53.39; the same member is at 8.46 in round 3 and 1.10 in round
+          4). The value-correction loop stopped at its first iteration: step 0.010 posterior sigma, the operator and the
+          forward networks differ by 0.000025 (rms, sensor moisture) at the estimate, below every line of the table
+          of the 06:57 entry (first iterations there 0.00044 US-NC2, 0.00134 SE-Nor, 0.00337 IT-SR2). These are the
+          lowest losses of any real-data run so far.
+          CORRECTION of the 02:34 lines: their "(1.9 - 2.0 % of node rms)" is 100/sqrt(flux factor), the flux rms
+          relative to step 0, written under the label that every other entry uses for 10*sqrt(flux). With the usual
+          convention the wide stage is 4.0 - 4.3 %, as printed above. P1 was read on the factor and is not touched.
+          SEEN OUT OF ORDER (lessons nineteenth; stated here before the expectations are read): while counting the
+          jobs at 07:04 I grepped "start" in logs/cpu_15668495.out (the it-1 inversion job). Its "== start" lines
+          carry a score against the well: every start ends on the same coefficients, cost 0.12904, "zb RMSE 0.0541
+          m". That was before this entry existed. P1 - P3 were written before the launch (00:2x entry above) and
+          are not changed. Still unseen: PINN minus numerical inversion (P2), bias, r, the figure.
+          NEXT: scripts/score_real.py and scripts/referee_step_check.py via sbatch; REFERENCE lines first, then PINN
+          lines; read against P2 (within 1 cm rms of the numerical estimate, one estimate from all starts) and P3
+          (5 - 6 cm from the well, bias under 1 cm, R3 not met).
+        (07:11) BE-Dor rfdor1c SCORED (score_rfdor1c job 15668848, "exit=0 at Sun Nov 15 07:08:50 EST 2026", 0 Traceback lines;
+          stepq_dor_pinn job 15668849, "exit=0 at Sun Nov 15 07:08:45 EST 2026", 0 Traceback lines). Copied by jq from
+          output/real_dor_mar24_own/result_rfdor1c.json, inversion_pinn.json and runs/rfdor1cdc_it1/summary.json:
+            window 2024-03-17T12:00, 11.0 days, 265 h (sensor below saturation: 265 h), observed water table [0.18,0.65] m
+          REFERENCE (numerical inversion and model, no PINN):
+            numerical inversion (lowest cost, dor_own_mar24_s1): from the well 5.41 cm rms, bias 0.14 cm, max 12.26 cm, r 0.9129; cost 0.129754, costs by start {"hydrostatic":0.12975425986684788,"hydrostatic_flat":0.12975418404837466,"constant:1.0":0.1297542117832484,"constant:0.3":0.12975423228244753}; sensor misfit 0.0018
+            hydrostatic reading of the sensor: 5.3 cm rms, bias 0.07 cm, r 0.9169; solver with the observed water table: sensor misfit 0.00465
+            dor_own_mar24_s0 hydrostatic: sigma by day (cm) 0.98, 0.81, 0.87, 1.11, 1.41, 1.24, 1.2, 1.46, 1.6, 1.78, 2.51; from the well by day (cm) 0.98, 3.73, 6.23, 5.95, 3.33, 7.55, 6.87, 8.59, 5.33, 2.8, 2.86
+            largest difference between two starts of the numerical inversion: 0.0074 cm (largest rms 0.0008 cm)
+          PINN (runs/rfdor1cdc_it1):
+            from the well 5.41 cm rms, bias 0.12 cm, max 12.23 cm, r 0.9127; largest difference between starts 0 cm; sigma median 1.32 cm; sensor misfit 0.0018
+            PINN minus numerical inversion (score_real.py, lowest-cost start): 0.04 cm rms, bias -0.01 cm, max 0.17 cm
+            PINN minus dor_own_mar24_s0 (hydrostatic): 0.04 cm rms, bias -0.01 cm, max 0.17 cm at day 10.83; by day (cm) 0.01, 0.01, 0.01, 0.03, 0.02, 0.01, 0.02, 0.03, 0.02, 0.02, 0.12
+            PINN minus dor_own_mar24_s1 (hydrostatic_flat): 0.04 cm rms, bias -0.01 cm, max 0.17 cm at day 10.83; by day (cm) 0.01, 0.01, 0.01, 0.03, 0.02, 0.01, 0.02, 0.03, 0.02, 0.02, 0.12
+            PINN minus dor_own_mar24_s2 (constant:1.0): 0.04 cm rms, bias -0.01 cm, max 0.17 cm at day 10.88; by day (cm) 0.01, 0.01, 0.01, 0.03, 0.02, 0.01, 0.02, 0.03, 0.02, 0.02, 0.12
+            PINN minus dor_own_mar24_s3 (constant:0.3): 0.04 cm rms, bias -0.01 cm, max 0.17 cm at day 10.83; by day (cm) 0.01, 0.01, 0.01, 0.03, 0.02, 0.01, 0.02, 0.03, 0.02, 0.02, 0.12
+            PINN sigma by day (cm) 0.98, 0.81, 0.86, 1.11, 1.41, 1.24, 1.2, 1.46, 1.6, 1.77, 2.49; from the well by day (cm) 0.98, 3.72, 6.23, 5.97, 3.34, 7.55, 6.85, 8.56, 5.31, 2.82, 2.96
+            starts: previous cost 0.12904 (4 it); hydrostatic cost 0.12904 (3 it); hydrostatic_flat cost 0.12904 (3 it); constant:1.0 cost 0.12904 (3 it); constant:0.3 cost 0.12904 (3 it); best previous; coefficients on the bound []
+            (largest difference between PINN starts, raw: 2.2620670681039456E-7 m)
+          Read against what was written before the launch:
+            P1 HOLDS (02:34).
+            P2 HOLDS: the PINN's estimate is the numerical inversion's, 0.04 cm rms over the 11 days (largest 0.17 cm,
+               in the last hours; by day 0.01 - 0.03 cm, last day 0.12 cm), against each of the four numerical starts,
+               and it is the same from all five PINN starts (2e-7 m). R1 and R2 met, by a factor 25 on R2 (1 cm).
+               The PINN's sigma by day equals the solver's to 0.02 cm.
+            P3 HOLDS: 5.41 cm rms from the hourly well (solver 5.41), bias 0.12 cm, r 0.913; R3 (3 cm, r 0.98) NOT
+               met, by the solver or by the PINN. The row is "outside the gate" as declared at 00:2x.
+          Figure (result_rfdor1c.png, viewed): PINN and solver are one curve; both follow the well's fall from 0.20 to
+          0.50 m (days 0 - 5), its rise after the rain of day 5.5 and the fall to 0.60 m, but smoother: the rise of
+          the well to 0.26 m is 0.37 m in the estimate, and the well is 3 - 9 cm deeper than the estimate on days
+          2 - 8.
+          What this row can and cannot carry:
+            - statement (i) (the PINN returns the estimate of the numerical inversion of the same model, from every
+              start): shown at a fifth soil (n 1.13, Ks 1e-3 m/s), on real forcing, to 0.04 cm. The cleanest case
+              of all real-data runs, with the lowest losses (07:1x entry).
+            - statement (ii) (that estimate is the observed water table): 5.4 cm, r 0.91, NOT within the 3 cm
+              criterion, and two things limit what the 5.4 cm says: the hydrostatic reading of the sensor (no
+              flow model) scores the same here (5.30 cm, r 0.917), so this window does not separate the model
+              from the simplest reading; and the soil was fitted on this same window with the well (23:43), so
+              the comparison is not a held-out one.
+            - the model with the observed water table fits the sensor to 0.00465, the estimate to 0.0018: the
+              5.4 cm are the model/soil/forcing, not the inversion.
+          NO change of method on the strength of this score. README: BE-Dor row for statement (i), labelled outside
+          the gate; counts of statement (ii) unchanged.
+        (07:11) SE-Nor first window, FIFTH START OF THE NUMERICAL INVERSION AT 1 h (event num5_nor_1h; the waiter was not running,
+          found by hand). Job 15664497 "exit=0 at Sun Nov 15 07:06:16 EST 2026", 0 Traceback lines; comparison job stepq_nor_5 15668864
+          "exit=0 at Sun Nov 15 07:09:19 EST 2026", 0 Traceback lines (output/real_nor_oct23_own/inversion_pinn.json written again
+          with five numerical results). REFERENCE lines only (solver; copied by jq in this command):
+            nor_own_oct23_spinn (start: the PINN path, coefficients of runs/rfnor1cdc_it3/predictions.npz; 1 h steps): cost 0.5476412248345957, from the well 11.48 cm rms, bias 0.08 cm, coefficients on the bound [0,1,2,13], 8 iterations, sensor misfit 0.0037, steps not converged (worst solve) 11.3 %, 8566.8 s
+            nor_own_oct23_s1 (hydrostatic_flat, for comparison): cost 0.5476412386508439, on the bound [0,1,2,13], steps not converged (worst solve) 10.9 %
+            nor_own_oct23_s0 minus nor_own_oct23_spinn: rms 0.0006 cm, max 0.0012 cm at day 4.92
+            nor_own_oct23_s1 minus nor_own_oct23_spinn: rms 0.0005 cm, max 0.001 cm at day 3.21
+            nor_own_oct23_s2 minus nor_own_oct23_spinn: rms 0.0005 cm, max 0.0011 cm at day 3.29
+            nor_own_oct23_s3 minus nor_own_oct23_spinn: rms 0.0003 cm, max 0.0007 cm at day 4.92
+          F2 HOLDS (70 %): started on the PINN's path, the 1 h numerical inversion goes back to the estimate of the
+          other four starts (same cost to 1e-7, same coefficients on the bound, largest difference above). At 1 h
+          steps the PINN's path is NOT an end point of the solver's inversion: on days 0 - 1 the PINN differs from
+          the one numerical estimate (27.8 and 12.1 cm; 0.3 - 1.6 cm from day 2).
+          Rule (1) of 04:3x needs BOTH step sizes; the 1/4 h runs are still going (rfq_nor_pinn025 15664498,
+          rfq_nor_dt025_s1 15652974). Noted next to it: at 1 h steps 11 - 12 % of the solver's time steps do not
+          converge in the worst solve of these inversions (0 % at BE-Dor), which is why the 1/4 h reference decides.
+          No SE-Nor verdict yet.
+        (07:11) rfnor1e, E2 (inversion 0 reproduces runs/rfnor1c_inv0; same wide networks by link). rfnor1e_inv0 job 15668689
+          "exit=0 at Sun Nov 15 07:03:06 EST 2026", 0 Traceback lines; check job e2_rfnor1e 15668861 "exit=0 at Sun Nov 15 07:09:19 EST 2026",
+          0 Traceback lines (scripts/local_cov_report.py on the two local_center.npz -> output/diag/e2_rfnor1e.json, by jq):
+            largest difference of the 14 centre coefficients: 0 ; of the refinement sd per coefficient: 0
+          E2 HOLDS (limit 1e-4): the new run starts its refinement from the same estimate and the same covariance as
+          rfnor1c; from round 1 on the only difference is sampling.local_box=true.
