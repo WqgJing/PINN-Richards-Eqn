@@ -413,13 +413,46 @@ Five European stations with a well next to a 0.05 m soil-moisture sensor were sc
 `tasks/todo.md` (74 ag) before any series was read: well inside 0.15 - 1.45 m, sensor below its plateau, rain
 measured at the station, no frost, rain and sensor in step. All five meet it as written. The first four in the written order
 are run (FR-Bil conifer forest on a sandy podzol, IT-SR2 pine forest on sand, SE-Nor conifer forest on
-sandy-loamy till, DK-Sor beech forest on moraine); BE-Dor (grassland) is not run: its wells end at 1.40 m, inside the
+sandy-loamy till, DK-Sor beech forest on moraine); BE-Dor (grassland) is not run in this first selection: its wells end at 1.40 m, inside the
 accepted range, and both of its candidate windows start with the well at that depth, which the screen did not test
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State: data sets built, soils being calibrated. No inversion result (numerical or PINN) exists yet for these
-stations, and they are not in the counts above.
+State (14 Nov, 22:00). No PINN estimate exists yet for these stations, and they are not in the counts above.
+
+- Soils are fitted at the four stations (four starts each).
+- Numerical inversion at FR-Bil (three of four starts ended; the fourth ran out of time and is repeated): 52.6,
+  55.3 and 55.8 cm from the well, with coefficients on the bound of the path range. These estimates fit the
+  sensor better (0.0058) than the model run with the measured well does (0.0070): in that window the sensor
+  does not determine the well. The numerical inversions of the other three stations have not ended.
+- The four PINN runs are in training.
+
+Why, and what follows. The window rule of this first selection took at every station the 11-day window with the
+largest range of the well. That is the window in which the well comes up from more than a metre: FR-Bil 0.35 -
+1.375 m, IT-SR2 0.39 - 1.06 m, SE-Nor 0.36 - 1.27 m, DK-Sor 0.375 - 1.25 m, so that for most hours the water
+table is 0.5 - 1.3 m below a 0.05 m sensor in a sand or a till. The rule ranked by the signal in the well, not in
+the sensor. The four windows are finished and reported as run; they can show statement (i) on four new soils,
+not (ii).
+
+Second selection, declared as such and reported next to the first, never instead of it (rule and expectations in
+`tasks/todo.md` 74 aj, written before any record was read under it). Same five stations, pairs and screen; one
+change: the windows are ranked by the smallest deepest level of the well (the well stays closest to the sensor),
+and a window may not overlap the first one of its station.
+
+| station | well + sensor | window (11 d from) | well (m) | sensor (m3/m3) |
+|---|---|---|---|---|
+| FR-Bil | WTD_1_1_1 + SWC_1_1_1 | 2020-12-12 12:00 | 0.15 - 0.38 | 0.106 - 0.153 |
+| SE-Nor | WTD_1_1_1 + SWC_2_1_1 | 2019-12-06 12:00 | 0.15 - 0.41 | 0.180 - 0.212 |
+| DK-Sor | WTD_18_1_1 + SWC_18_1_1 | 2026-02-23 12:00 | 0.17 - 0.39 | 0.110 - 0.261 |
+| BE-Dor | WTD_2_1_1 + SWC_2_1_1 | 2024-03-17 12:00 | 0.18 - 0.65 | 0.510 - 0.547 |
+| IT-SR2 | WTD_3_1_1 + SWC_4_1_1 | 2019-11-01 12:00 | 1.06 - 1.44 | 0.092 - 0.167 |
+
+IT-SR2 has no shallow window free of its first one; it stays in the count of five. At DK-Sor the sensor of this
+pair hardly follows the well (plots in `output/site_icos/<station>/result_records_shallow_*_test.png`). In this
+selection the PINN is run only where the numerical inversion comes within 5 cm of the well: a selection on the
+solver's result, made before any PINN result of that window exists, and reported with its counts. Path range of
+both inversions: 0.10 - 1.50 m here (the well reaches 0.15 m), 0.20 - 1.50 m in the first selection. The rows
+are in-sample (soil fitted on the same window).
 
 The station files are ICOS ETC L2 products under the ICOS CC BY 4.0 data licence
 (https://data.icos-cp.eu/licence). The raw files are not in this repository; the figures and numbers derived from
@@ -455,7 +488,10 @@ each object.)
 
 ## Not yet in this set (running)
 
-- The four ICOS stations of the section above: soil calibration, numerical inversion, PINN, scores.
+- ICOS, first selection (four stations): numerical inversion at IT-SR2, SE-Nor, DK-Sor and the fourth start at
+  FR-Bil; the four PINN runs; scores.
+- ICOS, second selection (five windows): data sets, soil calibration, numerical inversion; PINN where the
+  numerical inversion is within 5 cm of the well; scores.
 
 ## Regenerate
 
