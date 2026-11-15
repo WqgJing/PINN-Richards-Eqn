@@ -6360,3 +6360,45 @@ Real-case spec (first slice):
             rfL_bil_own_oct23_s2 15650046 constant:1.0 08:00:00
             Rule: whichever of a pair ends first with a summary is the record; the other is cancelled
             then. Same code, same data set, same start.
+        (21:37) WIDE STAGES, held-out losses only (metrics.csv of ended networks; no Traceback in the four
+          pipe logs; no score or inversion line read):
+          DK-Sor rfsor1c (conductive), ENDED:
+            rfsor1c_w0   step 0: PDE 1.41  flux 531.72   step 42000: PDE 48.22  flux 0.486   flux factor 1093.2   (7.0 % of node rms)
+            rfsor1c_w1   step 0: PDE 1.51  flux 582.13   step 42000: PDE 7.62  flux 0.521   flux factor 1116.4   (7.2 % of node rms)
+            rfsor1c_w2   step 0: PDE 1.41  flux 564.63   step 42000: PDE 3.19  flux 0.491   flux factor 1149.5   (7.0 % of node rms)
+            rfsor1c_w3   step 0: PDE 1.50  flux 587.77   step 42000: PDE 7.65  flux 0.481   flux factor 1221.4   (6.9 % of node rms)
+            CRITERION (factor 10): PASSED in all four, 1093 - 1221 (additive form: 1.0 - 1.1). My "uncertain"
+            for DK-Sor was too cautious.
+          IT-SR2 rfsr21c (conductive), three of four ended:
+            rfsr21c_w0   step 0: PDE 21.54  flux 193.31   step 42000: PDE 4.52  flux 1.956   flux factor 98.8   (14.0 % of node rms)
+            rfsr21c_w1   step 0: PDE 21.44  flux 181.27   step 42000: PDE 4.04  flux 1.757   flux factor 103.2   (13.3 % of node rms)
+            rfsr21c_w2   step 0: PDE 21.29  flux 195.56   step 42000: PDE 3.84  flux 1.838   flux factor 106.4   (13.6 % of node rms)
+            rfsr21c_w3: not ended
+          FR-Bil rfbil1c (conductive), three of four ended:
+            rfbil1c_w0   step 0: PDE 58.10  flux 170.78   step 42000: PDE 23.07  flux 14.739   flux factor 11.6   (38.4 % of node rms)
+            rfbil1c_w1   step 0: PDE 63.80  flux 163.17   step 42000: PDE 24.33  flux 18.454   flux factor 8.8   (43.0 % of node rms)
+            rfbil1c_w2   step 0: PDE 61.79  flux 155.83   step 42000: PDE 25.70  flux 15.392   flux factor 10.1   (39.2 % of node rms)
+            rfbil1c_w3: not ended
+          the fourth networks, live logs:
+            rfbil1c_w3: step 0 PDE 61.37 flux 150.8 | flux factor at step 5000: 1.0 | latest step 29500: PDE 46.180 flux 17.710, factor 8.5 (42 % of node rms)
+            rfsr21c_w3: step 0 PDE 20.47 flux 183.1 | flux factor at step 5000: 17.0 | latest step 28000: PDE 4.938 flux 2.633, factor 69.5 (16 % of node rms)
+            IT-SR2: on course to pass (99 - 106 in the three ended).
+            FR-Bil: 11.6, 8.8, 10.1 in the three ended, the fourth at 7.9 with 13000 steps to go. BY THE
+            LETTER of the rule ("less than a factor 10 in ALL FOUR") the "not learned" case is NOT met:
+            two networks are above 10. IN SUBSTANCE it is on the line: about 40 % of the node rms of
+            the surface flux is left, against 7 % at DK-Sor, 8 - 9 % at SE-Nor, 13 - 14 % at IT-SR2. I do
+            not move the line after seeing where the run fell. The FR-Bil row will carry the wide-stage
+            factors (8.8 - 11.6) and the losses of its last stage next to its score, and the text will
+            call the training there marginal, whatever the score.
+          SE-Nor rfnor1c ROUND 1 ENDED (refinement around the first estimate; step 0 of a round is not a
+          meaningful reference, so the end values only):
+            rfnor1c_r1_m0   step 18000: PDE 31.16  flux 2.483   (15.8 % of node rms)
+            rfnor1c_r1_m1   step 18000: PDE 114.44  flux 1.886   (13.7 % of node rms)
+            rfnor1c_r1_m2   step 18000: PDE 239.33  flux 1.502   (12.3 % of node rms)
+            rfnor1c_r1_m3   step 18000: PDE 32.56  flux 1.883   (13.7 % of node rms)
+          for scale, round 1 of the earlier run in this form (rfnc1tc):
+            rfnc1tc_r1_m0   step 18000: PDE 57.90  flux 0.556   (7.5 % of node rms)
+            rfnc1tc_r1_m1   step 18000: PDE 10.03  flux 0.684   (8.3 % of node rms)
+            rfnc1tc_r1_m2   step 18000: PDE 29.37  flux 0.613   (7.8 % of node rms)
+            rfnc1tc_r1_m3   step 18000: PDE 16.80  flux 0.590   (7.7 % of node rms)
+            SE-Nor's flux loss after round 1 is 12 - 16 % of node rms, about twice rfnc1tc's 7 - 8 %.
