@@ -7020,3 +7020,79 @@ Real-case spec (first slice):
           By the rule of 17:58 the PINN is compared with both, and the row says "water table not determined by the
           sensor at this station" for solver and PINN alike. Neither end point follows the well (r 0.11 and 0.50).
           This is the second first-selection station with more than one numerical end point (FR-Bil the other).
+        (04:34) FIRST SELECTION, SE-Nor: THE PINN RUN rfnor1c HAS ENDED (event rfnor1c_driver_gone, 04:28).
+          logs/dc_rfnor1cdc.log: "converged at it 3"; "dc loop rfnor1cdc done at Sun Nov 15 04:27:49 EST 2026". Final directory: runs/rfnor1cdc_it3
+          (not it4 as written at the launch: the value-correction loop stops when the step is below 0.2 sigma).
+          Jobs (ids from logs/pipe_rfnor1c.log and logs/dc_rfnor1cdc.log, checked in this command): 26 training
+          jobs, 26 with an exit=0 line, 0 Traceback lines; 8 inversion jobs (inv0-4, it1-3), 8 with an
+          exit=0 line, 0 Traceback lines.
+          HELD-OUT LOSSES AT THE END OF EACH STAGE (last line of metrics.csv, printed by this command; wide stage
+          at 20:39 and round 1 at 21:46 above):
+            rfnor1c_r2_m0   step 18000: PDE 667.21  flux 20.453   (45.2 % of node rms)
+            rfnor1c_r2_m1   step 18000: PDE 21130.76  flux 9.600   (31.0 % of node rms)
+            rfnor1c_r2_m2   step 18000: PDE 765.81  flux 8.158   (28.6 % of node rms)
+            rfnor1c_r2_m3   step 18000: PDE 411829.00  flux 22.441   (47.4 % of node rms)
+            rfnor1c_r3_m0   step 18000: PDE 513.40  flux 4.174   (20.4 % of node rms)
+            rfnor1c_r3_m1   step 18000: PDE 544.81  flux 5.884   (24.3 % of node rms)
+            rfnor1c_r3_m2   step 18000: PDE 747.11  flux 6.459   (25.4 % of node rms)
+            rfnor1c_r3_m3   step 18000: PDE 138.89  flux 5.080   (22.5 % of node rms)
+            rfnor1c_r4_m0   step 18000: PDE 225.73  flux 3.357   (18.3 % of node rms)
+            rfnor1c_r4_m1   step 18000: PDE 839.06  flux 5.631   (23.7 % of node rms)
+            rfnor1c_r4_m2   step 18000: PDE 140.26  flux 3.240   (18.0 % of node rms)
+            rfnor1c_r4_m3   step 18000: PDE 955.14  flux 3.367   (18.3 % of node rms)
+            rfnor1cdc_f1_m0   step 28000: PDE 7.20  flux 0.347   (5.9 % of node rms)
+            rfnor1cdc_f1_m1   step 28000: PDE 12.72  flux 0.404   (6.4 % of node rms)
+            rfnor1cdc_f2_m0   step 28000: PDE 23.27  flux 0.401   (6.3 % of node rms)
+            rfnor1cdc_f2_m1   step 28000: PDE 14.45  flux 0.370   (6.1 % of node rms)
+            rfnor1cdc_f3_m0   step 28000: PDE 11.52  flux 0.512   (7.2 % of node rms)
+            rfnor1cdc_f3_m1   step 28000: PDE 8.62  flux 0.350   (5.9 % of node rms)
+          the same quantities in the run of this form that met the criteria (rfnc1tc, US-NC2), from its files:
+            rfnc1tc_r4_m0   step 18000: PDE 9.15  flux 0.526   (7.3 % of node rms)
+            rfnc1tc_r4_m1   step 18000: PDE 25.30  flux 0.448   (6.7 % of node rms)
+            rfnc1tc_r4_m2   step 18000: PDE 5.42  flux 0.503   (7.1 % of node rms)
+            rfnc1tc_r4_m3   step 18000: PDE 16.11  flux 0.452   (6.7 % of node rms)
+            rfnc1tcdc_f1_m0   step 28000: PDE 9.54  flux 0.204   (4.5 % of node rms)
+            rfnc1tcdc_f1_m1   step 28000: PDE 4.16  flux 0.148   (3.8 % of node rms)
+            rfnc1tcdc_f2_m0   step 28000: PDE 5.20  flux 0.271   (5.2 % of node rms)
+            rfnc1tcdc_f2_m1   step 28000: PDE 4.09  flux 0.179   (4.2 % of node rms)
+            rfnc1tcdc_f3_m0   step 28000: PDE 6.61  flux 0.275   (5.2 % of node rms)
+            rfnc1tcdc_f3_m1   step 28000: PDE 3.41  flux 0.166   (4.1 % of node rms)
+            rfnc1tcdc_f4_m0   step 28000: PDE 9.37  flux 0.260   (5.1 % of node rms)
+            rfnc1tcdc_f4_m1   step 28000: PDE 4.10  flux 0.224   (4.7 % of node rms)
+          last six held-out lines of rfnor1c_r4_m3 (val_pde, one fresh held-out set per L-BFGS block):
+            17000:159.81312196456958 17200:436.2455370607905 17400:266.3510770628171 17600:242.9501969120536 17800:13577.222889963046 18000:955.140685415432 
+          READ OF THE LOSSES (mine, before any score job): the refinement rounds at SE-Nor did NOT train as in
+          the run that met the criteria. Round 4 ends with a held-out PDE loss of 140 - 955 (rfnc1tc: 5 - 25;
+          SE-Nor's own wide stage: 9.5 - 60) and a flux loss of 18 - 24 % of the node rms (rfnc1tc: 7 %; SE-Nor
+          round 1: 12 - 16 %; wide stage 8 - 9 %). The held-out PDE loss is heavy-tailed from block to block
+          (r4_m3: 160, 436, 266, 243, 13577, 955; round 2 ends at 21131 and 411829 in two members), so the last
+          line alone is noisy, but no block of round 4 is near the rfnc1tc level. The refinement networks around
+          the estimate are therefore POOR at this station. The forward networks of the value correction (water
+          table given) end at PDE 7 - 23, flux 6 - 7 % (rfnc1tc: 3 - 10, 4 - 5 %): ordinary. The row carries
+          these losses next to its score, whatever the score is.
+          ORDER, AS IT HAPPENED (a slip against "losses before any score", lessons nineteenth): to see how the
+          driver had ended I tailed logs/dc_rfnor1cdc.log, whose "it k:" lines end with a scoring-only part. I
+          therefore saw, BEFORE the losses above were written down: it 1 "zb rmse days 0-25 14.41 cm, starts
+          spread 12.06 cm", it 2 "9.49 cm, starts spread 0 cm", it 3 "9.6 cm, starts spread 0.01 cm" (distance
+          of the PINN estimate from the well). The losses above are recorded in full all the same and the
+          reading of them was not changed by it; the expectations below are written knowing those three lines.
+          EXPECTED, written before the score jobs (numerical 1 h reference: 11.48 cm rms from the well, bias
+          0.08 cm, one estimate from four starts, 11 - 12 % of the solver's steps not converged; its 1/4 h step
+          check, job 15652974, is still running):
+            S1 (R1) the four starts of the PINN are one estimate (spread below 0.2 cm; the log line says 0.01).
+            S2 (R2) the PINN is NOT within 1 cm of the 1 h numerical estimate: the two are 11.48 and about 9.6 cm
+               rms from the same well, so they differ by at least 1.9 cm rms if scored on the same hours. Guess
+               2 - 8 cm rms.
+            S3 (R3) not met, about 9.6 cm rms from the well, as T5 said for any estimate at this station.
+          RULE, written before the score jobs:
+            (a) R2 at SE-Nor is judged against the numerical reference chosen by the rule of 22:29 (the 1/4 h
+                estimate if it differs from the 1 h one by more than 1 cm rms). Until that job has ended the row
+                says "R2 open: numerical reference not yet converged in the step".
+            (b) If the PINN is within 1 cm of that reference: statement (i) holds at SE-Nor. If not: the row says
+                R2 not met, with the refinement losses beside it, and whose error it is is settled by the inverse
+                problem's own objective, scoring only: the solver at 1/4 h steps run forward on the PINN's path
+                and on the numerical path, sensor misfit of each. Nothing in the method is changed on the
+                strength of a score; a repeat of the refinement at this station is decided from the losses
+                (already poor) and that check, not from the distance to the well.
+          SCORE JOBS: score_real.py (PINN, the four 1 h starts, the well) -> output/real_nor_oct23_own/result_rfnor1c;
+          referee_step_check.py --pinn (PINN minus each numerical start, by day) -> output/real_nor_oct23_own/inversion_pinn.
