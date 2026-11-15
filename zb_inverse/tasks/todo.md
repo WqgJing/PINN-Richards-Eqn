@@ -6402,3 +6402,147 @@ Real-case spec (first slice):
             rfnc1tc_r1_m2   step 18000: PDE 29.37  flux 0.613   (7.8 % of node rms)
             rfnc1tc_r1_m3   step 18000: PDE 16.80  flux 0.590   (7.7 % of node rms)
             SE-Nor's flux loss after round 1 is 12 - 16 % of node rms, about twice rfnc1tc's 7 - 8 %.
+    74 aj. (14 Nov, 21:46) FR-Bil NUMERICAL REFERENCE (three of four starts), WHERE THE OTHER THREE STAND, AND A
+        SECOND SELECTION OF WINDOWS: PLAN, RULE, PASS MARKS AND EXPECTATIONS, WRITTEN BEFORE ANY RECORD IS READ
+        UNDER THE NEW RULE. Reference only above the plan: no PINN inversion or score has been read anywhere.
+        FR-Bil, numerical inversion with the fitted soil (jobs 15643865, 15643866, 15643868: COMPLETED,
+          exit=0, no Traceback). [start, cost, RMSE cm, bias cm, max cm, coefficients on the bound,
+          iterations, sensor misfit at the estimate]:
+            s0 ["hydrostatic",1.3485552598499415,55.77,-15.01,100.03,[0,9,10],34,0.0058063656013248545]
+            s1 ["hydrostatic_flat",1.3323553023701589,52.61,-9.07,100.01,[0,10],14,0.005771384804295583]
+            s3 ["constant:0.3",1.333789498468876,55.31,-6.87,100.25,[0,9,10],35,0.005774490233927312]
+          the fourth (constant 1.0, job 15643867) is at its 3 h limit at: [ref 35] cost 1.541937e+00 |step| 1.48e-02 zb RMSE 0.7119 m  10538s
+          (another minimum; its copy rfL_bil_own_oct23_s2 15650046 has 8 h).
+          forward solve with the WELL in the same model, sensor misfit [hourly well, 1-day spline]: [0.0069822701527147354,0.007240785562751247]
+          AGAINST T4 (guess 5 - 25 cm): MISSES R3, by twice the top of my guess: 52.6 - 55.8 cm, 100 cm at
+            the worst hour. Not within 5 cm of R3: no follow-up with a wider prior (rule of 74 ac).
+          The starts do not give one estimate (costs 1.332 - 1.349, and 1.54 for the fourth so far).
+          The estimates fit the sensor BETTER (0.0058) than the well does (0.0070 - 0.0072): moving the
+          water table by half a metre changes the 5 cm sensor by a few thousandths. In this window and
+          with this soil the sensor does not carry the well; what is left is fitted to model error.
+        THE OTHER THREE, from the running job logs (iteration lines; not results, nothing recorded as one):
+            rf_nor_own_oct23_s0 | [ref  6] cost 5.479619e-01 |step| 4.24e-02 zb RMSE 0.1156 m  7808s
+            rf_nor_own_oct23_s1 | [ref  8] cost 5.484753e-01 |step| 3.68e-01 zb RMSE 0.1163 m  7965s
+            rf_nor_own_oct23_s2 | [ref  8] cost 5.483613e-01 |step| 3.73e-01 zb RMSE 0.1162 m  8568s
+            rf_nor_own_oct23_s3 | [ref  7] cost 5.484903e-01 |step| 1.18e-01 zb RMSE 0.1162 m  8119s
+            rf_sr2_own_nov19_s0 | [ref  4] cost 3.002911e+00 |step| 2.07e-01 zb RMSE 0.2287 m  4634s
+            rf_sr2_own_nov19_s1 | [ref  4] cost 3.002068e+00 |step| 1.74e-01 zb RMSE 0.2317 m  4877s
+            rf_sr2_own_nov19_s2 | [ref  2] cost 3.593422e+00 |step| 8.38e-01 zb RMSE 0.2829 m  4997s
+            rf_sr2_own_nov19_s3 | [ref  3] cost 3.036921e+00 |step| 5.11e-01 zb RMSE 0.2387 m  3642s
+            rf_sor_own_dec24_s0 | [ref  3] cost 2.293898e-01 |step| 4.00e-01 zb RMSE 0.4157 m  1708s
+            rf_sor_own_dec24_s1 | [ref  4] cost 2.304613e-01 |step| 4.74e-01 zb RMSE 0.4001 m  2047s
+            rf_sor_own_dec24_s2 | [ref  3] cost 2.307775e-01 |step| 7.10e-01 zb RMSE 0.4169 m  1207s
+            rf_sor_own_dec24_s3 | [ref  4] cost 2.309676e-01 |step| 7.02e-01 zb RMSE 0.4208 m  1541s
+          -> SE-Nor near 10 - 12 cm, IT-SR2 near 23 - 28 cm (early), DK-Sor near 42 cm (the timed-out run
+             was at 41 cm after 21 iterations).
+        WHAT THE FIRST SELECTION CAN SHOW. T3 - T6 said "misses R3" at all four and H3 "at most half hold";
+          it is heading for none of four. These four runs can still show (i) PINN = numerical inversion on
+          four new soils; they cannot show (ii) estimate = well. They are finished and reported as run.
+          WHY, and it is my window rule: "the qualifying window with the largest range of the well" picked
+          at every station the window in which the well comes up from more than a metre:
+            bil_oct23 well [0.35,1.375] m, sensor [0.137,0.248]
+            sr2_nov19 well [0.39,1.06] m, sensor [0.099,0.174]
+            nor_oct23 well [0.36,1.27] m, sensor [0.194,0.231]
+            sor_dec24 well [0.375,1.25] m, sensor [0.311,0.347]
+          For most of those hours the well is 0.5 - 1.3 m below a 5 cm sensor in a sand or a till. I wrote
+          in H1 that such a sensor "sits near its dry end with the water table below about 1 m" and still
+          ranked the windows by range. The rule maximised the signal in the WELL, not in the SENSOR.
+        SECOND SELECTION (declared as a second selection; reported NEXT TO the first, never instead of it;
+          the README gives both counts).
+          WHAT CHANGES, one thing: the ranking of the qualifying windows. Per pair, the window = the
+            qualifying window whose DEEPEST well level in the window is the smallest (the well stays
+            closest to the sensor for all 11 days); equal to 0.01 m: the earliest. Per station: the pair
+            with the smaller such level. Windows that overlap the station's first test window are left
+            out (new data). No earlier window / second soil in this selection: in-sample rows, said so.
+          WHAT DOES NOT CHANGE: the five stations and their pairs, S1 - S5 with their numbers (well in
+            0.15 - 1.45 m with a range >= 0.20 m; sensor range >= 0.03 and at most a quarter of the hours
+            on its plateau; rain >= 10 mm measured at the station; no frost; timing), the 11-day window
+            from 12:00, forcing and f_T rule, scripts/calibrate_soil.py with its four starts and bounds,
+            the path range 0.10 - 1.50 m, the config of the inversions, R1 - R3 and what "counts".
+            BE-Dor is in: this ranking keeps the window away from the end of its wells (1.40 m).
+          WHICH WINDOWS GET A PINN: only those where the numerical inversion (the start with the lowest
+            cost) is within 5 cm RMSE of the well. Reason: the first selection already gives four runs
+            where the solver misses the well; GPU hours of the second go where (ii) can hold. This is a
+            selection on the SOLVER's result, made before any PINN result of that window exists, and the
+            README says on how many windows it was applied and how many it left out.
+          NETWORK FORM (eighth lesson; four soils so far): conductive first (it passed the factor 10 at
+            three of four soils and was on the line at the fourth; the additive form failed at two of
+            three); first wide network read at step 5000 with hpc/early_flux.sh. Factor below 2 there:
+            the additive form is started next to it and the run that is higher at step 5000 goes on.
+          STEPS, each verified before the next:
+            1 scripts/site_records_icos.py: optional --rule shallow and --avoid <start> (default
+              unchanged). VERIFY: the default run of one station gives the same result_records.json as
+              the committed one (diff), so the first selection is untouched.
+            2 record job per station -> output/site_icos/<station>/result_records_shallow.{json,png};
+              windows written here with their numbers BEFORE any data set is built; plots looked at.
+            3 configs/real_<site>_<monyy>.yaml (copy of the station's config; window, pair, comment),
+              scripts/make_real.py -I, then four calibration starts (2 CPUs, 8G, 12 h).
+            4 hpc/transfer_solver.sh <site> <monyy> "[0.05,0.05]" with RT=24:00:00 (ninth lesson) when
+              the four starts exist; reference lines recorded.
+            5 PINN where step 4 is within 5 cm; losses per stage before any score; score; README.
+          EXPECTED, written now:
+            W1 at least four of the five stations have such a window (9 - 251 windows qualify per pair).
+            W2 the chosen windows keep the well above 0.8 m at four stations at least (above 0.6 m at
+               FR-Bil and SE-Nor).
+            W3 the numerical inversion comes within 5 cm of the well at two of them at most, and meets
+               R3 at one at most. The soil fits of three stations (r 0.50 - 0.72 between model and
+               sensor) say the uniform column describes these sensors poorly in any window; a shallower
+               well helps the sensitivity, not the model.
+          If W3 turns out as "none within 5 cm": no third selection is made from these five stations.
+          The statement is then that at these ICOS stations a 5 cm sensor and a uniform column do not
+          determine the well, for solver and PINN alike, and the evidence for the method stays the
+          US sites plus (i) on the new soils.
+        (21:54) SECOND SELECTION, steps 1 and 2 done.
+          1 VERIFIED: default run of IT-SR2 (job 15651205) gives a result_records.json identical (diff) to
+            the committed one. Screens: jobs 15651200 - 15651204, each exit=0, no Traceback.
+          2 WINDOWS, copied by jq from output/site_icos/<station>/result_records_shallow.json:
+            FR-Bil WTD_1_1_1+SWC_1_1_1: 251 qualify; 2020-12-12 12:00, well [0.15, 0.38] m, sensor [0.106, 0.153], rain 19.7 mm, Tmin 6.5 C, plateau share 0.0, LE poor 0.0, gaps 0/0 h
+            FR-Bil WTD_2_1_1+SWC_2_1_1: 126 qualify; 2023-11-15 12:00, well [0.17, 0.39] m, sensor [0.105, 0.141], rain 16.2 mm, Tmin 6.4 C, plateau share 0.0, LE poor 0.0, gaps 0/0 h
+            SE-Nor WTD_1_1_1+SWC_2_1_1: 138 qualify; 2019-12-06 12:00, well [0.15, 0.41] m, sensor [0.18, 0.212], rain 55.7 mm, Tmin 3.2 C, plateau share 0.0, LE poor 0.0, gaps 0/0 h
+            SE-Nor WTD_2_1_1+SWC_4_1_1: 176 qualify; 2024-10-10 12:00, well [0.29, 0.76] m, sensor [0.112, 0.149], rain 20.9 mm, Tmin 6.6 C, plateau share 0.0, LE poor 0.0, gaps 0/0 h
+            DK-Sor WTD_18_1_1+SWC_18_1_1: 13 qualify; 2026-02-23 12:00, well [0.17, 0.39] m, sensor [0.11, 0.261], rain 11.5 mm, Tmin 1.6 C, plateau share 0.0, LE poor 0.0, gaps 0/0 h
+            DK-Sor WTD_2_1_1+SWC_2_1_1: 23 qualify; 2025-11-18 12:00, well [0.37, 0.83] m, sensor [0.302, 0.332], rain 29.2 mm, Tmin 4.5 C, plateau share 0.0, LE poor 0.0, gaps 0/0 h
+            DK-Sor WTD_3_1_1+SWC_3_1_1: 18 qualify; 2026-02-22 12:00, well [0.96, 1.225] m, sensor [0.433, 0.487], rain 19.2 mm, Tmin 1 C, plateau share 0.0, LE poor 0.0, gaps 0/0 h
+            DK-Sor WTD_4_1_1+SWC_4_1_1: 52 qualify; 2026-02-23 12:00, well [0.285, 0.57] m, sensor [0.276, 0.327], rain 11.5 mm, Tmin 1.1 C, plateau share 0.0, LE poor 0.0, gaps 0/0 h
+            BE-Dor WTD_1_1_1+SWC_1_1_1: 18 qualify; 2023-04-04 12:00, well [0.18, 0.795] m, sensor [0.441, 0.513], rain 23.7 mm, Tmin 1.1 C, plateau share 0.0, LE poor 0.0, gaps 0/0 h
+            BE-Dor WTD_2_1_1+SWC_2_1_1: 76 qualify; 2024-03-17 12:00, well [0.18, 0.65] m, sensor [0.51, 0.547], rain 14.4 mm, Tmin 5 C, plateau share 0.0, LE poor 0.0, gaps 0/0 h
+            IT-SR2 WTD_2_1_1+SWC_3_1_1: 9 qualify, none free of the first window
+            IT-SR2 WTD_3_1_1+SWC_4_1_1: 21 qualify; 2019-11-01 12:00, well [1.06, 1.44] m, sensor [0.092, 0.167], rain 131 mm, Tmin 13.7 C, plateau share 0.0, LE poor 0.0, gaps 0/0 h
+          STATION WINDOWS BY THE RULE (pair with the smaller deepest level):
+            FR-Bil  WTD_1_1_1 + SWC_1_1_1   2020-12-12 12:00   well 0.15 - 0.38 m    -> bil_dec20
+            SE-Nor  WTD_1_1_1 + SWC_2_1_1   2019-12-06 12:00   well 0.15 - 0.41 m    -> nor_dec19
+            DK-Sor  WTD_18_1_1 + SWC_18_1_1 2026-02-23 12:00   well 0.17 - 0.39 m    -> sor_feb26
+            BE-Dor  WTD_2_1_1 + SWC_2_1_1   2024-03-17 12:00   well 0.18 - 0.65 m    -> dor_mar24
+            IT-SR2  WTD_3_1_1 + SWC_4_1_1   2019-11-01 12:00   well 1.06 - 1.44 m    -> sr2_nov19b
+          AGAINST W1, W2: W1 holds (five of five have a window). W2 holds (deepest level 0.38, 0.41, 0.39,
+            0.65 m at four stations; FR-Bil and SE-Nor above 0.6 m). IT-SR2 does NOT give a shallow window:
+            the only windows free of its first one have the well at 1.06 - 1.44 m, deeper than the first
+            (0.39 - 1.06 m). It stays in by the rule and counts in the denominator (five stations); its
+            steps are CPU only unless the numerical inversion comes within 5 cm, which I do not expect.
+          PLOTS LOOKED AT (result_records_shallow_<well>_<sensor>_test.png of the five windows):
+            FR-Bil  sensor and well fall together over the 11 days and both step up with the rain of
+                    15 and 20 Dec. The sensor carries the well.
+            SE-Nor  well rises 0.41 -> 0.15 m, sensor rises 0.18 -> 0.21 with it (range 0.032, just over S2).
+            BE-Dor  sensor (0.51 - 0.547) falls with the well and both step up on 23 Mar.
+            DK-Sor  sensor near 0.12 except one rain peak to 0.26; while the well falls 0.20 -> 0.39 m the
+                    sensor moves 0.125 -> 0.11. A loam 0.15 - 0.35 m above a water table is close to
+                    saturation; this sensor is not (forest floor / another material, not checked). The pair has
+                    the weakest rain-sensor correlation of the four DK-Sor pairs (0.134 at lag 1 h; the others
+                    0.32 - 0.38 at lag 0; logs/cpu_15651203.out). A uniform column is unlikely to describe it.
+            IT-SR2  sensor answers the rain only; well below 1 m. Same situation as the first selection.
+          EXPECTED PER STATION, written before any data set is built (W3 stays: two at most within 5 cm):
+            within 5 cm most likely at FR-Bil and BE-Dor; SE-Nor open (small sensor range); not at DK-Sor
+            and IT-SR2.
+          PATH RANGE, a bookkeeping error of mine found now. S1 ("well inside 0.15 - 1.45 m") was written
+            for a path range of the inversions of 0.10 - 1.50 m (74 ag), and 74 aj lists that range under
+            "does not change". But hpc/transfer_solver.sh and the PINN runs of the first selection pass no
+            prior.clip_m: they ran with the default 0.20 - 1.50 m (logs: "[ref] coefficients kept in the
+            prior box [-1.821, 1.183]" = 0.20 - 1.50 m with zb_min 0.05). For the first selection the well
+            is inside it everywhere (shallowest level 0.35 - 0.39 m) and solver and PINN have the same
+            range, so those runs stand as they are, with the range stated as 0.20 - 1.50 m.
+            In the second selection the well is ABOVE 0.20 m for part of four windows (to 0.15 m). The
+            range S1 was written for is used there from the start, in both inversions:
+            --set prior.clip_m=[0.10,1.5] (the setting of rfnm1b / rfna1b, 74 ac). Decided before any data
+            set of these windows exists. hpc/transfer_solver.sh has no place for it and three copies of
+            it are running: hpc/transfer_solver_x.sh = the same file plus RSET (further options of the
+            inversions), as hpc/real_full_x.sh was made from hpc/real_full_obs.sh.

@@ -1,0 +1,162 @@
+{
+ "station": "BE-Dor",
+ "record": [
+  "2022-01-01 00:00",
+  "2026-08-31 22:00"
+ ],
+ "box_m": [
+  0.15,
+  1.45
+ ],
+ "window_days": 11,
+ "pairs": {
+  "WTD_1_1_1+SWC_1_1_1": {
+   "well_percentiles_m": [
+    -0.04,
+    0.07,
+    1.37,
+    1.4,
+    1.4
+   ],
+   "sensor_percentiles": [
+    0.1029445,
+    0.18234999999999998,
+    0.41700000000000004,
+    0.52115,
+    0.5710000000000001
+   ],
+   "plateau": 0.6016355500000001,
+   "S5_lag_h": 0,
+   "S5": true,
+   "windows": 1688,
+   "passed": {
+    "S1": 101,
+    "S1+S2": 79,
+    "S1+S2+S3": 40,
+    "all": 18
+   },
+   "S3_fail_reasons": {
+    "rain_below_10mm": 37,
+    "rain_not_measured": 3,
+    "le_missing": 0,
+    "le_poor": 0
+   },
+   "windows_qualifying": 18,
+   "qualifying_by_year": {
+    "2023": 7,
+    "2024": 9,
+    "2025": 1,
+    "2026": 1
+   },
+   "test": {
+    "start": "2023-04-04 12:00",
+    "i": 11004,
+    "well_m": [
+     0.18,
+     0.795
+    ],
+    "well_range_m": 0.615,
+    "sensor": [
+     0.4413500000000001,
+     0.51305
+    ],
+    "plateau_share": 0.0,
+    "rain_mm": 23.68,
+    "le_poor_share": 0.0,
+    "temp_min_C": 1.11,
+    "temp_from": "TS_1_1_1",
+    "well_gap_h": 0,
+    "sensor_gap_h": 0
+   },
+   "earlier": null,
+   "profile": {
+    "SWC_1_4_1": {
+     "depth_m": 0.5,
+     "hours_well_above": 5168,
+     "median_then": 0.42875,
+     "plateau": 0.46114999999999995
+    },
+    "SWC_1_5_1": {
+     "depth_m": 1.0,
+     "hours_well_above": 8268,
+     "median_then": 0.4428,
+     "plateau": 0.46275000000000005
+    }
+   }
+  },
+  "WTD_2_1_1+SWC_2_1_1": {
+   "well_percentiles_m": [
+    0.01,
+    0.14549999999999957,
+    0.9225000000000001,
+    1.4,
+    1.4
+   ],
+   "sensor_percentiles": [
+    0.14859999999999998,
+    0.25705,
+    0.47239999999999993,
+    0.5385,
+    0.5687709999999999
+   ],
+   "plateau": 0.5754821000000002,
+   "S5_lag_h": 0,
+   "S5": true,
+   "windows": 1688,
+   "passed": {
+    "S1": 211,
+    "S1+S2": 102,
+    "S1+S2+S3": 76,
+    "all": 76
+   },
+   "S3_fail_reasons": {
+    "rain_below_10mm": 16,
+    "rain_not_measured": 16,
+    "le_missing": 0,
+    "le_poor": 0
+   },
+   "windows_qualifying": 76,
+   "qualifying_by_year": {
+    "2024": 70,
+    "2026": 6
+   },
+   "test": {
+    "start": "2024-03-17 12:00",
+    "i": 19356,
+    "well_m": [
+     0.18,
+     0.65
+    ],
+    "well_range_m": 0.47000000000000003,
+    "sensor": [
+     0.5099,
+     0.5468
+    ],
+    "plateau_share": 0.0,
+    "rain_mm": 14.370000000000001,
+    "le_poor_share": 0.0,
+    "temp_min_C": 4.965,
+    "temp_from": "TS_2_1_1",
+    "well_gap_h": 0,
+    "sensor_gap_h": 0
+   },
+   "earlier": null,
+   "profile": {
+    "SWC_2_4_1": {
+     "depth_m": 0.5,
+     "hours_well_above": 6433,
+     "median_then": 0.49254999999999993,
+     "plateau": 0.5053
+    },
+    "SWC_2_5_1": {
+     "depth_m": 1.0,
+     "hours_well_above": 10890,
+     "median_then": 0.40954999999999997,
+     "plateau": 0.42085
+    }
+   }
+  }
+ },
+ "rule": "shallow",
+ "avoid": []
+}

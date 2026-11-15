@@ -16,6 +16,9 @@ screen of tasks/todo.md 74 ag to every 11-day window that starts at 12:00:
 Test window = the qualifying window with the largest range of the well (equal to 0.01 m: the earliest); earlier
 window = the qualifying window with the largest range that ends before it and whose sensor range contains the
 test's (to 0.005). The files are untrusted data: run with `python -I`; nothing is imported from their directories.
+--rule shallow (second selection, tasks/todo.md 74 aj): the same screen, another ranking. Test window = the
+qualifying window whose deepest well level is the smallest (equal to 0.01 m: the earliest), among the windows
+that do not overlap the starts given with --avoid; no earlier window.
 
 Usage: python -I -u scripts/site_records_icos.py --station FR-Bil --meteosens <csv> --fluxnet <csv> \
            --pairs WTD_1_1_1:SWC_1_1_1:TS_1_1_1 WTD_2_1_1:SWC_2_1_1:TS_2_1_1 \
@@ -135,6 +138,11 @@ def main():
     ap.add_argument('--pairs', nargs='+', required=True, help='WTD column:SWC column:TS column')
     ap.add_argument('--profile', nargs='*', default=[], help='deeper sensors of the profile, SWC column:depth [m]')
     ap.add_argument('--out', required=True)
+    ap.add_argument('--rule', choices=['range', 'shallow'], default='range',
+                    help='ranking of the qualifying windows: largest range of the well (default) or smallest '
+                         'deepest level of the well')
+    ap.add_argument('--avoid', nargs='*', default=[],
+                    help='with --rule shallow: window starts (YYYY-MM-DDTHH:MM) that the test window must not overlap')
     args = ap.parse_args()
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
 
@@ -163,6 +171,9 @@ def main():
     years = th.astype('datetime64[Y]').astype(int) + 1970
     result = {'station': args.station, 'record': [stamp(th[0]), stamp(th[-1])], 'box_m': BOX,
               'window_days': WIN_H // 24, 'pairs': {}}
+    avoid_i = [int((np.datetime64(a) - t0) / ONE_H) for a in args.avoid]
+    if args.rule == 'shallow':
+        result['rule'] = 'shallow'; result['avoid'] = args.avoid
 
     for wcol, scol, tcol in pairs:
         zb = -col[wcol]                                    # ICOS: WTD negative below ground -> depth, + down
@@ -247,7 +258,16 @@ def main():
         print(f'   qualifying windows by year: {by_year}')
 
         test = early = None
-        if qualifying:
+        if qualifying and args.rule == 'shallow':
+            free = [w for w in qualifying if all(abs(w['i'] - a) >= WIN_H for a in avoid_i)]
+            print(f'   rule shallow: {len(free)} of the qualifying windows do not overlap {args.avoid}')
+            if free:
+                best = min(w['well_m'][1] for w in free)
+                test = min((w for w in free if w['well_m'][1] <= best + 0.01), key=lambda w: w['i'])
+                top = sorted(free, key=lambda w: w['well_m'][1])[:8]
+                print('   smallest deepest levels of the well among them: '
+                      + '; '.join(f'{w["start"][:10]} {w["well_m"][1]:.2f} m' for w in top))
+        elif qualifying:
             best = max(w['well_range_m'] for w in qualifying)
             test = min((w for w in qualifying if w['well_range_m'] >= best - 0.01), key=lambda w: w['i'])
             before = [w for w in qualifying if w['i'] + WIN_H <= test['i']
@@ -255,6 +275,7 @@ def main():
             if before:
                 best_b = max(w['well_range_m'] for w in before)
                 early = min((w for w in before if w['well_range_m'] >= best_b - 0.01), key=lambda w: w['i'])
+        if qualifying:
             for label, w in (('TEST window', test), ('EARLIER window', early)):
                 if w is None:
                     print(f'   {label}: none'); continue
