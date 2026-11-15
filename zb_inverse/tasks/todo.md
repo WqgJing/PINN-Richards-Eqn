@@ -8263,3 +8263,15 @@ Real-case spec (first slice):
           16.9 - 18.1 %, IT-SR2 (n 2.78, alpha 8.0; rfsr21c_w0..3) 13.3 - 14.0 %: the same order, as N1 put it.
           Next by the rules: rfnor2c goes through inversion and four refinement rounds by itself; losses of
           every stage before any score.
+        (12:02) GITHUB CONTRIBUTORS BOX: the 600-minute watch has ended without the number dropping. Lines
+          written by the commands that printed them (the watcher's last line, a reading of the same page now,
+          GitHub's public contributors API, attribution lines on origin/master, remote refs):
+            watcher: not clean after 600 min at 12:02: number 2, listed: WqgJing (older fragment: WqgJing )
+            page now 12:02:51: number=2 listed=[WqgJing] older fragment=[WqgJing ]
+            public API: User WqgJing contributions=190
+            attribution lines on origin/master: 0; remote refs: HEAD refs/heads/master 
+          READ: no commit, branch or API list names a second contributor; the list on the page shows one
+          account. Only the counter next to "Contributors" still says 2. That counter is GitHub's own cached
+          value; the pushes made since the history was cleaned have not changed it. Routes left, each needing the owner's yes:
+          a request to GitHub Support to recount (the owner sends it), or waiting for GitHub's own refresh.
+          The watcher is started again for another 600 minutes.
