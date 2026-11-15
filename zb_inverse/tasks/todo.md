@@ -6114,3 +6114,36 @@ Real-case spec (first slice):
         PINN LAUNCHED (18:46): setsid nohup hpc/real_full_x.sh rfbil1 output/real_bil_oct23_own "[0.05,0.05]" ""
           > logs/full_rfbil1.log (final directory runs/rfbil1dc_it4). Read only after the numerical lines
           of logs/transfer_bil_oct23.log are recorded.
+        (19:14) SE-Nor, 30 Oct - 10 Nov 2023 (window 2023-10-30T12:00 + 11 d; rain 93.6 mm, ET 0.5 mm, f_T
+        0.55; well 0.36 - 1.27 m, sensor 0.194 - 0.231, both from real_summary.json), output/soil_nor_oct23,
+        jobs 15633595 - 15633598, all exit=0, no Traceback, all ended by xtol; 170 - 217 min, 97 - 109 solves:
+          start        misfit    r      theta_s  theta_r  alpha   n      Ks         on bound (flag)
+          0 own soil   0.004585  0.720  0.3000   0.1648   16.37   1.474  9.997e-4   theta_s
+          1 sand       0.004585  0.720  0.3000   0.1649   16.37   1.474  9.994e-4   (theta_s, flag not set)
+          2 sandy loam = start 0 (the station's class is sandy loam: one start, same numbers)
+          3 static     0.004585  0.719  0.3000   0.1652   16.36   1.476  9.997e-4   theta_s   <- the soil
+          bias 0.00004, max 0.023. Three different starts, not four.
+          C1 (<= 0.005): MET here, 0.0046 (13 % of the sensor's range of 0.037; r 0.72).
+          C3: fourth data set whose starts agree in misfit, and the second where they agree in the
+            parameters as well (all at theta_s = 0.30, its lower bound, and Ks = 1e-3, its upper bound).
+            C3 is wrong in both halves by now: 4 of 4 data sets read agree in misfit.
+          (C2 is about the two sands; this till ends in the corner C2 names, as US-HB2 did.)
+          FIGURE (start3.png, looked at): the model follows the rain pulses of days 0.4, 1.5, 4 - 5, 8.3, 9,
+            10.4 in time; it drains faster than the sensor after days 0.5 and 2 (0.01 low on days 2 - 3).
+        NETWORK FORM, by the rule written in 74 ag before any fit ("Ks near 1e-3 m/s: model.departure=
+          conductive, not otherwise"): SE-Nor Ks = 1e-3 -> conductive (tag rfnor1c). DK-Sor (4.0e-4) and
+          FR-Bil (6.4e-5) run in the additive form. "Near" was not given a number; so that the losses and
+          not my reading of the word decide, WRITTEN NOW, BEFORE ANY METRIC OF rfsor1 / rfbil1 IS READ:
+            a wide-stage network whose held-out flux loss has fallen by less than a factor 10 from its
+            step-0 value has not learned the surface flux (additive at Ks 1e-3, rfnc1t: factor 1.0;
+            additive at an ordinary soil, rfnc1: 2000; conductive at Ks 1e-3, rfnc1tc: 650 - 790).
+            If that is the case for the four wide networks of a run, the run is stopped and repeated in
+            the conductive form (tag + c), and the row says so.
+        NEXT: RT=08:00:00 PYI=-I hpc/transfer_solver.sh nor oct23 "[0.05,0.05]"  (8 h limit as at US-HB2,
+          the other Ks = 1e-3 soil: 10 - 25 min per iteration there).
+          EXPECTED, written before it is launched:
+            T5 the numerical inversion misses R3 (guess 5 - 30 cm): sensor range 0.037 with 0.0046 unfitted,
+               and the deeper sensors of this profile are not saturated when the well stands above them
+               (74 ag). Up to a few % of the solver's steps may not converge (US-NC2 second soil: 3 %).
+          DECISION RULE: as at the other stations; PINN whatever T5 gives:
+            hpc/real_full_x.sh rfnor1c output/real_nor_oct23_own "[0.05,0.05]" "--set model.departure=conductive".
