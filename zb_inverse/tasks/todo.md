@@ -7172,3 +7172,208 @@ Real-case spec (first slice):
           Waiter restarted (04:42). Queue: second-selection numerical inversions (FR-Bil, SE-Nor, DK-Sor,
           IT-SR2), BE-Dor PINN (outside the gate), DK-Sor / IT-SR2 / FR-Bil first-window PINNs in their value
           correction, step checks at SE-Nor, DK-Sor, IT-SR2.
+        (06:50) FIRST SELECTION, IT-SR2: THE PINN RUN rfsr21c HAS ENDED (event rfsr21c_driver_gone, 06:48).
+          logs/dc_rfsr21cdc.log (read with the scoring part cut, lessons nineteenth): "converged at it 3"; "dc loop rfsr21cdc done at Sun Nov 15 06:48:10 EST 2026".
+          Final directory: runs/rfsr21cdc_it3. Jobs (ids from logs/pipe_rfsr21c.log and logs/dc_rfsr21cdc.log, checked in this
+          command): 26 training jobs, 26 with an exit=0 line, 0 Traceback lines; 8 inversion jobs, 8 with an
+          exit=0 line, 0 Traceback lines.
+          value-correction loop, step in posterior sigma and forward offset (theta rms) per iteration:
+            it 1: step/sigma max 1.46, fwd offset rms 0.0034
+            it 2: step/sigma max 0.48, fwd offset rms 0.0027
+            it 3: step/sigma max 0.14, fwd offset rms 0.0028
+          HELD-OUT LOSSES AT THE END OF EACH STAGE (last line of metrics.csv, printed by this command; wide stage
+          recorded above):
+            rfsr21c_r1_m0   step 18000: PDE 71.04  flux 3.121   (17.7 % of node rms)
+            rfsr21c_r1_m1   step 18000: PDE 52.49  flux 3.202   (17.9 % of node rms)
+            rfsr21c_r1_m2   step 18000: PDE 33.82  flux 3.005   (17.3 % of node rms)
+            rfsr21c_r1_m3   step 18000: PDE 380.75  flux 2.916   (17.1 % of node rms)
+            rfsr21c_r2_m0   step 18000: PDE 278.24  flux 6.761   (26.0 % of node rms)
+            rfsr21c_r2_m1   step 18000: PDE 323.51  flux 5.912   (24.3 % of node rms)
+            rfsr21c_r2_m2   step 18000: PDE 932.80  flux 7.599   (27.6 % of node rms)
+            rfsr21c_r2_m3   step 18000: PDE 987.95  flux 6.327   (25.2 % of node rms)
+            rfsr21c_r3_m0   step 18000: PDE 190.94  flux 5.570   (23.6 % of node rms)
+            rfsr21c_r3_m1   step 18000: PDE 343.62  flux 6.000   (24.5 % of node rms)
+            rfsr21c_r3_m2   step 18000: PDE 1089.57  flux 6.233   (25.0 % of node rms)
+            rfsr21c_r3_m3   step 18000: PDE 557.26  flux 5.484   (23.4 % of node rms)
+            rfsr21c_r4_m0   step 18000: PDE 185717.51  flux 7.238   (26.9 % of node rms)
+            rfsr21c_r4_m1   step 18000: PDE 207.98  flux 9.891   (31.5 % of node rms)
+            rfsr21c_r4_m2   step 18000: PDE 786.85  flux 13.039   (36.1 % of node rms)
+            rfsr21c_r4_m3   step 18000: PDE 1202.78  flux 61.009   (78.1 % of node rms)
+            rfsr21cdc_f1_m0   step 28000: PDE 44.25  flux 1.506   (12.3 % of node rms)
+            rfsr21cdc_f1_m1   step 28000: PDE 28.18  flux 1.393   (11.8 % of node rms)
+            rfsr21cdc_f2_m0   step 28000: PDE 2.32  flux 1.871   (13.7 % of node rms)
+            rfsr21cdc_f2_m1   step 28000: PDE 2.24  flux 2.379   (15.4 % of node rms)
+            rfsr21cdc_f3_m0   step 28000: PDE 2.94  flux 1.715   (13.1 % of node rms)
+            rfsr21cdc_f3_m1   step 28000: PDE 1.87  flux 1.562   (12.5 % of node rms)
+          median of val_pde over the last six held-out lines of each round-4 member (one fresh set per block):
+            rfsr21c_r4_m0   median 7073.4, smallest 501.5, largest 185717.5
+            rfsr21c_r4_m1   median 229.6, smallest 200.6, largest 861.9
+            rfsr21c_r4_m2   median 2368.5, smallest 786.9, largest 8208.4
+            rfsr21c_r4_m3   median 728.0, smallest 514.9, largest 1262.7
+          READ OF THE LOSSES (mine, before any score job; the uncut driver log has not been opened): the
+          refinement rounds at IT-SR2 are WORSE than at SE-Nor. Round 4 ends with a held-out PDE loss of 208 to
+          185718 (median over the last six blocks 230 - 7073; rfnc1tc: 5 - 25) and a flux loss of 27 - 78 % of
+          the node rms (round 1: 17 - 18 %; rfnc1tc: 7 %): the flux loss ROSE over the rounds. The forward
+          networks of the value correction end at PDE 1.9 - 2.9 and flux 12.5 - 15 % (rfnc1tc 4 - 5 %; this
+          run's wide stage 13.6 %), and the offset between operator and forward network at the estimate is
+          0.0027 - 0.0034 in theta (SE-Nor 0.0010 - 0.0013; the sensor sigma is 0.005). The operator around the
+          estimate is poor at this station; the loop "converged" in the sense of its own step rule only.
+          Second station in a row where the wide stage passes and the refinement does not. HYPOTHESIS (to be
+          checked from files, not acted on yet): where the sensor does not determine the path, the posterior
+          covariance that the refinement draws from is as wide as the path range, the draws are clipped to the
+          box, and the refinement set is rougher than the smooth prior of the wide stage (steep paths between
+          the bounds), which the networks do not fit in 18000 steps. Check: sd per coefficient of the
+          refinement distribution (local_center.npz of inv0..4) at SE-Nor, IT-SR2 and US-NC2 (rfnc1tc).
+            H1 at SE-Nor and IT-SR2 at least three coefficients have a refinement sd above 0.5 (coefficient
+               units, about metres; the box is 3.0 wide); at US-NC2 (rfnc1tc) none has.
+          REFERENCE (03:21 - 03:23 above): numerical 1 h, three starts one estimate (cost 2.991, 40.2 cm rms from
+          the well, r 0.11, posterior sigma 8.3 cm), the 1.0 m start a second end point (cost 3.085, 39.4 cm,
+          r 0.50, sigma 52.8 cm), 30.5 cm rms apart; 24.5 - 27.1 % of the solver's steps not converged.
+          EXPECTED, written before the score jobs:
+            SR1 (R1) the PINN's starts do NOT end in one estimate (spread above 0.2 cm): 60 %.
+            SR2 (R2) the PINN is not within 1 cm of either numerical end point; guess 10 - 40 cm rms from the
+                nearer one.
+            SR3 (R3) not met: 30 - 50 cm rms from the well, r below 0.6.
+          RULE (17:58, unchanged): the row says "water table not determined by the sensor at this station" for
+          solver and PINN alike; the PINN is compared with both end points. Added, as at SE-Nor: the solver's
+          own cost of the PINN's path (numerical inversion started at the PINN's estimate, 1 h steps, ONE
+          iteration only: an iteration takes hours here), to set next to 2.991 and 3.085.
+          SCORE JOBS: score_real.py -> output/real_sr2_nov19_own/result_rfsr21c; referee_step_check.py --pinn ->
+          output/real_sr2_nov19_own/inversion_pinn; fem_referee.py --start file:... --max_iter 1 ->
+          output/referee/sr2_own_nov19_spinn.
+        (06:59) IT-SR2, SCORE OF THE PINN ESTIMATE runs/rfsr21cdc_it3 (jobs 15668343: "exit=0 at Sun Nov 15 06:50:46 EST 2026"; 15668344: "exit=0 at Sun Nov 15 06:50:41 EST 2026"; 0 Traceback
+          lines in the two logs; output/real_sr2_nov19_own/result_rfsr21c.json and inversion_pinn.json, copied by jq in this command):
+            window 2019-11-13T12:00, 11.0 d, 265 h, sensor below saturation in 265 h, well between 39 and 106 cm
+            PINN vs well: rmse 22.65 cm, bias -8.06 cm, max 62.5 cm, r 0.435; starts spread (max) 112.069 cm; posterior sigma (median) 8.01 cm; sensor misfit of its own network 0.00942
+            numerical 1 h, lowest cost (output/referee/sr2_own_nov19_s1) vs well: rmse 40.23 cm, bias 6.47 cm, max 88.17 cm, r 0.105; sensor misfit 0.00865
+            hydrostatic reading of the sensor vs well: rmse 152638 cm, bias 16233 cm; solver with the well as water table vs sensor: 0.00927
+            PINN minus numerical 1 h (hydrostatic): rms 31.61 cm, bias -14.53 cm, largest 95.07 cm at day 5.96; by day (cm) 3.2, 2.3, 0.8, 0.8, 12.9, 74.4, 72.2, 9.6, 0.6, 0.4, 0.3
+            PINN minus numerical 1 h (hydrostatic_flat): rms 31.61 cm, bias -14.53 cm, largest 95.07 cm at day 5.96; by day (cm) 3.2, 2.2, 0.8, 0.8, 12.9, 74.4, 72.2, 9.6, 0.6, 0.4, 0.3
+            PINN minus numerical 1 h (constant:1.0): rms 44.48 cm, bias -26.29 cm, largest 99.46 cm at day 1.83; by day (cm) 14.7, 82, 60.7, 9.9, 14.8, 74.8, 72.2, 9.6, 0.6, 0.4, 0.3
+            PINN minus numerical 1 h (constant:0.3): rms 31.61 cm, bias -14.53 cm, largest 95.07 cm at day 5.96; by day (cm) 3.2, 2.2, 0.8, 0.8, 12.9, 74.4, 72.2, 9.6, 0.6, 0.4, 0.3
+            PINN: posterior sigma by day (cm) 24.7, 10.5, 4.5, 8.4, 11.3, 15.3, 13.2, 11.5, 2.6, 5.9, 1.4; from the well by day (cm) 10.8, 44.9, 41, 24.1, 18.8, 6.2, 18.8, 18, 8, 11.4, 2.1
+            numerical 1 h (hydrostatic): posterior sigma by day (cm) 131.8, 9.5, 4, 7.2, 21.3, 923.2, 978.3, 25.6, 2, 4.9, 1.3; from the well by day (cm) 10.7, 43.6, 40.3, 24.7, 23.2, 74, 81.7, 27.2, 8.1, 11.3, 1.9
+            numerical 1 h (hydrostatic_flat): posterior sigma by day (cm) 134.4, 9.5, 4, 7.2, 21.3, 922.5, 977.5, 25.6, 2, 4.9, 1.3; from the well by day (cm) 10.7, 43.6, 40.3, 24.7, 23.2, 74, 81.7, 27.2, 8.1, 11.3, 1.9
+            numerical 1 h (constant:1.0): posterior sigma by day (cm) 310.8, 1093.8, 154.9, 4.6, 25.6, 961.8, 1021, 26.6, 2, 4.9, 1.3; from the well by day (cm) 19.3, 38.9, 21.2, 32.8, 23.8, 74.4, 81.7, 27.2, 8.1, 11.3, 1.9
+            numerical 1 h (constant:0.3): posterior sigma by day (cm) 135.3, 9.6, 4, 7.2, 21.3, 922.7, 977.8, 25.6, 2, 4.9, 1.3; from the well by day (cm) 10.6, 43.6, 40.3, 24.7, 23.2, 74, 81.7, 27.2, 8.1, 11.3, 1.9
+            (the hydrostatic reading is not a usable number at this station: where the sensor is drier than a hydrostatic profile above
+             the deepest table allows, the reading runs away; it is clipped to 1.6 m in the figure only)
+            starts of the PINN inversion (runs/rfsr21cdc_it3/summary.json): previous cost 3.5472, 22.64 cm from the well; hydrostatic cost 3.5472, 22.65 cm from the well; hydrostatic_flat cost 3.5472, 22.65 cm from the well; constant:1.0 cost 3.8293, 42.3 cm from the well; constant:0.3 cost 3.5472, 22.65 cm from the well
+            numerical 1 h s0 (hydrostatic): cost 2.9912, sensor misfit 0.008648, steps not converged 24.9 %
+            numerical 1 h s1 (hydrostatic_flat): cost 2.9912, sensor misfit 0.008648, steps not converged 27.1 %
+            numerical 1 h s2 (constant:1.0): cost 3.085, sensor misfit 0.008782, steps not converged 24.5 %
+            numerical 1 h s3 (constant:0.3): cost 2.9912, sensor misfit 0.008648, steps not converged 25.7 %
+            THE SOLVER'S OWN COST OF THE PINN'S PATH (job 15668346, running; first line of logs/cpu_15668346.out):
+              [ref] start file:runs/rfsr21cdc_it3/predictions.npz: cost 3.0085e+00, zb RMSE 0.2265 m
+              -> misfit sqrt(cost) x 0.005 = 0.008673
+          READING against SR1-SR3 (written 06:50, before these files were opened):
+            SR1 (the starts do NOT end in one estimate) HOLDS. Four of the five PINN starts end in one path (same cost to 8 digits, same
+              distance from the well to 0.01 cm); the 1.0 m start stops at a second end point with a higher cost, which leaves the
+              others from day 9 on and ends on the 1.50 m bound (figure). The numerical inversion has the same structure (three
+              starts one path, the 1.0 m start a second end point, there on days 0-3). R1 is not met at this station by the PINN and
+              not by the solver.
+            SR2 (not within 1 cm of either numerical end point; guess 10-40 cm from the nearer) HOLDS: 31.61 cm from the three-start
+              estimate, 44.48 cm from the 1.0 m end point. By day, PINN minus the three-start estimate is 0.3-3.2 cm on days 0-3
+              and 8-10 and 9.6-74.4 cm on days 4-7. Days 5-6 are the days on which the numerical estimate lies on the 1.50 m bound
+              with a posterior sigma of 9 m (not determined at all); the PINN's path stays between about 0.55 and 0.95 m there
+              (figure; its own sigma 13-15 cm). R2 NOT met as written.
+            SR3 (30-50 cm from the well, r < 0.6): r holds; the distance (22.65 cm) is smaller than my guess, because I took the
+              numerical estimate's excursion to the bound on days 5-6 as the PINN's too. R3 not met by either estimate.
+            Whose error on days 4-7? The solver's own cost of the PINN's path (line above) lies BETWEEN the costs of the solver's two
+              end points and within 0.6 % of the lower one (a difference of 3e-5 in soil moisture; 24-27 % of the solver's steps
+              do not converge at this station). For the solver the PINN's path on days 4-7 fits the sensor as well as its own
+              path on the bound: a flat direction of the misfit, not an error of one of the two. (The run continues with one
+              iteration from the PINN's path; event num5_sr2_1h.)
+            What the figure shows that the numbers do not: on days 0-4 and 8-11 PINN and solver draw the same curve, and that
+              curve rises and falls by 30-70 cm with every wetting of the sensor, while the well rises smoothly from 1.06 to
+              0.40 m. The model reads each rain pulse at 5 cm as a rise of the water table: an error of model/forcing/soil at
+              this station, the same for solver and PINN. The solver run WITH THE WELL as its water table fits the sensor to
+              0.00927, the two estimates fit it to 0.00865 (solver) and 0.00942 (PINN): the sensor cannot tell the well's path
+              from the estimates.
+          ROW FOR THE README (IT-SR2, first window), as decided at 03:23: "water table not determined by the sensor at this station",
+            for solver and PINN alike; PINN compared with every numerical end point, by day, with the posterior sigma by day; the
+            refinement losses of 06:50 next to it. Not a station that shows statement (ii); it shows statement (i) on the days
+            the sensor determines (0-3, 8-10: 0.3-3.2 cm) and its limit on the others.
+        (06:59) H1 CHECKED (diag_localcov, job 15668350: "exit=0 at Sun Nov 15 06:50:41 EST 2026", 0 Traceback lines; output/diag/local_cov_refinement.json, copied by jq
+          here). sd per spline coefficient of the distribution the NEXT refinement round draws its paths from (coefficient units,
+          about metres; the box of the inversion is 3.0 wide):
+            rfnc1tc_inv0: above 0.5: 2 of 14; first 1.82, second 0.35, third 0.22; median 0.19; coefficients 4-11: 0.19 0.19 0.18 0.17 0.17 0.17 0.17 0.18; last 6.59
+            rfnc1tc_inv1: above 0.5: 3 of 14; first 1.77, second 0.36, third 0.22; median 0.2; coefficients 4-11: 0.2 0.2 0.18 0.17 0.18 0.17 0.18 0.2; last 4.62
+            rfnc1tc_inv2: above 0.5: 3 of 14; first 1.81, second 0.36, third 0.22; median 0.2; coefficients 4-11: 0.19 0.19 0.18 0.17 0.18 0.18 0.19 0.21; last 5.07
+            rfnc1tc_inv3: above 0.5: 3 of 14; first 1.88, second 0.37, third 0.22; median 0.2; coefficients 4-11: 0.19 0.19 0.18 0.17 0.18 0.18 0.19 0.21; last 5.41
+            rfnc1tc_inv4: above 0.5: 3 of 14; first 1.86, second 0.37, third 0.22; median 0.2; coefficients 4-11: 0.19 0.19 0.18 0.17 0.18 0.18 0.19 0.21; last 6.12
+            rfnor1c_inv0: above 0.5: 13 of 14; first 11.36, second 3.23, third 2.64; median 0.6; coefficients 4-11: 0.72 0.54 0.54 0.58 0.49 0.56 0.6 0.53; last 7.24
+            rfnor1c_inv1: above 0.5: 14 of 14; first 65.09, second 16.54, third 2.24; median 0.66; coefficients 4-11: 0.78 0.64 0.61 0.61 0.53 0.65 0.66 0.57; last 8.17
+            rfnor1c_inv2: above 0.5: 14 of 14; first 30.19, second 6.47, third 3.79; median 0.79; coefficients 4-11: 1.07 0.83 0.68 0.65 0.57 0.76 0.73 0.6; last 7.28
+            rfnor1c_inv3: above 0.5: 14 of 14; first 27.54, second 6.14, third 3.52; median 0.81; coefficients 4-11: 1.05 0.86 0.7 0.64 0.55 0.75 0.74 0.6; last 7.25
+            rfnor1c_inv4: above 0.5: 14 of 14; first 27.67, second 6.29, third 3.4; median 0.76; coefficients 4-11: 1.02 0.79 0.68 0.64 0.56 0.74 0.73 0.59; last 7.37
+            rfsr21c_inv0: above 0.5: 14 of 14; first 15.88, second 3.18, third 2.66; median 1.39; coefficients 4-11: 1.14 1.58 0.98 2.26 1.19 1.79 0.73 0.82; last 3.99
+            rfsr21c_inv1: above 0.5: 14 of 14; first 30.15, second 5.83, third 2.51; median 1.65; coefficients 4-11: 1.14 1.61 1.15 2.78 1.7 2.04 0.95 1.08; last 4.18
+            rfsr21c_inv2: above 0.5: 14 of 14; first 29.43, second 6.01, third 2.34; median 1.6; coefficients 4-11: 1.12 1.64 1.14 2.74 1.55 2.1 1 1.18; last 4.04
+            rfsr21c_inv3: above 0.5: 14 of 14; first 40.12, second 7.52, third 2.59; median 1.93; coefficients 4-11: 1.24 1.84 1.28 3.14 2.01 2.36 1.1 1.31; last 4.38
+            rfsr21c_inv4: above 0.5: 14 of 14; first 30.77, second 6.3, third 3.09; median 2.17; coefficients 4-11: 1.43 2.13 1.81 4.1 2.22 2.58 1.2 1.52; last 4.39
+          operator against the forward networks at the estimate (value-correction loop, logs read with the scoring part cut):
+            rfnc1tc it 1: step/sigma 0.37, fwd offset rms 0.00044
+            rfnc1tc it 2: step/sigma 0.26, fwd offset rms 0.00077
+            rfnc1tc it 3: step/sigma 0.26, fwd offset rms 0.00037
+            rfnc1tc it 4: step/sigma 0.23, fwd offset rms 0.00068
+            rfnor1c it 1: step/sigma 0.79, fwd offset rms 0.00134
+            rfnor1c it 2: step/sigma 0.59, fwd offset rms 0.00092
+            rfnor1c it 3: step/sigma 0.15, fwd offset rms 0.00100
+            rfsr21c it 1: step/sigma 1.46, fwd offset rms 0.00337
+            rfsr21c it 2: step/sigma 0.48, fwd offset rms 0.00267
+            rfsr21c it 3: step/sigma 0.14, fwd offset rms 0.00275
+          Against H1 as written at 06:50: "SE-Nor and IT-SR2: at least three coefficients above 0.5" HOLDS (13-14 of 14);
+            "US-NC2: none" does NOT hold as written (2-3: the two edge coefficients and from round 1 the last but one). The
+            scales are as expected: interior coefficients 0.17-0.21 at US-NC2, 0.5-1.1 at SE-Nor, 0.7-4.1 at IT-SR2; first
+            coefficient 1.8 at US-NC2, 11-65 at SE-Nor, 16-40 at IT-SR2.
+          AND THE CODE (read now: src/zbinv/parametric.py, LocalGaussian.sample lines 81-83 and make_c_dist 'local_file' lines
+            267-270; scripts/param_invert.py lines 274-281): the draws are NOT clipped. My H1 text said "draws are clipped to
+            the box"; I wrote that without reading the sampling code (lessons twentieth). The refinement draws
+            c ~ N(estimate, 9 x posterior + floor + step^2) and nothing bounds them. Where the sensor leaves a direction
+            undetermined the posterior of the misfit alone is as wide as that direction is flat, so 70 % of the refinement
+            paths at SE-Nor / IT-SR2 have coefficients tens of units outside the box: water tables tens of metres deep (or at
+            zb_min) on the first days, 0.5-4 m of scatter per knot elsewhere. The inversion (--box) projects every iterate
+            onto the box and so never evaluates the operator there, and the wide stage never drew such paths. The refinement
+            networks spend most of their paths outside the domain of the inverse problem -> the losses of 04:34 / 06:50. At
+            US-NC2 only the edge coefficients are wide and the refinement was fine (PDE 5-25, flux 7 %).
+            Not affected: the forward networks of the value-correction loop (mode=point, nothing sampled; FJ=0, so the
+            covariance is not used), the inversion, the posterior.
+          FIX (smallest; no new number): the refinement's local draws are projected onto the box of the path prior, the same
+            projection the inversion applies to its iterates, so that the operator is trained where the inversion can evaluate
+            it. Config switch sampling.local_box, default false: every earlier run is reproduced as it was, and the US-NC2 /
+            US-HB2 results stand as run.
+            What the fix does NOT do: inside the box, coefficients the sensor does not determine are still drawn mostly at the
+            two bounds (rough paths, 0.1 or 0.2 m <-> 1.5 m within a day). Those are paths the inversion can visit (the
+            numerical estimate at IT-SR2 lies on the 1.50 m bound on days 5-6), so they belong to the domain; whether a
+            network fits them in 18000 steps is what the test shows. A refinement distribution that also carries the
+            smoothness of the path prior would change what the estimate means where the sensor is silent (the inversion has
+            no smoothness term) - not done on a guess.
+          TEST (baseline against changed, one switch): SE-Nor first window again from the SAME wide stage (runs/rfnor1e_w{k} are
+            links to runs/rfnor1c_w{k}; the driver repeats inversion 0), tag rfnor1e, options of rfnor1c
+            ('--set model.departure=conductive') + '--set sampling.local_box=true'.
+          MEASURES (fixed now, before the run). The held-out loss of a refinement network is taken on draws of its own
+            distribution, so with the box it falls partly by construction: it is reported, it is NOT the evidence. Evidence
+            is what does not depend on the sampling:
+              M1 the operator against the forward networks at the estimate (fwd offset rms above: rfnor1c 0.0009-0.0013,
+                 rfnc1tc 0.0004-0.0008),
+              M2 the first step of the value-correction loop over the posterior sigma (rfnor1c 0.79, rfnc1tc 0.37).
+          EXPECTATIONS (before the run):
+              E1 unit test: with the switch every local draw lies in the box; without it the draws are the same numbers as
+                 before (same generator). Must hold, else stop.
+              E2 inversion 0 of rfnor1e reproduces runs/rfnor1c_inv0 (same members, CPU): centre within 1e-4. Must hold.
+              E3 held-out losses of rounds 2-4: PDE below 150 in all four networks (rfnor1c 139-411829), flux at most 15 % of
+                 node rms (rfnor1c 18-47 %). 60 %.
+              E4 M1 below 0.0010 in every iteration and M2 below 0.79. 55 %.
+              E5 (score, read only after the losses are in the notes): the estimate on days 2-10 within 1.5 cm rms of
+                 rfnor1c's, days 0-1 free to move by tens of cm (not determined by the sensor). 80 %. The SE-Nor verdict does
+                 not ride on this run.
+          RULE: E4 holds (the operator is closer to the forward networks at the estimate) -> sampling.local_box=true is the
+            setting of every new PINN run (second selection); runs made without it are reported as run. E4 fails with E3
+            holding -> the box removes the wild paths but the operator at the estimate is not better: keep the switch (it
+            cannot be right to train outside the domain) and look at the roughness inside the box next, plan first. E3 and
+            E4 both fail -> the box is not the cause; back to the losses by stage before anything else is launched.
+        (07:02) switch implemented (src/zbinv/parametric.py: LocalGaussian(box=...), make_c_dist reads sampling.local_box; default off).
+          E1 HOLDS: tests job 15668649, 64 PASS, "0 failed" (the earlier 62 and the two new ones, tests/test_parametric.py
+          test_local_draws_projected_onto_the_prior_box and test_local_box_switch_is_off_by_default).
+          rfnor1e launched (logs/full_rfnor1e.log; runs/rfnor1e_w{0..3} are links to runs/rfnor1c_w{0..3}); the waiter knows the tag.
