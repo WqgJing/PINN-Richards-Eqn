@@ -6863,3 +6863,66 @@ Real-case spec (first slice):
           Also (waiter, 02:15): the first of the four IT-SR2 first-window numerical inversions has ended
           (sr2_own_nov19_s0; its twin job cancelled, 0 left in the queue). Its line is recorded with the other
           three when they end.
+        (02:47) DK-Sor, FIRST SELECTION (8 - 19 Dec 2024, in-sample soil): THE FOUR NUMERICAL INVERSIONS HAVE ENDED
+          (jobs 15650024 - 15650027, each exit=0 in logs/cpu_<id>.out, no Traceback, 4 h 21 min - 5 h 32 min;
+          output/referee/sor_own_dec24_s?/summary.json, copied by jq in this command; REFERENCE lines only, no PINN
+          estimate has been read at this station):
+            sor_own_dec24_s0  hydrostatic: cost 0.22829, from the well 40.84 cm rms, bias 10.89 cm, max 80.24 cm, coefficients on the bound [0,4,5,6,7,12,13], 31 iterations, sensor misfit 0.0024, posterior sigma (median) 16.05 cm, 259 min
+            sor_own_dec24_s1  hydrostatic_flat: cost 0.228292, from the well 40.83 cm rms, bias 10.88 cm, max 80.24 cm, coefficients on the bound [0,4,5,6,7,12,13], 35 iterations, sensor misfit 0.0024, posterior sigma (median) 16.05 cm, 282 min
+            sor_own_dec24_s2  constant:1.0: cost 0.22829, from the well 40.88 cm rms, bias 10.93 cm, max 80.24 cm, coefficients on the bound [0,4,5,6,7,12,13], 40 iterations, sensor misfit 0.0024, posterior sigma (median) 16.04 cm, 330 min
+            sor_own_dec24_s3  constant:0.3: cost 0.228291, from the well 40.83 cm rms, bias 10.89 cm, max 80.24 cm, coefficients on the bound [0,4,5,6,7,12,13], 40 iterations, sensor misfit 0.0024, posterior sigma (median) 16.05 cm, 329 min
+          solver steps not converged (largest share over the solves of an inversion), per start: 9.4 %, 9.8 %, 9.4 %, 9.8 %
+          Starts 2 and 3 stopped at the cap of 40 iterations, not by the stop rule; their cost equals that of
+          starts 0 and 1 (31 and 35 iterations) to the 5th digit.
+          AGAINST T3, written before the launch (17:58: misses R3, my guess 10 - 40 cm from the well; coefficients
+          on the bound of the path prior; R1 may fail):
+            - misses R3: HOLDS. 40.8 cm rms from the well, 0.8 cm above the top of my guess; bias +10.9 cm,
+              largest error 80.2 cm.
+            - coefficients on the bound: HOLDS. 7 of 14 (0, 4 - 7, 12, 13), the same seven from every start.
+            - R1 (starts within 0.2 cm): NOT YET KNOWN. The four are 40.83 - 40.88 cm from the well with the same
+              largest error and the same bound set; that is not the spread between the paths. Measured by (a).
+          WHAT IT MEANS FOR THE DK-Sor ROW: with the fitted soil the 5 cm sensor does not carry the water table
+          here (posterior sigma 16 cm, half of the path on the box), as the soil fit already showed (17:58). The
+          numerical inversion of the same model misses the well by 41 cm, so this row cannot show statement (ii)
+          (estimate = well) whatever the PINN gives; it can show statement (i) (PINN = numerical inversion).
+          Third first-selection station where the numerical inversion misses R3 (SE-Nor 11.5 cm, FR-Bil 53 - 71 cm;
+          IT-SR2 still running).
+          NEXT, reference only:
+            (a) the spread between the four starts' paths: scripts/referee_step_check.py without --pinn on the four
+                directories -> output/real_sor_dec24_own/inversion_starts_ref.json (untracked, as 74 ad).
+                If any pair differs by more than 0.2 cm rms, R1 fails for the numerical inversion and the PINN is
+                compared with every start (rule of 17:58).
+            (b) step check as at SE-Nor (22:29), because 9 - 10 % of the solver's steps did not converge in the
+                worst solve: the same inversion with 1/4 h steps (--dt_hours 0.25), start hydrostatic (fewest
+                iterations at 1 h), same data set, soil, box and tolerance -> output/referee/sor_own_dec24_dt025_s0.
+                2 cpus, 8G. TIME, from the 1 h run of this start: 15552 s for 31 iterations = 502 s each; four
+                times that is 2007 s each, 17.3 h for 31 iterations and 22.3 h for the cap of 40. Limit 36 h
+                (sbatch --test-only accepts it on cpu-small).
+                EXPECTED, written before submission:
+                  QS1 with 1/4 h steps the worst solve has under 1 % of its steps not converged (the SE-Nor
+                      answer to Q1 is not in yet).
+                  QS2 the 1/4 h estimate is 1 - 8 cm rms from the 1 h estimate (wider than my guess at SE-Nor:
+                      the sensor leaves 16 cm of posterior sigma here against 3.4 cm there, so directions it
+                      does not hold can move), and still more than 30 cm from the well.
+                RULE (as at SE-Nor): if the two differ by more than 1 cm rms, the 1/4 h estimate is the numerical
+                reference of the DK-Sor row. A 1/16 h run (4 x 17 - 22 h, about 3 days or more) is NOT added
+                here: the row then says "step convergence of the reference shown by one refinement only". If
+                they differ by less, the 1 h lines above stand and the row says so.
+          The PINN run rfsor1c is in its value-correction loop (rfsor1cdc_f1 running); its stage losses and then
+          its lines are read after its driver has ended.
+          Submitted (02:48): (a) stepq_sor_starts: job 15661880; (b) rfq_sor_dt025_s0: job 15661881 (36 h limit).
+        (02:48) DK-Sor, SPREAD BETWEEN THE FOUR STARTS of the numerical inversion (job 15661880, exit=0, no Traceback;
+          output/real_sor_dec24_own/inversion_starts_ref.json, copied by jq in this command; reference only), on
+          the 265 hours of the record, path a minus path b:
+            hydrostatic - hydrostatic_flat: rms 0.03 cm, bias 0.01 cm, largest 0.12 cm at day 6.8
+            hydrostatic - constant:1.0: rms 0.11 cm, bias -0.04 cm, largest 0.39 cm at day 6.8
+            hydrostatic - constant:0.3: rms 0.01 cm, bias 0.01 cm, largest 0.05 cm at day 6.8
+            hydrostatic_flat - constant:1.0: rms 0.14 cm, bias -0.05 cm, largest 0.51 cm at day 6.8
+            hydrostatic_flat - constant:0.3: rms 0.02 cm, bias -0.01 cm, largest 0.07 cm at day 6.8
+            constant:1.0 - constant:0.3: rms 0.13 cm, bias 0.05 cm, largest 0.44 cm at day 6.8
+          Largest pair: 0.14 cm rms. Correlation of the estimates with the well: r 0.325 - 0.326.
+          READ: R1 HOLDS for the numerical inversion at DK-Sor (every pair below 0.2 cm rms; the start at 1.0 m,
+          one of the two that hit the cap of 40 iterations, is the one 0.11 - 0.14 cm from the others, all of it
+          around day 6.8). T3 said "R1 may fail too": it did not. So there is ONE numerical reference for the
+          PINN at this station (start hydrostatic, the 1 h lines above, unless the step check (b) moves it by
+          more than 1 cm). The estimate follows the well poorly in shape as well as in level (r 0.33).
