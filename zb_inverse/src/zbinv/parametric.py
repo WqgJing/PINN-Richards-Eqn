@@ -68,9 +68,12 @@ class CPrior:
 
 
 class LocalGaussian:
-    """c ~ N(center, cov)."""
+    """c ~ N(center, cov). With box=(lo, hi) every draw is projected onto the box, the support of the path prior
+    (CPrior.box), as invert_lm(box=...) projects its iterates: where the data leave a direction undetermined the
+    covariance is far wider than the box, and the inversion never evaluates the operator outside it."""
 
-    def __init__(self, center, cov, device='cpu'):
+    def __init__(self, center, cov, device='cpu', box=None):
+        self.box = None if box is None else (float(box[0]), float(box[1]))
         self.center = torch.as_tensor(np.asarray(center), dtype=torch.float64, device=device)
         cov = torch.as_tensor(np.asarray(cov), dtype=torch.float64, device=device)
         cov = 0.5 * (cov + cov.T)
@@ -80,7 +83,8 @@ class LocalGaussian:
 
     def sample(self, n, gen=None):
         z = torch.randn(n, self.center.numel(), device=self.dev, generator=gen)
-        return self.center[None, :] + z @ self.L.T
+        c = self.center[None, :] + z @ self.L.T
+        return c if self.box is None else torch.clamp(c, self.box[0], self.box[1])
 
 
 class MixtureC:
@@ -266,7 +270,9 @@ class ParamTrainer:
             return PointC(z['center'], z['cov'], self.dev)
         if mode == 'local_file':            # refinement: centre and covariance from the last inversion
             z = np.load(sc['local_file'])
-            loc = LocalGaussian(z['center'], z['cov'], self.dev)
+            # sampling.local_box (default off: draws as in every earlier run): the draws stay in the prior's support
+            loc = LocalGaussian(z['center'], z['cov'], self.dev,
+                                box=self.prior.box() if sc.get('local_box', False) else None)
             return MixtureC(self.prior, loc, sc.get('frac_local', 0.7))
         raise ValueError(mode)
 

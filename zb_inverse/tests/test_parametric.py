@@ -177,6 +177,40 @@ def _local_trainer(n_tan, **train):
     return ParamTrainer(cfg)
 
 
+def test_local_draws_projected_onto_the_prior_box():
+    """LocalGaussian(box=...) keeps every draw in the support of the path prior; without a box the draws are the
+    numbers they always were, and the boxed draws are their projection (equal wherever they were inside)."""
+    from zbinv.parametric import LocalGaussian
+    lo, hi = CPrior(SP, 0.05, (0.3, 1.2), 0.15, (0.2, 1.5)).box()
+    c0 = _coef().numpy()
+    cov = np.diag(np.linspace(0.05, 30.0, SP.n_coef) ** 2)       # some directions far wider than the box
+    free = LocalGaussian(c0, cov).sample(4000, torch.Generator().manual_seed(3))
+    boxed = LocalGaussian(c0, cov, box=(lo, hi)).sample(4000, torch.Generator().manual_seed(3))
+    assert float(free.min()) < lo - 1.0 and float(free.max()) > hi + 1.0
+    assert float(boxed.min()) >= lo and float(boxed.max()) <= hi
+    inside = (free >= lo) & (free <= hi)
+    assert bool(inside.any()) and torch.equal(boxed[inside], free[inside])
+    assert torch.equal(boxed, torch.clamp(free, lo, hi))
+
+
+def test_local_box_switch_is_off_by_default():
+    """sampling.local_box: off unless asked for (earlier runs are reproduced); on, every path of a refinement batch
+    (local and prior part) lies in the box of the path prior."""
+    from zbinv.parametric import ParamTrainer
+    assert _local_trainer(0).c_dist.local.box is None
+    cfg = yaml.safe_load(open(os.path.join(ROOT, 'configs', 'p1_param_synth_v3.yaml')))
+    cfg['sampling'] = {'mode': 'local_file', 'frac_local': 0.9, 'local_box': True,
+                       'local_file': os.path.join(ROOT, 'runs', 'p2_clean_inv0', 'local_center.npz')}
+    cfg['obs'].update(noise_sigma=0.0, q_noise_frac=0.0)
+    cfg['train'].update(n_val=64, n_tan=0, seed=0)
+    cfg['output']['dir'] = '/tmp/zbinv_test_centre'
+    tr = ParamTrainer(cfg)
+    lo, hi = tr.prior.box()
+    assert tr.c_dist.local.box == (lo, hi)
+    c = tr.c_dist.sample(2000, torch.Generator(device=tr.dev).manual_seed(0))
+    assert float(c.min()) >= lo - 1e-12 and float(c.max()) <= hi + 1e-12
+
+
 def test_centre_term_equals_per_point_delta_method():
     """centre_losses = mean_i [ r_i(c0)^2 + g_i^T Sigma g_i ] with g_i = d r_i / d c computed point by point."""
     tr = _local_trainer(n_tan=32)
