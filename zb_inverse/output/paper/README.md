@@ -418,8 +418,8 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 07:15). Three of the new windows have a finished PINN run. They are reported here as run and are
-not yet in the counts above (the SE-Nor step check and the PINN runs at FR-Bil and DK-Sor are still going). All
+State (15 Nov, 07:40). Four of the new windows have a finished PINN run. They are reported here as run and are
+not yet in the counts above (the SE-Nor step check and the PINN run at FR-Bil are still going). All
 rows are in-sample (soil fitted on the same window with the well).
 
 | station, window (11 d from) | selection | numerical inversion: from the well | PINN: from the well | PINN minus numerical | one estimate from every start |
@@ -427,9 +427,11 @@ rows are in-sample (soil fitted on the same window with the well).
 | BE-Dor, 17 Mar 2024 | second; outside the 5 cm gate | 5.41 cm, r 0.913 | 5.41 cm, r 0.913 | 0.04 cm (largest 0.17 cm) | yes, both |
 | SE-Nor, 30 Oct 2023 | first | 11.48 cm, r 0.92 | 9.30 cm, r 0.91 | 9.19 cm over the window; 1.07 cm on days 2 - 10 | yes, both |
 | IT-SR2, 13 Nov 2019 | first | 40.23 cm, r 0.11 | 22.65 cm, r 0.44 | 31.61 cm over the window; 0.3 - 3.2 cm by day on days 0 - 3 and 8 - 10 | no (one of five PINN starts and one of four numerical starts end elsewhere) |
+| DK-Sor, 8 Dec 2024 | first | 40.88 cm, r 0.32 | 42.71 cm, r 0.41 | 9.64 cm over the window; 0.0 - 1.2 cm by day on days 4 - 10; the PINN run did not converge | yes, both |
 
 (RMS over the hourly record; r against the hourly well. Figures: `output/real_dor_mar24_own/result_rfdor1c.png`,
-`output/real_nor_oct23_own/result_rfnor1c.png`, `output/real_sr2_nov19_own/result_rfsr21c.png`.)
+`output/real_nor_oct23_own/result_rfnor1c.png`, `output/real_sr2_nov19_own/result_rfsr21c.png`,
+`output/real_sor_dec24_own/result_rfsor1c.png`.)
 
 - BE-Dor (grassland; soil n 1.13, Ks at its bound 1e-3 m/s): statement (i) holds to 0.04 cm rms, the same from
   all five PINN starts and all four numerical starts, with the lowest training losses of any real-data run.
@@ -450,8 +452,15 @@ rows are in-sample (soil fitted on the same window with the well).
   estimates read each wetting of the sensor as a rise of the water table while the well rises smoothly. The two
   estimates differ on days 4 - 7, where the solver goes to the 1.50 m bound of the path range; the solver's own
   cost of the PINN's path is within 0.6 % of its best.
-- FR-Bil and DK-Sor (first selection): the numerical inversion is 52.6 - 71.2 cm (its four starts do not agree)
-  and 40.8 cm from the well; these rows can only show statement (i). Their PINN runs are in the last stage.
+- DK-Sor: no estimate is near the well. The well rises steadily from 1.25 to 0.38 m while the sensor stays
+  within 0.311 - 0.347; the numerical inversion, the PINN and the hydrostatic reading are all about 40 cm off, and
+  the model run with the measured well fits the sensor worse (0.0053) than either estimate (0.0024 numerical,
+  0.0031 PINN). From day 4 on the PINN and the solver draw one curve (0.0 - 1.2 cm apart by day); on days 1 - 2
+  they are 22 cm apart (both fall to the 1.50 m bound, the PINN a day earlier). The PINN run did not converge:
+  its last stage alternated between two paths and the scored one is the path it was on when the four
+  iterations were used up. This row shows neither statement over the whole window.
+- FR-Bil (first selection): the numerical inversion is 52.6 - 71.2 cm from the well (its four starts do not
+  agree); the row can only show statement (i). Its PINN run is in the last stage.
 - IT-SR2, second selection (1 Nov 2019, well 1.06 - 1.44 m): the numerical inversion is 24.8 - 25.4 cm from the
   well with eight or nine of its 14 coefficients on the bound of the path range (posterior sigma 20 cm). The 5 cm
   gate is not met and no PINN is run there. Second selection so far: one window near the gate (BE-Dor, 5.41 cm),
@@ -460,7 +469,16 @@ rows are in-sample (soil fitted on the same window with the well).
   inside the path range. Where days are poorly determined (SE-Nor, IT-SR2) the local distribution is far wider
   than the range, and most refinement paths lay outside what the inversion can evaluate. A switch
   (`sampling.local_box`, default off) projects the draws onto the range; a repeat of SE-Nor with it is running.
-  All rows above were made without it and stand as run.
+  All rows above were made without it and stand as run. DK-Sor shows the defect at its largest: after every
+  inversion the local distribution was 1.1 - 29 wide (sd, coefficient units) in all 14 coefficients against a
+  range 3.0 wide, and the refinement networks ended with flux errors of 17 - 22 % (wide stage 7 %).
+- Found at DK-Sor (`tasks/todo.md`, 07:2x): the stop rule of the last stage divides the move of the estimate by
+  the posterior sd of the new estimate. Where the new path lies on the deep bound that sd is about 90 cm, and
+  a jump across the range counted as 0.24 - 0.26 sd, just above the limit of 0.2. The rule would have reported
+  a two-path cycle as converged. It was not met here, and the runs that did stop by it are not of that kind
+  (BE-Dor at 0.01 sd with sigma 1.3 cm and no coefficient on the bound; SE-Nor at 0.15 and IT-SR2 at 0.14, each
+  with the same coefficients on the bound in its last two iterations, sigma 3.6 and 8.0 cm). The rule is to be
+  changed before the next run that depends on it.
 
 Why, and what follows. The window rule of this first selection took at every station the 11-day window with the
 largest range of the well. That is the window in which the well comes up from more than a metre: FR-Bil 0.35 -
@@ -523,8 +541,9 @@ each object.)
 
 ## Not yet in this set (running)
 
-- ICOS, first selection: PINN runs at FR-Bil and DK-Sor; the 1/4 h repeats of the numerical inversion at SE-Nor,
-  DK-Sor and IT-SR2; the SE-Nor repeat with `sampling.local_box`.
+- ICOS, first selection: PINN run at FR-Bil; the 1/4 h repeats of the numerical inversion at SE-Nor,
+  DK-Sor and IT-SR2; the numerical inversion started on the PINN's path at DK-Sor; the SE-Nor repeat with
+  `sampling.local_box`.
 - ICOS, second selection: numerical inversion at FR-Bil, SE-Nor and DK-Sor (BE-Dor and IT-SR2 are done); PINN where
   the numerical inversion is within 5 cm of the well; scores.
 

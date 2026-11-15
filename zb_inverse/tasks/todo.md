@@ -7512,3 +7512,195 @@ Real-case spec (first slice):
           IT-SR2 is finished in both selections: first window PINN and solver scored (07:0x entries), second
           window numerical only. Second selection so far: BE-Dor 5.41 cm (outside the gate by 0.41, PINN run made
           and scored), IT-SR2 25 cm (no PINN); FR-Bil, SE-Nor, DK-Sor still running.
+        (07:20) DK-Sor rfsor1c (first selection, window 2024-12; conductive form; path range 0.20 - 1.50 m) HAS ENDED
+          (event rfsor1c_driver_gone 07:15). Built from the checks of this command; NO score of this run has been read
+          (driver logs read with the scoring part cut; from the inversion job logs only exit= and Traceback):
+            last line of logs/full_rfsor1c.log: full rfsor1c done at Sun Nov 15 07:14:56 EST 2026
+            training jobs: 28 of 28 with exit=0, Traceback lines 0; inversion jobs: 9 of 9 with exit=0, Traceback lines 0;
+            FAILED/TIMEOUT/CANCELLED/OUT_OF_ME lines in logs/pipe_rfsor1c.log and logs/dc_rfsor1cdc.log: 0
+          value-correction loop (logs/dc_rfsor1cdc.log; stop rule: step below 0.2 posterior sd, at most 4 iterations):
+            it 1: step/sigma max 5.827921716896298, by segment [5.83,1.57,0.04,0.12], fwd offset rms 0.0034486993124445337
+            it 2: step/sigma max 0.2613982953825861, by segment [0.26,0.26,0.04,0.12], fwd offset rms 0.0015748786487240248
+            it 3: step/sigma max 3.896703109748432, by segment [3.9,1.17,0.03,0.05], fwd offset rms 0.0034670001291488353
+            it 4: step/sigma max 0.2409271183307722, by segment [0.22,0.24,0.02,0.03], fwd offset rms 0.0017869628005732444
+            final directory: runs/rfsor1cdc_it4
+          held-out losses at the last step of each stage (metrics.csv; % of node rms = 10*sqrt(flux)):
+            rfsor1c_w0   step 42000: PDE 48.22  flux 0.486   (7.0 % of node rms)
+            rfsor1c_w1   step 42000: PDE 7.62  flux 0.521   (7.2 % of node rms)
+            rfsor1c_w2   step 42000: PDE 3.19  flux 0.491   (7.0 % of node rms)
+            rfsor1c_w3   step 42000: PDE 7.65  flux 0.481   (6.9 % of node rms)
+            rfsor1c_r1_m0   step 18000: PDE 10.73  flux 0.910   (9.5 % of node rms)
+            rfsor1c_r1_m1   step 18000: PDE 15.72  flux 0.869   (9.3 % of node rms)
+            rfsor1c_r1_m2   step 18000: PDE 12.23  flux 0.988   (9.9 % of node rms)
+            rfsor1c_r1_m3   step 18000: PDE 22.60  flux 0.809   (9.0 % of node rms)
+            rfsor1c_r2_m0   step 18000: PDE 610.29  flux 2.977   (17.3 % of node rms)
+            rfsor1c_r2_m1   step 18000: PDE 97.25  flux 3.073   (17.5 % of node rms)
+            rfsor1c_r2_m2   step 18000: PDE 183.49  flux 3.160   (17.8 % of node rms)
+            rfsor1c_r2_m3   step 18000: PDE 150.87  flux 2.720   (16.5 % of node rms)
+            rfsor1c_r3_m0   step 18000: PDE 461.45  flux 4.066   (20.2 % of node rms)
+            rfsor1c_r3_m1   step 18000: PDE 850.95  flux 4.145   (20.4 % of node rms)
+            rfsor1c_r3_m2   step 18000: PDE 157.01  flux 3.583   (18.9 % of node rms)
+            rfsor1c_r3_m3   step 18000: PDE 295.21  flux 4.802   (21.9 % of node rms)
+            rfsor1c_r4_m0   step 18000: PDE 283.19  flux 3.465   (18.6 % of node rms)
+            rfsor1c_r4_m1   step 18000: PDE 432.36  flux 4.559   (21.4 % of node rms)
+            rfsor1c_r4_m2   step 18000: PDE 93.40  flux 4.126   (20.3 % of node rms)
+            rfsor1c_r4_m3   step 18000: PDE 267.50  flux 3.509   (18.7 % of node rms)
+            rfsor1cdc_f1_m0   step 28000: PDE 23.67  flux 0.395   (6.3 % of node rms)
+            rfsor1cdc_f1_m1   step 28000: PDE 13.52  flux 0.351   (5.9 % of node rms)
+            rfsor1cdc_f2_m0   step 28000: PDE 1.85  flux 0.175   (4.2 % of node rms)
+            rfsor1cdc_f2_m1   step 28000: PDE 1.42  flux 0.150   (3.9 % of node rms)
+            rfsor1cdc_f3_m0   step 28000: PDE 1.71  flux 0.148   (3.8 % of node rms)
+            rfsor1cdc_f3_m1   step 28000: PDE 1.49  flux 0.108   (3.3 % of node rms)
+            rfsor1cdc_f4_m0   step 28000: PDE 1.67  flux 0.112   (3.3 % of node rms)
+            rfsor1cdc_f4_m1   step 28000: PDE 0.75  flux 0.093   (3.1 % of node rms)
+          for comparison, the same lines of SE-Nor rfnor1c rounds 2 - 4 (the run in which the refinement defect was found):
+            rfnor1c_r2_m0   step 18000: PDE 667.21  flux 20.453   (45.2 % of node rms)
+            rfnor1c_r2_m1   step 18000: PDE 21130.76  flux 9.600   (31.0 % of node rms)
+            rfnor1c_r2_m2   step 18000: PDE 765.81  flux 8.158   (28.6 % of node rms)
+            rfnor1c_r2_m3   step 18000: PDE 411829.00  flux 22.441   (47.4 % of node rms)
+            rfnor1c_r3_m0   step 18000: PDE 513.40  flux 4.174   (20.4 % of node rms)
+            rfnor1c_r3_m1   step 18000: PDE 544.81  flux 5.884   (24.3 % of node rms)
+            rfnor1c_r3_m2   step 18000: PDE 747.11  flux 6.459   (25.4 % of node rms)
+            rfnor1c_r3_m3   step 18000: PDE 138.89  flux 5.080   (22.5 % of node rms)
+            rfnor1c_r4_m0   step 18000: PDE 225.73  flux 3.357   (18.3 % of node rms)
+            rfnor1c_r4_m1   step 18000: PDE 839.06  flux 5.631   (23.7 % of node rms)
+            rfnor1c_r4_m2   step 18000: PDE 140.26  flux 3.240   (18.0 % of node rms)
+            rfnor1c_r4_m3   step 18000: PDE 955.14  flux 3.367   (18.3 % of node rms)
+          READ (losses only):
+            - wide stage 6.9 - 7.2 % (as recorded at its end); round 1 9.0 - 9.9 % with PDE 10.7 - 22.6.
+            - rounds 2 - 4: PDE 93 - 851, flux 16.5 - 21.9 %. Against the limits written for the repeat rfnor1e (E3:
+              PDE < 150 and flux <= 15 % in all four): 2 of the 12 networks have PDE below 150 (r2_m1, r4_m2), none
+              has flux <= 15 %. The same picture as SE-Nor rfnor1c rounds 3 - 4 (18.0 - 25.4 %, lines above). This
+              run was made WITHOUT sampling.local_box (launched before the finding), so the operator networks
+              the correction loop works with (round 4) are the poor ones.
+            - forward networks of the correction loop: f1 5.9 - 6.3 % (PDE 13.5 - 23.7); f2 - f4 3.1 - 4.2 % with
+              PDE 0.75 - 1.85. Those are good (BE-Dor: 2.4 - 2.5 %).
+            - the correction loop used all four iterations and did NOT meet its stop rule (0.2): 5.83, 0.26, 3.90,
+              0.24. OBSERVATION, cause not established: the step is large on iterations 1 and 3 and small on 2 and
+              4, and the offset between forward and operator networks alternates with it (0.0034, 0.0016, 0.0035,
+              0.0018). All of the large steps are in the first two segments of the window.
+          EXPECTATION FOR THE SCORE, written before it is read. Reference (02:3x, 02:48 entries): the numerical
+          inversion is ONE estimate (pairs within 0.14 cm rms), 40.8 cm rms from the well, r 0.33, 7 of 14
+          coefficients on the bound, posterior sigma 16 cm; so this row can only carry statement (i).
+            S1 (95 %): the PINN misses R3 (well within 3 cm). My guess: 30 - 50 cm rms from the well.
+            S2 (70 %): R2 (PINN within 1 cm rms of the numerical inversion over the window) is NOT met. Reasons:
+                the loop did not converge, round-4 losses 18.6 - 21.4 %, sigma 16 cm. My guess 2 - 10 cm rms, the
+                difference sitting in the first two segments (days 0 - 5).
+            S3 (60 %): the PINN's five starts give one estimate (spread below 0.2 cm).
+            S4 (80 %): sensor misfit of the PINN at its estimate within 0.0005 of the solver's 0.0024.
+          RULE, written before:
+            - S2 fails as expected -> the row goes into the README as measured, by day. A fifth numerical start
+              on the PINN's path (as at SE-Nor 04:3x and IT-SR2) is launched to see whether that path is an end
+              point of the solver's inversion. The run is repeated with sampling.local_box=true ONLY if E4 of
+              rfnor1e holds (rule of the rfnor1e plan); not before, the switch is not yet shown to help.
+            - R2 is met -> DK-Sor is a second station for statement (i), at a window where the sensor does not
+              determine the water table; the non-converged loop is then stated next to the row.
+          NEXT: (1) diagnostic without scores: scripts/local_cov_report.py on runs/rfsor1c_inv0..4 (refinement sd per
+          coefficient: is the defect of SE-Nor present here, i.e. sd above 0.5 in several coefficients?), and
+          the non-score keys of the four iteration summaries (best start, costs, coefficients on the bound).
+          (2) score jobs score_rfsor1c and stepq_sor_pinn; reference lines first, then PINN lines.
+        (07:22) DK-Sor rfsor1c, DIAGNOSTICS WITHOUT SCORES (written before any score of the run is read).
+          (a) refinement widths, job cov_rfsor1c 15669207 "exit=0 at Sun Nov 15 07:21:17 EST 2026", 0 Traceback lines;
+              output/diag/cov_rfsor1c.json by jq (coefficient units; the box of the path range is [-1.821, 1.183], width 3.0):
+              rfsor1c_inv0: refinement sd per coefficient 13.77 2.52 1.37 1.21 1.28 1.42 1.67 1.83 1.64 1.11 1.08 1.41 2.72 16.65 | above 0.5: 14 of 14 | largest 16.65
+              rfsor1c_inv1: refinement sd per coefficient 17.49 3.82 2.76 4.54 9.3 9.17 10.3 15.22 3.19 1.49 1.26 1.54 2.78 16.26 | above 0.5: 14 of 14 | largest 17.49
+              rfsor1c_inv2: refinement sd per coefficient 23.69 5.99 5.52 18.81 19.19 18.29 21.67 15.36 3.49 1.54 1.26 1.53 2.76 16.24 | above 0.5: 14 of 14 | largest 23.69
+              rfsor1c_inv3: refinement sd per coefficient 29.15 7.88 7.81 27.14 16.85 16.56 18.78 16.95 3.48 1.55 1.29 1.57 2.81 16.44 | above 0.5: 14 of 14 | largest 29.15
+              rfsor1c_inv4: refinement sd per coefficient 27.69 7.29 6.9 21.13 23.31 20.41 15.57 15.15 3.48 1.54 1.28 1.54 2.78 16.35 | above 0.5: 14 of 14 | largest 27.69
+          (b) the four iterations of the correction loop, non-score keys of runs/rfsor1cdc_it?/summary.json by jq:
+              it 1: coefficients on the bound [0,6,7,12,13], cost 0.36036 (all five starts: 0.36036), posterior sigma median 10.45 cm, offset rms 0.00345
+              it 2: coefficients on the bound [3,4,5,6,7,12,13], cost 0.43372 (all five starts: 0.43372), posterior sigma median 95.47 cm, offset rms 0.00157
+              it 3: coefficients on the bound [0,6,7,12,13], cost 0.26836 (all five starts: 0.26836), posterior sigma median 12.7 cm, offset rms 0.00347
+              it 4: coefficients on the bound [3,4,5,6,7,12,13], cost 0.38982 (all five starts: 0.38982), posterior sigma median 87.95 cm, offset rms 0.00179
+              start of the loop (rfsor1c_inv4): coefficients on the bound [3,4,5,6,7,12,13], cost 0.75993, 0.75994, posterior sigma median 118.84 cm
+              numerical inversion (02:3x lines above): on the bound [0,4,5,6,7,12,13], cost 0.22829, posterior sigma 16.05 cm
+          READ:
+            (a) the SE-Nor defect is here in full: after EVERY inversion the refinement sd is above 0.5 in all 14
+                coefficients, 1.1 - 29 against a box 3.0 wide. Rounds 1 - 4 drew their "local" 70 % of paths from a
+                distribution many times wider than the path range, which fits the round 2 - 4 losses above. This
+                run cannot tell whether the method works at DK-Sor; it shows what the defect does where the
+                posterior is wide.
+            (b) the loop did not creep, it FLIPPED between two paths: iterations 1 and 3 end with coefficients
+                0, 6, 7, 12, 13 on the bound (sigma 10 - 13 cm), iterations 2 and 4 with 3 - 7, 12, 13 on the bound
+                (sigma 88 - 95 cm), which is also the set of the loop's start. Every start of every iteration ends
+                at the same cost, so each corrected model has one minimum; the minimum moves when the path the
+                correction was made at moves. The numerical estimate has 0 AND 4 - 7 on the bound: neither set.
+            (c) why iterations 2 and 4 look small (0.26, 0.24): the step is divided by the posterior sd of the NEW
+                estimate (scripts/param_invert.py:282-290, s_zb of this inversion, rms per 2.5-day segment). On
+                the path with 3 - 7 on the 1.50 m bound that sd is 88 - 95 cm, so a jump back across the range counts
+                as a quarter of a sigma. The stop rule (0.2) was missed by 0.04 at iteration 4; had it been met the
+                driver would have reported "converged" on a two-cycle. WEAKNESS OF THE STOP RULE, found here.
+                Not changed now (no run depends on it today; BE-Dor stopped at 0.0101 with sigma 1.3 cm, SE-Nor at
+                0.15). TODO (plan before code): measure the step against the SMALLER of the two posterior sds
+                (previous and new estimate), and report "bound set changed" next to the step.
+            Consequence for the score below: runs/rfsor1cdc_it4 is one of the two paths of a cycle, not a
+            converged estimate. It is scored as the driver left it (the rule for the final directory), and the
+            row is labelled "did not converge". S2 (not within 1 cm) is now more likely than the 70 % written.
+        (07:23) DK-Sor rfsor1c SCORED (jobs score_rfsor1c 15669208 "exit=0 at Sun Nov 15 07:21:22 EST 2026", 0 Traceback lines;
+          stepq_sor_pinn 15669209 "exit=0 at Sun Nov 15 07:21:17 EST 2026", 0 Traceback lines; output/real_sor_dec24_own/result_rfsor1c.json and
+          output/real_sor_dec24_own/inversion_pinn.json (ignored by git), copied by jq in this command).
+          REFERENCE lines (solver and well only):
+            window 2024-12-08T12:00, 265 h, well [0.375,1.25] m
+            numerical inversion (sor_own_dec24_s2): from the well 40.88 cm rms, bias 10.93 cm, max 80.24 cm, r 0.3249, cost 0.22829, sensor misfit 0.00239
+            hydrostatic reading of the sensor: 39.94 cm rms, bias 5.52 cm, r 0.2394
+            solver with the observed well as its water table: sensor misfit 0.00527
+            numerical (hydrostatic), by day: sigma 9.95 15.55 22.34 36.45 40.13 38.21 30.94 9.05 5.6 6.93 5.48 cm | from the well 57.29 13.53 27.34 53.29 58.49 62.5 49.6 16.7 25.3 9.88 23.17 cm
+          PINN lines (runs/rfsor1cdc_it4, NOT a converged estimate, see the diagnostics entry):
+            from the well 42.71 cm rms, bias 15.13 cm, max 80.65 cm, r 0.4051; five starts within 0.03 cm; sigma median 87.95 cm; sensor misfit 0.00312
+            by day: sigma 11.93 198.85 287.31 217.68 233.92 172.09 134.23 14.81 6 7.14 5.57 cm | from the well 56.73 20.15 46.55 55.31 58.49 62.46 49.33 15.97 24.66 10.48 23.17 cm
+            PINN minus sor_own_dec24_s0 (hydrostatic): rms 9.64 cm, bias 4.24 cm, max 30.19 cm at day 2; by day 3.01 22.33 22.49 3.16 0 0.06 0.28 1.17 0.83 0.62 0.06
+            PINN minus sor_own_dec24_s1 (hydrostatic_flat): rms 9.64 cm, bias 4.25 cm, max 30.19 cm at day 2; by day 3.01 22.33 22.49 3.16 0 0.05 0.21 1.19 0.82 0.62 0.06
+            PINN minus sor_own_dec24_s2 (constant:1.0): rms 9.64 cm, bias 4.2 cm, max 30.19 cm at day 2; by day 3.01 22.33 22.49 3.17 0 0.1 0.57 1.09 0.86 0.64 0.06
+            PINN minus sor_own_dec24_s3 (constant:0.3): rms 9.64 cm, bias 4.24 cm, max 30.19 cm at day 2; by day 3.01 22.33 22.49 3.16 0 0.06 0.25 1.18 0.82 0.62 0.06
+          AGAINST S1 - S4 (written before, two entries up):
+            S1 HOLDS: 42.71 cm rms from the well (guess 30 - 50). R3 not met; the numerical inversion misses it by
+               the same amount (40.88 cm), the hydrostatic reading too (39.94 cm).
+            S2 HOLDS (R2 NOT met): 9.64 cm rms from the numerical inversion over the window (guess 2 - 10), the same
+               against all four numerical starts. By day: 3.0, 22.3, 22.5, 3.2 cm on days 0 - 3; 0.00 - 1.19 cm on
+               days 4 - 10. The difference sits where I expected it (first two segments).
+            S3 HOLDS: the five starts end within 0.03 cm.
+            S4 DOES NOT HOLD: sensor misfit 0.00312 against the solver's 0.00239 (0.0007 apart, limit 0.0005). The
+               PINN's path fits the sensor worse than the solver's estimate does.
+          FIGURE (result_rfsor1c.png, viewed): from day 4 on PINN and solver draw one curve (both on the 1.50 m
+          bound until day 6, up to 0.5 m at day 8, 0.25 m at the end). On days 1 - 3 both fall from 0.45 m to the
+          bound; the PINN gets there at day 2.5, the solver at day 3.5. The well does something else altogether:
+          it rises steadily from 1.25 to 0.38 m while the sensor stays within 0.311 - 0.347. The solver run WITH the
+          well fits the sensor worse (0.00527) than either estimate: model/soil error, the same for both.
+          WHAT THE ROW CARRIES: not statement (ii) (no estimate is near the well), and not statement (i) either
+          over the whole window (9.64 cm, run not converged, made with the refinement defect). On days 4 - 10
+          (7 of 11 days) the PINN is within 1.2 cm of the solver. Reported as measured, labelled "did not converge".
+          NEXT, by the rule written before the score: fifth numerical start on the PINN's path, 1 h steps, full
+          inversion (the four starts took 259 - 330 min). EXPECTATION, before launch:
+            F3a (80 %): the solver's own cost of the PINN's path (first line of its log) is more than 10 % above the
+                 solver's minimum 0.22829 (the PINN's own misfit is 30 % above the solver's).
+            F3b (70 %): started there, the solver returns to its four-start estimate (within 0.5 cm rms): the
+                 PINN's path is not an end point of the solver's inversion. If it stays (> 0.5 cm), the misfit has
+                 a second end point on days 1 - 3 and the row is read like IT-SR2's.
+        (07:23) IT-SR2 first window, ONE solver iteration from the PINN's path (event num5_sr2_1h, found by hand, the waiter
+          was not running; job rfq_sr2_pinn1h 15668346 "exit=0 at Sun Nov 15 07:21:35 EST 2026", 0 Traceback lines;
+          output/referee/sr2_own_nov19_spinn/summary.json by jq; REFERENCE line, solver only):
+            [ref] start file:runs/rfsr21cdc_it3/predictions.npz: cost 3.0085e+00, zb RMSE 0.2265 m
+            after 1 iteration: cost 2.99899, from the well 22.64 cm rms, coefficients on the bound [0,2,3,6,8,13], steps not converged (worst solve) 25.3 %, 26 min
+          Read: one Levenberg-Marquardt step from the PINN's path lowers the solver's cost from 3.0085 to 2.9990;
+          the solver's two end points are at 2.9912 (three starts) and 3.085 (the 1.0 m start). One iteration says
+          nothing about where the solver would end from there (it was limited to one because a quarter of the
+          solver's steps do not converge at this station and a full run is not a clean reference). Nothing in
+          the IT-SR2 row changes: flat direction of the misfit on days 4 - 7, as written 07:0x.
+        (07:24) CHECK: did a run that stopped by the 0.2 rule stop on a path change of the DK-Sor kind? Non-score keys of the
+          iteration summaries, by jq in this command:
+            rfnor1c_inv4: on the bound [0,13], sigma median 3.9 cm, step/sigma by segment [0.09,0.08,0.27,0.15]
+            rfnor1cdc_it1: on the bound [0,13], sigma median 3.52 cm, step/sigma by segment [0.79,0.27,0.47,0.39]
+            rfnor1cdc_it2: on the bound [0,13], sigma median 3.76 cm, step/sigma by segment [0.59,0.2,0.12,0.21]
+            rfnor1cdc_it3: on the bound [0,13], sigma median 3.62 cm, step/sigma by segment [0.15,0.08,0.06,0.1]
+            rfsr21c_inv4: on the bound [0,3,8,13], sigma median 13.04 cm, step/sigma by segment [0.26,0.41,0.35,0.16]
+            rfsr21cdc_it1: on the bound [3,8,13], sigma median 7.75 cm, step/sigma by segment [1.46,0.79,0.39,1.19]
+            rfsr21cdc_it2: on the bound [0,3,8,13], sigma median 8.08 cm, step/sigma by segment [0.41,0.36,0.36,0.48]
+            rfsr21cdc_it3: on the bound [0,3,8,13], sigma median 8.01 cm, step/sigma by segment [0.06,0.13,0.12,0.14]
+            rfdor1c_inv4: on the bound [], sigma median 1.32 cm, step/sigma by segment [0,0,0,0.01]
+            rfdor1cdc_it1: on the bound [], sigma median 1.32 cm, step/sigma by segment [0,0.01,0.01,0.01]
+          Read: no. BE-Dor: no coefficient on the bound, sigma 1.32 cm, step 0.01. SE-Nor: [0,13] on the bound at
+          every iteration, sigma 3.5 - 3.9 cm, last step 0.15. IT-SR2: [0,3,8,13] in the last two iterations
+          (iteration 1 had [3,8,13]), sigma 8 cm, last step 0.14. None of the three stopped with a changed
+          bound set or with a sigma of the order of the path range. The three stops stand.
+          README (output/paper/README.md): DK-Sor row and bullet added, FR-Bil bullet split off, the two findings
+          (refinement widths at DK-Sor; stop rule) added, running list updated.
