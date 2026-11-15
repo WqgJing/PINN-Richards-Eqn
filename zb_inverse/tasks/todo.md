@@ -6281,3 +6281,37 @@ Real-case spec (first slice):
           in the one network that is there (28 and 45 at step 4500 in two more), where the additive
           form stood at 1.0 through 20000 steps. First half of the expectation (SE-Nor passes) on course;
           DK-Sor, which I had as "uncertain", is past the factor 10 in three networks already.
+        (20:39) rfnor1c (SE-Nor, conductive) WIDE STAGE ENDED, held-out losses only (metrics.csv; no Traceback
+          in logs/pipe_rfnor1c.log; inv0 job 15649182 COMPLETED, not read; round 1 submitted):
+            w0   step 0: PDE 12.91  flux 190.1   step 42000: PDE 25.18  flux 0.691   flux fell by a factor 275   (8.3 % of node rms)
+            w1   step 0: PDE 13.69  flux 189.7   step 42000: PDE 9.54  flux 0.694   flux fell by a factor 273   (8.3 % of node rms)
+            w2   step 0: PDE 12.36  flux 189.1   step 42000: PDE 18.37  flux 0.701   flux fell by a factor 270   (8.4 % of node rms)
+            w3   step 0: PDE 14.07  flux 213.9   step 42000: PDE 59.82  flux 0.839   flux fell by a factor 255   (9.2 % of node rms)
+          CRITERION (factor 10): PASSED in all four, 255 - 275 (rfnc1tc had 650 - 790: same order, lower).
+          Expectation "passes at SE-Nor": HELD. The held-out PDE loss is higher than at step 0 in three
+          of the four (step 0 is the hydrostatic start, which has a small residual by construction);
+          what it is after the refinement rounds is read with them.
+        EARLY READ of the other three (hpc/early_flux.sh, live logs, losses only):
+            rfsor1c_w0: step 0 PDE 1.41 flux 531.7 | flux factor at step 5000: 63.1 | latest step 17000: PDE 5.890 flux 0.904, factor 588.4 (10 % of node rms)
+            rfsor1c_w1: step 0 PDE 1.51 flux 582.1 | flux factor at step 5000: 50.2 | latest step 20000: PDE 7.733 flux 1.172, factor 496.7 (11 % of node rms)
+            rfsor1c_w2: step 0 PDE 1.41 flux 564.6 | flux factor at step 5000: 94.9 | latest step 39500: PDE 2.640 flux 0.559, factor 1010.7 (7 % of node rms)
+            rfsor1c_w3: step 0 PDE 1.50 flux 587.8 | flux factor at step 5000: 46.3 | latest step 17000: PDE 7.670 flux 1.091, factor 538.8 (10 % of node rms)
+            rfbil1c_w0: step 0 PDE 58.10 flux 170.8 | flux factor at step 5000: 1.1 | latest step 5500: PDE 58.010 flux 163.000, factor 1.0 (128 % of node rms)
+            rfbil1c_w1: step 0 PDE 63.80 flux 163.2 | flux factor at step 5000: 1.1 | latest step 8000: PDE 66.430 flux 93.430, factor 1.7 (97 % of node rms)
+            rfbil1c_w2: step 0 PDE 61.79 flux 155.8 | flux factor at step 5000: 1.0 | latest step 7000: PDE 75.940 flux 142.900, factor 1.1 (120 % of node rms)
+            rfbil1c_w3: step 0 PDE 61.37 flux 150.8 | flux factor at step 5000: not reached | latest step 3500: PDE 71.490 flux 145.100, factor 1.0 (120 % of node rms)
+            rfsr21c_w0: step 0 PDE 21.54 flux 193.3 | flux factor at step 5000: 7.6 | latest step 8500: PDE 14.350 flux 13.250, factor 14.6 (36 % of node rms)
+            rfsr21c_w1: step 0 PDE 21.44 flux 181.3 | flux factor at step 5000: 18.8 | latest step 8500: PDE 9.418 flux 6.914, factor 26.2 (26 % of node rms)
+            rfsr21c_w2: step 0 PDE 21.29 flux 195.6 | flux factor at step 5000: 20.2 | latest step 10500: PDE 16.690 flux 6.504, factor 30.1 (26 % of node rms)
+            rfsr21c_w3: step 0 PDE 20.47 flux 183.1 | flux factor at step 5000: not reached | latest step 4000: PDE 28.080 flux 13.920, factor 13.2 (37 % of node rms)
+          DK-Sor (rfsor1c): 46 - 95 at step 5000, hundreds later: learning, where "uncertain" was my guess.
+          IT-SR2 (rfsr21c): 8 - 20 at step 5000, 13 - 30 at steps 4000 - 10000: learning, slower than the
+            references (55 - 66 at step 5000).
+          FR-Bil (rfbil1c): 1.0 - 1.1 at step 5000 in the three networks that are there, 1.6 at step
+            7500 in one: NOT learning so far, as the additive form was not at this point (1.0 through
+            step 10000, 1.1 at 20000, then 3.8 - 6.1 at 42000). My guess "passes at FR-Bil" is on
+            course to be WRONG. The rule written at 20:1x stands: no third form, the run goes to its
+            end, and if the four wide networks end below a factor 10 the FR-Bil row says "surface flux
+            not learned" and does not count as support for the method whatever its score.
+            What sets FR-Bil apart in the fitted soil is n at its upper bound of 10 (theta from 0.125
+            to 0.563 over a few cm of head). That this is the reason is my reading, not tested.
