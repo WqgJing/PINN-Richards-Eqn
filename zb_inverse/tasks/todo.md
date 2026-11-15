@@ -6262,3 +6262,7 @@ Real-case spec (first slice):
               in the wide stage (factor x)" with the final-stage held-out losses, and its score is
               reported as it comes out, next to the numerical one. Such a row does not count as support
               for the method whatever its score.
+          LESSON (eighth of 14 Nov, lessons.md): the failure was visible at step 5000 of the first network
+            (flux factor 1.0 at rfsor1_w0 and rfbil1_w0; 66 at rfnc1_w0, 55 at rfnc1tc_w0, read from their
+            metrics.csv). From now on the first wide network of a run at a new soil is read at step 5000.
+            For the four conductive runs this early read is information only: their rule is fixed above.
