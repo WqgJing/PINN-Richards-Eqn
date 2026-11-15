@@ -418,8 +418,8 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 09:10). Five of the new windows have a finished PINN run: all four of the first selection and
-one of the second. They are reported here as run and are not yet in the counts above (the SE-Nor step check is
+State (15 Nov, 09:50). Five of the new windows have a finished PINN run: all four of the first selection and
+one of the second. They are reported here as run and are not yet in the counts above (one SE-Nor check is
 still going). All rows are in-sample (soil fitted on the same window with the well).
 
 | station, window (11 d from) | selection | numerical inversion: from the well | PINN: from the well | PINN minus numerical | one estimate from every start |
@@ -446,8 +446,10 @@ still going). All rows are in-sample (soil fitted on the same window with the we
   in the PINN's inversion, 442 and 21 cm in the numerical one, whose first coefficients are on the bound).
   Started on the PINN's path, the numerical inversion with 1 h steps returns to its own estimate, so at that step
   the difference on days 0 - 1 is the PINN's. 11 - 12 % of the solver's 1 h steps do not converge in its worst
-  solve; the repeat with 1/4 h steps is running and decides the row. Statement (i) is not shown over the whole
-  window here.
+  solve, so the numerical inversion was repeated with 1/4 h steps from the flat start: it ends 0.10 cm from the
+  1 h estimate (largest 0.23 cm), 11.45 cm from the well, and the PINN is as far from it as from the 1 h one
+  (9.18 cm over the window; 0.3 - 1.5 cm by day from day 2). The 1 h reference stands. The 1/4 h inversion
+  started on the PINN's path is still running. Statement (i) is not shown over the whole window here.
 - IT-SR2: the sensor does not determine the water table at this station in this window. The model run with the
   measured well fits the sensor to 0.0093, the numerical estimate to 0.0087, the PINN's to 0.0094; both
   estimates read each wetting of the sensor as a rise of the water table while the well rises smoothly. The two
@@ -565,11 +567,13 @@ each object.)
 
 ## Not yet in this set (running)
 
-- ICOS, first selection: the 1/4 h repeats of the numerical inversion at SE-Nor, DK-Sor and IT-SR2; the
-  numerical inversion started on the PINN's path at FR-Bil; the SE-Nor repeat with
-  `sampling.local_box`.
-- ICOS, second selection: numerical inversion at FR-Bil, SE-Nor and DK-Sor (BE-Dor and IT-SR2 are done); PINN where
-  the numerical inversion is within 5 cm of the well; scores.
+- ICOS, first selection: the 1/4 h repeats of the numerical inversion at DK-Sor and IT-SR2; the 1/4 h
+  inversion started on the PINN's path at SE-Nor; the numerical inversion started on the PINN's path at FR-Bil;
+  the SE-Nor repeat with `sampling.local_box`.
+- ICOS, second selection: the last starts of the numerical inversion at FR-Bil, SE-Nor and DK-Sor (BE-Dor and
+  IT-SR2 are done). At SE-Nor (6 Dec 2019) three of four starts end on one estimate 4.35 cm from the well, and
+  a PINN run was started on those three (declared before launch; the 5 cm gate is evaluated when the fourth
+  is in). It is in its first training stage, in both network forms; no estimate exists yet.
 
 ## Regenerate
 

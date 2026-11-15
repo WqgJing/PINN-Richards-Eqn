@@ -8026,3 +8026,32 @@ Real-case spec (first slice):
           options "--set prior.clip_m=[0.10,1.5]"; pid 2824505, logs/full_rfnor2a.log); the waiter watches both
           tags (events rfnor2c_wide, rfnor2a_wide). Next: at both events, losses at the end of the wide stage
           (runs/<tag>_w?/metrics.csv, job checks first), then the decision by the declared rule.
+        (09:48) SE-Nor first window, NUMERICAL INVERSION WITH 1/4 h STEPS HAS ENDED (event stepq_nor 09:45; job
+          rfq_nor_dt025_s1 15652974 "exit=0 at Sun Nov 15 09:45:17 EST 2026", exit=0 lines 1, Traceback lines 0,
+          11 h 15 min; comparison job chk_nor025 15672455 "exit=0 at Sun Nov 15 09:46:57 EST 2026", 0 Traceback
+          lines -> output/real_nor_oct23_own/inversion_pinn.json written again with six numerical results;
+          numbers by jq in the same command). REFERENCE lines, solver only:
+            nor_own_oct23_dt025_s1  hydrostatic_flat, step 0.25 h: cost 0.52537, from the well 11.45 cm rms, bias 0.11 cm, max 26.35 cm, on bound [0,1,2,13], 12 it, 351 solves, sensor misfit 0.00362, sd median 3.36 cm, steps not converged (worst solve) 6.4 %, 39693 s
+            nor_own_oct23_s1  hydrostatic_flat, step 1.0 h: cost 0.547641, from the well 11.48 cm rms, bias 0.08 cm, max 26.34 cm, on bound [0,1,2,13], 12 it, 351 solves, sensor misfit 0.0037, sd median 3.37 cm, steps not converged (worst solve) 10.9 %, 10430 s
+            1/4 h minus each of the five 1 h estimates: rms 0.1 cm, max 0.23 cm, by day [0.01,0.03,0.1,0.12,0.21,0.09,0.09,0.07,0.12,0.04,0.01]
+            1/4 h: from the well by day (cm) [23.12,14.87,14.38,8.5,13.7,2.95,8.04,9.27,4.06,4.23,5.56]; sd by day (cm) [461.91,21.82,2.75,3.63,3.26,2.71,3.03,4.09,2.8,2.54,3.24]
+          Against the expectations of 22:29:
+            Q1 (under 1 % of the steps not converged in the worst solve at 1/4 h): FAILS, 6.4 % (1 h: 10.9 %).
+            Q2 (0.5 - 3 cm between the two estimates; more than 8 cm from the well): the first part FAILS on the
+               low side, 0.10 cm; the second holds, 11.45 cm.
+          RULE of 22:29 (more than 1 cm apart -> the 1/4 h estimate is the reference and a 1/16 h run is added):
+          not the case. THE 1 h LINES STAND; no 1/16 h run. The non-converged steps of the 1 h solver did not
+          move its estimate (same four coefficients on the bound, same sd).
+          PINN line next to it (rfnor1c, a finished run whose losses are in the notes):
+            PINN minus the 1/4 h estimate: rms 9.18 cm, max 29.56 cm, by day [27.83,12.16,0.44,0.95,1.01,1.18,1.25,1.3,1.5,0.32,0.35]
+            (against the 1 h estimate: 9.19 cm, by day [27.82,12.14,0.45,1.06,1.16,1.11,1.33,1.36,1.61,0.3,0.34])
+          Rules (1)/(2)/(3) of 04:3x: the second branch of (2) ("the flat-start 1/4 h estimate lies within 1 cm of
+          the PINN's -> the 1 h estimate was the one in error") is NOT the case (9.18 cm). What is left is (1) or
+          (3), decided by the 1/4 h inversion started on the PINN's path (rfq_nor_pinn025 15664498, running, 5 h
+          of 36 h; event num5_nor_025). No change of the SE-Nor row except the sentence on the step.
+          For the other step checks: this is the first one of the ICOS windows to end; here 11 % of
+          non-converged 1 h steps in the worst solve moved the estimate by 0.1 cm.
+          Also in (solver only, second selection): bil_own_dec20_s3  constant:0.3: cost 0.249335, from the well 7.52 cm rms, bias 2.57 cm, max 29.34 cm, on bound [], 17 it, sensor misfit 0.0025, sd median 0.38 cm, steps not converged (worst solve) 41.1 %, 26195 s
+          (job 15660563, exit=0 lines 1, Traceback lines 0). FR-Bil, Dec 2020: three of four starts, 7.25 - 7.75 cm
+          from the well, cost 0.249335 - 0.249342; outside the gate so far, the fourth (constant:1.0) is running.
+          README: SE-Nor bullet (step sentence), state line, running list.
