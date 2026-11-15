@@ -418,7 +418,7 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 12:25). Five of the new windows have a finished PINN run: all four of the first selection and
+State (15 Nov, 12:22). Five of the new windows have a finished PINN run: all four of the first selection and
 one of the second. They are reported here as run and are not yet in the counts above (one SE-Nor check is
 still going). All rows are in-sample (soil fitted on the same window with the well).
 
@@ -586,7 +586,10 @@ each object.)
   inversion started on the PINN's path at SE-Nor; the SE-Nor repeat with `sampling.local_box`.
 - ICOS, second selection: the PINN run at FR-Bil (12 Dec 2020; outside the gate, see above) and a 1/4 h check
   of its numerical reference, both started 15 Nov, 10:29. Its first training stage ended with 17.4 - 18.8 % of
-  the surface-flux error left (expected 15 - 25 %); refinement is running. The last start of the numerical
+  the surface-flux error left (expected 15 - 25 %); refinement is running. As at SE-Nor (next item), its
+  refinement draws leave the range the inversion evaluates, here on the last four coefficients, and a second
+  run with `sampling.local_box` was started from the same first stage (15 Nov, 12:21); that run is the one
+  this window will be reported by, the run without the switch beside it. The last start of the numerical
   inversion at SE-Nor is still running (the other four stations are done).
 - At SE-Nor (6 Dec 2019) three of four starts end on one estimate 4.35 cm from the well, and a PINN run was
   started on those three (declared before launch; the 5 cm gate is evaluated when the fourth is in). Its

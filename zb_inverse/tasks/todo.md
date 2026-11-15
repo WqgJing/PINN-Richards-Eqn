@@ -8423,3 +8423,6 @@ runs/rfbil2c_inv0: refinement sd per coefficient 1.81 0.50 0.47 0.36 0.48 0.42 0
             G4 = P2 for this run: within 1 cm rms of the solver's lowest-cost estimate on days 0 - 9 and the
                same from its starts within 0.2 cm there (odds 55 %); over the whole window R2 fails because of
                day 10 (odds 65 %, as P2).
+        (12:21) LAUNCHED rfbil2e (driver pid 194680; logs/full_rfbil2e.log). First line of its log:
+            full rfbil2e on /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/real_bil_dec20_own, sensor [0.05,0.05], options '--set model.departure=conductive --set prior.clip_m=[0.10,1.5] --set sampling.local_box=true', at Sun Nov 15 12:21:48 EST 2026
+          The waiter knows the tag (wide event marked as seen, event inv0_bil2e for G1). Expectations pushed before launch (ccc161b).
