@@ -8432,3 +8432,55 @@ runs/rfbil2c_inv0: refinement sd per coefficient 1.81 0.50 0.47 0.36 0.48 0.42 0
         (12:24) G1 at FR-Bil 12 Dec 2020 (jobs: rfbil2e_inv0 15679709 exit=0 lines 1, Traceback lines 0; cov_bil2e 15679825 exit=0 lines 1, Traceback lines 0):
             centre, max |rfbil2e_inv0 - rfbil2c_inv0| over 14 coefficients: 0  (dirs: runs/rfbil2c_inv0, runs/rfbil2e_inv0)
           G1 ("centre within 1e-4", must hold): HOLDS. rfbil2e goes on into its refinement rounds.
+        (13:31) SE-Nor, 6 Dec 2019: THE FOURTH START of the numerical inversion ended (event num_nor_own_dec19, 13:25).
+          Job check: rf_nor_own_dec19_s2 15660644 COMPLETED 11:07:20, logs/cpu_15660644.out: exit=0 lines 1, Traceback lines 0.
+          REFERENCE lines, solver only, all four starts (copied by jq from output/referee/<d>/summary.json in this command):
+            nor_own_dec19_s0  hydrostatic, step 1.0 h: cost 0.332434, from the well 4.35 cm rms, bias 0.26 cm, max 16.92 cm, on bound [0], 7 it, 217 solves, sensor misfit 0.00288, sd median 0.46 cm, steps not converged (worst solve) 61.1 %, 13659 s
+            nor_own_dec19_s1  hydrostatic_flat, step 1.0 h: cost 0.332434, from the well 4.36 cm rms, bias 0.26 cm, max 16.96 cm, on bound [0], 10 it, 295 solves, sensor misfit 0.00288, sd median 0.46 cm, steps not converged (worst solve) 59.2 %, 12765 s
+            nor_own_dec19_s2  constant:1.0, step 1.0 h: cost 0.337049, from the well 9.53 cm rms, bias 1.62 cm, max 66.01 cm, on bound [0,1], 30 it, 887 solves, sensor misfit 0.0029, sd median 0.46 cm, steps not converged (worst solve) 58.9 %, 39563 s
+            nor_own_dec19_s3  constant:0.3, step 1.0 h: cost 0.332434, from the well 4.35 cm rms, bias 0.26 cm, max 16.94 cm, on bound [0], 13 it, 395 solves, sensor misfit 0.00288, sd median 0.46 cm, steps not converged (worst solve) 61.1 %, 22112 s
+          HOW THE FOURTH START ENDED (output/referee/nor_own_dec19_s2/history.json, 30 entries; the loop of
+          scripts/fem_referee.py lines 108 - 139 stops on a relative cost decrease < 1e-7 or a step < 1e-6, limit 40):
+          not at the iteration limit. The cost fell from 7.39 to 0.337049 and stood there for the last four
+          iterations with lambda still falling (steps accepted): a SECOND END POINT of the numerical inversion,
+          cost 1.4 % above the other three (0.337049 against 0.332434), two coefficients held on a bound (0 and 1)
+          instead of one, 9.53 cm from the well against 4.35 cm.
+          GATE of 74 aj (written rule: the start with the LOWEST COST of four within 5 cm of the well): lowest cost
+          0.332434 (s0, s1, s3), 4.35 cm -> SE-Nor, 6 Dec 2019 is INSIDE THE GATE, the first window of the second
+          selection that is. Its row is "inside the gate" (W3 count so far: one of five; expectation "two at
+          most" stands).
+          WHAT THE GATE DOES NOT SAY, and the row has to: the solver itself does NOT return one estimate from all
+          four starts here. Three starts end on one estimate, the 1.0 m start on another with a higher cost.
+          BEFORE the comparison of the four estimates is read (job chk_nor19, scripts/referee_step_check.py, solver
+          only), expected:
+            X1 (90 %): s0, s1, s3 pairwise within 0.1 cm rms over the window.
+            X2 (70 %): s2 differs from s0 by more than 5 cm rms on days 0 - 1 only and by less than 0.5 cm rms on
+               each of days 2 - 10 (two early coefficients on a bound, largest miss 66 cm, cost only 1.4 % higher:
+               a miss in the first days, where one coefficient of the other three sits on the bound too).
+          RULES for the PINN rows of this window (rfnor2e the row, rfnor2c beside it), fixed now, before any PINN
+          estimate exists:
+            - the reference of F4 / N2 (within 1 cm rms) is the solver's LOWEST-COST estimate (s0);
+            - R1 for the PINN stays as written: all four PINN starts within 0.2 cm. If a PINN start ends on a
+              second point, R1 is NOT met at this window and the row says so, with the PINN's cost of each
+              start beside the solver's; it is not excused by the solver having a second end point from the
+              same start, only reported next to it;
+            - if X2 fails (s2 differs beyond days 0 - 1), the days named there are named in the row as days where
+              the sensor admits two water tables in the solver.
+          COMPARISON of the four numerical estimates (job chk_nor19 15682560, logs/cpu_15682560.out: exit=0 lines 1, Traceback lines 0; solver only; copied by jq from output/real_nor_dec19_own/inversion_num.json in this command; cm):
+            s0 minus s1: rms 0.01, bias -0, largest 0.05 at day 0, by day [0.02,0.02,0.02,0,0,0,0,0,0,0,0]
+            s0 minus s2: rms 6.26, bias -1.36, largest 49.35 at day 0, by day [20.79,0.23,0.47,0.03,0.02,0.01,0,0,0,0,0]
+            s0 minus s3: rms 0.01, bias -0, largest 0.03 at day 0, by day [0.01,0.01,0.01,0,0,0,0,0,0,0,0]
+            s1 minus s2: rms 6.25, bias -1.36, largest 49.3 at day 0, by day [20.77,0.22,0.45,0.03,0.02,0.01,0,0,0,0,0]
+            s1 minus s3: rms 0, bias 0, largest 0.02 at day 0, by day [0.01,0,0.01,0,0,0,0,0,0,0,0]
+            s2 minus s3: rms 6.26, bias 1.36, largest 49.32 at day 0, by day [20.78,0.22,0.45,0.03,0.02,0.01,0,0,0,0,0]
+            s0 from the well by day [10.07,5.72,7.05,2.63,2.19,0.83,1.07,1.24,1.2,0.72,2.71]; posterior sd by day [19.06,2.85,3.41,0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32]
+            s1 from the well by day [10.1,5.73,7.07,2.63,2.19,0.83,1.07,1.24,1.2,0.72,2.71]; posterior sd by day [19.06,2.85,3.42,0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32]
+            s2 from the well by day [29.78,5.85,7.51,2.65,2.18,0.84,1.07,1.24,1.2,0.72,2.71]; posterior sd by day [75.81,2.97,3.57,0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32]
+            s3 from the well by day [10.09,5.72,7.07,2.63,2.19,0.83,1.07,1.24,1.2,0.72,2.71]; posterior sd by day [19.06,2.85,3.42,0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32]
+          VERDICTS (numbers by jq from the same file):
+            X1 HOLDS: s0, s1, s3 pairwise at most 0.01 cm rms over the window.
+            X2 HOLDS, and narrower than written: s2 minus s0 is 20.79 cm on day 0, 0.23 cm on day 1, 0.47 cm on day 2 (limit 0.5), at most 0.03 cm on days 3 - 10. The second end point is a different water table on DAY 0 ONLY.
+            READ: from day 1 on the solver has one estimate from four starts; on day 0 the sensor does not determine the water table (posterior sd of the lowest-cost estimate 19.06 cm there, 2.85 and 3.41 cm on days 1 - 2, 0.26 - 0.65 cm on days 3 - 10).
+            Against the well by day (s0): 10.07, 5.72, 7.05 cm on days 0 - 2 and 0.72 - 2.71 cm on days 3 - 10: the 4.35 cm over the window come from the first three days. R3 (3 cm over the window) is not met by the solver; the gate (5 cm) is.
+            STILL OPEN for this reference: N4 (the 1/4 h repeat from s0, job 15671454, event stepq_nor2).
+            The rules written above for the PINN rows stand; by them a PINN start that differs on day 0 fails R1 at this window and is reported beside the solver's second end point.

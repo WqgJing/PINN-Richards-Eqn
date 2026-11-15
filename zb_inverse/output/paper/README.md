@@ -418,7 +418,7 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 12:22). Five of the new windows have a finished PINN run: all four of the first selection and
+State (15 Nov, 13:32). Five of the new windows have a finished PINN run: all four of the first selection and
 one of the second. They are reported here as run and are not yet in the counts above (one SE-Nor check is
 still going). All rows are in-sample (soil fitted on the same window with the well).
 
@@ -498,8 +498,17 @@ still going). All rows are in-sample (soil fitted on the same window with the we
   the gate and after these by-day numbers were read: it is the first of these windows after BE-Dor in which the
   solver has a single estimate, which is what statement (i) needs. It cannot show (ii) by the written
   criterion.
-- Second selection, count: no window inside the 5 cm gate so far (BE-Dor 5.41 cm, FR-Bil 7.61 cm, IT-SR2 and
-  DK-Sor far outside); SE-Nor is 4.35 cm from the well in three of four starts, the fourth still running.
+- SE-Nor, second selection (6 Dec 2019, well 0.15 - 0.41 m): inside the 5 cm gate. Three of the four numerical
+  starts end on one estimate (0.01 cm apart), 4.35 cm from the well over the window (r 0.89, bias 0.26 cm). The
+  1.0 m start ends on a second path with a cost 1.4 % higher, 9.53 cm from the well; it differs from the other
+  three on day 0 only (20.8 cm there, 0.2 - 0.5 cm on days 1 - 2, at most 0.03 cm from day 3), where the sensor
+  does not determine the water table (posterior sigma 19 cm). By day the lowest-cost estimate is 10.1, 5.7 and
+  7.1 cm from the well on days 0 - 2 and 0.7 - 2.7 cm on days 3 - 10, so the 3 cm criterion of (ii) is not met
+  over the window by the solver itself. Two limits: the soil fit is held by three of its bounds (theta_s
+  lower, alpha and Ks upper), and in the worst solve of each search 59 - 61 % of the solver's 1 h steps did not
+  converge (a 1/4 h repeat is running). The PINN runs of this window are still training (below).
+- Second selection, count: one window of five inside the 5 cm gate, SE-Nor (4.35 cm at the lowest cost of four
+  starts). Outside: BE-Dor 5.41 cm, FR-Bil 7.61 cm, IT-SR2 and DK-Sor far outside.
 - Found on these runs (`tasks/todo.md`, 06:57): the refinement rounds drew their local paths without keeping them
   inside the path range. Where days are poorly determined (SE-Nor, IT-SR2) the local distribution is far wider
   than the range, and most refinement paths lay outside what the inversion can evaluate. A switch
@@ -589,10 +598,9 @@ each object.)
   the surface-flux error left (expected 15 - 25 %); refinement is running. As at SE-Nor (next item), its
   refinement draws leave the range the inversion evaluates, here on the last four coefficients, and a second
   run with `sampling.local_box` was started from the same first stage (15 Nov, 12:21); that run is the one
-  this window will be reported by, the run without the switch beside it. The last start of the numerical
-  inversion at SE-Nor is still running (the other four stations are done).
-- At SE-Nor (6 Dec 2019) three of four starts end on one estimate 4.35 cm from the well, and a PINN run was
-  started on those three (declared before launch; the 5 cm gate is evaluated when the fourth is in). Its
+  this window will be reported by, the run without the switch beside it.
+- At SE-Nor (6 Dec 2019) the PINN run was started when three of the four numerical starts were in (declared
+  before launch); with the fourth the window is inside the 5 cm gate (see above). Its
   first training stage was run in both network forms: the conductive form ended with 16.9 - 18.1 % of the
   surface-flux error left and continues; the additive form ended with 155 - 163 % left and was stopped, by a
   rule written before the two were compared. The refinement of this run draws most of its paths outside the
