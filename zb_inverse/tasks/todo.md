@@ -6693,3 +6693,10 @@ Real-case spec (first slice):
           numerical inversion itself is neither close to the well nor the same from every start, so there is no
           single reference estimate for the PINN to be compared with; the FR-Bil first-window row can only say
           whether the PINN's estimates fall among these (lowest cost: hydrostatic_flat, 1.3324).
+        (00:39) BE-Dor rfdor1c, first wide networks at step 5000 (hpc/early_flux.sh, live logs, held-out losses only):
+            rfdor1c_w0: step 0 PDE 5.13 flux 494.9 | flux factor at step 5000: 182.1 | latest step 5000: PDE 10.850 flux 2.717, factor 182.1 (16 % of node rms)
+            rfdor1c_w3: step 0 PDE 5.28 flux 493.2 | flux factor at step 5000: not reached | latest step 4500: PDE 8.235 flux 1.339, factor 368.3 (12 % of node rms)
+          RULE (factor below 2 at step 5000 -> additive form next to it): not the case (182); the conductive form
+          goes on alone. Noted: the held-out PDE loss is higher at step 5000 than at step 0 (the network starts
+          from the hydrostatic profile); its value at the end of the stage is what gets recorded.
+          rfdor1c_w1 and _w2 are still waiting for a GPU.
