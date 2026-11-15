@@ -7096,3 +7096,65 @@ Real-case spec (first slice):
                 (already poor) and that check, not from the distance to the well.
           SCORE JOBS: score_real.py (PINN, the four 1 h starts, the well) -> output/real_nor_oct23_own/result_rfnor1c;
           referee_step_check.py --pinn (PINN minus each numerical start, by day) -> output/real_nor_oct23_own/inversion_pinn.
+        (04:38) SE-Nor, SCORE OF THE PINN ESTIMATE runs/rfnor1cdc_it3 (jobs 15664329: "exit=0 at Sun Nov 15 04:35:02 EST 2026"; 15664330: "exit=0 at Sun Nov 15 04:34:57 EST 2026"; 0 Traceback
+          lines in the two logs; output/real_nor_oct23_own/result_rfnor1c.json and inversion_pinn.json, copied by jq in this command):
+            window 2023-10-30T12:00, 11.0 d, 265 h, sensor below saturation in 265 h, well between 36 and 127 cm
+            PINN vs well: rmse 9.3 cm, bias -3.28 cm, max 22.39 cm, r 0.91; starts spread (max) 0.026 cm; posterior sigma (median) 3.62 cm; sensor misfit of its own network 0.00362
+            numerical 1 h (output/referee/nor_own_oct23_s1) vs well: rmse 11.48 cm, bias 0.08 cm, max 26.34 cm, r 0.92; sensor misfit 0.0037
+            PINN minus numerical 1 h: rms 9.19 cm, bias -3.36 cm, max 29.56 cm, r 0.99
+            hydrostatic reading of the sensor vs well: rmse 22.1 cm, bias -10.49 cm; solver with the well as water table vs sensor: 0.00466
+            PINN minus numerical 1 h, by day (cm): 27.8, 12.1, 0.4, 1.1, 1.2, 1.1, 1.3, 1.4, 1.6, 0.3, 0.3; largest 29.56 cm at day 0.46; days 2 - 10 from the daily values: 1.07 cm rms
+          AGAINST S1 - S3 (figure result_rfnor1c.png read):
+            S1 HOLDS: one estimate from the starts (0.026 cm).
+            S2 "not within 1 cm" HOLDS, and my guess (2 - 8 cm) was too low: 9.19 cm rms. R2 IS NOT MET against the
+               1 h numerical estimate. The whole of it is in the first two days (27.8 and 12.1 cm): there the
+               numerical estimate sits on the deep bound of the path range (1.50 m; its coefficients 0, 1, 2 are on
+               the bound) and climbs steeply, while the PINN starts at 1.25 m and climbs evenly. From day 2 to the
+               end the two are the same curve to 0.3 - 1.6 cm by day (1.07 cm rms).
+            S3 HOLDS: 9.30 cm rms from the well (r 0.91), R3 not met, as for any estimate at this station (T5).
+          The PINN is 2.2 cm closer to the well than the numerical inversion, all of it from the first two days
+          (it starts at 1.25 m, the well at 1.27 m). NOT CLAIMED as a merit: that part of the path is weakly seen by
+          the sensor (the first rain reaches it at day 0.4), the PINN's refinement networks are poor at this
+          station (losses above), and a PINN that differs from the inversion of its own model by 28 cm has not
+          shown statement (i) there, whichever of the two is nearer the well.
+          WHOSE ERROR, rule (b) of the entry above made concrete BEFORE anything is run (scoring only, solver):
+            the numerical inversion is started AT THE PINN'S ESTIMATE (a fifth start; coefficients of
+            runs/rfnor1cdc_it3/predictions.npz) with 1 h steps and with 1/4 h steps. Its first line is the
+            solver's own cost of the PINN's path; its end says whether that path is an end point of the solver's
+            inversion. Needs a start kind "file:<npz>" in scripts/fem_referee.py (optional; nothing else changes).
+            Also: posterior sigma by day of both estimates and distance from the well by day, added to
+            scripts/referee_step_check.py, to say how weakly days 0 - 1 are determined.
+          EXPECTED, written before the runs:
+            F1 the solver's cost of the PINN's path at 1 h steps is ABOVE the 0.547641 of the numerical estimate
+               (four starts ended there), guess 0.56 - 0.80. (The PINN's own network gives its path 0.524 =
+               (0.00362/0.005)^2: its forward model and the 1 h solver differ along this path.)
+            F2 started there, the 1 h inversion goes back to the estimate of the other four starts (within
+               0.2 cm, cost 0.5476): about 70 %. Otherwise it stops within 1 cm of the PINN's path at a higher
+               cost: the PINN's path is then a second end point of the numerical inversion.
+            F3 the posterior sigma of the first day is several times the median (3.4 - 3.6 cm): above 10 cm.
+            1/4 h steps: no expectation beyond Q1/Q2 of 22:29 (open).
+          RULE: (1) both step sizes go back to the four-start estimate -> the first two days are the PINN's own
+            error; the row says R2 not met at SE-Nor (9.2 cm; 1.1 cm from day 2), with the refinement losses.
+            (2) the converged-in-step (1/4 h) inversion stops at the PINN's path, or its flat-start estimate
+            (job 15652974) lies within 1 cm of the PINN's -> the 1 h numerical estimate was the one in error;
+            R2 is then read against the 1/4 h reference by the rule of 22:29. (3) two end points at 1/4 h ->
+            the row says "first two days not determined by the sensor", the PINN is compared with both (rule
+            of 17:58), as at IT-SR2 and FR-Bil. In no case is the method changed on the strength of these scores.
+        (04:42) SE-Nor, BY DAY (job 15664499, "exit=0 at Sun Nov 15 04:39:21 EST 2026", 0 Traceback lines; output/real_nor_oct23_own/inversion_pinn.json written again by the
+          extended scripts/referee_step_check.py; copied by jq in this command):
+            numerical 1 h (hydrostatic_flat): posterior sigma by day (cm) 441.9, 21.4, 2.8, 3.7, 3.3, 2.7, 3, 4.1, 2.8, 2.5, 3.3; from the well by day (cm) 23.1, 14.9, 14.3, 8.6, 13.9, 2.9, 8.1, 9.3, 4.1, 4.3, 5.6
+            PINN: posterior sigma by day (cm) 45.1, 19.4, 3, 4.3, 3.4, 2.8, 3.4, 4.9, 3.4, 2.6, 3.1; from the well by day (cm) 5.7, 16.9, 14.2, 7.7, 12.9, 1.8, 6.9, 9.9, 3.8, 4.4, 5.4
+            PINN minus numerical 1 h by day (cm): 27.8, 12.1, 0.4, 1.1, 1.2, 1.1, 1.3, 1.4, 1.6, 0.3, 0.3
+          F3 HOLDS, more strongly than guessed: the sensor does not determine the water table of the first day
+          (posterior sigma 45 cm in the PINN's inversion; 442 cm in the numerical one, whose first coefficients
+          are on the bound) and only loosely that of the second (19 - 21 cm); from day 2 on it is 2.5 - 4.9 cm.
+          The 27.8 and 12.1 cm between the two estimates on days 0 and 1 are inside one posterior sigma of the
+          PINN's own inversion on both days; from day 2 on (0.3 - 1.6 cm) the two agree to within half a sigma.
+          This does NOT make R2 met: R2 is 1 cm rms over the window and stays as written (9.19 cm; 1.07 cm over
+          days 2 - 10). It says where the disagreement is: in the part of the path the sensor does not see.
+          Submitted (04:39): the numerical inversion started at the PINN's estimate, rfq_nor_pinn1h: job 15664497
+          (1 h steps, 12 h limit; earlier 1 h runs here: about 750 s per iteration, 10 - 12 iterations) ->
+          output/referee/nor_own_oct23_spinn; rfq_nor_pinn025: job 15664498 (1/4 h steps, 36 h limit) ->
+          output/referee/nor_own_oct23_dt025_spinn. Events num5_nor_1h and num5_nor_025 in logs/wait_extra.txt.
+          Code: scripts/fem_referee.py takes --start file:<predictions.npz> (other starts unchanged);
+          scripts/referee_step_check.py also writes sigma_by_day_m and vs_well_rms_by_day_m.

@@ -29,7 +29,9 @@ def main():
     ap.add_argument('--config', required=True)
     ap.add_argument('--set', action='append', default=[])
     ap.add_argument('--out', required=True)
-    ap.add_argument('--start', default='hydrostatic_flat', help='kind[:value] as in scripts/param_invert.py --starts')
+    ap.add_argument('--start', default='hydrostatic_flat',
+                    help='kind[:value] as in scripts/param_invert.py --starts, or file:<predictions.npz> to start at '
+                         'the coefficients of another estimate (the solver\'s cost of that path is the first line)')
     ap.add_argument('--delta', type=float, default=0.01, help='FD step in spline-coefficient units')
     ap.add_argument('--max_iter', type=int, default=40)
     ap.add_argument('--box', action='store_true', help='keep the coefficients in the support of the path prior')
@@ -46,8 +48,13 @@ def main():
     knot = cfg.get('zb_spline', {}).get('knot_days', tcfg['zb_spline']['knot_days'])
     spline = CubicBSpline1D(0.0, ds['n_days'], knot)
     kind, _, val = args.start.partition(':')
-    coef0, _ = initial_coef(dict(cfg, zb_init={'kind': kind, 'zb_max': 3.0, **({'value': float(val)} if val else {})}),
-                            ds, spline)
+    if kind == 'file':      # start at another estimate on the same spline: 'coef' of its predictions.npz
+        coef0 = np.array(np.load(val, allow_pickle=False)['coef'], dtype=float)
+        if coef0.shape != (spline.n_coef,):
+            raise SystemExit(f'{val}: coefficients {coef0.shape}, the spline of this data set has {spline.n_coef}')
+    else:
+        coef0, _ = initial_coef(dict(cfg, zb_init={'kind': kind, 'zb_max': 3.0,
+                                                   **({'value': float(val)} if val else {})}), ds, spline)
     t_h, t_obs, y = ds['t_hourly'], ds['t_obs'], ds['theta_obs']
     t_s = t_h if args.dt_hours is None else hourly_times(ds['n_days'], args.dt_hours)      # time grid of the solver
     k_obs = np.round((t_obs - t_s[0]) / (t_s[1] - t_s[0])).astype(int)

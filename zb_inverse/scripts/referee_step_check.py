@@ -57,7 +57,10 @@ def main():
         if not np.allclose(r['t_days'], t) or not np.allclose(r['zb_true'], zb_obs):
             raise SystemExit(f'{p} belongs to another data set')
         runs.append({'dir': p, 'dt_h': float(s.get('fem_dt_hours', own_dt)), 'start': s['start'], 'zb': r['zb_pred'],
-                     'summary': s})
+                     'sigma': r['zb_sigma'], 'summary': s})
+
+    def by_day(x, f):
+        return [float(f(x[day == k])) for k in range(int(day.max()) + 1)]
     res = {'data': args.data, 'hours': int(t.size), 'inversions': [], 'pairs': []}
     for a in runs:
         s = a['summary']
@@ -67,6 +70,7 @@ def main():
             'fem_not_converged_max': s.get('fem_not_converged_max'), 'coef_on_bound': s.get('coef_on_bound'),
             'theta_rmse_vs_obs': s['theta_rmse_vs_obs'],
             'posterior_sigma_zb_median_m': s.get('posterior_sigma_zb_median_m'),
+            'sigma_by_day_m': by_day(a['sigma'], np.median), 'vs_well_rms_by_day_m': by_day(a['zb'] - zb_obs, rms),
             'vs_well': against_well(a['zb'], zb_obs)})
     for i, a in enumerate(runs):
         for b in runs[i + 1:]:
@@ -79,6 +83,8 @@ def main():
             raise SystemExit('the PINN result belongs to another data set')
         res['pinn'] = {'dir': args.pinn, 'vs_well': against_well(pred['zb_pred'], zb_obs),
                        'sigma_median_m': float(np.median(pred['zb_sigma'])),
+                       'sigma_by_day_m': by_day(pred['zb_sigma'], np.median),
+                       'vs_well_rms_by_day_m': by_day(pred['zb_pred'] - zb_obs, rms),
                        'minus_inversion': [{'dir': a['dir'], 'fem_dt_hours': a['dt_h'], 'start': a['start'],
                                             **difference(pred['zb_pred'], a['zb'], day, t_rel)} for a in runs]}
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
