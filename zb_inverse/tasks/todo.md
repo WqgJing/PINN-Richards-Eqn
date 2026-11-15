@@ -6180,3 +6180,37 @@ Real-case spec (first slice):
             Same rule for the read: only after the numerical lines of logs/transfer_sor_dec24.log are recorded.
           CHECKED (19:49): runs/rfnor1c_w0/config.yaml line 35 carries "departure: conductive" (SE-Nor run
             is in the form its rule names).
+        (19:57) IT-SR2 FIT (output/soil_sr2_nov19; window 2019-11-13T12:00 + 11 d; rain 188.2 mm, ET 12.7 mm, f_T 0.55; well 0.39 - 1.06 m; sensor 0.0992 - 0.1736).
+          Jobs 15633591 - 15633594: exit=0, no Traceback, all four ended ("xtol termination condition is
+          satisfied", status 3). Copied from start?.json:
+          start                        misfit    r      theta_s  theta_r  alpha  n      Ks        on bound       time
+          0 own soil (sand)  0.009209  0.702  0.3      0.1      8.01   2.779  1.000e-03 theta_s, Ks    260 min, 109 solves
+          1 sand             0.009209  0.702  0.3      0.1      8.01   2.779  1.000e-03 theta_s, Ks    251 min, 109 solves
+          2 sandy loam       0.009209  0.702  0.3      0.1      8.01   2.779  1.000e-03 theta_s, Ks    222 min, 101 solves
+          3 static           0.009669  0.681  0.3      0.1043   4.06   6.22   1.764e-04 theta_s        101 min, 138 solves
+          Lowest misfit: start 2 (by 2e-11 over starts 0 and 1, which are one start: the class is sand)  <- the soil
+          start 2: bias 1e-05, max 0.046. Starts 0 - 2 end at one soil from two different starting soils; start 3 is
+          5 % higher in misfit with alpha half, n twice and Ks a sixth of it.
+          C1 (<= 0.005): MISSED, 0.0092 (12 % of the sensor's range of 0.074; r 0.70).
+          C2 (a parameter on a bound at the sands): HOLDS (theta_s at 0.30, its lower bound, and Ks at 1e-3,
+            its upper bound: the corner of US-HB2 and SE-Nor).
+          C3: the starts agree in misfit within 10 % here as well (every data set read does: expected at no
+            more than two); in the parameters three of four agree, start 3 does not.
+          C4 (a sand start still moving at 12 h): DID NOT HAPPEN, the four ended in 1.7 - 4.3 h.
+          FIGURE (start2.png, looked at): the sensor's base level rises from 0.10 to 0.13 over the window
+            while the well rises, and the model's base level follows it (not the case at DK-Sor or FR-Bil).
+            The model undershoots the two largest pulses (days 1.8 and 3.5: 0.148 against 0.173, 0.145
+            against 0.162), answers rain at days 2.7, 3.3, 4.4 and 9.5 that the sensor shows weakly or
+            not, and from day 5 on rises a few hours before the sensor does (days 5.1, 7.3, 7.9, 9.0,
+            10.1). Causes not examined.
+        NETWORK FORM by the rule of 74 ag: Ks = 1e-3 -> conductive, tag rfsr21c.
+        NEXT: RT=08:00:00 PYI=-I hpc/transfer_solver.sh sr2 nov19 "[0.05,0.05]"  (8 h as at SE-Nor / US-HB2).
+          EXPECTED, written before it is launched:
+            T6 the numerical inversion misses R3 (guess 8 - 30 cm). In this soil the hydrostatic sensor value
+               moves by about 0.0001 per cm of water table with the well at 1.0 m (first 1.5 days) and by
+               about 0.002 per cm at 0.4 m (my hand estimate from the fitted curve, not a run), so the
+               0.009 the fit leaves is worth tens of cm early and a few cm late: largest errors in the
+               first two days, coefficients on a bound there. The class sand converged in 99.3 % of the
+               1 h steps; some unconverged steps are expected with this soil too.
+          DECISION RULE as at the other stations; PINN whatever T6 gives:
+            hpc/real_full_x.sh rfsr21c output/real_sr2_nov19_own "[0.05,0.05]" "--set model.departure=conductive".
