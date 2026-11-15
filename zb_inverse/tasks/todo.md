@@ -6754,3 +6754,15 @@ Real-case spec (first slice):
           "[0.05,0.05]" -> logs/transfer_sr2_nov19b.log; data set output/real_sr2_nov19b_own, inversions
           output/referee/sr2_own_nov19b_s0..3 (path range 0.10 - 1.50 m). 24 h limit from the start: the first
           window's inversions at this station are past 5 h.
+      75b. (01:35, 2026-11-15) Owner approved: "Turn off the Claude co-author line for all your sessions on this machine" -> yes.
+          DONE, outside this repository (nothing of it is committed here):
+          - ~/.claude/settings.json (user settings, all projects): added "attribution": {"commit": "", "pr": "",
+            "sessionUrl": false} and "includeCoAuthoredBy": false (the older key, for older versions). The seven keys
+            that were there are unchanged (checked: file without the two new keys == the copy
+            ~/.claude/settings.json.bak_20261115); valid JSON (jq -e exit 0); mode still 600.
+          - No other settings file sets either key (~/.claude/settings.local.json and
+            /storage/project/r-rbras6-0/jjason3/.claude/settings.local.json hold permissions only), so nothing overrides it.
+          - ~/.claude/CLAUDE.md (new, user instructions for every project): one rule, no Claude / Anthropic co-author
+            line and no "Generated with Claude Code" line in commits or pull requests.
+          NOT verified: that a session started after this writes a commit without the line (settings are read when a
+          session starts; this session already follows the rule). Check before every push stays (lessons, thirteenth).
