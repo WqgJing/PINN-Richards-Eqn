@@ -6546,3 +6546,45 @@ Real-case spec (first slice):
             set of these windows exists. hpc/transfer_solver.sh has no place for it and three copies of
             it are running: hpc/transfer_solver_x.sh = the same file plus RSET (further options of the
             inversions), as hpc/real_full_x.sh was made from hpc/real_full_obs.sh.
+        (21:58) SECOND SELECTION, step 3 started. Pushed before any data set existed: 4f91774 (rule, screen
+          option, windows, configs, driver copy), 93604ce (README state).
+          configs/real_{bil_dec20,nor_dec19,sor_feb26,sr2_nov19b}.yaml = the station's first config with window,
+          pair and header changed (diff printed and read); configs/real_dor_mar24.yaml new for BE-Dor: f_T 0.57
+          (temperate grassland, Schlesinger & Jasechko 2014, the rule of the other stations), class soil loam
+          as a start of the calibration only (no texture in the station metadata), columns checked to exist
+          in the two station files.
+          Data sets: scripts/make_real.py under python -I, jobs mk_bil_dec20 15651527, mk_nor_dec19 15651528,
+          mk_sor_feb26 15651529, mk_dor_mar24 15651530, mk_sr2_nov19b 15651531 (4 cpus, 16G, 1 h).
+          First selection, wide stage, live logs at this time (hpc/early_flux.sh; losses only):
+            rfbil1c_w3 step 39000: flux factor 9.2 (41 % of node rms); rfsr21c_w3 step 37000: factor 79.3 (15 %).
+        (22:05) SECOND SELECTION, step 3: the five data sets exist (jobs 15651527-15651531, each exit=0, no Traceback).
+          Numbers copied by jq from output/real_<w>/real_summary.json in this command. 'forward' = the solver run with the
+          CLASS soil (before any calibration) and the record water table, against the sensor.
+            bil_dec20 (FR-Bil, 2020-12-12T12:00): well 0.15 .. 0.38 m, spline vs record 0.93 cm (max 4.1 cm); sensor 0.1068 .. 0.1523, rms about its 24-h mean 0.0019; rain 19.6 mm, ET 3.5 mm; hours filled: well 0, sensor 0, rain 0, LE share 0.0; solver converged 1.0, admissible true; forward [fT=0.55, record water table]: rmse 0.0238, bias -0.0014, r 0.907; 101 vs finer mesh rmse 0.0011
+            nor_dec19 (SE-Nor, 2019-12-06T12:00): well 0.15 .. 0.41 m, spline vs record 0.6 cm (max 2.1 cm); sensor 0.1797 .. 0.2116, rms about its 24-h mean 0.002; rain 55.7 mm, ET 0.8 mm; hours filled: well 0, sensor 0, rain 0, LE share 0.0; solver converged 1.0, admissible true; forward [fT=0.55, record water table]: rmse 0.1019, bias 0.0966, r 0.934; 101 vs finer mesh rmse 0.0011
+            sor_feb26 (DK-Sor, 2026-02-23T12:00): well 0.17 .. 0.39 m, spline vs record 0.71 cm (max 3.1 cm); sensor 0.1099 .. 0.2601, rms about its 24-h mean 0.0136; rain 11.4 mm, ET 2.2 mm; hours filled: well 0, sensor 0, rain 0, LE share 0.0; solver converged 1.0, admissible true; forward [fT=0.67, record water table]: rmse 0.2467, bias 0.2457, r 0.564; 101 vs finer mesh rmse 0.0002
+            dor_mar24 (BE-Dor, 2024-03-17T12:00): well 0.18 .. 0.65 m, spline vs record 2.45 cm (max 10.4 cm); sensor 0.5099 .. 0.5468, rms about its 24-h mean 0.0017; rain 14.2 mm, ET 12.2 mm; hours filled: well 0, sensor 0, rain 0, LE share 0.0; solver converged 1.0, admissible true; forward [fT=0.57, record water table]: rmse 0.1807, bias -0.1799, r 0.914; 101 vs finer mesh rmse 0.0008
+            sr2_nov19b (IT-SR2, 2019-11-01T12:00): well 1.06 .. 1.44 m, spline vs record 0.48 cm (max 1.8 cm); sensor 0.0921 .. 0.17, rms about its 24-h mean 0.0086; rain 131.1 mm, ET 9.7 mm; hours filled: well 0, sensor 0, rain 0, LE share 0.0; solver converged 1.0, admissible true; forward [fT=0.55, record water table]: rmse 0.0238, bias 0.0023, r 0.821; 101 vs finer mesh rmse 0.0043
+          Read from these lines, BEFORE any soil fit or inversion:
+            - BE-Dor: the 1-day-knot spline itself is 2.45 cm rms (max 10.4 cm) from the hourly well in this window,
+              against 0.5-0.9 cm at the other four. The unknown of both inversions is that spline, so no estimate
+              can score below about 2.5 cm against the hourly well here; the 5 cm gate can be met, the 3 cm
+              criterion only just. The knot spacing is NOT changed (same representation at every site).
+            - DK-Sor: the sensor moves 0.0136 rms about its own 24-h mean (0.002 at FR-Bil, SE-Nor, BE-Dor) and the
+              class-soil forward run has r 0.56 with the sensor: consistent with what was expected (not within 5 cm).
+            - IT-SR2: 131 mm of rain; the 101-node solver is 0.0043 rms from the finer mesh (0.0002-0.0011 at the
+              others), i.e. of the size of a soil-fit misfit. Reported with the row; nothing is changed.
+            - The class-soil forward biases (+0.10 SE-Nor, +0.25 DK-Sor, -0.18 BE-Dor) are before calibration and
+              say nothing about the method.
+          Soil calibration, rule written before the fits: bounds as at every site (theta_s 0.30-0.60, theta_r 0-0.20,
+          alpha 0.2-20 /m, n 1.10-10, Ks 1e-7-1e-3 m/s); a fit on a bound is reported as on the bound, the bounds are
+          not widened; the lowest-rmse start is taken by the driver as at every site. Expected: FR-Bil on a bound
+          (sensor at 0.11-0.15 with the water table 10-33 cm below it needs a very steep retention curve);
+          misfit at DK-Sor not below about 0.01 (its hourly scatter).
+          Calibration jobs (2 cpus, 8G, 12 h, four starts each; submitted 22:05):
+            cal_bil_dec20_s0 15651961 cal_bil_dec20_s1 15651962 cal_bil_dec20_s2 15651963 cal_bil_dec20_s3 15651964
+            cal_nor_dec19_s0 15651965 cal_nor_dec19_s1 15651966 cal_nor_dec19_s2 15651967 cal_nor_dec19_s3 15651968
+            cal_sor_feb26_s0 15651969 cal_sor_feb26_s1 15651970 cal_sor_feb26_s2 15651971 cal_sor_feb26_s3 15651972
+            cal_dor_mar24_s0 15651973 cal_dor_mar24_s1 15651974 cal_dor_mar24_s2 15651975 cal_dor_mar24_s3 15651976
+            cal_sr2_nov19b_s0 15651977 cal_sr2_nov19b_s1 15651978 cal_sr2_nov19b_s2 15651979 cal_sr2_nov19b_s3
+            15651980
