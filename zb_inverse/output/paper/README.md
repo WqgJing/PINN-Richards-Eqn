@@ -418,7 +418,7 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 10:50). Five of the new windows have a finished PINN run: all four of the first selection and
+State (15 Nov, 12:25). Five of the new windows have a finished PINN run: all four of the first selection and
 one of the second. They are reported here as run and are not yet in the counts above (one SE-Nor check is
 still going). All rows are in-sample (soil fitted on the same window with the well).
 
@@ -585,12 +585,20 @@ each object.)
 - ICOS, first selection: the 1/4 h repeats of the numerical inversion at DK-Sor and IT-SR2; the 1/4 h
   inversion started on the PINN's path at SE-Nor; the SE-Nor repeat with `sampling.local_box`.
 - ICOS, second selection: the PINN run at FR-Bil (12 Dec 2020; outside the gate, see above) and a 1/4 h check
-  of its numerical reference, both started 15 Nov, 10:29; the last start of the numerical inversion at SE-Nor
-  (the other four stations are done). At SE-Nor (6 Dec 2019) three of four starts end on one estimate 4.35 cm from the well, and
-  a PINN run was started on those three (declared before launch; the 5 cm gate is evaluated when the fourth
-  is in). Its first training stage was run in both network forms: the conductive form ended with 16.9 - 18.1 %
-  of the surface-flux error left and continues (first inversion and refinement running); the additive form
-  ended with 155 - 163 % left and was stopped, by a rule written before the two were compared. No estimate
+  of its numerical reference, both started 15 Nov, 10:29. Its first training stage ended with 17.4 - 18.8 % of
+  the surface-flux error left (expected 15 - 25 %); refinement is running. The last start of the numerical
+  inversion at SE-Nor is still running (the other four stations are done).
+- At SE-Nor (6 Dec 2019) three of four starts end on one estimate 4.35 cm from the well, and a PINN run was
+  started on those three (declared before launch; the 5 cm gate is evaluated when the fourth is in). Its
+  first training stage was run in both network forms: the conductive form ended with 16.9 - 18.1 % of the
+  surface-flux error left and continues; the additive form ended with 155 - 163 % left and was stopped, by a
+  rule written before the two were compared. The refinement of this run draws most of its paths outside the
+  range the inversion evaluates (the defect found at SE-Nor's first window; round 1 ends with a PDE loss of
+  307 - 2417 against 11 at the end of the first stage). The switch that keeps the draws inside the range
+  (`sampling.local_box`) held its loss expectation at SE-Nor's first window (PDE 8 - 106, flux error
+  7.5 - 11.1 % in rounds 2 - 4, against 139 - 411829 and 18 - 47 % without it) and is the setting of every run
+  started from now on. A second run with the switch was started here from the same first stage (15 Nov,
+  12:20); it is the one this window will be reported by, the run without the switch beside it. No estimate
   exists yet.
 
 ## Regenerate

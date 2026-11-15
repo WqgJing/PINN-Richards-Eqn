@@ -8400,3 +8400,7 @@ runs/rfnor2c_inv1: refinement sd per coefficient 37.99 5.76 2.26 3.14 0.74 0.45 
           has ended, the same width report is made. If any coefficient has a refinement sd above 2.0 (half the
           box), a repeat rfbil2e is started the same way (links to rfbil2c_w{0..3}, one switch), and the same
           row rule holds there (rfbil2e is the row, rfbil2c beside it). If none: no repeat; rfbil2c is the row.
+        (12:20) LAUNCHED rfnor2e (driver pid 177186; logs/full_rfnor2e.log). First line of its log:
+            full rfnor2e on /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/real_nor_dec19_own, sensor [0.05,0.05], options '--set model.departure=conductive --set prior.clip_m=[0.10,1.5] --set sampling.local_box=true', at Sun Nov 15 12:20:01 EST 2026
+          runs/rfnor2e_w{0..3} are links to runs/rfnor2c_w{0..3}; the waiter knows the tag (wide event marked as seen,
+          event inv0_nor2e for F1). Plan pushed before launch (8596fe6). Width report for FR-Bil submitted (cov_bil2c 15679670).
