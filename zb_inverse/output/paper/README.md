@@ -418,7 +418,7 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 08:15). Five of the new windows have a finished PINN run: all four of the first selection and
+State (15 Nov, 09:10). Five of the new windows have a finished PINN run: all four of the first selection and
 one of the second. They are reported here as run and are not yet in the counts above (the SE-Nor step check is
 still going). All rows are in-sample (soil fitted on the same window with the well).
 
@@ -461,7 +461,10 @@ still going). All rows are in-sample (soil fitted on the same window with the we
   its last stage alternated between two paths and the scored one is the path it was on when the four
   iterations were used up. The solver's own cost of that path is 0.240, 5.2 % above its minimum (0.228), while
   the PINN's model gives 0.390 on the same path: here part of the distance is the PINN's forward model at its
-  own estimate, not only the search. This row shows neither statement over the whole window.
+  own estimate, not only the search. Started on the PINN's path, the solver goes back to its own estimate in
+  nine iterations (0.05 - 0.09 cm from each of its four starts, cost 0.228): the solver has one estimate from
+  five starts, and the 22 cm on days 1 - 2 are the PINN's. This row shows neither statement over the whole
+  window.
 - FR-Bil: neither statement, and the weakest training of all runs. The sensor does not determine the water table
   in this window: the well rises steadily from 1.375 to 0.35 m while the sensor (0.14 - 0.25, against a fitted
   theta_s of 0.56) follows the rain. The model run with the measured well fits the sensor to 0.0072; the
@@ -563,7 +566,7 @@ each object.)
 ## Not yet in this set (running)
 
 - ICOS, first selection: the 1/4 h repeats of the numerical inversion at SE-Nor, DK-Sor and IT-SR2; the
-  numerical inversion started on the PINN's path at DK-Sor and at FR-Bil; the SE-Nor repeat with
+  numerical inversion started on the PINN's path at FR-Bil; the SE-Nor repeat with
   `sampling.local_box`.
 - ICOS, second selection: numerical inversion at FR-Bil, SE-Nor and DK-Sor (BE-Dor and IT-SR2 are done); PINN where
   the numerical inversion is within 5 cm of the well; scores.

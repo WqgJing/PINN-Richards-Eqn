@@ -7913,3 +7913,82 @@ Real-case spec (first slice):
               head variable of the network); without the gate being met nothing is done.
             - The alpha of bil_dec20 and nor_dec19 is at the fit's upper bound (20 /m; theta_s at its lower bound
               0.30, Ks at its upper 1e-3): these fits are held by three bounds, which the row has to say.
+        (09:04) DK-Sor, solver started on the PINN's path HAS ENDED (event num5_sor_1h 09:02; job rfq_sor_pinn1h 15669282:
+          exit=0 lines 1, Traceback lines 0, 1 h 34 min; comparison job chk_sor5 15671318: exit=0 lines 1, Traceback
+          lines 0; numbers by jq from output/real_sor_dec24_own/inversion_pinn.json in the same command; REFERENCE
+          lines, solver only):
+            start                          cost       from the well   on bound              sd median   iterations
+            hydrostatic                    0.228290   40.84 cm        [0,4,5,6,7,12,13]     16.05 cm    31
+            hydrostatic_flat               0.228292   40.83 cm        [0,4,5,6,7,12,13]     16.05 cm    35
+            constant:1.0                   0.228290   40.88 cm        [0,4,5,6,7,12,13]     16.04 cm    40
+            constant:0.3                   0.228291   40.83 cm        [0,4,5,6,7,12,13]     16.05 cm    40
+            file:runs/rfsor1cdc_it4 (PINN) 0.228289   40.86 cm        [0,4,5,6,7,12,13]     16.04 cm    9
+          Fifth against the four: 0.06, 0.09, 0.05, 0.07 cm rms (largest 0.18 - 0.33 cm, on day 6); the four among
+          themselves 0.01 - 0.14 cm. Steps not converged in the worst solve 9.4 - 11.3 %.
+          F3b HOLDS: started on the PINN's path the solver goes back to its own estimate (0.05 - 0.09 cm, limit
+          0.5 cm) in 9 iterations, cost 0.24018 -> 0.22829. The PINN's path is not an end point of the solver's
+          inversion: at 1 h steps the solver has ONE estimate from five starts, and the 22 cm on days 1 - 2
+          (PINN minus numerical by day [3.01,22.33,22.49,3.16,0,0.08,0.43,1.12,0.84,0.63,0.06] cm, 9.64 cm over the
+          window, unchanged) are the PINN's. With F3a (the PINN's own cost of that path 0.390 against the solver's
+          0.240): the PINN's forward model at its own estimate is off on those days, in a run that did not
+          converge and was made with the refinement defect. Not read like IT-SR2's row.
+          STILL OPEN at DK-Sor: the 1/4 h repeat of the numerical inversion (stepq_sor; 9 - 11 % of the 1 h steps
+          do not converge in the worst solve), and the PINN repeat with sampling.local_box, only if E4 of rfnor1e
+          holds.
+        (09:11) SECOND SELECTION, numerical inversions so far (REFERENCE lines, solver only; copied by jq from
+          output/referee/<window>_s?/summary.json in the same command; the starts still running are named):
+            nor_own_dec19_s0  hydrostatic: cost 0.332434, from the well 4.35 cm rms, bias 0.26 cm, max 16.92 cm, on bound [0], 7 it, sensor misfit 0.00288, sd median 0.46 cm, steps not converged (worst solve) 61.1 %, 13659 s
+            nor_own_dec19_s1  hydrostatic_flat: cost 0.332434, from the well 4.36 cm rms, bias 0.26 cm, max 16.96 cm, on bound [0], 10 it, sensor misfit 0.00288, sd median 0.46 cm, steps not converged (worst solve) 59.2 %, 12765 s
+            nor_own_dec19_s2  constant:1.0: running (job 15660644, 7 h of 24 h)
+            nor_own_dec19_s3  constant:0.3: cost 0.332434, from the well 4.35 cm rms, bias 0.26 cm, max 16.94 cm, on bound [0], 13 it, sensor misfit 0.00288, sd median 0.46 cm, steps not converged (worst solve) 61.1 %, 22112 s
+            bil_own_dec20_s0  hydrostatic: cost 0.249335, from the well 7.75 cm rms, bias 2.63 cm, max 30.49 cm, on bound [13], 11 it, sensor misfit 0.0025, sd median 0.38 cm, steps not converged (worst solve) 39.2 %, 20630 s
+            bil_own_dec20_s1  hydrostatic_flat: cost 0.249342, from the well 7.25 cm rms, bias 2.48 cm, max 27.96 cm, on bound [13], 10 it, sensor misfit 0.0025, sd median 0.38 cm, steps not converged (worst solve) 38.1 %, 16701 s
+            bil_own_dec20_s2, _s3  running (jobs 15660562, 15660563)
+            sor_own_feb26_s0  hydrostatic: cost 4.500126, from the well 48.19 cm rms, bias 23.86 cm, max 115.98 cm, on bound [9,10,11,13], 40 it, sensor misfit 0.01061, sd median 0.65 cm, steps not converged (worst solve) 7.5 %, 12246 s
+            sor_own_feb26_s1  hydrostatic_flat: cost 4.947518, from the well 48.96 cm rms, bias 24.69 cm, max 115.98 cm, on bound [9,10,11,13], 40 it, sensor misfit 0.01112, sd median 0.68 cm, steps not converged (worst solve) 6.8 %, 9344 s
+            sor_own_feb26_s2  constant:1.0: running (job 15662531)
+            sor_own_feb26_s3  constant:0.3: cost 10.448344, from the well 69.59 cm rms, bias 48.16 cm, max 114.39 cm, on bound [8,10], 40 it, sensor misfit 0.01616, sd median 65.51 cm, steps not converged (worst solve) 10.6 %, 11923 s
+          Read, with the fourth starts still out (the gate of 74 aj is evaluated on the lowest cost of FOUR):
+            - SE-Nor, 6 Dec 2019: three starts end on one cost (0.332434) and one estimate, 4.35 cm from the hourly
+              well, no bias (0.26 cm), one coefficient on the shallow bound (day 0, where the largest miss of
+              16.9 cm sits). Inside the 5 cm gate so far; R3 (3 cm) is not met by the solver. Data set
+              (output/real_nor_dec19_own/real_summary.json): well 0.15 - 0.41 m, daily-knot spline of the well
+              against the hourly record 0.60 cm rms, solver with the observed well against the sensor 0.0051
+              (r 0.86), every 1 h step of that run converged and it is 0.00013 from the finer solver. Soil fit
+              (twin_config.yaml): theta_s 0.300, theta_r 0.178, alpha 20.0 /m, n 2.62, Ks 1.0e-3 m/s: held by three
+              bounds of the fit (theta_s lower, alpha upper, Ks upper), which its row has to say.
+              OPEN POINT of the reference itself: in the worst solve of each search 59 - 61 % of the 1 h steps did
+              not converge. With the observed well all converge, so the trial paths are the ones affected, but
+              the summary does not say how many at the estimate.
+            - FR-Bil, 12 Dec 2020: two starts, 7.25 and 7.75 cm from the well, bias 2.5 cm: outside the gate so far.
+            - DK-Sor, 23 Feb 2026: three starts, three different end points (cost 4.50, 4.95, 10.45), 48 - 70 cm
+              from the well, all at the iteration limit: far outside the gate; no PINN by the rule.
+          DEVIATION from 74 aj step 4, declared before the run: the PINN at SE-Nor, 6 Dec 2019 is started NOW, on
+          three of four starts, not when the fourth is in. Reason: the three agree to six digits of the cost, the
+          fourth (constant:1.0) has no end time, and this is the one new window where statement (ii) can be
+          tested at all. The gate is still evaluated on four starts when the fourth ends: lowest cost within 5 cm
+          -> the row is "inside the gate"; otherwise the row is labelled "outside the gate, started on three of
+          four starts" and is not counted as inside in W3. The run is reported whatever it gives.
+          EXPECTED of the PINN at this window (tag rfnor2c), written before launch:
+            N1 the wide stage learns the surface flux: factor above 2 at step 5000, and 12 - 20 % of node rms left
+               at its end in all four networks (H-n puts n 2.62 next to IT-SR2's 13 - 14 %; alpha 20 /m with that
+               n is a sharper curve than any soil a PINN was run on so far: nor_oct23 alpha 16.4 with n 1.48,
+               sr2_nov19 n 2.78 with alpha 8.0). My odds 55 %. Above 30 % in any network = "training marginal".
+            N2 if N1 holds: the PINN estimate is within 1 cm rms of the numerical one over the window (R2), the
+               same from its starts within 0.2 cm (R1), and the correction loop stops by its rule within four
+               iterations. Named risk: day 0 - 1, coefficient 0 on the shallow bound; at the first SE-Nor window
+               the PINN and the solver differed exactly there.
+            N3 against the well the PINN then scores as the solver does: 4 - 5 cm rms, bias under 1 cm; R3 (3 cm)
+               not met, inside 5 cm.
+            N4 (reference): a numerical inversion with 1/4 h steps, started on the 1 h estimate (s0), stays
+               within 1 cm rms of it. My odds 65 %; job rfq_nor2_dt025 -> output/referee/nor_own_dec19_dt025_s0,
+               event stepq_nor2.
+          RULES: first wide network read at step 5000 (factor below 2 -> the additive form is started next to it
+          and the one higher at step 5000 goes on); losses of every stage recorded before any score; N1 fails as
+          marginal -> the run is finished and reported under that label, no second attempt without a plan
+          written first; N4 fails (more than 1 cm) -> the 1/4 h estimate is the reference for both statements
+          (rule of 22:29); sampling.local_box stays OFF in this run (E4 of rfnor1e is not known at launch; if it
+          holds later, runs started after that get the switch, this one is not restarted); path range
+          0.10 - 1.50 m as in the numerical inversion:
+            hpc/real_full_x.sh rfnor2c output/real_nor_dec19_own "[0.05,0.05]"
+                "--set model.departure=conductive --set prior.clip_m=[0.10,1.5]"
