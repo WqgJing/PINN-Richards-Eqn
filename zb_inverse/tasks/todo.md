@@ -8484,3 +8484,30 @@ runs/rfbil2c_inv0: refinement sd per coefficient 1.81 0.50 0.47 0.36 0.48 0.42 0
             Against the well by day (s0): 10.07, 5.72, 7.05 cm on days 0 - 2 and 0.72 - 2.71 cm on days 3 - 10: the 4.35 cm over the window come from the first three days. R3 (3 cm over the window) is not met by the solver; the gate (5 cm) is.
             STILL OPEN for this reference: N4 (the 1/4 h repeat from s0, job 15671454, event stepq_nor2).
             The rules written above for the PINN rows stand; by them a PINN start that differs on day 0 fails R1 at this window and is reported beside the solver's second end point.
+        (14:26) SE-Nor, 6 Dec 2019: the 1/4 h repeat of the numerical inversion ended (event stepq_nor2, 14:25; N4).
+          Job check: rfq_nor2_dt025 15671454 COMPLETED 05:11:38, logs/cpu_15671454.out: exit=0 lines 1, Traceback lines 0.
+          REFERENCE lines, solver only (copied by jq from output/referee/<d>/summary.json in this command):
+            nor_own_dec19_s0  hydrostatic, step 1.0 h: cost 0.332434, from the well 4.35 cm rms, bias 0.26 cm, max 16.92 cm, on bound [0], 7 it, 217 solves, sensor misfit 0.00288, sd median 0.46 cm, steps not converged (worst solve) 61.1 %, 13659 s
+            nor_own_dec19_dt025_s0  file:/storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/referee/nor_own_dec19_s0/predictions.npz, step 0.25 h: cost 0.33114, from the well 4.35 cm rms, bias 0.25 cm, max 17.58 cm, on bound [0], 4 it, 117 solves, sensor misfit 0.00288, sd median 0.46 cm, steps not converged (worst solve) 36.2 %, 17180 s
+          Its search (output/referee/nor_own_dec19_dt025_s0/history.json):
+            it 0: cost 0.331143, lambda 0.0033333333333333335, from the well 4.4 cm
+            it 1: cost 0.33114, lambda 0.0011111111111111111, from the well 4.35 cm
+            it 2: cost 0.33114, lambda 0.00037037037037037035, from the well 4.35 cm
+            it 3: cost 0.33114, lambda 0.0001234567901234568, from the well 4.35 cm
+          COMPARISON with the 1 h estimates (job chk_nor19q 15684866, logs/cpu_15684866.out: exit=0 lines 1, Traceback lines 0; solver only; copied by jq from output/real_nor_dec19_own/inversion_num_q.json in this command; cm):
+            s0 minus dt025_s0: rms 0.19, bias 0, largest 0.66 at day 0.08, by day [0.47,0.25,0.31,0.01,0,0,0,0,0,0,0]
+            s0 minus s2: rms 6.26, bias -1.36, largest 49.35 at day 0, by day [20.79,0.23,0.47,0.03,0.02,0.01,0,0,0,0,0]
+            dt025_s0 minus s2: rms 6.14, bias -1.36, largest 48.7 at day 0, by day [20.38,0.42,0.78,0.04,0.02,0.01,0,0,0,0,0]
+            dt025_s0 from the well: 4.35 cm rms, bias 0.25 cm, r 0.894; by day [10.38,5.54,6.75,2.63,2.19,0.83,1.07,1.25,1.2,0.72,2.71]; posterior sd by day [19.27,2.8,3.2,0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32]
+          VERDICT N4 (1/4 h repeat started on the 1 h estimate stays within 1 cm rms of it): HOLDS: 0.19 cm rms over the window, largest 0.66 cm at day 0.08, by day at most 0.47 cm.
+          READ: the 1 h estimate (s0) is the reference of this window for both statements, as the rule of the
+          launch entry says for "N4 holds". The 1/4 h search, started on it, stopped after four iterations at a
+          cost 0.4 % lower with the same coefficient on the bound, the same distance from the well and the same
+          posterior sd; what moved is days 0 - 2 by 0.25 - 0.47 cm, inside the posterior sd of those days. The
+          share of steps not converged in the worst solve is still 36.2 % at 1/4 h (61.1 % at 1 h): the trial
+          paths of the search stress the solver at this soil (alpha 20 /m, n 2.62, Ks at its bound), and the
+          estimate does not depend on it to more than 0.5 cm by day. This closes the open point of 09:11 on the
+          reference at this window. The second end point of the 1.0 m start was not repeated at 1/4 h (its
+          1 h search took 887 solves in 11 h; four times that is beyond the 24 h limit): it stays reported as
+          found at 1 h, day 0 only.
+          NOTHING changes for the PINN rows (rfnor2e the row, rfnor2c beside it): reference s0, rules as written.

@@ -418,7 +418,7 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 13:32). Five of the new windows have a finished PINN run: all four of the first selection and
+State (15 Nov, 14:27). Five of the new windows have a finished PINN run: all four of the first selection and
 one of the second. They are reported here as run and are not yet in the counts above (one SE-Nor check is
 still going). All rows are in-sample (soil fitted on the same window with the well).
 
@@ -504,9 +504,11 @@ still going). All rows are in-sample (soil fitted on the same window with the we
   three on day 0 only (20.8 cm there, 0.2 - 0.5 cm on days 1 - 2, at most 0.03 cm from day 3), where the sensor
   does not determine the water table (posterior sigma 19 cm). By day the lowest-cost estimate is 10.1, 5.7 and
   7.1 cm from the well on days 0 - 2 and 0.7 - 2.7 cm on days 3 - 10, so the 3 cm criterion of (ii) is not met
-  over the window by the solver itself. Two limits: the soil fit is held by three of its bounds (theta_s
-  lower, alpha and Ks upper), and in the worst solve of each search 59 - 61 % of the solver's 1 h steps did not
-  converge (a 1/4 h repeat is running). The PINN runs of this window are still training (below).
+  over the window by the solver itself. In the worst solve of each search 59 - 61 % of the solver's 1 h steps
+  did not converge, so the inversion was repeated with 1/4 h steps from the lowest-cost estimate: it stays
+  0.19 cm from it over the window (at most 0.47 cm by day, on day 0; largest 0.66 cm), 4.35 cm from the well,
+  and the 1 h estimate stands as the reference. One limit: the soil fit is held by three of its bounds (theta_s
+  lower, alpha and Ks upper). The PINN runs of this window are still training (below).
 - Second selection, count: one window of five inside the 5 cm gate, SE-Nor (4.35 cm at the lowest cost of four
   starts). Outside: BE-Dor 5.41 cm, FR-Bil 7.61 cm, IT-SR2 and DK-Sor far outside.
 - Found on these runs (`tasks/todo.md`, 06:57): the refinement rounds drew their local paths without keeping them
