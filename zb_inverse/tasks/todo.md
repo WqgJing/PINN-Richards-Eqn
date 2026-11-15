@@ -6315,3 +6315,48 @@ Real-case spec (first slice):
             not learned" and does not count as support for the method whatever its score.
             What sets FR-Bil apart in the fitted soil is n at its upper bound of 10 (theta from 0.125
             to 0.563 over a few cm of head). That this is the reason is my reading, not tested.
+        (21:10) DK-Sor DECEMBER, NUMERICAL INVERSION (reference only): ALL FOUR TIMED OUT at the 3 h limit
+          (sacct: TIMEOUT 03:00:18; logs/transfer_sor_dec24.log "no summary"; output/referee/sor_own_dec24_s?
+          empty: scripts/fem_referee.py writes only at its end and cannot resume). Not a result. What the
+          job logs show at the point they were cut (start: cost and zb RMSE there -> last line):
+            15642226  start hydrostatic: cost 3.2998e-01, zb RMSE 0.3642 m  ->  iteration 20: cost 2.282952e-01, |step| 2.92e-02, zb RMSE 0.4081 m, 10682 s
+            15642227  start hydrostatic_flat: cost 1.0292e+00, zb RMSE 0.1867 m  ->  iteration 21: cost 2.283090e-01, |step| 4.73e-02, zb RMSE 0.4095 m, 10358 s
+            15642228  start constant:1.0: cost 1.0303e+00, zb RMSE 0.2045 m  ->  iteration 21: cost 2.283081e-01, |step| 4.61e-02, zb RMSE 0.4095 m, 10470 s
+            15642229  start constant:0.3: cost 6.6439e+00, zb RMSE 0.6133 m  ->  iteration 21: cost 2.283320e-01, |step| 7.91e-02, zb RMSE 0.4074 m, 10563 s
+          The four starts are at one cost (0.22830 - 0.22833) and 41 cm from the well, still moving in the
+          5th digit of the cost (stop rule: relative gain < 1e-7), so they would have used all 40
+          iterations (about 5.7 h at 510 s each). The flat start began 19 cm from the well and the fit
+          moved it AWAY to 41 cm: the sensor pulls the estimate off the record here.
+          AGAINST T3 (misses R3, guess 10 - 40 cm): on course to miss R3 by about 41 cm, at the top of the
+            guess. NOT YET A RECORDED RESULT: no finished inversion.
+          MY MISTAKE: the 3 h limit. I gave 8 h only to the Ks 1e-3 soils, again a rule from one case
+            (US-HB2), and did not look at the time of the first iteration (388 s, printed 6 min in).
+          DONE: the four resubmitted with the driver's own command and -t 08:00:00 (not through the driver:
+            it would rewrite output/real_sor_dec24_own, which rfsor1c is reading):
+            rf_sor_own_dec24_s0..3 = 15650024 - 15650027.
+          PACE OF THE OTHER NUMERICAL JOBS (iteration index and seconds of their last line, nothing else):
+            rf_bil_own_oct23_s0: iteration 32 after 8206 s -> 40 iterations = 2.8 h
+            rf_bil_own_oct23_s2: iteration 27 after 8327 s -> 40 iterations = 3.3 h
+            rf_bil_own_oct23_s3: iteration 32 after 8412 s -> 40 iterations = 2.8 h
+            rf_nor_own_oct23_s0: iteration 5 after 5228 s -> 40 iterations = 9.7 h
+            rf_nor_own_oct23_s1: iteration 6 after 6315 s -> 40 iterations = 10.0 h
+            rf_nor_own_oct23_s2: iteration 5 after 6130 s -> 40 iterations = 11.4 h
+            rf_nor_own_oct23_s3: iteration 6 after 5651 s -> 40 iterations = 9.0 h
+            rf_sr2_own_nov19_s0: iteration 2 after 2782 s -> 40 iterations = 10.3 h
+            rf_sr2_own_nov19_s1: iteration 2 after 3075 s -> 40 iterations = 11.4 h
+            rf_sr2_own_nov19_s2: iteration 0 after 3147 s -> 40 iterations = 35.0 h
+            rf_sr2_own_nov19_s3: iteration 3 after 3642 s -> 40 iterations = 10.1 h
+            FR-Bil s0 and s3 fit their 3 h, s2 does not (3.3 h); SE-Nor (8 h limit) needs 9 - 11 h and
+            IT-SR2 (8 h) 10 h or more if they use the 40 iterations. BACKUP COPIES submitted now with
+            longer limits, same command and same output directory, names rfL_* (logs/rf_long.ids):
+            rfL_nor_own_oct23_s0 15650038 hydrostatic 24:00:00
+            rfL_sr2_own_nov19_s0 15650039 hydrostatic 24:00:00
+            rfL_nor_own_oct23_s1 15650040 hydrostatic_flat 24:00:00
+            rfL_sr2_own_nov19_s1 15650041 hydrostatic_flat 24:00:00
+            rfL_nor_own_oct23_s2 15650042 constant:1.0 24:00:00
+            rfL_sr2_own_nov19_s2 15650043 constant:1.0 24:00:00
+            rfL_nor_own_oct23_s3 15650044 constant:0.3 24:00:00
+            rfL_sr2_own_nov19_s3 15650045 constant:0.3 24:00:00
+            rfL_bil_own_oct23_s2 15650046 constant:1.0 08:00:00
+            Rule: whichever of a pair ends first with a summary is the record; the other is cancelled
+            then. Same code, same data set, same start.
