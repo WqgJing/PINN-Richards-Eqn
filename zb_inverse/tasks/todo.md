@@ -6945,3 +6945,10 @@ Real-case spec (first slice):
           -> start3.json. Nothing is changed because the starts disagree; the row says "soil not unique: four
           starts, four soils, misfit 0.0109 - 0.0126".
           Expectation for this station stays as written before the data set was built: NOT within 5 cm.
+          Step 4 at DK-Sor started (03:09:57): RSET="--set prior.clip_m=[0.10,1.5]" PYI=-I RT=24:00:00
+          hpc/transfer_solver_x.sh sor feb26 "[0.05,0.05]" -> logs/transfer_sor_feb26.log; soil = start3.json (lowest
+          misfit); data set output/real_sor_feb26_own, inversions output/referee/sor_own_feb26_s0..3 (path range
+          0.10 - 1.50 m). Guard anchored on the process and tested both ways before the launch (running driver
+          nor dec19: 3 lines; this one: 0 lines, no log file); after the launch: 3 driver processes and the
+          driver's own first log lines seen. All five stations of the second selection now have step 4 running
+          or done (BE-Dor done: 5.41 cm).
