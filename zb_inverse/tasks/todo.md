@@ -6214,3 +6214,19 @@ Real-case spec (first slice):
                1 h steps; some unconverged steps are expected with this soil too.
           DECISION RULE as at the other stations; PINN whatever T6 gives:
             hpc/real_full_x.sh rfsr21c output/real_sr2_nov19_own "[0.05,0.05]" "--set model.departure=conductive".
+        (20:05) IT-SR2 DATA SET WITH THE FITTED SOIL: output/real_sr2_nov19_own (job 15647719, exit=0, no
+          Traceback). converged steps 99.25 %; admissible true; gaps filled: LE 0.0, rain 0, sensor 0 h, well 0 h; surface head never below -1.66 m.
+          Forward solve against the sensor: record water table 0.00921, r 0.702; 1-day spline 0.00927, r 0.698; f_T 0 / 0.5 / 1: 0.00919 / 0.00921 / 0.00925.
+          The stored 1 h solve is 0.00069 RMS (0.0063 max) in sensor theta from the finer solve of the data-set check.
+          CAVEAT to state with every numerical number at IT-SR2 (as at FR-Bil): not every 1 h solver step
+          converged (fraction above).
+          NOTE: the line "FEM over the record vs sensor null" in logs/transfer_{sor,bil,nor,sr2}_*.log is the
+          driver's echo asking for the key "fT=gldas, record water table", which the ICOS data sets do
+          not have (theirs is "fT=0.55, ..."; DK-Sor's its own f_T). Display only; the numbers here are
+          read from real_summary.json. hpc/transfer_solver.sh is not edited while drivers run it.
+        PINN LAUNCHED (20:04): setsid nohup hpc/real_full_x.sh rfsr21c output/real_sr2_nov19_own "[0.05,0.05]"
+          "--set model.departure=conductive" > logs/full_rfsr21c.log (final directory runs/rfsr21cdc_it4).
+          Read only after the numerical lines of logs/transfer_sr2_nov19.log are recorded.
+        STATE 20:05: all four stations have a soil, a numerical inversion running (rf_{sor_own_dec24,
+          bil_own_oct23,nor_own_oct23,sr2_own_nov19}_s0..3) and a PINN run training (rfsor1c, rfbil1,
+          rfnor1c, rfsr21c). Still to apply: the wide-stage flux criterion to rfbil1 (additive).
