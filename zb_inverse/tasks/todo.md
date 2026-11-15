@@ -8275,3 +8275,128 @@ Real-case spec (first slice):
           value; the pushes made since the history was cleaned have not changed it. Routes left, each needing the owner's yes:
           a request to GitHub Support to recount (the owner sends it), or waiting for GitHub's own refresh.
           The watcher is started again for another 600 minutes.
+        (12:16) FR-Bil 12 Dec 2020, PINN OUTSIDE THE GATE (rfbil2c, conductive): WIDE STAGE HAS ENDED (event
+          rfbil2c_wide 12:16). Jobs, then held-out losses at the end of the stage (last line of
+          runs/rfbil2c_w?/metrics.csv), then the four values in order with their median (lines written by the
+          command that printed them):
+            rfbil2c_w0: 15673939 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfbil2c_w1: 15673942 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfbil2c_w2: 15673941 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfbil2c_w3: 15673940 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfbil2c_w0  step 42000: PDE 23.90  flux 3.344   (18.3 % of node rms)
+            rfbil2c_w1  step 42000: PDE 22.49  flux 3.544   (18.8 % of node rms)
+            rfbil2c_w2  step 42000: PDE 20.65  flux 3.042   (17.4 % of node rms)
+            rfbil2c_w3  step 42000: PDE 23.77  flux 3.238   (18.0 % of node rms)
+            rfbil2c: flux error left 17.4 18.0 18.3 18.8 % of node rms -> median 18.1 %
+          P1 ("15 - 25 % of node rms left in all four", odds 60 %; above 30 % in any = training marginal):
+          HOLDS (17.4 - 18.8 %). Not marginal, so by the rule the additive form is NOT run here. Next by
+          the rules: rfbil2c goes through inversion and four refinement rounds by itself; losses of every
+          stage before any score. Nothing of its inversion has been read.
+        (12:16) SE-Nor 6 Dec 2019 (rfnor2c): REFINEMENT ROUND 1 HAS ENDED (round 2 running). Jobs and held-out
+          losses at the end of the round (lines written by the command that printed them):
+            rfnor2c_r1_m0: 15674534 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor2c_r1_m1: 15674535 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor2c_r1_m2: 15674538 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor2c_r1_m3: 15674537 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor2c_r1_m0  step 18000: PDE 1238.48  flux 11.335   (33.7 % of node rms)
+            rfnor2c_r1_m1  step 18000: PDE 2416.94  flux 7.986   (28.3 % of node rms)
+            rfnor2c_r1_m2  step 18000: PDE 1035.01  flux 9.913   (31.5 % of node rms)
+            rfnor2c_r1_m3  step 18000: PDE 306.61  flux 13.792   (37.1 % of node rms)
+            rfnor2c_inv0: job 15674462 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor2c_inv1: job 15677036 COMPLETED: exit=0 lines 1, Traceback lines 0
+          OBSERVATION (losses only): round 1 of rfnor2c ends with PDE 307 - 2417 and 28.3 - 37.1 % flux error on
+          draws of its own refinement distribution, against PDE 11.0 - 11.7 and 16.9 - 18.1 % at the end of
+          the wide stage. The two are not taken on the same paths (finding of 07:0x: the held-out loss of a
+          refinement network is taken on its own draws), but PDE values of this size are what rfnor1c showed
+          in rounds 2 - 4, where the local draws left the box of the path prior. rfnor2c runs WITHOUT
+          sampling.local_box, as declared; the repeat that tests the switch (rfnor1e, SE-Nor first window) has
+          finished its four refinement rounds. Its losses, read now (losses only; M1 / M2 and every score wait
+          for the driver's end, as written). Jobs, then the end of each round:
+            rfnor1e_r1_m0: 15668717 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor1e_r1_m1: 15668728 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor1e_r1_m2: 15668727 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor1e_r1_m3: 15668725 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor1e_r2_m0: 15670187 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor1e_r2_m1: 15670184 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor1e_r2_m2: 15670186 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor1e_r2_m3: 15670183 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor1e_r3_m0: 15671175 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor1e_r3_m1: 15671186 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor1e_r3_m2: 15671183 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor1e_r3_m3: 15671185 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor1e_r4_m0: 15672410 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor1e_r4_m1: 15672398 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor1e_r4_m2: 15672409 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor1e_r4_m3: 15672408 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor1e_r1_m0  step 18000: PDE 18.01  flux 0.749   (8.7 % of node rms)
+            rfnor1e_r1_m1  step 18000: PDE 17.77  flux 0.703   (8.4 % of node rms)
+            rfnor1e_r1_m2  step 18000: PDE 335.44  flux 0.665   (8.2 % of node rms)
+            rfnor1e_r1_m3  step 18000: PDE 10.92  flux 0.888   (9.4 % of node rms)
+            rfnor1e_r2_m0  step 18000: PDE 12.02  flux 1.241   (11.1 % of node rms)
+            rfnor1e_r2_m1  step 18000: PDE 13.94  flux 0.598   (7.7 % of node rms)
+            rfnor1e_r2_m2  step 18000: PDE 21.40  flux 0.634   (8.0 % of node rms)
+            rfnor1e_r2_m3  step 18000: PDE 105.82  flux 0.958   (9.8 % of node rms)
+            rfnor1e_r3_m0  step 18000: PDE 38.85  flux 0.970   (9.8 % of node rms)
+            rfnor1e_r3_m1  step 18000: PDE 18.97  flux 0.583   (7.6 % of node rms)
+            rfnor1e_r3_m2  step 18000: PDE 50.41  flux 0.612   (7.8 % of node rms)
+            rfnor1e_r3_m3  step 18000: PDE 22.56  flux 0.598   (7.7 % of node rms)
+            rfnor1e_r4_m0  step 18000: PDE 16.62  flux 0.709   (8.4 % of node rms)
+            rfnor1e_r4_m1  step 18000: PDE 27.01  flux 0.585   (7.6 % of node rms)
+            rfnor1e_r4_m2  step 18000: PDE 7.96  flux 0.561   (7.5 % of node rms)
+            rfnor1e_r4_m3  step 18000: PDE 84.88  flux 0.718   (8.5 % of node rms)
+          for comparison, rfnor1c round 1 (rounds 2 - 4 are in the notes above):
+            rfnor1c_r1_m0  step 18000: PDE 31.16  flux 2.483   (15.8 % of node rms)
+            rfnor1c_r1_m1  step 18000: PDE 114.44  flux 1.886   (13.7 % of node rms)
+            rfnor1c_r1_m2  step 18000: PDE 239.33  flux 1.502   (12.3 % of node rms)
+            rfnor1c_r1_m3  step 18000: PDE 32.56  flux 1.883   (13.7 % of node rms)
+          E3 of the repeat rfnor1e ("rounds 2 - 4: PDE below 150 in all four networks, flux at most 15 % of node
+          rms", odds 60 %): HOLDS - PDE 8.0 - 105.8, flux 7.5 - 11.1 % in the twelve networks of rounds 2 - 4
+          (rfnor1c without the switch: PDE 139 - 411829, flux 18.0 - 47.4 %). As written at 07:0x this loss
+          falls partly by construction and is NOT the evidence that the operator is better at the estimate;
+          that is M1 / M2 (E4), read at the driver's end.
+          WHAT THE RULE OF 07:0x SAYS NOW: with E3 holding, both remaining branches keep the switch ("E4 holds
+          -> the setting of every new PINN run"; "E4 fails with E3 holding -> keep the switch"). So
+          sampling.local_box=true is the setting of every PINN run started from now on, whatever E4 says;
+          E4 only decides whether the roughness inside the box is looked at next.
+        (12:19) WIDTH OF THE REFINEMENT DISTRIBUTION at rfnor2c (job cov_nor2c 15679617: exit=0 lines 1, Traceback lines 0;
+          scripts/local_cov_report.py; coefficient units, the box of the path prior is [-2.971, 1.183], width 4.15):
+runs/rfnor2c_inv0: refinement sd per coefficient 25.38 3.98 1.90 2.98 0.74 0.45 0.44 0.44 0.48 0.48 0.53 0.53 0.66 2.38 | above 0.5: 9 | posterior sd 8.45 1.33 0.53 0.99 0.17 0.10 0.08 0.07 0.06 0.06 0.06 0.07 0.14 0.78
+runs/rfnor2c_inv1: refinement sd per coefficient 37.99 5.76 2.26 3.14 0.74 0.45 0.44 0.44 0.48 0.48 0.53 0.53 0.65 2.38 | above 0.5: 9 | posterior sd 12.66 1.92 0.68 1.04 0.18 0.10 0.08 0.07 0.06 0.06 0.06 0.07 0.14 0.78
+          READ: the refinement draws its paths with an sd of 25 - 38 on coefficient 0 and 2 - 6 on coefficients
+          1 - 3 and 13, against a box 4.15 wide: most local draws of round 1 and 2 lie outside the box on those
+          coefficients, i.e. the networks of rfnor2c are being refined mostly on paths the inversion never
+          evaluates. This is the defect of 07:0x, at this window, in the run without the switch.
+        (12:19) PLAN: A REPEAT OF THE REFINEMENT AT SE-Nor 6 Dec 2019 WITH sampling.local_box=true (tag rfnor2e),
+          beside rfnor2c, written before launch.
+          WHY NOW: by the rule of 07:0x the switch is the setting of every PINN run started from now on (E3
+          holds; both remaining branches keep it). rfnor2c was started before that and goes on as declared.
+          It would end (four rounds, then the correction loop) with operator networks trained mostly outside
+          the box; a run with the method's setting would then start seven hours late. Started now from the
+          SAME wide stage it costs GPU time only and gives baseline against changed at a second window.
+          HOW: runs/rfnor2e_w{0..3} are links to runs/rfnor2c_w{0..3} (the pipeline skips an existing wide
+          stage and repeats inversion 0); options of rfnor2c ('--set model.departure=conductive --set
+          prior.clip_m=[0.10,1.5]') + '--set sampling.local_box=true'. One switch differs.
+          WHICH RUN IS THE ROW: rfnor2e (the method's setting from now on). rfnor2c is reported beside it as
+          "without the switch", whatever either shows. Declared before any estimate of either was read.
+          EXPECTED (before launch):
+            F1 inversion 0 of rfnor2e reproduces runs/rfnor2c_inv0 (same members, CPU): centre within 1e-4.
+               Must hold, else stop rfnor2e and find out why.
+            F2 held-out losses of rounds 1 - 4: PDE below 150 and flux at most 18.1 % of node rms (the largest
+               value at the end of the wide stage) in all sixteen networks. Odds 55 %: inside the box,
+               coefficients 0 - 3 are hardly determined, so the draws sit at the two bounds (rough paths) and
+               the soil is the sharpest a PINN was run on (alpha 20 /m, n 2.62). As written at 07:0x this
+               loss falls partly by construction; it is reported, it is not the evidence.
+            F3 the evidence, at the two drivers' ends: fwd offset rms of iteration 1 (M1) and first step of the
+               correction loop over the posterior sigma, OLD key (M2), both lower in rfnor2e than in rfnor2c.
+               Odds 60 %.
+            F4 = N2 for this run: estimate within 1 cm rms of the numerical one over the window, the same from
+               its starts within 0.2 cm, correction loop stops by its rule within four iterations. Odds 45 %.
+               Named risk: days 0 - 3 (posterior sd of coefficients 0 - 3 at inversion 0: 8.45, 1.33, 0.53,
+               0.99; the sensor hardly determines the first days in the PINN's own posterior).
+            F5 = N3: against the well as the numerical estimate (4 - 5 cm rms, bias under 1 cm); R3 not met.
+          RULES: losses of every stage before any score, in both runs; reference lines before PINN lines; the
+          gate on four numerical starts and the 1/4 h check (N4) are unchanged and apply to both runs.
+          FR-Bil 12 Dec 2020 (rfbil2c, started before the rule, switch off as declared): when its inversion 0
+          has ended, the same width report is made. If any coefficient has a refinement sd above 2.0 (half the
+          box), a repeat rfbil2e is started the same way (links to rfbil2c_w{0..3}, one switch), and the same
+          row rule holds there (rfbil2e is the row, rfbil2c beside it). If none: no repeat; rfbil2c is the row.
