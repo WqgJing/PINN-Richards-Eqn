@@ -6798,3 +6798,25 @@ Real-case spec (first slice):
           repository.
           Reports used (community, not GitHub documentation): github.com/orgs/community/discussions/209019,
           /210496, /191565, /197389; gist.github.com/khasky/3939637b842510c4ff44d2e4d84acd0f.
+        (02:07) SECOND SELECTION, FR-Bil soil fit (jobs 15651961-15651964, each exit=0, no Traceback; output/soil_bil_dec20,
+          copied by jq in this command):
+            start0: rmse 0.00549 (start 0.0238), r 0.932, max 0.0175, on bound ["theta_s","alpha","Ks"], theta_s 0.3, theta_r 0.099, alpha 20, n 2.442, Ks 0.001, 65 solves, 190 min
+            start1: rmse 0.00549 (start 0.0238), r 0.932, max 0.0175, on bound ["theta_s","alpha","Ks"], theta_s 0.3, theta_r 0.099, alpha 20, n 2.442, Ks 0.001, 65 solves, 197 min
+            start2: rmse 0.00549 (start 0.1465), r 0.932, max 0.0175, on bound ["theta_s","alpha","Ks"], theta_s 0.3, theta_r 0.099, alpha 20, n 2.442, Ks 0.001, 87 solves, 239 min
+            start3: rmse 0.00549 (start 0.0106), r 0.932, max 0.0175, on bound ["theta_s","alpha","Ks"], theta_s 0.3, theta_r 0.099, alpha 20, n 2.442, Ks 0.001, 58 solves, 172 min
+          One soil from all four starts (three different start soils: start0 and start1 begin from the same soil).
+          THREE of the five parameters are ON A BOUND: theta_s 0.30 (lower), alpha 20 /m (upper), Ks 1e-3 m/s
+          (upper); by the rule written before the fits the bounds stay and the row says so. Misfit 0.0055 against
+          a sensor range of 0.046 (r 0.93). The station's first window gave another soil with no parameter flagged
+          (soil_bil_oct23: alpha 3.8 - 4.1, n 9.98 - 10.0, theta_s 0.33 - 0.56 depending on the start): the fitted
+          soil is specific to the window at this station, and a fit with three parameters on bounds is a weak
+          description of the material. The expectation written before any data set (within 5 cm most likely at
+          FR-Bil and BE-Dor) stays as written; the gate decides.
+          Step 4 at FR-Bil started (02:06:48): RSET="--set prior.clip_m=[0.10,1.5]" PYI=-I RT=24:00:00
+          hpc/transfer_solver_x.sh bil dec20 "[0.05,0.05]" -> logs/transfer_bil_dec20.log; soil = start2.json (lowest
+          misfit); data set output/real_bil_dec20_own, inversions output/referee/bil_own_dec20_s0..3 (path range
+          0.10 - 1.50 m). Time: the first window's inversions here took 72 - 200 min (up to 40 iterations); limit 24 h.
+          MY ERROR at the launch: the guard "is this driver already running" stood in the same command as the
+          launch line, matched that line in its own shell and printed ALREADY RUNNING; nothing had been started
+          (no log file, no process). Guard repeated alone with the match anchored on the process itself, tested
+          on a driver that is running (3 lines) and on this one (0 lines), then launched (lessons, seventeenth).
