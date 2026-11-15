@@ -6266,3 +6266,18 @@ Real-case spec (first slice):
             (flux factor 1.0 at rfsor1_w0 and rfbil1_w0; 66 at rfnc1_w0, 55 at rfnc1tc_w0, read from their
             metrics.csv). From now on the first wide network of a run at a new soil is read at step 5000.
             For the four conductive runs this early read is information only: their rule is fixed above.
+        (20:14) EARLY READ of the conductive runs already training (hpc/early_flux.sh: val_pde and val_flux
+          of the [adam] lines of the live job logs, nothing else; metrics.csv is only written when a
+          network ends). Information only, the criterion is applied when the four networks end:
+            rfnor1c_w0: step 0 PDE 12.91 flux 190.1 | flux factor at step 5000: 23.0 | latest step 28000: PDE 8.461 flux 1.074, factor 177.0 (10 % of node rms)
+            rfnor1c_w1: step 0 PDE 13.69 flux 189.7 | flux factor at step 5000: 16.8 | latest step 26500: PDE 6.856 flux 1.339, factor 141.7 (12 % of node rms)
+            rfnor1c_w2: step 0 PDE 12.36 flux 189.1 | flux factor at step 5000: 25.8 | latest step 29500: PDE 7.771 flux 1.032, factor 183.2 (10 % of node rms)
+            rfnor1c_w3: step 0 PDE 14.07 flux 213.9 | flux factor at step 5000: 16.4 | latest step 23000: PDE 17.970 flux 1.586, factor 134.9 (13 % of node rms)
+            rfsor1c_w0: step 0 PDE 1.41 flux 531.7 | flux factor at step 5000: not reached | latest step 4500: PDE 30.000 flux 18.980, factor 28.0 (44 % of node rms)
+            rfsor1c_w1: step 0 PDE 1.51 flux 582.1 | flux factor at step 5000: not reached | latest step 0: PDE 1.507 flux 582.100, factor 1.0 (241 % of node rms)
+            rfsor1c_w2: step 0 PDE 1.41 flux 564.6 | flux factor at step 5000: 94.9 | latest step 18000: PDE 4.588 flux 3.851, factor 146.6 (20 % of node rms)
+            rfsor1c_w3: step 0 PDE 1.50 flux 587.8 | flux factor at step 5000: 46.3 | latest step 5000: PDE 25.310 flux 12.690, factor 46.3 (36 % of node rms)
+          Both are learning the surface flux: SE-Nor a factor 16 - 26 at step 5000, DK-Sor 95 at step 5000
+          in the one network that is there (28 and 45 at step 4500 in two more), where the additive
+          form stood at 1.0 through 20000 steps. First half of the expectation (SE-Nor passes) on course;
+          DK-Sor, which I had as "uncertain", is past the factor 10 in three networks already.
