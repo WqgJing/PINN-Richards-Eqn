@@ -6651,3 +6651,34 @@ Real-case spec (first slice):
           Step 4 at BE-Dor started: RSET="--set prior.clip_m=[0.10,1.5]" PYI=-I RT=24:00:00 hpc/transfer_solver_x.sh dor mar24
           "[0.05,0.05]" -> logs/transfer_dor_mar24.log; data set output/real_dor_mar24_own, inversions
           output/referee/dor_own_mar24_s0..3 (path range 0.10 - 1.50 m).
+        (00:21) SECOND SELECTION, BE-Dor: the numerical inversion has ended at all four starts (jobs 15655372 15655373 15655374 15655375, each
+          exit=0, no Traceback; path range 0.10 - 1.50 m, log line "prior box [-2.971, 1.183]";
+          output/referee/dor_own_mar24_s?/summary.json copied by jq in this command; REFERENCE lines only):
+            dor_own_mar24_s0  hydrostatic: cost 0.129754, from the well 5.41 cm rms, bias 0.14 cm, max 12.26 cm, coefficients on the bound [], 3 iterations, sensor misfit 0.0018, posterior sigma (median) 1.32 cm, steps not converged (worst solve) 0 %
+            dor_own_mar24_s1  hydrostatic_flat: cost 0.129754, from the well 5.41 cm rms, bias 0.14 cm, max 12.26 cm, coefficients on the bound [], 5 iterations, sensor misfit 0.0018, posterior sigma (median) 1.32 cm, steps not converged (worst solve) 0 %
+            dor_own_mar24_s2  constant:1.0: cost 0.129754, from the well 5.41 cm rms, bias 0.14 cm, max 12.26 cm, coefficients on the bound [], 5 iterations, sensor misfit 0.0018, posterior sigma (median) 1.32 cm, steps not converged (worst solve) 0 %
+            dor_own_mar24_s3  constant:0.3: cost 0.129754, from the well 5.41 cm rms, bias 0.14 cm, max 12.26 cm, coefficients on the bound [], 5 iterations, sensor misfit 0.0018, posterior sigma (median) 1.32 cm, steps not converged (worst solve) 0 %
+          Read: one estimate from all four starts, NO coefficient on a bound, no bias (0.14 cm), every solver step
+          converged, 5.41 cm rms from the hourly well (of which the daily-knot spline alone is 2.45 cm, written
+          before the fit). The first ICOS window where the numerical inversion is well posed.
+          GATE (74 aj: PINN only where the numerical inversion is within 5 cm): NOT met, by 0.41 cm. The line is not
+          moved: BE-Dor counts as "not within 5 cm" in W3 and in every count of the README, and R3 (3 cm) is not
+          met by the numerical inversion here, so this window cannot count for statement (ii).
+          DEVIATION from 74 aj, declared here before the run and before any other second-selection inversion is
+          known: a PINN run IS started at BE-Dor, outside the gate. The gate was there to keep GPUs from windows
+          where the model cannot see the well at all (FR-Bil first window: 53 - 56 cm, coefficients on the bound);
+          this is not that case, and a PINN run here adds a test the PINN can fail (same estimate as the solver
+          at a fifth new soil, n 1.13 with Ks 1e-3 m/s), it removes none. Its row is labelled "outside the gate"
+          and is reported with the gate result next to it.
+          EXPECTED of the PINN at BE-Dor (rfdor1c), written before it is launched:
+            P1 the conductive form learns the surface flux in the wide stage (factor above 10 in all four): my
+               odds 60 %; this soil is at the opposite end from FR-Bil (n 10, marginal) and I have no run at
+               n near 1.1 with Ks at 1e-3.
+            P2 if P1 holds: the PINN estimate is within 1 cm rms of the numerical one (R2) and the same from all
+               starts (R1).
+            P3 against the well it then scores as the solver does: 5 - 6 cm rms, bias under 1 cm; R3 not met.
+          RULES as for every run: first wide network read at step 5000 (factor below 2 -> the additive form is
+          started next to it and the one higher at step 5000 goes on); losses of every stage recorded before any
+          score; path range 0.10 - 1.50 m as in the numerical inversion:
+            hpc/real_full_x.sh rfdor1c output/real_dor_mar24_own "[0.05,0.05]"
+                "--set model.departure=conductive --set prior.clip_m=[0.10,1.5]"
