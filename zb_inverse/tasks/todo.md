@@ -7704,3 +7704,86 @@ Real-case spec (first slice):
           bound set or with a sigma of the order of the path range. The three stops stand.
           README (output/paper/README.md): DK-Sor row and bullet added, FR-Bil bullet split off, the two findings
           (refinement widths at DK-Sor; stop rule) added, running list updated.
+        (07:31) DK-Sor, solver started on the PINN's path (job rfq_sor_pinn1h 15669282, running; first lines of
+          logs/cpu_15669282.out, REFERENCE line, solver only):
+            [ref] coefficients kept in the prior box [-1.821, 1.183]
+            [ref] start file:runs/rfsor1cdc_it4/predictions.npz: cost 2.4018e-01, zb RMSE 0.4271 m
+          F3a DOES NOT HOLD: the solver's cost of the PINN's path is 0.24018, that is 5.2 % above the solver's minimum
+          0.22829 (expected: more than 10 %). The PINN's own cost at that path was 0.38982 (rfsor1cdc_it4, 07:1x):
+          the PINN model and the solver do not give the same sensor moisture ON THE SAME PATH (0.390 against
+          0.240 in cost units). So at DK-Sor part of the distance is the PINN's forward model at its own estimate
+          (the correction networks f4 ended with flux errors of 3.1 - 3.3 % and the offset was 0.0018), not only
+          the search. F3b is read when the job ends (event num5_sor_1h).
+
+        PLAN (07:31): STOP RULE OF THE CORRECTION LOOP (the TODO of 07:1x; README: "to be changed before the next run that
+        depends on it")
+          GOAL: the loop is called converged only when the step is small by the posterior of BOTH estimates
+          (the previous and the new one). Today (scripts/param_invert.py:282-290) the step per 2.5-day segment is
+          divided by the posterior sd of the NEW estimate only; where the new estimate sits on the deep bound
+          that sd is of the order of the path range and any jump counts as small (DK-Sor: 0.24 - 0.26 for a
+          change of path).
+          DESIGN (smallest change; no new number, the limit 0.2 stays):
+            - new pure-numpy function zbinv.convergence.step_over_sigma(t, dz, s_new, s_prev, edges) -> (new, prev,
+              both): per segment rms(dz)/rms(sd of the new estimate), the same with the sd of the previous
+              estimate, and the larger of the two (= the step over the SMALLER sd). In a module of its own: no file
+              that a running driver imports is touched before the change is tested.
+            - scripts/param_invert.py: sd of the previous estimate from its local_center.npz (cov_post, present
+              in every local_center.npz checked: rfbil1cdc_it3, rfsor1c_inv4, rfsor1cdc_it1, rfnor1c_inv4,
+              rfdor1c_inv4, rfsr21c_inv4) and dzb/dcoef at the previous centre. summary.json keeps
+              step_over_sigma_by_segment / _max UNCHANGED and gains step_over_sigma_prev_by_segment,
+              step_over_sigma_both_by_segment, step_over_sigma_both_max, coef_on_bound_prev, bound_set_changed
+              (reported, not part of the decision). No cov_post in the file -> the new keys are null.
+            - hpc/dc_loop.sh: decides on step_over_sigma_both_max (old key if null), prints both. It can only make
+              stopping harder.
+          HOW IT IS PUT IN PLACE (running drivers: rfbil1c in its last correction, rfnor1e in refinement 1):
+            - the changed script is written as scripts/param_invert_new.py and run via sbatch on past iterations;
+              only after the check it replaces scripts/param_invert.py by mv (atomic). hpc/dc_loop.sh likewise
+              (temp file, bash -n, mv); the running rfbil1c loop keeps its old file and is at its last
+              iteration anyway. rfnor1e's correction loop will start with the new rule; E4 of rfnor1e is read
+              from the old key (kept), E5 can only gain from an extra iteration.
+          CHECK (sbatch; re-run of past inversions with the new script, same arguments as in their job logs, new
+          --out under runs/chk_stop_*; all these runs are scored already):
+            DK-Sor rfsor1cdc_it1..4 (15662735, 15664676, 15666787, 15668919), SE-Nor rfnor1cdc_it3 (15664078),
+            IT-SR2 rfsr21cdc_it3 (15668143), BE-Dor rfdor1cdc_it1 (15668495); unit test tests/test_convergence.py
+            via sbatch hpc/run_tests.slurm convergence.
+          EXPECTATION, before the jobs:
+            P1 (must hold; a miss is a bug): the old keys of every re-run equal the stored ones to 3 digits,
+               and the estimate is the same (coef_on_bound, cost of the best start).
+            P2 (85 %): DK-Sor iterations 2 and 4: step over the smaller sd above 0.2 (guess: above 0.5), bound
+               set changed = true in all four iterations.
+            P3 (75 %): the last stops at BE-Dor, SE-Nor, IT-SR2 stay below 0.2 by the new measure (same bound set
+               and nearly the same sigma in the last two iterations; guesses 0.01, 0.16, 0.15).
+          RULE: P1 fails -> fix before anything is replaced. P3 fails at a station -> that run stopped one
+          iteration early by the new rule: say so in the README row and continue its loop by one iteration
+          (dc_loop.sh with it0 = last + 1) before the row is final. P2 fails -> the smaller-sd measure does not
+          catch the DK-Sor cycle; then the bound-set change has to enter the decision (plan first).
+        (07:38) STOP RULE CHANGED AND CHECKED (plan of 07:3x). Jobs: unit test 15669568 "0 failed" (3 PASS lines,
+          test_convergence.py); re-runs chk_rfsor1c_it1..4 (15669561 - 15669564), chk_rfnor1c_it3 (15669565),
+          chk_rfsr21c_it3 (15669566), chk_rfdor1c_it1 (15669567): 7 of 7 "exit=0", 0 Traceback lines. Lines by jq
+          from runs/<tag>dc_it<k>/summary.json (stored) and runs/chk_stop_<tag>_it<k>/summary.json (re-run), same command:
+            rfsor1c it1  stored/re-run by segment [5.828,1.574,0.035,0.125], on bound [0,6,7,12,13], cost 0.36036
+                         over previous sd [0.29,0.25,0.03,0.12]; over the smaller sd [5.83,1.57,0.04,0.12] max 5.83; bound before [3,4,5,6,7,12,13], changed true
+            rfsor1c it2  stored/re-run [0.261,0.261,0.038,0.116], on bound [3,4,5,6,7,12,13], cost 0.43372
+                         over previous sd [5.34,1.57,0.04,0.11]; over the smaller sd [5.34,1.57,0.04,0.12] max 5.34; bound before [0,6,7,12,13], changed true
+            rfsor1c it3  stored/re-run [3.897,1.17,0.032,0.05], on bound [0,6,7,12,13], cost 0.26836
+                         over previous sd [0.24,0.24,0.03,0.05]; over the smaller sd [3.9,1.17,0.03,0.05] max 3.9; bound before [3,4,5,6,7,12,13], changed true
+            rfsor1c it4  stored/re-run [0.225,0.241,0.024,0.027], on bound [3,4,5,6,7,12,13], cost 0.38982
+                         over previous sd [3.74,1.17,0.03,0.03]; over the smaller sd [3.74,1.17,0.03,0.03] max 3.74; bound before [0,6,7,12,13], changed true
+            rfnor1c it3  stored/re-run [0.148,0.077,0.06,0.098], on bound [0,13], cost 0.52561
+                         over previous sd [0.14,0.07,0.06,0.1]; over the smaller sd [0.15,0.08,0.06,0.1] max 0.15; bound before [0,13], changed false
+            rfsr21c it3  stored/re-run [0.061,0.134,0.117,0.137], on bound [0,3,8,13], cost 3.54721
+                         over previous sd [0.06,0.13,0.12,0.13]; over the smaller sd [0.06,0.13,0.12,0.14] max 0.14; bound before [0,3,8,13], changed false
+            rfdor1c it1  stored/re-run [0.002,0.009,0.006,0.01], on bound [], cost 0.12904
+                         over previous sd [0,0.01,0.01,0.01]; over the smaller sd [0,0.01,0.01,0.01] max 0.01; bound before [], changed false
+          and jq -S diff of the whole summary (all keys but wall_s, starts[].iters and the five new keys): "identical" 7 of 7.
+            P1 HOLDS: old keys and estimates of every re-run equal the stored ones (whole summary identical).
+            P2 HOLDS: DK-Sor iterations 2 and 4: 5.34 and 3.74 over the smaller sd (old rule: 0.26 and 0.24); the
+               bound set changed in all four iterations. By the new rule the DK-Sor loop is nowhere near stopping:
+               every iteration moves days 0 - 2.5 by 3.7 - 5.8 sd and days 2.5 - 5 by 1.2 - 1.6 sd.
+            P3 HOLDS: BE-Dor 0.01, SE-Nor 0.15, IT-SR2 0.14 by the new measure; the three stops stand under it.
+          PUT IN PLACE (after the check): scripts/param_invert.py and hpc/dc_loop.sh replaced by mv (the running
+          rfbil1c loop keeps its old dc_loop.sh; its last inversion rfbil1cdc_it4 will already write the new keys).
+          dc_loop.sh decides on step_over_sigma_both_max and prints "..., over the smaller sd max <s>, by segment [...],
+          bound set changed <true|false>, fwd offset rms ..." (dry run on an old summary: falls back to the old key,
+          prints "[]" and "null"; on a summary with 1.234 / 0.1: "(not converged)" / "converged at it 4").
+          New: src/zbinv/convergence.py, tests/test_convergence.py. The re-run directories runs/chk_stop_* stay (not tracked).

@@ -32,6 +32,7 @@ from zbinv.parametric import (load_members, invert_lm, posterior_cov, member_the
                               jacobian, secant_correction, affine_slope, CPrior)
 from zbinv.train import load_dataset, initial_coef  # noqa: E402
 from zbinv.spline import CubicBSpline1D, ZbSplineNumpy  # noqa: E402
+from zbinv.convergence import step_over_sigma  # noqa: E402
 from train import apply_override  # noqa: E402
 
 torch.set_default_dtype(torch.float64)
@@ -279,15 +280,25 @@ def main():
         d = best['c'] - np.load(args.prev_center)['center']
         cov_local = cov_local + np.outer(d, d)
     np.savez(os.path.join(args.out, 'local_center.npz'), center=best['c'], cov=cov_local, cov_post=cov)
-    step_over_sigma = None
+    def on_bound(c):
+        return None if fine_box is None else [int(i) for i in np.where((c <= fine_box[0]) | (c >= fine_box[1]))[0]]
+    sos_new = sos_prev = sos_both = bound_prev = None
     if args.prev_center:
-        # stopping rule for iterated refinement: move of zb since the previous centre, per day segment, in units of
-        # the posterior sd (days 0 .. n_days - knot)
-        dz = zb - ZbSplineNumpy(sp, np.load(args.prev_center)['center'], ds['zb_min']).zb(t_h)
+        # stopping rule for iterated refinement: move of zb since the previous centre, per day segment (days
+        # 0 .. n_days - knot), in units of the posterior sd of this estimate ('new', the rule used so far), of the
+        # previous estimate (cov_post of its local_center.npz) and of the smaller of the two ('both': the move is small
+        # only if it is small by both posteriors; an estimate on the deep bound has an sd of the order of the path
+        # range and 'new' alone calls a change of path small)
+        prev = np.load(args.prev_center)
+        m_prev = ZbSplineNumpy(sp, prev['center'], ds['zb_min'])
+        s_prev = None
+        if 'cov_post' in prev.files:
+            G_prev = m_prev.dzb_dcoef(t_h)
+            s_prev = np.sqrt(np.maximum(np.einsum('ij,jk,ik->i', G_prev, prev['cov_post'], G_prev), 0.0))
         edges = np.arange(0.0, ds['n_days'] - sp.dt + 1e-9, 2.5)
-        step_over_sigma = [float(np.sqrt(np.mean(dz[(t_h >= a) & (t_h < b)] ** 2)) /
-                                 np.sqrt(np.mean(s_zb[(t_h >= a) & (t_h < b)] ** 2)))
-                           for a, b in zip(edges[:-1], edges[1:])]
+        sos_new, sos_prev, sos_both = step_over_sigma(t_h, zb - m_prev.zb(t_h), s_zb, s_prev, edges)
+        bound_prev = on_bound(prev['center'])
+    bound = on_bound(best['c'])
     summary = {
         'best_start': best['start'], 'zb_rmse': float(np.sqrt(np.mean(e ** 2))),
         'zb_rmse_inner': float(np.sqrt(np.mean(e[inner] ** 2))), 'zb_bias': float(e.mean()),
@@ -305,11 +316,14 @@ def main():
         'noise_sigma': cfg['obs'].get('noise_sigma', 0.0), 'q_noise_frac': cfg['obs'].get('q_noise_frac', 0.0),
         'wall_s': round(time.time() - tic, 1),
         'fwd': fwd_info,
-        'step_over_sigma_by_segment': step_over_sigma,
-        'step_over_sigma_max': None if step_over_sigma is None else max(step_over_sigma),
+        'step_over_sigma_by_segment': sos_new,
+        'step_over_sigma_max': None if sos_new is None else max(sos_new),
+        'step_over_sigma_prev_by_segment': sos_prev,
+        'step_over_sigma_both_by_segment': None if sos_prev is None else sos_both,
+        'step_over_sigma_both_max': None if sos_prev is None else max(sos_both),
         'box': None if fine_box is None else list(fine_box),
-        'coef_on_bound': None if fine_box is None else
-        [int(i) for i in np.where((best['c'] <= fine_box[0]) | (best['c'] >= fine_box[1]))[0]],
+        'coef_on_bound': bound, 'coef_on_bound_prev': bound_prev,
+        'bound_set_changed': None if bound is None or bound_prev is None else bound != bound_prev,
     }
     with open(os.path.join(args.out, 'summary.json'), 'w') as f:
         json.dump(summary, f, indent=2)

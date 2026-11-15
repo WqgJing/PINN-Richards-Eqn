@@ -418,7 +418,7 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 07:40). Four of the new windows have a finished PINN run. They are reported here as run and are
+State (15 Nov, 07:45). Four of the new windows have a finished PINN run. They are reported here as run and are
 not yet in the counts above (the SE-Nor step check and the PINN run at FR-Bil are still going). All
 rows are in-sample (soil fitted on the same window with the well).
 
@@ -458,7 +458,9 @@ rows are in-sample (soil fitted on the same window with the well).
   0.0031 PINN). From day 4 on the PINN and the solver draw one curve (0.0 - 1.2 cm apart by day); on days 1 - 2
   they are 22 cm apart (both fall to the 1.50 m bound, the PINN a day earlier). The PINN run did not converge:
   its last stage alternated between two paths and the scored one is the path it was on when the four
-  iterations were used up. This row shows neither statement over the whole window.
+  iterations were used up. The solver's own cost of that path is 0.240, 5.2 % above its minimum (0.228), while
+  the PINN's model gives 0.390 on the same path: here part of the distance is the PINN's forward model at its
+  own estimate, not only the search. This row shows neither statement over the whole window.
 - FR-Bil (first selection): the numerical inversion is 52.6 - 71.2 cm from the well (its four starts do not
   agree); the row can only show statement (i). Its PINN run is in the last stage.
 - IT-SR2, second selection (1 Nov 2019, well 1.06 - 1.44 m): the numerical inversion is 24.8 - 25.4 cm from the
@@ -477,8 +479,13 @@ rows are in-sample (soil fitted on the same window with the well).
   a jump across the range counted as 0.24 - 0.26 sd, just above the limit of 0.2. The rule would have reported
   a two-path cycle as converged. It was not met here, and the runs that did stop by it are not of that kind
   (BE-Dor at 0.01 sd with sigma 1.3 cm and no coefficient on the bound; SE-Nor at 0.15 and IT-SR2 at 0.14, each
-  with the same coefficients on the bound in its last two iterations, sigma 3.6 and 8.0 cm). The rule is to be
-  changed before the next run that depends on it.
+  with the same coefficients on the bound in its last two iterations, sigma 3.6 and 8.0 cm). The rule has been
+  changed (15 Nov, 07:4x; `src/zbinv/convergence.py`, `scripts/param_invert.py`, `hpc/dc_loop.sh`): the move is
+  now measured against the smaller of the posterior sds of the previous and the new estimate, so it is small only
+  if both estimates call it small; the limit 0.2 is unchanged. Re-run on the stored iterations, everything else
+  in the results identical: DK-Sor 5.8, 5.3, 3.9, 3.7 sd in its four iterations (the old rule gave 0.26 and
+  0.24 for the second and fourth), with a different set of coefficients on the bound each time; BE-Dor 0.01,
+  SE-Nor 0.15, IT-SR2 0.14, so the three stops stand under the new rule.
 
 Why, and what follows. The window rule of this first selection took at every station the 11-day window with the
 largest range of the well. That is the window in which the well comes up from more than a metre: FR-Bil 0.35 -

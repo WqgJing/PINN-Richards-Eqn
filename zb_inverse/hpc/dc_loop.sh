@@ -4,7 +4,9 @@
 #     give an accurate theta_5cm(c_k);
 #   - the operator ensemble gives d theta / d c (and the model between iterates);
 #   - scripts/param_invert.py --fwd re-inverts theta_op(c) + [theta_fwd(c_k) - theta_op(c_k)] -> c_{k+1}.
-# Repeat until the zb move per 2.5-day segment (days 0-25) is below STOP x posterior sd.
+# Repeat until the zb move per 2.5-day segment (days 0-25) is below STOP x posterior sd, measured against the SMALLER of
+# the sds of the previous and the new estimate (step_over_sigma_both_max; an estimate on the deep bound has an sd of the
+# order of the path range, and against that sd alone a change of path counts as small).
 # Usage: setsid nohup hpc/dc_loop.sh <tag> "<operator member dirs>" <start local_center.npz> <it0> <it_max> \
 #            "<train --set>" "<invert --set>" > logs/dc_<tag>.log 2>&1 < /dev/null &
 set -u
@@ -97,8 +99,11 @@ for it in $(seq $IT0 $ITMAX); do
   fi
   cpu_job ${TAG}_it$it scripts/param_invert.py --members $OPS --fwd $fwd --prev-center $CEN --out $R/${TAG}_it$it $IX $hist $ISET
   ok $R/${TAG}_it$it/summary.json
-  s=$(jq '.step_over_sigma_max' $R/${TAG}_it$it/summary.json)
-  echo "it $it: step/sigma max $s, by segment $(jq -c '[.step_over_sigma_by_segment[]*100|round/100]' $R/${TAG}_it$it/summary.json)," \
+  S=$R/${TAG}_it$it/summary.json
+  s=$(jq '.step_over_sigma_both_max // .step_over_sigma_max' $S)   # a summary without the previous sd: the sd of the new estimate
+  echo "it $it: step/sigma max $(jq '.step_over_sigma_max' $S), by segment $(jq -c '[.step_over_sigma_by_segment[]*100|round/100]' $S)," \
+       "over the smaller sd max $s, by segment $(jq -c '[(.step_over_sigma_both_by_segment // [])[]*100|round/100]' $S)," \
+       "bound set changed $(jq '.bound_set_changed' $S)," \
        "fwd offset rms $(jq '.fwd.offset_rms' $R/${TAG}_it$it/summary.json), [scoring only] zb rmse days 0-25" \
        "$(jq '.zb_rmse_inner*10000|round/100' $R/${TAG}_it$it/summary.json) cm, starts spread" \
        "$(jq '.start_spread_rms_inner_m*10000|round/100' $R/${TAG}_it$it/summary.json) cm at $(date)"
