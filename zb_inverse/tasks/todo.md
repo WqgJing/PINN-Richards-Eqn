@@ -6820,3 +6820,24 @@ Real-case spec (first slice):
           launch line, matched that line in its own shell and printed ALREADY RUNNING; nothing had been started
           (no log file, no process). Guard repeated alone with the match anchored on the process itself, tested
           on a driver that is running (3 lines) and on this one (0 lines), then launched (lessons, seventeenth).
+        (02:10) SECOND SELECTION, SE-Nor soil fit (jobs 15651965-15651968, each exit=0, no Traceback; output/soil_nor_dec19,
+          copied by jq in this command):
+            start0: rmse 0.00504 (start 0.1019), r 0.858, max 0.0191, on bound ["theta_s","alpha","Ks"], theta_s 0.3, theta_r 0.1784, alpha 20, n 2.62, Ks 0.001, 99 solves, 239 min
+            start1: rmse 0.00504 (start 0.0573), r 0.858, max 0.0191, on bound ["theta_s","alpha","Ks"], theta_s 0.3, theta_r 0.1784, alpha 20, n 2.62, Ks 0.001, 89 solves, 243 min
+            start2: rmse 0.00504 (start 0.1019), r 0.858, max 0.0191, on bound ["theta_s","alpha","Ks"], theta_s 0.3, theta_r 0.1784, alpha 20, n 2.62, Ks 0.001, 99 solves, 240 min
+            start3: rmse 0.00504 (start 0.0174), r 0.858, max 0.0191, on bound ["theta_s","alpha","Ks"], theta_s 0.3, theta_r 0.1784, alpha 20, n 2.62, Ks 0.001, 70 solves, 203 min
+          One soil from all four starts (three different start soils: start0 and start2 begin from the same soil).
+          THREE parameters ON A BOUND: theta_s 0.30 (lower), alpha 20 /m (upper), Ks 1e-3 m/s (upper); the bounds
+          stay and the row says so. Misfit 0.0050 against a sensor range of 0.032 (r 0.86). The first window here
+          (soil_nor_oct23) had theta_s on the same bound and Ks within 0.1 % of it, alpha 16.4, n 1.47.
+          OBSERVATION, no rule changed: FR-Bil and SE-Nor end in the same corner of the box (lowest porosity,
+          largest alpha, largest Ks). Both sensors read 0.11 - 0.21 at 5 cm with the water table 0.15 - 0.41 m
+          below the surface; a uniform column gets a surface that dry over a water table that shallow only as
+          a coarse material that drains within a few centimetres. Whether that soil carries the water table is
+          what the inversion shows; the gate (5 cm) decides and the expectation written before stays as written.
+          Step 4 at SE-Nor started (02:10:09): RSET="--set prior.clip_m=[0.10,1.5]" PYI=-I RT=24:00:00
+          hpc/transfer_solver_x.sh nor dec19 "[0.05,0.05]" -> logs/transfer_nor_dec19.log; soil = start3.json (lowest
+          misfit); data set output/real_nor_dec19_own, inversions output/referee/nor_own_dec19_s0..3 (path range
+          0.10 - 1.50 m). Time: the first window's inversions here took 171 - 184 min for 10 - 12 iterations
+          (about 15 min each); 40 iterations would be about 10 h; limit 24 h. Guard run anchored on the process
+          and tested both ways before the launch (running driver: 3 lines; this one: 0 lines, no log file).
