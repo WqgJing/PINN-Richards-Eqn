@@ -8426,3 +8426,9 @@ runs/rfbil2c_inv0: refinement sd per coefficient 1.81 0.50 0.47 0.36 0.48 0.42 0
         (12:21) LAUNCHED rfbil2e (driver pid 194680; logs/full_rfbil2e.log). First line of its log:
             full rfbil2e on /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/real_bil_dec20_own, sensor [0.05,0.05], options '--set model.departure=conductive --set prior.clip_m=[0.10,1.5] --set sampling.local_box=true', at Sun Nov 15 12:21:48 EST 2026
           The waiter knows the tag (wide event marked as seen, event inv0_bil2e for G1). Expectations pushed before launch (ccc161b).
+        (12:23) F1 at SE-Nor 6 Dec 2019 (jobs: rfnor2e_inv0 15679656 exit=0 lines 1, Traceback lines 0; cov_nor2e 15679767 exit=0 lines 1, Traceback lines 0):
+            centre, max |rfnor2e_inv0 - rfnor2c_inv0| over 14 coefficients: 0  (dirs: runs/rfnor2c_inv0, runs/rfnor2e_inv0)
+          F1 ("centre within 1e-4", must hold): HOLDS. rfnor2e goes on into its refinement rounds.
+        (12:24) G1 at FR-Bil 12 Dec 2020 (jobs: rfbil2e_inv0 15679709 exit=0 lines 1, Traceback lines 0; cov_bil2e 15679825 exit=0 lines 1, Traceback lines 0):
+            centre, max |rfbil2e_inv0 - rfbil2c_inv0| over 14 coefficients: 0  (dirs: runs/rfbil2c_inv0, runs/rfbil2e_inv0)
+          G1 ("centre within 1e-4", must hold): HOLDS. rfbil2e goes on into its refinement rounds.
