@@ -6682,3 +6682,14 @@ Real-case spec (first slice):
           score; path range 0.10 - 1.50 m as in the numerical inversion:
             hpc/real_full_x.sh rfdor1c output/real_dor_mar24_own "[0.05,0.05]"
                 "--set model.departure=conductive --set prior.clip_m=[0.10,1.5]"
+        (00:34) FIRST SELECTION, FR-Bil: the fourth start of the numerical inversion has ended (backup job 15650046,
+          exit=0, no Traceback); all four, copied by jq from output/referee/bil_own_oct23_s?/summary.json (REFERENCE lines):
+            bil_own_oct23_s0  hydrostatic: cost 1.3486, from the well 55.77 cm rms, bias -15.01 cm, max 100.03 cm, coefficients on the bound [0,9,10], 34 iterations, sensor misfit 0.00581, steps not converged (worst solve) 0 %, 9145 s
+            bil_own_oct23_s1  hydrostatic_flat: cost 1.3324, from the well 52.61 cm rms, bias -9.07 cm, max 100.01 cm, coefficients on the bound [0,10], 14 iterations, sensor misfit 0.00577, steps not converged (worst solve) 0 %, 4321 s
+            bil_own_oct23_s2  constant:1.0: cost 1.5419, from the well 71.23 cm rms, bias 18.42 cm, max 115 cm, coefficients on the bound [6,7,10,11,12,13], 40 iterations, sensor misfit 0.00621, steps not converged (worst solve) 0 %, 11993 s
+            bil_own_oct23_s3  constant:0.3: cost 1.3338, from the well 55.31 cm rms, bias -6.87 cm, max 100.25 cm, coefficients on the bound [0,9,10], 35 iterations, sensor misfit 0.00577, steps not converged (worst solve) 0 %, 9068 s
+          Read: the four starts do NOT end on one estimate here (cost 1.33 - 1.54; 52.6 - 71.2 cm from the well; start
+          constant:1.0 used all 40 iterations and ends with six coefficients on the bound). At this window the
+          numerical inversion itself is neither close to the well nor the same from every start, so there is no
+          single reference estimate for the PINN to be compared with; the FR-Bil first-window row can only say
+          whether the PINN's estimates fall among these (lowest cost: hydrostatic_flat, 1.3324).
