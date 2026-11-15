@@ -6600,3 +6600,26 @@ Real-case spec (first slice):
             rfsr21c_w2   step 0: PDE 21.29  flux 195.6   step 42000: PDE 3.84  flux 1.838   flux factor 106.4   (13.6 % of node rms)
             rfsr21c_w3   step 0: PDE 20.47  flux 183.1   step 42000: PDE 4.08  flux 1.872   flux factor 97.8   (13.7 % of node rms)
           CRITERION (factor 10): PASSED in all four. The run goes on in the conductive form.
+        (22:28) FIRST SELECTION, SE-Nor: the numerical inversion has ended at all four starts (jobs 15645980-15645983,
+          output/referee/nor_own_oct23_s?/summary.json, copied by jq in this command; REFERENCE lines only, no PINN
+          estimate has been read at this station):
+            nor_own_oct23_s0  hydrostatic: cost 0.547641, from the well 11.48 cm rms, bias 0.08 cm, max 26.34 cm, coefficients on the bound [0,1,2,13], 10 iterations, sensor misfit 0.0037, posterior sigma (median) 3.37 cm
+            nor_own_oct23_s1  hydrostatic_flat: cost 0.547641, from the well 11.48 cm rms, bias 0.08 cm, max 26.34 cm, coefficients on the bound [0,1,2,13], 12 iterations, sensor misfit 0.0037, posterior sigma (median) 3.37 cm
+            nor_own_oct23_s2  constant:1.0: cost 0.547641, from the well 11.48 cm rms, bias 0.08 cm, max 26.34 cm, coefficients on the bound [0,1,2,13], 12 iterations, sensor misfit 0.0037, posterior sigma (median) 3.37 cm
+            nor_own_oct23_s3  constant:0.3: cost 0.547641, from the well 11.48 cm rms, bias 0.08 cm, max 26.34 cm, coefficients on the bound [0,1,2,13], 11 iterations, sensor misfit 0.0037, posterior sigma (median) 3.37 cm
+          solver steps not converged (max over members), per start: 0.12075471698113205 0.10943396226415092 0.1132075471698113 0.11698113207547167
+          forward run with the fitted soil and the record water table vs the sensor: {"fT=0.55, record water table":{"rmse":0.00458,"bias":4e-05,"r":0.719},"fT=0.0, record water table":{"rmse":0.00459,"bias":3e-05,"r":0.719},"fT=0.5, record water table":{"rmse":0.00458,"bias":4e-05,"r":0.719},"fT=1.0, record water table":{"rmse":0.00458,"bias":5e-05,"r":0.72}}
+          AGAINST T5 (misses R3, guess 5 - 30 cm): HOLDS. One estimate from all four starts (identical to 0.01 cm),
+          11.5 cm rms from the well with almost no bias (0.08 cm) and four of fourteen coefficients on the
+          bound of the path range (0.20 - 1.50 m). The model with this soil cannot place the well from this
+          sensor to better than about 11 cm; the PINN at this station (rfnor1c, running) can therefore show
+          statement (i) only (same estimate as the numerical inversion), not (ii).
+          Housekeeping: the twin jobs rfL_nor_own_oct23_s0..3 (15650038, 15650040, 15650042, 15650044) were still
+          running after the summaries existed: scancel takes ONE name per --name, my comma list matched
+          nothing. Cancelled by job id now; /tmp/wait_icos2.sh issues one scancel per name from here on.
+          NOT as expected: T5 said "up to a few % of the solver's steps may not converge"; the summaries give 11 - 12 %
+          in the worst solve of each inversion (fem_not_converged_max). The summary does not say whether that
+          worst solve is the final estimate or a trial path on the way. To be settled with the step check
+          (scripts/referee_step_check.py: the estimate re-run on finer time steps) before the SE-Nor row is
+          written; until then the 11.5 cm stands as "numerical inversion, convergence of its solver not yet
+          checked".
