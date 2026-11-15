@@ -8211,3 +8211,29 @@ Real-case spec (first slice):
           bil_own_dec20_dt025_s2; event stepq_bil2 in logs/wait_extra.txt). The waiter watches rfbil2c (TAGS line
           of /tmp/wait_icos2.sh; restarted). Nothing of this run has been read.
           README: FR-Bil second-selection bullet, count of the second selection, running list.
+        (10:42) SE-Nor 6 Dec 2019, ADDITIVE FORM (rfnor2a): WIDE STAGE HAS ENDED (event rfnor2a_wide 10:41). Jobs
+          (logs/pipe_rfnor2a.log, logs/gpu_<id>.out), then held-out losses at the end of the stage (last line of
+          runs/rfnor2a_w?/metrics.csv; lines written by the command that printed them):
+            rfnor2a_w0: 15671704 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor2a_w1: 15671697 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor2a_w2: 15671698 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor2a_w3: 15671706 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor2a_w0  step 42000: PDE 46.08  flux 266.930   (163.4 % of node rms)
+            rfnor2a_w1  step 42000: PDE 53.86  flux 260.468   (161.4 % of node rms)
+            rfnor2a_w2  step 42000: PDE 49.52  flux 240.478   (155.1 % of node rms)
+            rfnor2a_w3  step 42000: PDE 54.43  flux 255.393   (159.8 % of node rms)
+          EXPECTED at 09:2x ("the additive form does not learn the flux: factor 1.0 - 1.5 at the end of its wide
+          stage", odds 80 %): HOLDS. The flux loss is where it started in all four (step 0: 267.0, 260.5,
+          240.5, 255.4); only the PDE loss fell (step 0: 88.71, 91.97, 80.78, 98.82).
+          The conductive form at this minute (not the end of its stage: three networks have ended, w2 is at
+          step 40000 on a slower GPU; lines printed now):
+            rfnor2c_w0: 15671441 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor2c_w1: 15671443 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor2c_w3: 15671440 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor2c_w0  step 42000: PDE 11.05  flux 3.281   (18.1 % of node rms)
+            rfnor2c_w1  step 42000: PDE 11.00  flux 3.244   (18.0 % of node rms)
+            rfnor2c_w3  step 42000: PDE 11.67  flux 3.167   (17.8 % of node rms)
+            rfnor2c_w2: step 0 PDE 80.78 flux 240.5 | flux factor at step 5000: 4.8 | latest step 40000: PDE 13.710 flux 3.291, factor 73.1 (18 % of node rms)
+          THE DECISION (rule of 09:2x: lower median of the flux error left at the end of both wide stages goes
+          on; the other driver is stopped) is taken when rfnor2c_w2 has ended (event rfnor2c_wide). rfnor2a's
+          driver has gone on to its first inversion by itself; nothing but losses is read from it.
