@@ -6738,3 +6738,19 @@ Real-case spec (first slice):
       Backups (old history, incl. the removed lines): git_backups/PINN-Richards-Eqn_before-rewrite_20261115.bundle,
         NOAH-s-_before-rewrite_20261115.bundle, NOAH-s-_local-clone_before-rewrite_20261115.bundle (all verified).
       Commits of this repo from here on carry no co-author line.
+        (01:16) SECOND SELECTION, IT-SR2 soil fit (jobs 15651977-15651980, each exit=0, no Traceback; output/soil_sr2_nov19b,
+          copied by jq in this command):
+            start0: rmse 0.00932 (start 0.0238), r 0.79, max 0.0431, on bound ["theta_s","Ks"], theta_s 0.3, theta_r 0.0285, alpha 9.939, n 1.579, Ks 0.001, 123 solves, 188 min
+            start1: rmse 0.00932 (start 0.0238), r 0.79, max 0.0431, on bound ["theta_s","Ks"], theta_s 0.3, theta_r 0.0285, alpha 9.939, n 1.579, Ks 0.001, 123 solves, 182 min
+            start2: rmse 0.00932 (start 0.1123), r 0.79, max 0.0431, on bound ["theta_s","Ks"], theta_s 0.3, theta_r 0.0285, alpha 9.937, n 1.579, Ks 0.001, 122 solves, 170 min
+            start3: rmse 0.02508 (start 0.0278), r 0.504, max 0.1168, on bound [], theta_s 0.3025, theta_r 0.1057, alpha 16.645, n 9.265, Ks 8.32e-05, 36 solves, 156 min
+          Three starts (two different start soils: start0 and start1 begin from the same soil at this station) end
+          in one soil; start3 stops in another minimum with 2.7 times the misfit and is not used (the driver takes
+          the lowest misfit). theta_s (0.30) is ON ITS LOWER BOUND and Ks (1e-3 m/s) ON ITS UPPER BOUND, as at the
+          station's first window (soil_sr2_nov19: theta_s 0.30, Ks 1e-3 on the same bounds; alpha 8.0, n 2.78 there
+          against alpha 9.9, n 1.58 here); by the rule written before the fits the bounds stay and the row says so.
+          Misfit 0.0093 against a sensor range of 0.078 (r 0.79): the weakest soil fit of the second selection so far.
+          Step 4 at IT-SR2 started: RSET="--set prior.clip_m=[0.10,1.5]" PYI=-I RT=24:00:00 hpc/transfer_solver_x.sh sr2 nov19b
+          "[0.05,0.05]" -> logs/transfer_sr2_nov19b.log; data set output/real_sr2_nov19b_own, inversions
+          output/referee/sr2_own_nov19b_s0..3 (path range 0.10 - 1.50 m). 24 h limit from the start: the first
+          window's inversions at this station are past 5 h.
