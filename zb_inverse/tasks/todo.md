@@ -6700,3 +6700,41 @@ Real-case spec (first slice):
           goes on alone. Noted: the held-out PDE loss is higher at step 5000 than at step 0 (the network starts
           from the hydrostatic profile); its value at the end of the stage is what gets recorded.
           rfdor1c_w1 and _w2 are still waiting for a GPU.
+
+75. USER REQUEST (15 Nov): "remove claude contribution in PINN-Richards-Eqn git ... and all my other github repos ...
+    i dont want to see Contributors 1 claude Claude". Explicit request to rewrite history (CLAUDE.md: only on request).
+    FOUND: master, 158 commits, 153 end with "Co-Authored-By: Claude <noreply@anthropic.com>" (the only Claude line;
+      every commit is authored and committed by the user). One branch, no tags. That trailer is what GitHub lists as
+      a contributor. Public repos of the account: ALT_G_Ts, Dynamic-eqn-for-surface-tempearture, NOAH-s-,
+      PINN-Richards-Eqn, SMAP-Recharge-Flux (private ones cannot be listed from here: no gh, no token).
+    PLAN (per repo):
+      1 backup: git bundle of every ref, kept outside the repos (/storage/project/r-rbras6-0/jjason3/git_backups).
+      2 rewrite in a separate bare clone (the working checkout is not touched): git filter-branch --msg-filter that
+        deletes the co-author line and the blank line it leaves; nothing else (trees, authors, dates unchanged).
+      3 verify before pushing: same number of commits; no "anthropic" line left; tree, author, committer and dates of
+        every commit identical to the old history, in order; message diff = the removed lines only.
+      4 push with --force-with-lease pinned to the old tip (fails if the remote moved meanwhile).
+      5 working checkout: fetch, git reset --soft origin/<branch> (tip trees are identical, so index and files stay);
+        status must be clean and the tip tree unchanged.
+    FROM NOW ON: no Co-Authored-By / "Generated with Claude Code" line in any commit or PR of the user's repos.
+    ACCEPTANCE: zero commits with an anthropic line on every branch of every public repo of the account; working
+      checkout clean on the new tip; backups listed for the user. Commit ids quoted ABOVE this entry are from the old
+      history (kept in the backup bundle); the rewritten commits have new ids.
+    RESULT (00:57), every number below printed by the check commands of this entry:
+      PINN-Richards-Eqn (master): 158 commits before and after; 153 co-author lines + the 153 blank lines above them
+        removed, nothing else (tree, author, committer, dates, subject of every commit identical in order; tip tree
+        e8f851c unchanged). Old tip 0e63fe5 -> new tip 4909c3f, pushed with --force-with-lease pinned to 0e63fe5.
+        Working checkout: fetch + reset --soft; 0 ahead / 0 behind, only this file modified.
+      NOAH-s- (main): 12 commits before and after; 12 co-author lines ("Claude Opus 5.5") + 12 blank lines removed,
+        nothing else. Old tip e45d35d -> new tip 4cfa6a3, pushed pinned to e45d35d. Its local clone
+        (proposal_drought/noah) had 6 further commits that were never pushed, with the same line: cleaned the same way
+        (18 commits, 18 lines removed, trees identical), local main 14c283c -> 4aab137 by reset --soft, still 6 ahead
+        of origin/main, no tracked change. Those 6 commits were NOT pushed (not asked).
+      ALT_G_Ts (1 commit), Dynamic-eqn-for-surface-tempearture (8), SMAP-Recharge-Flux (107, 7 branches): no such
+        line in any commit; not touched.
+      GitHub contributors API after the push: PINN-Richards-Eqn lists WqgJing only; NOAH-s- lists the commit author
+        only. No Claude entry in either.
+      Not covered: private repositories of the account (not visible without a login; none was asked for).
+      Backups (old history, incl. the removed lines): git_backups/PINN-Richards-Eqn_before-rewrite_20261115.bundle,
+        NOAH-s-_before-rewrite_20261115.bundle, NOAH-s-_local-clone_before-rewrite_20261115.bundle (all verified).
+      Commits of this repo from here on carry no co-author line.
