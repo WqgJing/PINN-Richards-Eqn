@@ -7158,3 +7158,17 @@ Real-case spec (first slice):
           output/referee/nor_own_oct23_dt025_spinn. Events num5_nor_1h and num5_nor_025 in logs/wait_extra.txt.
           Code: scripts/fem_referee.py takes --start file:<predictions.npz> (other starts unchanged);
           scripts/referee_step_check.py also writes sigma_by_day_m and vs_well_rms_by_day_m.
+        (04:43) SE-Nor, F1 (first line of job 15664497, logs/cpu_15664497.out, copied in this command):
+            [ref] start file:runs/rfnor1cdc_it3/predictions.npz: cost 5.9377e-01, zb RMSE 0.0930 m
+          the solver's sensor misfit of the PINN's path at 1 h steps is sqrt(cost) x 0.005 = 0.00385
+          F1 HOLDS (guess 0.56 - 0.80): the 1 h solver puts the PINN's path at cost 0.594 against 0.548 for its
+          own estimate, i.e. a sensor misfit of 0.00385 against 0.00370: the two paths differ by 0.00015 in
+          sensor theta (3 % of sigma_theta). The "zb RMSE 0.0930 m" of the line equals the PINN's 9.30 cm from
+          the well, so the file start carries the PINN's coefficients. The PINN's own forward network gives the
+          same path 0.00362. For scale: the 1 h solve of this data set is 2.9e-4 rms (1.5e-3 max) in sensor
+          theta from the finer solve (19:19), about twice the 0.00015 that separates the two paths, and 11 - 12 %
+          of its steps do not converge. The 1 h solver therefore cannot rank these two paths; the 1/4 h runs
+          (15652974 from the flat start, 15664498 from the PINN's path) decide, by the rule above.
+          Waiter restarted (04:42). Queue: second-selection numerical inversions (FR-Bil, SE-Nor, DK-Sor,
+          IT-SR2), BE-Dor PINN (outside the gate), DK-Sor / IT-SR2 / FR-Bil first-window PINNs in their value
+          correction, step checks at SE-Nor, DK-Sor, IT-SR2.
