@@ -7493,3 +7493,22 @@ Real-case spec (first slice):
             largest difference of the 14 centre coefficients: 0 ; of the refinement sd per coefficient: 0
           E2 HOLDS (limit 1e-4): the new run starts its refinement from the same estimate and the same covariance as
           rfnor1c; from round 1 on the only difference is sampling.local_box=true.
+        (07:14) SECOND SELECTION, IT-SR2 (window 2019-11-01, sr2_nov19b): the numerical inversion has ended at all four starts
+          (event num_sr2_own_nov19b 07:13; jobs 15658867 "exit=0 at Sun Nov 15 04:37:55 EST 2026" 0 Traceback; 15658868 "exit=0 at Sun Nov 15 07:06:33 EST 2026" 0 Traceback; 15658869 "exit=0 at Sun Nov 15 03:49:53 EST 2026" 0 Traceback; 15658870 "exit=0 at Sun Nov 15 06:49:04 EST 2026" 0 Traceback;
+          path range 0.10 - 1.50 m; output/referee/sr2_own_nov19b_s?/summary.json copied by jq in this command; REFERENCE lines only):
+            sr2_own_nov19b_s0  hydrostatic: cost 2.865409, from the well 25.37 cm rms, bias -4.05 cm, max 51.25 cm, coefficients on the bound [1,2,4,5,7,10,11,12], 13 iterations, sensor misfit 0.00846, posterior sigma (median) 20.02 cm, steps not converged (worst solve) 3 %, 11487.5 s
+            sr2_own_nov19b_s1  hydrostatic_flat: cost 2.86541, from the well 25.37 cm rms, bias -4.02 cm, max 51.25 cm, coefficients on the bound [1,2,4,5,7,10,11,12], 14 iterations, sensor misfit 0.00846, posterior sigma (median) 20.04 cm, steps not converged (worst solve) 3.8 %, 20237.4 s
+            sr2_own_nov19b_s2  constant:1.0: cost 2.865487, from the well 24.76 cm rms, bias -4.79 cm, max 51.25 cm, coefficients on the bound [1,2,4,5,7,10,11,12,13], 10 iterations, sensor misfit 0.00846, posterior sigma (median) 19.84 cm, steps not converged (worst solve) 5.1 %, 8554.6 s
+            sr2_own_nov19b_s3  constant:0.3: cost 2.865426, from the well 25.39 cm rms, bias -4.1 cm, max 51.25 cm, coefficients on the bound [1,2,4,5,7,10,11,12], 22 iterations, sensor misfit 0.00846, posterior sigma (median) 19.98 cm, steps not converged (worst solve) 3.4 %, 19334.9 s
+            model with the measured well (driver line, fT=0.55): sensor misfit 0.00931709641544576
+          Read: cost the same from all four starts to 8e-5 (2.86541 - 2.86549), but eight or nine of the 14
+          coefficients are ON THE BOUND of the path range and the posterior sigma is 20 cm (median): the estimate is
+          set by the range, not by the sensor. 24.8 - 25.4 cm rms from a well that moves only between 1.06 and 1.44 m;
+          largest error 51 cm. The estimates fit the sensor better (0.0085) than the model with the measured well
+          does (0.0093), as in the station's first window: the 5 cm sensor does not see a water table more than a
+          metre down in this sand.
+          GATE (74 aj, 5 cm): NOT met, by 20 cm. NO PINN run at this window (rule as written; not a near miss as at
+          BE-Dor, and the deviation declared there does not apply). The window counts as "not within 5 cm" in W3.
+          IT-SR2 is finished in both selections: first window PINN and solver scored (07:0x entries), second
+          window numerical only. Second selection so far: BE-Dor 5.41 cm (outside the gate by 0.41, PINN run made
+          and scored), IT-SR2 25 cm (no PINN); FR-Bil, SE-Nor, DK-Sor still running.

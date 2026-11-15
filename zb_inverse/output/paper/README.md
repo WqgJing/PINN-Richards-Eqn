@@ -452,6 +452,10 @@ rows are in-sample (soil fitted on the same window with the well).
   cost of the PINN's path is within 0.6 % of its best.
 - FR-Bil and DK-Sor (first selection): the numerical inversion is 52.6 - 71.2 cm (its four starts do not agree)
   and 40.8 cm from the well; these rows can only show statement (i). Their PINN runs are in the last stage.
+- IT-SR2, second selection (1 Nov 2019, well 1.06 - 1.44 m): the numerical inversion is 24.8 - 25.4 cm from the
+  well with eight or nine of its 14 coefficients on the bound of the path range (posterior sigma 20 cm). The 5 cm
+  gate is not met and no PINN is run there. Second selection so far: one window near the gate (BE-Dor, 5.41 cm),
+  one far outside it (IT-SR2); three still running.
 - Found on these runs (`tasks/todo.md`, 06:57): the refinement rounds drew their local paths without keeping them
   inside the path range. Where days are poorly determined (SE-Nor, IT-SR2) the local distribution is far wider
   than the range, and most refinement paths lay outside what the inversion can evaluate. A switch
@@ -521,7 +525,7 @@ each object.)
 
 - ICOS, first selection: PINN runs at FR-Bil and DK-Sor; the 1/4 h repeats of the numerical inversion at SE-Nor,
   DK-Sor and IT-SR2; the SE-Nor repeat with `sampling.local_box`.
-- ICOS, second selection: numerical inversion at FR-Bil, SE-Nor, DK-Sor and IT-SR2 (BE-Dor is done); PINN where
+- ICOS, second selection: numerical inversion at FR-Bil, SE-Nor and DK-Sor (BE-Dor and IT-SR2 are done); PINN where
   the numerical inversion is within 5 cm of the well; scores.
 
 ## Regenerate
