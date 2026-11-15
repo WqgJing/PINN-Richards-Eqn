@@ -6841,3 +6841,25 @@ Real-case spec (first slice):
           0.10 - 1.50 m). Time: the first window's inversions here took 171 - 184 min for 10 - 12 iterations
           (about 15 min each); 40 iterations would be about 10 h; limit 24 h. Guard run anchored on the process
           and tested both ways before the launch (running driver: 3 lines; this one: 0 lines, no log file).
+        (02:34) BE-Dor rfdor1c (second selection, outside the gate): the four wide networks have ended (jobs 15656923,
+          15656933, 15656932, 15656929, each exit=0, no Traceback; the one "nan" line per log is the step-0 line,
+          which has no training loss yet, as in every run). runs/rfdor1c_w?/metrics.csv, held-out losses only:
+            rfdor1c_w0   step 0: PDE 5.13  flux 494.9   step 42000: PDE 3.39  flux 0.174   flux factor 2841.8   (1.9 % of node rms)
+            rfdor1c_w1   step 0: PDE 5.20  flux 461.2   step 42000: PDE 1.83  flux 0.182   flux factor 2537.7   (2.0 % of node rms)
+            rfdor1c_w2   step 0: PDE 5.08  flux 435.0   step 42000: PDE 2.53  flux 0.161   flux factor 2706.4   (1.9 % of node rms)
+            rfdor1c_w3   step 0: PDE 5.27  flux 493.2   step 42000: PDE 8.18  flux 0.177   flux factor 2780.8   (1.9 % of node rms)
+          P1 (the conductive form learns the surface flux in the wide stage, factor above 10 in all four; my odds
+          were 60 %): HOLDS, factor 2538 - 2842 in all four, the largest of any site so far (IT-SR2 98 - 106,
+          FR-Bil 9 - 12). No additive form is started.
+          NOTED, not part of the criterion (which is on the flux loss): the held-out PDE loss of w3 ends ABOVE
+          its step-0 value (5.27 -> 8.18; it moves between 5.0 and 11.5 over the last 2000 L-BFGS steps), while
+          w0 - w2 end at 1.8 - 3.4. The step-0 network is the hydrostatic profile, which nearly satisfies the
+          equation and misses the flux, so a PDE loss that does not fall from there is not by itself a failure;
+          but one member differs from the other three. What to look at, written now: the PDE loss of member 3
+          after each refinement round (recorded with the other stage losses BEFORE any score), and the spread of
+          the four members' sensor values that the inversion log prints. If member 3 stays apart after round 4,
+          the row says so next to its score.
+          Next stages run by the driver (first inversion in the queue at 02:33).
+          Also (waiter, 02:15): the first of the four IT-SR2 first-window numerical inversions has ended
+          (sr2_own_nov19_s0; its twin job cancelled, 0 left in the queue). Its line is recorded with the other
+          three when they end.
