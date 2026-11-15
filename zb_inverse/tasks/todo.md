@@ -8022,3 +8022,7 @@ Real-case spec (first slice):
               (1.0 - 1.1). My odds 80 %.
           N1 so far: the first part (factor above 2 at step 5000) is split, 8.3 and 1.8; the second part (12 - 20 %
           left at the end) is open.
+        (09:24) LAUNCHED after the decision above was pushed (cdace16): driver rfnor2a (additive form, same data,
+          options "--set prior.clip_m=[0.10,1.5]"; pid 2824505, logs/full_rfnor2a.log); the waiter watches both
+          tags (events rfnor2c_wide, rfnor2a_wide). Next: at both events, losses at the end of the wide stage
+          (runs/<tag>_w?/metrics.csv, job checks first), then the decision by the declared rule.
