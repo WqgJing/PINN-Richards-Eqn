@@ -6639,3 +6639,15 @@ Real-case spec (first slice):
           converged in the step), and a 1/16 h run is added to show that the 1/4 h one has converged. If they
           differ by less, the 1 h lines above stand and the row says so.
           Submitted: rfq_nor_dt025_s1: job 15652974.
+        (23:43) SECOND SELECTION, BE-Dor soil fit (jobs 15651973-15651976, each exit=0, no Traceback; output/soil_dor_mar24,
+          copied by jq in this command):
+            start0: rmse 0.00466 (start 0.1807), r 0.921, max 0.0104, on bound ["theta_r","Ks"], theta_s 0.5707, theta_r 0.2, alpha 5.956, n 1.13, Ks 0.001, 164 solves, 73 min
+            start1: rmse 0.00466 (start 0.4311), r 0.921, max 0.0104, on bound ["theta_r","Ks"], theta_s 0.5707, theta_r 0.2, alpha 5.956, n 1.13, Ks 0.001, 154 solves, 96 min
+            start2: rmse 0.00466 (start 0.3019), r 0.921, max 0.0104, on bound ["theta_r","Ks"], theta_s 0.5707, theta_r 0.2, alpha 5.954, n 1.13, Ks 0.001, 171 solves, 85 min
+            start3: rmse 0.00466 (start 0.026), r 0.921, max 0.0104, on bound ["theta_r","Ks"], theta_s 0.5707, theta_r 0.2, alpha 5.956, n 1.13, Ks 0.001, 132 solves, 68 min
+          One soil from all four starts. theta_r (0.20) and Ks (1e-3 m/s) are ON THEIR UPPER BOUNDS; by the rule
+          written before the fits the bounds stay and the row says so. Misfit 0.0047 against a sensor range of
+          0.037 (r 0.92).
+          Step 4 at BE-Dor started: RSET="--set prior.clip_m=[0.10,1.5]" PYI=-I RT=24:00:00 hpc/transfer_solver_x.sh dor mar24
+          "[0.05,0.05]" -> logs/transfer_dor_mar24.log; data set output/real_dor_mar24_own, inversions
+          output/referee/dor_own_mar24_s0..3 (path range 0.10 - 1.50 m).
