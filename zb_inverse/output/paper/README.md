@@ -418,7 +418,7 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 10:30). Five of the new windows have a finished PINN run: all four of the first selection and
+State (15 Nov, 10:50). Five of the new windows have a finished PINN run: all four of the first selection and
 one of the second. They are reported here as run and are not yet in the counts above (one SE-Nor check is
 still going). All rows are in-sample (soil fitted on the same window with the well).
 
@@ -588,7 +588,10 @@ each object.)
   of its numerical reference, both started 15 Nov, 10:29; the last start of the numerical inversion at SE-Nor
   (the other four stations are done). At SE-Nor (6 Dec 2019) three of four starts end on one estimate 4.35 cm from the well, and
   a PINN run was started on those three (declared before launch; the 5 cm gate is evaluated when the fourth
-  is in). It is in its first training stage, in both network forms; no estimate exists yet.
+  is in). Its first training stage was run in both network forms: the conductive form ended with 16.9 - 18.1 %
+  of the surface-flux error left and continues (first inversion and refinement running); the additive form
+  ended with 155 - 163 % left and was stopped, by a rule written before the two were compared. No estimate
+  exists yet.
 
 ## Regenerate
 

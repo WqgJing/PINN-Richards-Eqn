@@ -8237,3 +8237,29 @@ Real-case spec (first slice):
           THE DECISION (rule of 09:2x: lower median of the flux error left at the end of both wide stages goes
           on; the other driver is stopped) is taken when rfnor2c_w2 has ended (event rfnor2c_wide). rfnor2a's
           driver has gone on to its first inversion by itself; nothing but losses is read from it.
+        (10:45) SE-Nor 6 Dec 2019, CONDUCTIVE FORM (rfnor2c): WIDE STAGE HAS ENDED (event rfnor2c_wide 10:44), AND
+          THE DECISION BETWEEN THE TWO FORMS. Jobs, then held-out losses at the end of the stage (last line of
+          runs/rfnor2c_w?/metrics.csv), then the medians of both forms (lines written by the command that
+          printed them):
+            rfnor2c_w0: 15671441 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor2c_w1: 15671443 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor2c_w2: 15671448 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor2c_w3: 15671440 COMPLETED: exit=0 lines 1, Traceback lines 0
+            rfnor2c_w0  step 42000: PDE 11.05  flux 3.281   (18.1 % of node rms)
+            rfnor2c_w1  step 42000: PDE 11.00  flux 3.244   (18.0 % of node rms)
+            rfnor2c_w2  step 42000: PDE 11.23  flux 2.847   (16.9 % of node rms)
+            rfnor2c_w3  step 42000: PDE 11.67  flux 3.167   (17.8 % of node rms)
+            rfnor2c: flux error left 16.9 17.8 18.0 18.1 % of node rms -> median 17.9 %
+            rfnor2a: flux error left 155.1 159.8 161.4 163.4 % of node rms -> median 160.6 %
+          DECISION by the rule of 09:2x (lower median goes on): the CONDUCTIVE form goes on. The additive
+          driver rfnor2a was stopped at 10:45: its session (pid 2824505: driver, param_pipeline.sh and its
+          race.sh children) ended, 0 processes left; its own jobs cancelled by name (ten ids, all rfnor2a_r1_m*; sacct:
+          15674377 15674378 15674379 15674381 15674382 15674383 15674384 15674385 15674386 15674387: 10 CANCELLED+, End 2026-11-15T10:45:25). None left in the queue. Its first inversion (rfnor2a_inv0) had run by
+          itself before the stop; nothing of it was read and nothing of it is used. rfnor2c, rfbil2c and
+          rfnor1e drivers checked afterwards: running. rfnor2a taken off the waiter's TAGS line.
+          N1 ("factor above 2 at step 5000 and 12 - 20 % left at the end in all four", odds 55 %): the end
+          part HOLDS (16.9 - 18.1 %, not marginal); the step-5000 part FAILS in one network (w3: 1.8; w0 8.3,
+          w1 9.3, w2 4.8). H-n (the error left is a property of the retention curve): n 2.62 with alpha 20 /m leaves
+          16.9 - 18.1 %, IT-SR2 (n 2.78, alpha 8.0; rfsr21c_w0..3) 13.3 - 14.0 %: the same order, as N1 put it.
+          Next by the rules: rfnor2c goes through inversion and four refinement rounds by itself; losses of
+          every stage before any score.
