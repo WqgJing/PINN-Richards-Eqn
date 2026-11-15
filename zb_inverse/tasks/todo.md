@@ -7997,3 +7997,28 @@ Real-case spec (first slice):
           with 1/4 h steps started on the 1 h estimate (rfq_nor2_dt025, job 15671454, running; event stepq_nor2).
           The waiter now also watches rfnor2c (TAGS line of /tmp/wait_icos2.sh); a second background loop prints
           the held-out losses when the first wide network reaches step 5000. Nothing of this run has been read.
+        (09:23) SE-Nor 6 Dec 2019, rfnor2c: first wide networks at step 5000 (hpc/early_flux.sh, live logs, held-out
+          losses only; readings of 09:21 and 09:22):
+            rfnor2c_w0: step 0 PDE 88.71 flux 267.0 | flux factor at step 5000: 8.3 | latest step 5500: PDE 107.500 flux 53.420, factor 5.0 (73 % of node rms)
+            rfnor2c_w1: step 0 PDE 91.97 flux 260.5 | flux factor at step 5000: not reached | latest step 4000: PDE 65.790 flux 143.800, factor 1.8 (120 % of node rms)
+            rfnor2c_w2: step 0 PDE 80.78 flux 240.5 | flux factor at step 5000: not reached | latest step 3000: PDE 121.500 flux 103.600, factor 2.3 (102 % of node rms)
+            rfnor2c_w3: step 0 PDE 98.82 flux 255.4 | flux factor at step 5000: 1.8 | latest step 5500: PDE 54.340 flux 96.090, factor 2.7 (98 % of node rms)
+          Two networks were at step 5000 in the first reading: factor 8.3 (w0) and 1.8 (w3). The rule ("first wide
+          network read at step 5000: factor below 2 -> additive form next to it") did not foresee a split. And the
+          held-out losses swing here as at no station before: w0 flux 56.3 at step 3000, 313.6 at 3500, 42.0 at
+          4000, PDE 1150 at step 1500; step-0 PDE loss 81 - 99 (FR-Bil 58 - 64, IT-SR2 21, SE-Nor Oct 2023 12 - 14).
+          This is the hardest soil so far for the PDE loss at the start.
+          DECISION, taken on the conductive numbers only, before any number of the additive form exists:
+            - The split is read against the cheaper reading: one of the two below 2 -> the additive form IS
+              started next to it (rfnor2a: same data, same path range, no model.departure option).
+            - WHICH GOES ON is not decided at step 5000 (deviation from the rule, for the reason above: one reading
+              there does not rank anything at this soil) but when both wide stages have ended, on the number N1 is
+              about: flux error left at the end of the wide stage (10*sqrt(val_flux), % of node rms), median over
+              the four networks. The form with the lower median goes on; the same to the printed digit ->
+              conductive. Both drivers run on by themselves in the meantime; the other one is stopped at the
+              decision (driver ended, its jobs cancelled by name). Until then only losses are read from either.
+            - EXPECTED: the additive form does not learn the surface flux here (factor 1.0 - 1.5 at the end of
+              its wide stage), as at the other soil with Ks 1e-3 (rfnc1t: 1.0) and at DK-Sor and FR-Bil
+              (1.0 - 1.1). My odds 80 %.
+          N1 so far: the first part (factor above 2 at step 5000) is split, 8.3 and 1.8; the second part (12 - 20 %
+          left at the end) is open.
