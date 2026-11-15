@@ -6766,3 +6766,15 @@ Real-case spec (first slice):
             line and no "Generated with Claude Code" line in commits or pull requests.
           NOT verified: that a session started after this writes a commit without the line (settings are read when a
           session starts; this session already follows the rule). Check before every push stays (lessons, thirteenth).
+      75c. (01:39, 2026-11-15) Owner: "i still see Contributors 2: WqgJing, claude". CHECKED:
+          - repository itself: GitHub holds one ref (master 86fc9d8), 161 commits, every author and committer the
+            owner, 0 co-author lines in the messages, no tags, no pull requests, no forks. Clean.
+          - graph page data (/graphs/contributors-data, recomputed at 01:37 after a 202): WqgJing only, 161 commits.
+          - the "Contributors" box of the repository page (fragment contributors_list): STILL WqgJing + claude at
+            01:39. This is GitHub's cached list; three pushes since the rewrite did not rebuild it.
+          - MY ERROR in 75: the "verified" there used the REST listing /contributors, which never lists co-authors
+            and so could not have shown the problem (lessons, fifteenth).
+          No way to force the rebuild from here: access is push over SSH only (no gh, no API token). The rebuild is
+          forced by switching the default branch away and back in the repository settings (website login), or it
+          happens on GitHub's own schedule. /tmp/wait_contrib.sh reads the fragment every 10 min and ends when
+          claude is gone. Asked the owner whether to do the switch through their browser.
