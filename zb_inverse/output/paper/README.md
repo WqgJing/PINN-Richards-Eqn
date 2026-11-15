@@ -418,7 +418,7 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 09:50). Five of the new windows have a finished PINN run: all four of the first selection and
+State (15 Nov, 10:00). Five of the new windows have a finished PINN run: all four of the first selection and
 one of the second. They are reported here as run and are not yet in the counts above (one SE-Nor check is
 still going). All rows are in-sample (soil fitted on the same window with the well).
 
@@ -428,7 +428,7 @@ still going). All rows are in-sample (soil fitted on the same window with the we
 | SE-Nor, 30 Oct 2023 | first | 11.48 cm, r 0.92 | 9.30 cm, r 0.91 | 9.19 cm over the window; 1.07 cm on days 2 - 10 | yes, both |
 | IT-SR2, 13 Nov 2019 | first | 40.23 cm, r 0.11 | 22.65 cm, r 0.44 | 31.61 cm over the window; 0.3 - 3.2 cm by day on days 0 - 3 and 8 - 10 | no (one of five PINN starts and one of four numerical starts end elsewhere) |
 | DK-Sor, 8 Dec 2024 | first | 40.88 cm, r 0.32 | 42.71 cm, r 0.41 | 9.64 cm over the window; 0.0 - 1.2 cm by day on days 4 - 10; the PINN run did not converge | yes, both |
-| FR-Bil, 29 Oct 2023 | first | 52.61 cm, r -0.52 (the other three starts 55.3 - 71.2 cm) | 43.03 cm, r -0.44 | 28.4 - 56.6 cm against the four numerical end points; training marginal, the PINN run did not converge | no (PINN starts 17.6 cm apart, numerical starts 4.9 - 53.4 cm apart) |
+| FR-Bil, 29 Oct 2023 | first | 52.61 cm, r -0.52 (the other three starts 55.3 - 71.2 cm) | 43.03 cm, r -0.44 | 28.4 - 56.6 cm against the five numerical end points; training marginal, the PINN run did not converge | no (PINN starts 17.6 cm apart, numerical end points 4.9 - 53.4 cm apart) |
 
 (RMS over the hourly record; r against the hourly well. Figures: `output/real_dor_mar24_own/result_rfdor1c.png`,
 `output/real_nor_oct23_own/result_rfnor1c.png`, `output/real_sr2_nov19_own/result_rfsr21c.png`,
@@ -479,12 +479,19 @@ still going). All rows are in-sample (soil fitted on the same window with the we
   soil (wide stage: BE-Dor 4 %, DK-Sor 7 %, SE-Nor 8 - 9 %, IT-SR2 13 - 14 %, FR-Bil 38 - 43 %; n 1.13, 1.10,
   1.48, 2.78, 10.0). The PINN's five starts end 17.6 cm apart (the best at a cost 16 % below the other four),
   its estimate is 28 - 57 cm from the numerical end points, its sensor misfit is 0.0077, and the last stage
-  used up its four iterations (0.26 sd against the limit 0.2). That the PINN is nearer the well than the solver
-  (43.0 against 52.6 cm) says nothing for it: no estimate is tied to the well here.
+  used up its four iterations (0.26 sd against the limit 0.2). Started on the PINN's path, the solver does not
+  stay on it and does not go back to one of its own end points either: it gives that path a cost of 1.405
+  (5.5 % above its lowest, 1.332), lowers it to 1.379 and ends on a fifth path, 35.1 cm from the PINN's and
+  23.0 - 40.2 cm from its other four. That the PINN is nearer the well than the solver (43.0 against 52.6 cm)
+  says nothing for it: no estimate is tied to the well here.
 - IT-SR2, second selection (1 Nov 2019, well 1.06 - 1.44 m): the numerical inversion is 24.8 - 25.4 cm from the
   well with eight or nine of its 14 coefficients on the bound of the path range (posterior sigma 20 cm). The 5 cm
-  gate is not met and no PINN is run there. Second selection so far: one window near the gate (BE-Dor, 5.41 cm),
-  one far outside it (IT-SR2); three still running.
+  gate is not met and no PINN is run there.
+- DK-Sor, second selection (23 Feb 2026, well 0.17 - 0.39 m): the four numerical starts end on four different
+  paths, 48.2 - 108.2 cm from the well (48.2 cm at the lowest cost), each at the iteration limit. The 5 cm gate
+  is not met and no PINN is run there. Second selection so far: one window near the gate (BE-Dor, 5.41 cm), two
+  far outside it (IT-SR2, DK-Sor); at FR-Bil three of four starts are 7.3 - 7.8 cm from the well and at SE-Nor
+  three of four are 4.35 cm from it, each with its fourth start still running.
 - Found on these runs (`tasks/todo.md`, 06:57): the refinement rounds drew their local paths without keeping them
   inside the path range. Where days are poorly determined (SE-Nor, IT-SR2) the local distribution is far wider
   than the range, and most refinement paths lay outside what the inversion can evaluate. A switch
@@ -568,10 +575,9 @@ each object.)
 ## Not yet in this set (running)
 
 - ICOS, first selection: the 1/4 h repeats of the numerical inversion at DK-Sor and IT-SR2; the 1/4 h
-  inversion started on the PINN's path at SE-Nor; the numerical inversion started on the PINN's path at FR-Bil;
-  the SE-Nor repeat with `sampling.local_box`.
-- ICOS, second selection: the last starts of the numerical inversion at FR-Bil, SE-Nor and DK-Sor (BE-Dor and
-  IT-SR2 are done). At SE-Nor (6 Dec 2019) three of four starts end on one estimate 4.35 cm from the well, and
+  inversion started on the PINN's path at SE-Nor; the SE-Nor repeat with `sampling.local_box`.
+- ICOS, second selection: the last start of the numerical inversion at FR-Bil and at SE-Nor (BE-Dor, IT-SR2
+  and DK-Sor are done). At SE-Nor (6 Dec 2019) three of four starts end on one estimate 4.35 cm from the well, and
   a PINN run was started on those three (declared before launch; the 5 cm gate is evaluated when the fourth
   is in). It is in its first training stage, in both network forms; no estimate exists yet.
 

@@ -8055,3 +8055,57 @@ Real-case spec (first slice):
           (job 15660563, exit=0 lines 1, Traceback lines 0). FR-Bil, Dec 2020: three of four starts, 7.25 - 7.75 cm
           from the well, cost 0.249335 - 0.249342; outside the gate so far, the fourth (constant:1.0) is running.
           README: SE-Nor bullet (step sentence), state line, running list.
+        (09:53) SECOND SELECTION, DK-Sor 23 Feb 2026: ALL FOUR NUMERICAL STARTS ARE IN (event num_sor_own_feb26
+          09:51; last job rf_sor_own_feb26_s2 15662531 "exit=0 at Sun Nov 15 09:45:41 EST 2026", exit=0 lines 1,
+          Traceback lines 0, 6 h 30 min). REFERENCE lines, solver only (jq, same command):
+            sor_own_feb26_s0  hydrostatic, step 1.0 h: cost 4.500126, from the well 48.19 cm rms, bias 23.86 cm, max 115.98 cm, on bound [9,10,11,13], 40 it, 1197 solves, sensor misfit 0.01061, sd median 0.65 cm, steps not converged (worst solve) 7.5 %, 12246 s
+            sor_own_feb26_s1  hydrostatic_flat, step 1.0 h: cost 4.947518, from the well 48.96 cm rms, bias 24.69 cm, max 115.98 cm, on bound [9,10,11,13], 40 it, 1195 solves, sensor misfit 0.01112, sd median 0.68 cm, steps not converged (worst solve) 6.8 %, 9344 s
+            sor_own_feb26_s2  constant:1.0, step 1.0 h: cost 10.602798, from the well 108.16 cm rms, bias 98.62 cm, max 133 cm, on bound [3,4,5,6,7,8,10,11], 40 it, 1199 solves, sensor misfit 0.01628, sd median 136.75 cm, steps not converged (worst solve) 27.5 %, 23305 s
+            sor_own_feb26_s3  constant:0.3, step 1.0 h: cost 10.448344, from the well 69.59 cm rms, bias 48.16 cm, max 114.39 cm, on bound [8,10], 40 it, 1198 solves, sensor misfit 0.01616, sd median 65.51 cm, steps not converged (worst solve) 10.6 %, 11923 s
+          GATE (74 aj: the start with the lowest cost within 5 cm rms of the well): lowest cost is s0, 48.19 cm.
+          NOT MET -> no PINN at this window, by the rule. All four searches stop at the iteration limit (40) and
+          end on four different paths (costs 4.50 - 10.60): the numerical inversion itself has no single estimate
+          here. Expected per station ("not at DK-Sor and IT-SR2"): holds for both now.
+          W3 so far: IT-SR2 no (earlier), DK-Sor no, BE-Dor no (5.41 cm, counted as outside); FR-Bil three of four
+          starts 7.25 - 7.75 cm (fourth running); SE-Nor three of four starts 4.35 - 4.36 cm (fourth running).
+        (09:54) FR-Bil first window, THE SOLVER STARTED ON THE PINN'S PATH HAS ENDED (event num5_bil_1h 09:51; job
+          rfq_bil_pinn1h 15670469 "exit=0 at Sun Nov 15 09:48:28 EST 2026", exit=0 lines 1, Traceback lines 0,
+          1 h 38 min; comparison job chk_bil5 15672636 "exit=0 at Sun Nov 15 09:53:08 EST 2026", exit=0 lines 1,
+          Traceback lines 0 -> output/real_bil_oct23_own/inversion_pinn.json with five numerical results; jq in
+          the same command). Rule (b) of 08:0x asked for one number, the solver's cost of the PINN's path:
+            logs/cpu_15670469.out line 12: "[ref] start file:.../runs/rfbil1cdc_it4/predictions.npz: cost 1.4054e+00, zb RMSE 0.4303 m"
+            = 5.5 % above the lowest cost of its own starts (1.332355), below the highest (1.54189).
+          REFERENCE lines, solver only:
+            bil_own_oct23_s0  hydrostatic, step 1.0 h: cost 1.348555, from the well 55.77 cm rms (r -0.501), bias -15.01 cm, max 100.03 cm, on bound [0,9,10], sd median 2.49 cm
+            bil_own_oct23_s1  hydrostatic_flat, step 1.0 h: cost 1.332355, from the well 52.61 cm rms (r -0.515), bias -9.07 cm, max 100.01 cm, on bound [0,10], sd median 11.35 cm
+            bil_own_oct23_s2  constant:1.0, step 1.0 h: cost 1.54189, from the well 71.23 cm rms (r -0.741), bias 18.42 cm, max 115 cm, on bound [6,7,10,11,12,13], sd median 126.77 cm
+            bil_own_oct23_s3  constant:0.3, step 1.0 h: cost 1.333789, from the well 55.31 cm rms (r -0.522), bias -6.87 cm, max 100.25 cm, on bound [0,9,10], sd median 11.79 cm
+            bil_own_oct23_spinn  file: rfbil1cdc_it4/predictions.npz, step 1.0 h: cost 1.379499, from the well 55.2 cm rms (r -0.556), bias -2.55 cm, max 100.16 cm, on bound [0,7,10], 16 it, 492 solves, sensor misfit 0.00587, sd median 39.91 cm, steps not converged (worst solve) 0 %, 5786 s
+            fifth minus s0: rms 29.57 cm, max 89.08 cm, by day [0.28,0.86,15.96,10.42,28.23,81.57,40.11,10.01,11.11,2.1,0.9]
+            fifth minus s1: rms 23.02 cm, max 75.19 cm, by day [0.3,0.86,15.95,12.51,24.04,55.33,40.26,11.7,2.69,5.58,2.07]
+            fifth minus s2: rms 40.15 cm, max 114.5 cm, by day [3.04,12.55,14.86,17.1,43.51,19.42,1.52,0.3,5.95,54.05,106.82]
+            fifth minus s3: rms 23.67 cm, max 74.51 cm, by day [0.3,0.87,15.95,12.51,24.06,54.7,40.15,19.96,13.38,3.32,1.44]
+            fifth: from the well by day (cm) [91.51,67.44,43.45,47.1,32.16,60.68,28.83,24.49,82.83,59.6,6.82]; sd by day (cm) [0.67,1.67,29.98,12.64,29.82,164.61,129.49,98.49,147.46,116.31,3.24]
+          PINN line (rfbil1c, finished, losses in the notes):
+            PINN minus the fifth: rms 35.12 cm, max 85.14 cm, by day [0.24,0.42,7.72,6.12,6,62.82,38.31,30.22,77.5,33.95,1.82]
+            (minus s0 33.6, s1 28.38, s2 56.64, s3 32.77 cm, as before)
+          READ: started on the PINN's path the solver neither stays (it lowers the cost from 1.405 to 1.379 and
+          moves 35 cm) nor returns to one of its own end points (23 - 40 cm from each): a fifth end point. The
+          five numerical end points and the PINN agree on days 0 - 1 only (0.2 - 0.9 cm, three low-cost starts
+          and the fifth). This is the picture of 08:0x with one more path in it: no single numerical estimate
+          exists at this window, so neither statement can be tested here. The row stays "training marginal,
+          did not converge". Nothing is launched from this.
+          Training losses read at 09:50 while the waiter was restarted (hpc/early_flux.sh; held-out, wide stage
+          still running in both forms; no decision before both have ended, rule of 09:2x):
+            rfnor2c_w0: step 0 PDE 88.71 flux 267.0 | flux factor at step 5000: 8.3 | latest step 28500: PDE 16.580 flux 4.603, factor 58.0 (21 % of node rms)
+            rfnor2c_w1: step 0 PDE 91.97 flux 260.5 | flux factor at step 5000: 9.3 | latest step 27500: PDE 15.660 flux 4.461, factor 58.4 (21 % of node rms)
+            rfnor2c_w2: step 0 PDE 80.78 flux 240.5 | flux factor at step 5000: 4.8 | latest step 17000: PDE 33.550 flux 6.291, factor 38.2 (25 % of node rms)
+            rfnor2c_w3: step 0 PDE 98.82 flux 255.4 | flux factor at step 5000: 1.8 | latest step 28500: PDE 18.600 flux 4.443, factor 57.5 (21 % of node rms)
+            rfnor2a_w0: step 0 PDE 88.71 flux 267.0 | flux factor at step 5000: 1.0 | latest step 15500: PDE 1406.000 flux 267.100, factor 1.0 (163 % of node rms)
+            rfnor2a_w1: step 0 PDE 91.97 flux 260.5 | flux factor at step 5000: 1.0 | latest step 30000: PDE 71.940 flux 260.500, factor 1.0 (161 % of node rms)
+            rfnor2a_w2: step 0 PDE 80.78 flux 240.5 | flux factor at step 5000: 1.0 | latest step 26000: PDE 58.380 flux 240.500, factor 1.0 (155 % of node rms)
+            rfnor2a_w3: step 0 PDE 98.82 flux 255.4 | flux factor at step 5000: 1.0 | latest step 11000: PDE 198.200 flux 255.400, factor 1.0 (160 % of node rms)
+          (w1 and w2 of rfnor2c passed step 5000 after the 09:2x reading: factors 9.3 and 4.8; three of four
+          above 2 at step 5000, w3 1.8 there and 57.5 now.) The additive form has not moved the flux error in
+          any network so far (expected at 09:2x, odds 80 %).
+          README: FR-Bil bullet and row (five end points), DK-Sor second-selection bullet, running list, state 10:00.
