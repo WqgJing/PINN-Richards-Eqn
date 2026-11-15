@@ -8404,3 +8404,22 @@ runs/rfnor2c_inv1: refinement sd per coefficient 37.99 5.76 2.26 3.14 0.74 0.45 
             full rfnor2e on /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/real_nor_dec19_own, sensor [0.05,0.05], options '--set model.departure=conductive --set prior.clip_m=[0.10,1.5] --set sampling.local_box=true', at Sun Nov 15 12:20:01 EST 2026
           runs/rfnor2e_w{0..3} are links to runs/rfnor2c_w{0..3}; the waiter knows the tag (wide event marked as seen,
           event inv0_nor2e for F1). Plan pushed before launch (8596fe6). Width report for FR-Bil submitted (cov_bil2c 15679670).
+        (12:21) WIDTH OF THE REFINEMENT DISTRIBUTION at rfbil2c (job cov_bil2c 15679670: exit=0 lines 1, Traceback lines 0;
+          inversion job rfbil2c_inv0 15679543: exit=0 lines 1, Traceback lines 0):
+runs/rfbil2c_inv0: refinement sd per coefficient 1.81 0.50 0.47 0.36 0.48 0.42 0.37 0.37 0.42 0.97 5.16 3.09 2.97 26.25 | above 0.5: 7 | posterior sd 0.57 0.10 0.05 0.05 0.04 0.04 0.05 0.07 0.11 0.32 1.72 1.03 0.99 8.75
+          RULE OF THE PLAN ABOVE APPLIED: coefficients 10 - 13 have a refinement sd above 2.0 (5.16, 3.09, 2.97, 26.25;
+          the last days of the window, where the solver's own sd is 4 - 229 cm) -> the repeat rfbil2e is
+          started: runs/rfbil2e_w{0..3} are links to runs/rfbil2c_w{0..3}; options of rfbil2c + '--set
+          sampling.local_box=true'. rfbil2e is the row of this window, rfbil2c is reported beside it.
+          EXPECTED of rfbil2e (before launch; P1 - P5 and the rules of 10:4x stand for both runs, the label
+          "outside the 5 cm gate (7.61 cm); started after the solver's by-day distances were read" too):
+            G1 inversion 0 reproduces runs/rfbil2c_inv0: centre within 1e-4. Must hold, else stop rfbil2e.
+            G2 held-out losses of rounds 1 - 4: PDE below 150 and flux at most 18.8 % of node rms (the largest
+               value at the end of the wide stage) in all sixteen networks. Odds 60 % (the undetermined
+               coefficients are at the END of the window here, where a rough path has less of the window left
+               to act on than at SE-Nor, where they are at its start).
+            G3 M1 (fwd offset rms, iteration 1) and M2 (first correction step over sigma, OLD key) both lower
+               than in rfbil2c. Odds 60 %.
+            G4 = P2 for this run: within 1 cm rms of the solver's lowest-cost estimate on days 0 - 9 and the
+               same from its starts within 0.2 cm there (odds 55 %); over the whole window R2 fails because of
+               day 10 (odds 65 %, as P2).
