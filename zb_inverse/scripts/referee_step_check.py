@@ -39,6 +39,8 @@ def main():
     ap.add_argument('--data', required=True, help='directory of a make_real.py data set')
     ap.add_argument('--referee', nargs='+', required=True, help='directories of fem_referee.py results')
     ap.add_argument('--pinn', default=None, help='directory of a param_invert.py result')
+    ap.add_argument('--pinn_other', nargs='*', default=[],
+                    help='directories of other param_invert.py results on the same data; --pinn minus each is reported')
     ap.add_argument('--out', required=True, help='path stem of the output (.json)')
     args = ap.parse_args()
     with open(os.path.join(args.data, 'twin_config.yaml')) as f:
@@ -86,7 +88,13 @@ def main():
                        'sigma_by_day_m': by_day(pred['zb_sigma'], np.median),
                        'vs_well_rms_by_day_m': by_day(pred['zb_pred'] - zb_obs, rms),
                        'minus_inversion': [{'dir': a['dir'], 'fem_dt_hours': a['dt_h'], 'start': a['start'],
-                                            **difference(pred['zb_pred'], a['zb'], day, t_rel)} for a in runs]}
+                                            **difference(pred['zb_pred'], a['zb'], day, t_rel)} for a in runs],
+                       'minus_other_pinn': []}
+        for p in args.pinn_other:
+            o = dict(np.load(os.path.join(p, 'predictions.npz'), allow_pickle=False))
+            if not np.allclose(o['t_days'], t) or not np.allclose(o['zb_true'], zb_obs):
+                raise SystemExit(f'{p} belongs to another data set')
+            res['pinn']['minus_other_pinn'].append({'dir': p, **difference(pred['zb_pred'], o['zb_pred'], day, t_rel)})
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     with open(args.out + '.json', 'w') as f:
         json.dump(res, f, indent=2)
@@ -110,6 +118,11 @@ def main():
             print(f"  {q['dir'][-28:]:28s} step {q['fem_dt_hours']:.4f} h {cm * q['rms_m']:8.4f} {cm * q['bias_m']:+8.4f} "
                   f"{cm * q['maxabs_m']:8.4f} {q['t_of_max_days']:6.2f}  "
                   + ' '.join(f'{cm * v:.3f}' for v in q['rms_by_day_m']))
+        if res['pinn']['minus_other_pinn']:
+            print(f"\nPINN {args.pinn} minus other PINN results (cm): rms, bias, max, time of max (days), rms by day")
+        for q in res['pinn']['minus_other_pinn']:
+            print(f"  {q['dir'][-28:]:28s} {cm * q['rms_m']:8.4f} {cm * q['bias_m']:+8.4f} {cm * q['maxabs_m']:8.4f} "
+                  f"{q['t_of_max_days']:6.2f}  " + ' '.join(f'{cm * v:.3f}' for v in q['rms_by_day_m']))
 
 
 if __name__ == '__main__':

@@ -8548,3 +8548,165 @@ runs/rfbil2c_inv0: refinement sd per coefficient 1.81 0.50 0.47 0.36 0.48 0.42 0
           (rounds 2 - 4: PDE 139 - 411829, flux error 18.0 - 47.4 % of node rms; entries above). All checks of
           this row are closed. What can still change the picture at this window is the repeat with
           sampling.local_box (rfnor1e, in its dc loop), reported as its own row beside this one.
+        (15:59) rfnor1e (SE-Nor, 30 Oct 2023, repeat with sampling.local_box): DRIVER ENDED (event rfnor1e_driver_gone, 15:49; logs/full_rfnor1e.log: "full rfnor1e done at Sun Nov 15 15:49:09 EST 2026").
+          Job checks, correction loop (forward networks: logs/gpu_<id>.out; inversions: logs/cpu_<id>.out, only exit= and Traceback read):
+            rfnor1edc_f1_m0: 15674041: exit=0 lines 1, Traceback lines 0
+            rfnor1edc_f1_m1: 15674042: exit=0 lines 1, Traceback lines 0
+            rfnor1edc_f2_m0: 15677572: exit=0 lines 1, Traceback lines 0
+            rfnor1edc_f2_m1: 15677571: exit=0 lines 1, Traceback lines 0
+            rfnor1edc_f3_m0: 15681282: exit=0 lines 1, Traceback lines 0
+            rfnor1edc_f3_m1: 15681276: exit=0 lines 1, Traceback lines 0
+            rfnor1edc_f4_m0: 15685238: exit=0 lines 1, Traceback lines 0
+            rfnor1edc_f4_m1: 15685237: exit=0 lines 1, Traceback lines 0
+            rfnor1edc_it1: job 15677391: exit=0 lines 1, Traceback lines 0
+            rfnor1edc_it2: job 15681140: exit=0 lines 1, Traceback lines 0
+            rfnor1edc_it3: job 15685117: exit=0 lines 1, Traceback lines 0
+            rfnor1edc_it4: job 15687449: exit=0 lines 1, Traceback lines 0
+            rfnor1e_inv0: job 15668689: exit=0 lines 1, Traceback lines 0
+            rfnor1e_inv1: job 15670107: exit=0 lines 1, Traceback lines 0
+            rfnor1e_inv2: job 15671139: exit=0 lines 1, Traceback lines 0
+            rfnor1e_inv3: job 15672313: exit=0 lines 1, Traceback lines 0
+            rfnor1e_inv4: job 15673929: exit=0 lines 1, Traceback lines 0
+          LOSSES of the forward networks of the correction loop (held-out; runs/<name>/metrics.csv, last line; % of node rms = 10 sqrt(val_flux)):
+            rfnor1edc_f1_m0   step 28000: PDE 6.04  flux 0.392   (6.3 % of node rms)
+            rfnor1edc_f1_m1   step 28000: PDE 11.84  flux 0.386   (6.2 % of node rms)
+            rfnor1edc_f2_m0   step 28000: PDE 5.15  flux 0.334   (5.8 % of node rms)
+            rfnor1edc_f2_m1   step 28000: PDE 39.85  flux 0.331   (5.8 % of node rms)
+            rfnor1edc_f3_m0   step 28000: PDE 11.97  flux 0.466   (6.8 % of node rms)
+            rfnor1edc_f3_m1   step 28000: PDE 11.19  flux 0.314   (5.6 % of node rms)
+            rfnor1edc_f4_m0   step 28000: PDE 5.70  flux 0.283   (5.3 % of node rms)
+            rfnor1edc_f4_m1   step 28000: PDE 10.03  flux 0.376   (6.1 % of node rms)
+          for comparison, the run without the switch (rfnor1cdc, same files):
+            rfnor1cdc_f1_m0   step 28000: PDE 7.20  flux 0.347   (5.9 % of node rms)
+            rfnor1cdc_f1_m1   step 28000: PDE 12.72  flux 0.404   (6.4 % of node rms)
+            rfnor1cdc_f2_m0   step 28000: PDE 23.27  flux 0.401   (6.3 % of node rms)
+            rfnor1cdc_f2_m1   step 28000: PDE 14.45  flux 0.370   (6.1 % of node rms)
+            rfnor1cdc_f3_m0   step 28000: PDE 11.52  flux 0.512   (7.2 % of node rms)
+            rfnor1cdc_f3_m1   step 28000: PDE 8.62  flux 0.350   (5.9 % of node rms)
+          CORRECTION LOOP, the lines of logs/dc_<tag>.log with the scoring part cut (M1 = fwd offset rms; M2 = step/sigma max of it 1, OLD key):
+            rfnor1edc it 1: step/sigma max 0.23911493050051716, by segment [0.01,0.24,0.19,0.15], over the smaller sd max 0.2527246219978267, by segment [0.01,0.25,0.19,0.15], bound set changed false, fwd offset rms 0.00031185305206007685
+            rfnor1edc it 2: step/sigma max 0.2125754872483804, by segment [0.01,0.1,0.21,0.07], over the smaller sd max 0.2125754872483804, by segment [0.01,0.11,0.21,0.07], bound set changed false, fwd offset rms 0.00029345366990546346
+            rfnor1edc it 3: step/sigma max 0.3247709806975973, by segment [0.03,0.32,0.12,0.07], over the smaller sd max 0.3247709806975973, by segment [0.03,0.32,0.12,0.07], bound set changed false, fwd offset rms 0.0003661254105353998
+            rfnor1edc it 4: step/sigma max 0.2902369173301575, by segment [0.04,0.08,0.29,0.11], over the smaller sd max 0.3054240536921973, by segment [0.04,0.08,0.31,0.11], bound set changed false, fwd offset rms 0.0003451376956669664
+            rfnor1cdc it 1: step/sigma max 0.7919349872651789, by segment [0.79,0.27,0.47,0.39], fwd offset rms 0.0013377262734625157
+            rfnor1cdc it 2: step/sigma max 0.587938340853994, by segment [0.59,0.2,0.12,0.21], fwd offset rms 0.0009175776027216126
+            rfnor1cdc it 3: step/sigma max 0.14781040036036053, by segment [0.15,0.08,0.06,0.1], fwd offset rms 0.0009993890250848605
+          E4 (M1 below 0.0010 in every iteration and M2 below 0.79): HOLDS: M1 0.00029 - 0.00037 over 4 iterations, M2 0.239.
+          STOP RULE (move over the smaller sd below 0.2): NOT met within the four iterations: smallest 0.213, last 0.305.
+          WHAT FOLLOWS (written BEFORE any score of rfnor1e is read):
+            RULE of the launch entry applied: E4 holds -> sampling.local_box=true is the setting of every PINN run from now on;
+              runs made without it are reported as run. (rfnor2e and rfbil2e, the rows of the second selection, have it.)
+            LABEL of this run: "correction loop did not stop by its rule" (move over the smaller sd 0.25, 0.21, 0.32, 0.31 in
+              iterations 1 - 4, limit 0.2). Scored iteration: the last, runs/rfnor1edc_it4, as at DK-Sor and FR-Bil.
+            NOT KNOWN from these lines: whether the estimate is still moving or the four iterations scatter about one path.
+              The largest segment alternates (2, 3, 2, 3) and does not shrink while M1 stays at 0.0003 - 0.0004, which is
+              what scatter of the two forward networks of each iteration would give; a drift would give it too. The check
+              that separates them (PINN outputs only): it4 minus it3, it2 and it1 by day, in cm. Scatter: all three about
+              the same size and it4 - it1 not larger than it4 - it3. Drift: it4 - it1 clearly the largest. The limit 0.2 is
+              NOT changed on the strength of this run whichever it is.
+            EXPECTED of the scores (reference: the solver's estimate at 1/4 h, nor_own_oct23_dt025_spinn, as for rfnor1c):
+              E5 as written at launch: days 2 - 10 within 1.5 cm rms of rfnor1c's estimate, days 0 - 1 free. 80 %.
+              S4 PINN minus the numerical estimate on days 2 - 10: at most rfnor1c's 1.07 cm. 60 %.
+              S5 over the window R2 (1 cm) NOT met: on days 0 - 1 the solver sits on the deep bound and the sensor does not
+                 determine the path; nothing in the switch puts the PINN on that path. 85 %; my guess 5 - 15 cm.
+              S6 one estimate from the starts, spread below 0.2 cm (R1). 90 %.
+              S7 from the well 9 - 12 cm rms, r about 0.9 (any estimate at this station, T5).
+            READING RULE: its own row beside rfnor1c's whatever it gives; no method change on the strength of these scores.
+            SCORE JOBS: score_real.py (PINN, the four 1 h starts, the well) -> output/real_nor_oct23_own/result_rfnor1e;
+              referee_step_check.py --pinn runs/rfnor1edc_it4 (minus each numerical estimate by day) with a new optional
+              --pinn_other (the same PINN minus other PINN results on this data: rfnor1cdc_it3 for E5, rfnor1edc_it3, it2,
+              it1 for the scatter/drift check) -> output/real_nor_oct23_own/inversion_pinn_rfnor1e (rfnor1c's file is kept).
+        (15:59) SE-Nor 30 Oct 2023, SCORE OF THE REPEAT WITH sampling.local_box, runs/rfnor1edc_it4 (jobs 15687700 score_real.py, 15687701 referee_step_check.py: each 1 exit=0 line, 0 Traceback lines;
+          output/real_nor_oct23_own/result_rfnor1e.json and inversion_pinn_rfnor1e.json, every line below printed by jq in this command)
+          REFERENCE LINES (numerical; the same files as in the rfnor1c entries):
+            nor_own_oct23_s1 step 1.0 h: cost 0.547641, from the well 11.48 cm rms, bias 0.08 cm, max 26.34 cm, r 0.9197; by day (cm) [23.11,14.87,14.32,8.59,13.91,2.88,8.12,9.29,4.13,4.27,5.55]; sd by day (cm) [441.87,21.44,2.76,3.66,3.27,2.72,3.05,4.13,2.82,2.55,3.26]
+            nor_own_oct23_dt025_spinn step 0.25 h: cost 0.52537, from the well 11.45 cm rms, bias 0.11 cm, max 26.35 cm, r 0.9201; by day (cm) [23.12,14.87,14.38,8.5,13.7,2.95,8.04,9.27,4.06,4.23,5.56]; sd by day (cm) [461.77,21.82,2.75,3.63,3.26,2.71,3.03,4.09,2.8,2.54,3.24]
+          PINN LINES:
+            vs well (score_real.py, all hours): {"rmse_m":0.0996,"bias_m":-0.0147,"maxabs_m":0.2257,"r":0.9129,"hours":265}; starts spread (max) 0 cm; posterior sigma (median) 3.43 cm; sensor misfit of its own network 0.00364
+            minus the 1 h numerical reference of score_real.py (output/referee/nor_own_oct23_s1): {"rmse_m":0.0433,"bias_m":-0.0155,"maxabs_m":0.1499,"r":0.9956,"hours":265}
+            vs well (referee_step_check.py): rmse 9.96 cm, bias -1.47 cm, max 22.57 cm, r 0.9129; by day (cm) [12.48,15.8,14.17,8.4,13.63,2.31,7.97,10.09,3.69,4.13,5.44]; sd by day (cm) [43.75,16.36,2.81,3.92,3.26,2.74,3.29,4.83,3.19,2.59,3.11]
+            PINN minus each numerical estimate (cm): rms, bias, largest (at day), days 2 - 10 from the daily values, by day
+              nor_own_oct23_s0 (1.0 h): rms 4.33, bias -1.55, largest 14.99 at day 0.88, days 2 - 10 0.54, by day [11.57,8.42,0.33,0.26,0.32,0.6,0.41,0.91,0.91,0.26,0.31]
+              nor_own_oct23_s1 (1.0 h): rms 4.33, bias -1.55, largest 14.99 at day 0.88, days 2 - 10 0.54, by day [11.57,8.42,0.33,0.26,0.32,0.6,0.41,0.91,0.91,0.26,0.31]
+              nor_own_oct23_s2 (1.0 h): rms 4.33, bias -1.55, largest 14.99 at day 0.88, days 2 - 10 0.54, by day [11.57,8.42,0.33,0.26,0.32,0.6,0.41,0.91,0.91,0.26,0.31]
+              nor_own_oct23_s3 (1.0 h): rms 4.33, bias -1.55, largest 14.99 at day 0.88, days 2 - 10 0.54, by day [11.57,8.42,0.33,0.26,0.32,0.6,0.41,0.91,0.91,0.26,0.31]
+              nor_own_oct23_spinn (1.0 h): rms 4.33, bias -1.55, largest 14.99 at day 0.88, days 2 - 10 0.54, by day [11.57,8.42,0.33,0.26,0.32,0.6,0.41,0.91,0.91,0.26,0.31]
+              nor_own_oct23_dt025_s1 (0.25 h): rms 4.34, bias -1.58, largest 15 at day 0.88, days 2 - 10 0.52, by day [11.58,8.44,0.39,0.15,0.23,0.67,0.39,0.89,0.79,0.23,0.31]
+              nor_own_oct23_dt025_spinn (0.25 h): rms 4.34, bias -1.58, largest 15 at day 0.88, days 2 - 10 0.52, by day [11.58,8.44,0.39,0.15,0.23,0.67,0.39,0.89,0.79,0.23,0.31]
+            PINN (rfnor1edc_it4) minus other PINN results (cm): rms, bias, largest (at day), days 2 - 10 from the daily values, by day
+              runs/rfnor1cdc_it3: rms 5.35, bias 1.81, largest 21.29 at day 0.04, days 2 - 10 0.7, by day [17.24,3.79,0.36,0.81,0.85,0.51,1.12,0.85,0.76,0.3,0.06]
+              runs/rfnor1edc_it3: rms 0.76, bias -0.04, largest 1.8 at day 6.88, days 2 - 10 0.62, by day [1.36,1.05,0.15,0.43,0.21,0.26,1.35,0.99,0.38,0.43,0.06]
+              runs/rfnor1edc_it2: rms 0.93, bias -0.21, largest 2.45 at day 3.21, days 2 - 10 1.01, by day [0.55,0.25,1.14,2.11,0.57,0.18,1.2,1.22,0.33,0.2,0.12]
+              runs/rfnor1edc_it1: rms 0.98, bias -0.33, largest 2.8 at day 3.38, days 2 - 10 1.03, by day [0.91,0.44,1.03,2.55,1.05,0.41,0.71,0.41,0.17,0.19,0.18]
+            starts spread, raw: 0.00003291832688212537 m
+            (rfnor1c, same key: 0.0002556379449725199 m)
+          ONE MORE CHECK BEFORE THE VERDICTS, expectation first: the iterations of this run lie 0.6 - 1.0 cm rms apart on
+            days 2 - 10 (lines above), which is more than the 0.52 cm of the scored one from the solver. So the 0.52 could be
+            the luck of the last iteration. Check: it1, it2, it3 each minus the numerical estimates (same script, --pinn
+            runs/rfnor1edc_it<k>, -> inversion_pinn_rfnor1e_it<k>). EXPECTED: days 2 - 10 between 0.5 and 1.3 cm for each;
+            days 0 - 1 as it4 within a few cm. READING: S4 is reported with the range over the four iterations, not with the
+            scored one alone; if any iteration is above rfnor1c's 1.07 cm, the row says "0.5 - x cm over its iterations".
+          PER-ITERATION CHECK (jobs 15687761, 15687762, 15687763: 1 exit=0 line / 0 Traceback; 1 exit=0 line / 0 Traceback; 1 exit=0 line / 0 Traceback;  lines printed by jq from output/real_nor_oct23_own/inversion_pinn_rfnor1e_it<k>.json and, for it4, inversion_pinn_rfnor1e.json):
+            runs/rfnor1edc_it1 minus nor_own_oct23_dt025_spinn: rms 4.19, bias -1.25, largest 13.94 at day 0.88, days 2 - 10 1.2, by day [10.67,8.19,1.29,2.56,1.19,1.07,0.92,0.77,0.79,0.1,0.14]; from the well 9.74 cm, r 0.9188
+            runs/rfnor1edc_it2 minus nor_own_oct23_dt025_spinn: rms 4.27, bias -1.37, largest 14.37 at day 0.88, days 2 - 10 1.09, by day [11.02,8.31,1.42,2.1,0.73,0.53,1.2,0.95,1.06,0.15,0.23]; from the well 9.66 cm, r 0.9192
+            runs/rfnor1edc_it3 minus nor_own_oct23_dt025_spinn: rms 3.86, bias -1.54, largest 13.23 at day 0.88, days 2 - 10 0.8, by day [10.22,7.4,0.48,0.48,0.41,0.92,1.46,0.95,1.01,0.4,0.33]; from the well 9.83 cm, r 0.9192
+            runs/rfnor1edc_it4 minus nor_own_oct23_dt025_spinn: rms 4.34, bias -1.58, largest 15 at day 0.88, days 2 - 10 0.52, by day [11.58,8.44,0.39,0.15,0.23,0.67,0.39,0.89,0.79,0.23,0.31]; from the well 9.96 cm, r 0.9129
+          VERDICTS (rfnor1e, the repeat of SE-Nor's first window with sampling.local_box; numbers from the lines above):
+            E5 HOLDS: 0.70 cm from rfnor1c's estimate on days 2 - 10 (limit 1.5); 17.2 and 3.8 cm on days 0 - 1.
+            S4 HOLDS for the scored iteration: 0.52 cm from the solver on days 2 - 10 (1/4 h reference; 0.54 against the
+               1 h one), rfnor1c 1.07. Over the four iterations of this run: 1.20, 1.09, 0.80, 0.52 cm - two of them
+               above 1.07, so by the reading rule the row gives all four, not the last alone.
+            S5 HOLDS (R2 NOT met over the window): 4.34 cm against 1 cm; my guess (5 - 15) was a little high. All of it is
+               days 0 - 1 (11.6 and 8.4 cm; rfnor1c 27.8 and 12.2); 0.15 - 0.89 cm by day from day 2.
+            S6 HOLDS: one estimate from the five starts (0.003 cm).
+            S7 HOLDS: 9.96 cm from the well, r 0.913, bias -1.47 cm (solver 11.45 cm, r 0.920). R3 not met, as for every
+               estimate at this station.
+            The per-iteration expectation HOLDS (0.80 - 1.20 cm on days 2 - 10 for it1 - it3; days 0 - 1 within 1.4 cm of it4's).
+          SCATTER OR DRIFT: by the two criteria written before the scores, neither applies cleanly (it4 - it1 0.98 cm is
+            the largest, but not clearly: it4 - it2 0.93, it4 - it3 0.76). What the per-iteration check adds: on days 2 - 10
+            the distance to the solver's estimate falls at every iteration (1.20, 1.09, 0.80, 0.52 cm), so the loop was
+            still approaching the solver when its four iterations were used up. On days 0 - 1 it does not approach
+            (10.7 / 8.2, 11.0 / 8.3, 10.2 / 7.4, 11.6 / 8.4 cm).
+          READ:
+            - With the switch the PINN returns the solver's estimate to 0.5 cm on days 2 - 10 (half of the run without
+              it) and to 4.3 cm over the window (9.2 without). R2 is still not met over the window: days 0 - 1.
+            - Whose error on days 0 - 1: the solver ends on one estimate from five starts at both step sizes (entries of
+              07:11 and of the 1/4 h check), so a path 8 - 12 cm from it there is not the solver's minimum; the
+              difference is the PINN's (its operator there, or its search). The sensor hardly sees those days (sd of
+              the PINN's own posterior 44 and 16 cm, of the solver's 462 and 22 cm), which is why the error can sit
+              there without showing in the sensor misfit. No further solver run is needed for this statement.
+            - The label stays "correction loop did not stop by its rule". More iterations could tighten days 2 - 10;
+              they cannot bring R2 over the window, since days 0 - 1 do not move towards the solver. NOT run now (the
+              GPU queue is for the two windows of the second selection); recorded as an option, not as a result.
+            - Nothing in the method is changed on these scores. The row goes into the README beside rfnor1c's.
+        (16:00) PLAN: DK-Sor first window (8 Dec 2024) repeated with sampling.local_box, tag rfsor1e (written BEFORE launch).
+          WHY: the condition of lines 7594 and 7936 of this file ("repeated with sampling.local_box=true ONLY if E4 of rfnor1e holds") is
+            met. DK-Sor is the station where the defect was largest (local sd 1.1 - 29 in all 14 coefficients against a
+            range 3.0 wide) and where the solver has ONE estimate from five starts, so statement (i) can be tested there.
+            It cannot show (ii): every estimate is about 40 cm from the well at this station.
+          TEST (baseline against changed, one switch): from the SAME wide stage (runs/rfsor1e_w{k} links to
+            runs/rfsor1c_w{k}; the driver repeats inversion 0), data output/real_sor_dec24_own, sensor [0.05,0.05], options
+            of rfsor1c ('--set model.departure=conductive') + '--set sampling.local_box=true'.
+          BASELINE rfsor1c (read in this session, before this entry, from runs/*/metrics.csv and logs/dc_rfsor1cdc.log): round 1 PDE 10.7 - 22.6,
+            flux 9.0 - 9.9 %; rounds 2 - 4 PDE 93 - 851, flux 16.5 - 21.9 %; M1 (fwd offset rms) 0.0034, 0.0016, 0.0035,
+            0.0018; M2 (step/sigma max of it 1, old key) 5.83; loop alternated between two paths (5.83, 0.26, 3.90, 0.24).
+            Score of rfsor1c: PINN minus solver 9.64 cm over the window, by day [3.01,22.33,22.49,3.16,0,0.08,0.43,1.12,
+            0.84,0.63,0.06].
+          EXPECTATIONS (before the run):
+            H1 inversion 0 of rfsor1e reproduces runs/rfsor1c_inv0 (centre within 1e-4). Must hold, else stop.
+            H2 held-out losses of rounds 2 - 4: PDE below 150 and flux at most 15 % in all twelve networks. 70 %.
+            H3 M1 below 0.0016 in every iteration and M2 below 5.83. 60 %.
+            H4 the correction loop stops by its rule within four iterations. 35 % (rfnor1e did not).
+            H5 (scores, read only after the losses are in the notes) PINN minus the solver: days 4 - 10 at most 1.2 cm by
+               day (85 %); days 1 - 2, where the solver goes to the 1.50 m bound, below 10 cm by day (50 %); R2 over the
+               window (1 cm) met (25 %).
+          RULE: its own row beside rfsor1c's whatever it gives. R2 met -> DK-Sor is a second station for statement (i).
+            Not met -> by-day numbers in the row and no further repeat at this station. H2 or H3 failing -> the losses by
+            stage are read before anything else is launched with the switch at a new station.
+          COST: no wide stage; 16 refinement networks and up to 8 forward networks, as rfnor1e (8 h 47 min, logs/full_rfnor1e.log).
+            Runs beside the four drivers of the second selection, which keep priority in what is read first.
+          rfsor1e launched 16:01 (logs/full_rfsor1e.log, pid 2298172; runs/rfsor1e_w{0..3} are links to runs/rfsor1c_w{0..3});
+          the waiter knows the tag (/tmp/wait_icos2.sh line 12; logs/.ev_rfsor1e_wide.done set, the wide stage is not run).
+          scripts/referee_step_check.py: optional --pinn_other added (the --pinn estimate minus other PINN results on the
+          same data, key pinn.minus_other_pinn); without it the output is as before plus an empty list under that key.
+          README: second SE-Nor row and bullet, figure output/real_nor_oct23_own/result_rfnor1e.png, "Not yet in this set".
