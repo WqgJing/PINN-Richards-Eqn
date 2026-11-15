@@ -8205,3 +8205,9 @@ Real-case spec (first slice):
             /tmp/sub_retry.sh rfq_bil2_dt025 2 8G 24:00:00 scripts/fem_referee.py (as rfq_nor2_dt025, with
                 twin_npz of bil_dec20, --start file:.../output/referee/bil_own_dec20_s2/predictions.npz
                 --dt_hours 0.25 --out .../output/referee/bil_own_dec20_dt025_s2); event stepq_bil2.
+        (10:30) LAUNCHED, after the plan above was pushed (b5af22a): PINN driver rfbil2c (FR-Bil, 12 Dec 2020,
+          conductive form; pid 3367045, logs/full_rfbil2c.log, started 10:29) and the numerical inversion with
+          1/4 h steps started on the lowest-cost 1 h estimate (rfq_bil2_dt025, job 15673952 -> output/referee/
+          bil_own_dec20_dt025_s2; event stepq_bil2 in logs/wait_extra.txt). The waiter watches rfbil2c (TAGS line
+          of /tmp/wait_icos2.sh; restarted). Nothing of this run has been read.
+          README: FR-Bil second-selection bullet, count of the second selection, running list.

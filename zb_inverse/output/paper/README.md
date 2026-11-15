@@ -418,7 +418,7 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 10:00). Five of the new windows have a finished PINN run: all four of the first selection and
+State (15 Nov, 10:30). Five of the new windows have a finished PINN run: all four of the first selection and
 one of the second. They are reported here as run and are not yet in the counts above (one SE-Nor check is
 still going). All rows are in-sample (soil fitted on the same window with the well).
 
@@ -489,9 +489,17 @@ still going). All rows are in-sample (soil fitted on the same window with the we
   gate is not met and no PINN is run there.
 - DK-Sor, second selection (23 Feb 2026, well 0.17 - 0.39 m): the four numerical starts end on four different
   paths, 48.2 - 108.2 cm from the well (48.2 cm at the lowest cost), each at the iteration limit. The 5 cm gate
-  is not met and no PINN is run there. Second selection so far: one window near the gate (BE-Dor, 5.41 cm), two
-  far outside it (IT-SR2, DK-Sor); at FR-Bil three of four starts are 7.3 - 7.8 cm from the well and at SE-Nor
-  three of four are 4.35 cm from it, each with its fourth start still running.
+  is not met and no PINN is run there.
+- FR-Bil, second selection (12 Dec 2020, well 0.15 - 0.38 m): the four numerical starts end on one estimate
+  (0.0 - 0.2 cm apart by day on days 0 - 9; 0.3 - 1.9 cm on the last half day, which the sensor does not
+  determine: posterior sigma above 2 m). It is 7.25 - 7.75 cm from the well over the window (r 0.88, bias
+  2.5 - 2.6 cm), so the 5 cm gate is not met; by day it is 0.4 - 3.3 cm from the well on days 0 - 7, 7.5 and
+  6.4 cm on days 8 - 9 and 21 - 23 cm on day 10. A PINN run was started here all the same, declared as outside
+  the gate and after these by-day numbers were read: it is the first of these windows after BE-Dor in which the
+  solver has a single estimate, which is what statement (i) needs. It cannot show (ii) by the written
+  criterion.
+- Second selection, count: no window inside the 5 cm gate so far (BE-Dor 5.41 cm, FR-Bil 7.61 cm, IT-SR2 and
+  DK-Sor far outside); SE-Nor is 4.35 cm from the well in three of four starts, the fourth still running.
 - Found on these runs (`tasks/todo.md`, 06:57): the refinement rounds drew their local paths without keeping them
   inside the path range. Where days are poorly determined (SE-Nor, IT-SR2) the local distribution is far wider
   than the range, and most refinement paths lay outside what the inversion can evaluate. A switch
@@ -576,8 +584,9 @@ each object.)
 
 - ICOS, first selection: the 1/4 h repeats of the numerical inversion at DK-Sor and IT-SR2; the 1/4 h
   inversion started on the PINN's path at SE-Nor; the SE-Nor repeat with `sampling.local_box`.
-- ICOS, second selection: the last start of the numerical inversion at FR-Bil and at SE-Nor (BE-Dor, IT-SR2
-  and DK-Sor are done). At SE-Nor (6 Dec 2019) three of four starts end on one estimate 4.35 cm from the well, and
+- ICOS, second selection: the PINN run at FR-Bil (12 Dec 2020; outside the gate, see above) and a 1/4 h check
+  of its numerical reference, both started 15 Nov, 10:29; the last start of the numerical inversion at SE-Nor
+  (the other four stations are done). At SE-Nor (6 Dec 2019) three of four starts end on one estimate 4.35 cm from the well, and
   a PINN run was started on those three (declared before launch; the 5 cm gate is evaluated when the fourth
   is in). It is in its first training stage, in both network forms; no estimate exists yet.
 
