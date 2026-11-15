@@ -8109,3 +8109,99 @@ Real-case spec (first slice):
           above 2 at step 5000, w3 1.8 there and 57.5 now.) The additive form has not moved the flux error in
           any network so far (expected at 09:2x, odds 80 %).
           README: FR-Bil bullet and row (five end points), DK-Sor second-selection bullet, running list, state 10:00.
+        (10:26) SECOND SELECTION, FR-Bil 12 Dec 2020: ALL FOUR NUMERICAL STARTS ARE IN (event num_bil_own_dec20
+          10:25; jobs rf_bil_own_dec20_s0..3 15660560 - 15660563, each exit=0 lines 1, Traceback lines 0; the last,
+          s2, "exit=0 at Sun Nov 15 10:25:37 EST 2026", 8 h 15 min). REFERENCE lines, solver only (written by
+          the command that printed them):
+            bil_own_dec20_s0  hydrostatic, step 1.0 h: cost 0.249335, from the well 7.75 cm rms, bias 2.63 cm, max 30.49 cm, on bound [13], 11 it, 345 solves, sensor misfit 0.0025, sd median 0.38 cm, steps not converged (worst solve) 39.2 %, 20630 s
+            bil_own_dec20_s1  hydrostatic_flat, step 1.0 h: cost 0.249342, from the well 7.25 cm rms, bias 2.48 cm, max 27.96 cm, on bound [13], 10 it, 309 solves, sensor misfit 0.0025, sd median 0.38 cm, steps not converged (worst solve) 38.1 %, 16701 s
+            bil_own_dec20_s2  constant:1.0, step 1.0 h: cost 0.249332, from the well 7.61 cm rms, bias 2.61 cm, max 29.73 cm, on bound [13], 20 it, 604 solves, sensor misfit 0.0025, sd median 0.38 cm, steps not converged (worst solve) 55.1 %, 29286 s
+            bil_own_dec20_s3  constant:0.3, step 1.0 h: cost 0.249335, from the well 7.52 cm rms, bias 2.57 cm, max 29.34 cm, on bound [], 17 it, 518 solves, sensor misfit 0.0025, sd median 0.38 cm, steps not converged (worst solve) 41.1 %, 26195 s
+          GATE (74 aj: the start with the lowest cost within 5 cm rms of the well): lowest cost is s2
+          (constant:1.0), 7.61 cm; all four are 7.25 - 7.75 cm. NOT MET -> no PINN at this window, by the rule.
+          Unlike DK-Sor and IT-SR2 the four starts agree here (costs 0.249332 - 0.249342, sd 0.38 cm): the
+          solver has one estimate, and it is 7 - 8 cm from the well with a bias of 2.5 - 2.6 cm. Pairwise
+          spread: comparison job chk_bil20 (submitted now, no PINN in it) -> output/real_bil_dec20_own/
+          inversion_num.json.
+          Expected per station (written before the data sets were built): "within 5 cm most likely at FR-Bil
+          and BE-Dor" FAILS for both (7.61 and 5.41 cm); "not at DK-Sor and IT-SR2" HOLDS; SE-Nor was left open
+          and is the only one inside so far (three of four starts, 4.35 - 4.36 cm; fourth running, 15660644).
+          W3 ("two at most within 5 cm, R3 at one at most") holds whatever SE-Nor's fourth start gives.
+          ONE OPEN POINT, with its rule written before the result that decides it exists (stepq_nor2 has not
+          fired; output/referee/nor_own_dec19_dt025_s0/summary.json does not exist at this minute): in these
+          four searches 38 - 55 % of the 1 h solver steps did not converge in the worst solve, the same order as
+          at SE-Nor Dec 2019 (59 - 61 %), where the 1/4 h repeat is running (N4). At SE-Nor Oct 2023, 11 % moved
+          the estimate by 0.10 cm.
+            RULE: N4 holds (1/4 h within 1 cm rms of the 1 h estimate at nor_dec19) -> the FR-Bil Dec 2020
+            verdict stands on the 1 h lines and nothing is run. N4 fails -> one 1/4 h inversion at bil_dec20
+            started on its lowest-cost 1 h estimate (s2), and the gate is read from that one; a PINN there only
+            if it is within 5 cm, labelled "gate met at 1/4 h only".
+          Comparison job chk_bil20: job 15673839; 
+            bil_own_dec20_s0: from the well 7.75 cm rms (r 0.879), bias 2.63 cm, max 30.49 cm; by day (cm) [1.39,0.35,1.85,0.76,2.32,3.31,2.6,2.43,7.5,6.36,22.58]; sd by day (cm) [0.27,0.25,0.22,0.2,0.25,0.35,0.62,1.77,5.73,4.44,228.81]
+            bil_own_dec20_s1: from the well 7.25 cm rms (r 0.888), bias 2.48 cm, max 27.96 cm; by day (cm) [1.39,0.35,1.85,0.76,2.32,3.31,2.6,2.44,7.44,6.36,20.78]; sd by day (cm) [0.27,0.25,0.22,0.2,0.25,0.35,0.61,1.78,5.64,4.35,208.08]
+            bil_own_dec20_s2: from the well 7.61 cm rms (r 0.882), bias 2.61 cm, max 29.73 cm; by day (cm) [1.39,0.35,1.85,0.76,2.32,3.31,2.61,2.52,7.64,6.33,22.03]; sd by day (cm) [0.27,0.26,0.22,0.2,0.25,0.35,0.62,1.8,5.86,4.41,245.51]
+            bil_own_dec20_s3: from the well 7.52 cm rms (r 0.883), bias 2.57 cm, max 29.34 cm; by day (cm) [1.39,0.35,1.85,0.75,2.32,3.31,2.6,2.47,7.63,6.36,21.7]; sd by day (cm) [0.27,0.25,0.22,0.2,0.25,0.35,0.62,1.78,5.85,4.37,231.81]
+            bil_own_dec20_s0 minus bil_own_dec20_s1: rms 0.57 cm, max 2.85 cm, by day [0,0,0,0,0,0,0.01,0.03,0.08,0.07,1.85]
+            bil_own_dec20_s0 minus bil_own_dec20_s2: rms 0.18 cm, max 0.84 cm, by day [0,0,0,0,0,0.01,0.02,0.13,0.16,0.03,0.56]
+            bil_own_dec20_s0 minus bil_own_dec20_s3: rms 0.28 cm, max 1.21 cm, by day [0,0,0,0,0,0,0.01,0.05,0.13,0.1,0.88]
+            bil_own_dec20_s1 minus bil_own_dec20_s2: rms 0.4 cm, max 2.01 cm, by day [0,0,0,0,0,0,0.01,0.11,0.21,0.08,1.29]
+            bil_own_dec20_s1 minus bil_own_dec20_s3: rms 0.31 cm, max 1.65 cm, by day [0,0,0,0,0,0,0,0.03,0.2,0.14,0.99]
+            bil_own_dec20_s2 minus bil_own_dec20_s3: rms 0.11 cm, max 0.4 cm, by day [0,0,0,0,0,0,0.01,0.08,0.08,0.09,0.33]
+          (comparison job chk_bil20 15673839: exit=0 lines 1, Traceback lines 0, "exit=0 at Sun Nov 15 10:26:50 EST
+          2026"; the lines above are its output/real_bil_dec20_own/inversion_num.json, appended by the command
+          that printed them.)
+          READ (solver only): the four starts are one estimate on days 0 - 9 (0.00 - 0.21 cm apart by day) and
+          differ on day 10 only (0.3 - 1.9 cm; sd there 2.1 - 2.5 m: the last half day is not determined by
+          the sensor). From the well by day: 0.4 - 3.3 cm on days 0 - 7, 7.5 and 6.4 cm on days 8 - 9 (sd 5.7
+          and 4.4 cm), 21 - 23 cm on day 10. The 7.6 cm over the window is days 8 - 10.
+        (10:29) PLAN, written before anything is launched: A PINN AT FR-Bil 12 Dec 2020, OUTSIDE THE GATE.
+          This is a DEVIATION from 74 aj (PINN only where the lowest-cost numerical start is within 5 cm of the
+          well) and from the rule I wrote at 10:26 ("N4 holds -> nothing is run"), made AFTER reading the
+          by-day lines above. What it is for: statement (i). This is the first ICOS window after BE-Dor where
+          the solver has a single estimate from all four starts (0.11 - 0.57 cm rms apart, all of it on day 10),
+          so "does the PINN return the numerical estimate" has a clean answer here, and (i) does not depend on
+          the well. What it is NOT: evidence for (ii) by the written criterion. The row will read "outside the
+          5 cm gate (7.61 cm); started after the solver's by-day distances from the well were read", it is not
+          counted as inside in W3, and R3 is read over the window as written (the solver does not meet it, so
+          the PINN is not expected to).
+          Soil (output/real_bil_dec20_own/twin_config.yaml): theta_s 0.300, theta_r 0.099, alpha 20.0 /m,
+          n 2.44, Ks 1.0e-3 m/s: the soil class of SE-Nor Dec 2019 (alpha 20.0, n 2.62, Ks 1.0e-3), whose
+          conductive networks are at 21 - 25 % flux error two thirds through the wide stage and whose additive
+          networks have not moved (lines of 09:50).
+          EXPECTED, written now:
+            P1 wide stage, conductive form: 15 - 25 % of node rms of the flux left at its end in all four
+               networks. My odds 60 %. Above 30 % in any network = "training marginal".
+            P2 if P1 holds: the PINN is within 1 cm rms of the solver's lowest-cost estimate over days 0 - 9
+               (my odds 50 %), the same from its starts within 0.2 cm there. Over the whole window R2 (1 cm)
+               FAILS because of day 10 (my odds 65 %): the sensor does not determine the last half day, and
+               without sampling.local_box the refinement draws for the last coefficient lie mostly outside
+               the range (the defect of 06:57; SE-Nor Oct 2023 differed from the solver exactly on its
+               undetermined days).
+            P3 against the well as the solver: 7 - 8 cm over the window, bias 2 - 3 cm, under 3.5 cm by day on
+               days 0 - 7. R3 not met.
+            P4 the correction loop stops by its rule within four iterations (my odds 50 %).
+            P5 (reference): the numerical inversion with 1/4 h steps, started on the lowest-cost 1 h estimate
+               (s2), stays within 1 cm of it by day on days 0 - 9 (my odds 65 %; 38 - 55 % of the 1 h steps do
+               not converge in the worst solve of the searches). Day 10 is read apart: the four 1 h starts
+               already differ by 0.3 - 1.9 cm there.
+          RULES:
+            - R2 is read twice and both are reported: over the window as written, and over days 0 - 9. Only
+              the first counts for the criterion.
+            - Network form: conductive. The additive form is started only if the conductive wide stage ENDS
+              above 30 % in any network. (The step-5000 reading of 74 aj is not used here: at SE-Nor Dec 2019
+              a network at factor 1.8 at step 5000 stood at 57.5 by step 28500, and the additive form has
+              not learned the flux in any soil with Ks 1e-3.)
+            - Losses of every stage recorded before any score. P1 marginal -> finished and reported under
+              that label; no second attempt without a plan written first.
+            - sampling.local_box OFF, as in every row so far (E4 of rfnor1e is not known). If E4 holds later,
+              a repeat with the switch needs its own entry here first.
+            - P5 fails on days 0 - 9 -> the 1/4 h estimate is the reference for this window (rule of 22:29),
+              and the gate distance is restated from it. This replaces the 10:26 rule, which tied the 1/4 h
+              run here to N4: with a PINN run at this window its reference has to be checked directly.
+            - Path range 0.10 - 1.50 m, as in the numerical inversion.
+          Commands (after this plan is pushed):
+            hpc/real_full_x.sh rfbil2c output/real_bil_dec20_own "[0.05,0.05]"
+                "--set model.departure=conductive --set prior.clip_m=[0.10,1.5]"
+            /tmp/sub_retry.sh rfq_bil2_dt025 2 8G 24:00:00 scripts/fem_referee.py (as rfq_nor2_dt025, with
+                twin_npz of bil_dec20, --start file:.../output/referee/bil_own_dec20_s2/predictions.npz
+                --dt_hours 0.25 --out .../output/referee/bil_own_dec20_dt025_s2); event stepq_bil2.
