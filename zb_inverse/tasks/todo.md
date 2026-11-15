@@ -7787,3 +7787,129 @@ Real-case spec (first slice):
           bound set changed <true|false>, fwd offset rms ..." (dry run on an old summary: falls back to the old key,
           prints "[]" and "null"; on a summary with 1.234 / 0.1: "(not converged)" / "converged at it 4").
           New: src/zbinv/convergence.py, tests/test_convergence.py. The re-run directories runs/chk_stop_* stay (not tracked).
+        (08:05) FR-Bil rfbil1c HAS ENDED (event rfbil1c_driver_gone 08:03; "full rfbil1c done at Sun Nov 15 08:03:09 EST 2026").
+          JOBS (same command as the lines below): training jobs 28, exit=0 in 28, Traceback lines 0; inversion jobs 9,
+          exit=0 in 9, Traceback lines 0; bad lines (FAILED|TIMEOUT|CANCELLED|OUT_OF_ME) in the driver logs: 0.
+          LOSSES (runs/<dir>/metrics.csv, last line; "% of node rms" = 10 sqrt(val_flux)), BEFORE any score:
+            rfbil1c_w0   step 42000: PDE 23.07  flux 14.739   (38.4 % of node rms)
+            rfbil1c_w1   step 42000: PDE 24.33  flux 18.454   (43.0 % of node rms)
+            rfbil1c_w2   step 42000: PDE 25.70  flux 15.392   (39.2 % of node rms)
+            rfbil1c_w3   step 42000: PDE 24.91  flux 15.730   (39.7 % of node rms)
+            rfbil1c_r1_m0..3   step 18000: PDE 121.68 / 120.90 / 67.67 / 74.24     flux 38.0 / 40.1 / 41.5 / 42.2 %
+            rfbil1c_r2_m0..3   step 18000: PDE 205.97 / 210.84 / 375.67 / 502.15   flux 40.1 / 44.6 / 46.2 / 47.4 %
+            rfbil1c_r3_m0..3   step 18000: PDE 128.82 / 85.92 / 111.60 / 87.27     flux 39.6 / 40.7 / 41.2 / 40.7 %
+            rfbil1c_r4_m0..3   step 18000: PDE 57.02 / 216.09 / 116.47 / 172.32    flux 38.4 / 41.8 / 39.1 / 40.5 %
+            rfbil1cdc_f1_m0/1  step 28000: PDE 7.29 / 6.44   flux 18.7 / 19.3 %
+            rfbil1cdc_f2_m0/1  step 28000: PDE 6.79 / 6.91   flux 18.5 / 17.9 %
+            rfbil1cdc_f3_m0/1  step 28000: PDE 5.87 / 4.61   flux 18.1 / 16.5 %
+            rfbil1cdc_f4_m0/1  step 28000: PDE 5.31 / 3.86   flux 17.4 / 16.0 %
+          CORRECTION LOOP (logs/dc_rfbil1cdc.log, scoring part cut; the loop was started with the old rule):
+            it 1: step/sigma max 2.90, by segment [2.9,2.71,1.56,0.7], fwd offset rms 0.00835
+            it 2: step/sigma max 0.479, by segment [0.48,0.1,0.1,0.28], fwd offset rms 0.00821
+            it 3: step/sigma max 0.238, by segment [0.1,0.05,0.07,0.24], fwd offset rms 0.00877
+            it 4: step/sigma max 0.221, by segment [0.07,0.17,0.1,0.22], fwd offset rms 0.00877
+            no "converged" line: the four iterations were used up. it 4 was inverted with the new script:
+            over the smaller sd [0.07,0.17,0.10,0.26] max 0.26, on bound [0,6,7,13] before and after, changed false.
+          NON-SCORE KEYS of every inversion (jq, same command):
+            rfbil1c_inv0: best start hydrostatic_flat, on bound [12,13], costs [5.46,5.433,5.4639,5.4615], sigma median 7.42 cm, ensemble theta sd 0.00557
+            rfbil1c_inv1: best constant:0.3, on bound [12,13], costs [6.5017,6.4966,6.5017,6.4959,6.4959], sigma 11.8 cm, ensemble sd 0.00283
+            rfbil1c_inv2: best constant:0.3, on bound [], costs [7.202,7.5046,7.5089,7.5043,7.1737], sigma 7.2 cm, ensemble sd 0.00337
+            rfbil1c_inv3: best previous, on bound [], costs [6.5149,6.843,6.8486,6.8424,6.8423], sigma 7.03 cm, ensemble sd 0.00287
+            rfbil1c_inv4: best previous, on bound [], costs [6.7926,7.2114,7.2239,7.2093,7.2095], sigma 5.73 cm, ensemble sd 0.00186
+            rfbil1cdc_it1: best previous, on bound [6,7], costs [2.2908,2.8295,2.9202,2.7552,2.7692], sigma 4.27 cm, fwd offset 0.00834
+            rfbil1cdc_it2: best previous, on bound [0,6,7], costs [2.7919,3.2842,3.2843,3.2842,3.2862], sigma 4.48 cm, fwd offset 0.00821
+            rfbil1cdc_it3: best previous, on bound [0,6,7,13], costs [2.3464,2.9017,2.8137,2.8122,2.8121], sigma 4.4 cm, fwd offset 0.00877
+            rfbil1cdc_it4: best previous, on bound [0,6,7,13], costs [2.374,2.8287,2.8287,2.8409,2.8289], sigma 4.35 cm, fwd offset 0.00877
+            Levenberg-Marquardt iterations per start: 60 (the limit) in every start of every inversion but one (it4, best start: 39).
+          REFERENCE for scale (solver only, output/referee/bil_own_oct23_s{0..3}/summary.json, as recorded before):
+            s0 hydrostatic: cost 1.34856, from the well 55.77 cm, on bound [0,9,10], sigma median 2.49 cm, sensor misfit 0.00581, steps not converged 0 %
+            s1 hydrostatic_flat: cost 1.33236, 52.61 cm, on bound [0,10], sigma 11.35 cm, misfit 0.00577
+            s2 constant:1.0: cost 1.54189, 71.23 cm, on bound [6,7,10,11,12,13], sigma 126.77 cm, misfit 0.00621
+            s3 constant:0.3: cost 1.33379, 55.31 cm, on bound [0,9,10], sigma 11.79 cm, misfit 0.00577
+          READ (no score seen): this is the worst-trained run of the set, as announced at 22:06 ("marginal, whatever
+          the score"). The wide and the refinement networks leave 38 - 47 % of the node rms of the surface flux
+          (DK-Sor 7 %, SE-Nor 8 - 9 %, IT-SR2 13 - 14 % in the wide stage), and even the forward networks of
+          the correction loop, which train on ONE path, leave 16 - 19 % (DK-Sor 3 %, BE-Dor lowest of all). The
+          offset between operator and forward networks is 0.0082 - 0.0088 in theta at every iteration (SE-Nor
+          0.0009 - 0.0013), larger than the solver's whole sensor misfit (0.0058). The PINN's cost at its estimate is
+          2.37, 78 % above the solver's minimum (1.33). In every correction the four fresh starts end at a cost
+          19 - 24 % above the start from the previous estimate: the starts do not agree, and the inversions run
+          into the iteration limit. The refinement defect cannot explain the forward networks (one path, no
+          local distribution): at FR-Bil the surface-flux condition itself is not learned.
+          EXPECTATION, before any score of this run is read:
+            B1 (85 %): the five starts of the last inversion do NOT give one estimate (spread above 0.2 cm; R1 not met).
+            B2 (90 %): PINN minus numerical above 1 cm rms against every one of the four numerical end points
+               (R2 not met); guess 10 - 40 cm against the three low-cost ones.
+            B3 (70 %): PINN from the well above 40 cm (the numerical inversion: 52.6 - 71.2 cm).
+            B4 (80 %): sensor misfit of the PINN's estimate more than 0.0005 above the solver's 0.0058.
+          RULE: whatever the score, the row carries the wide-stage flux factors (8.8 - 11.6; 38 - 43 % left) and
+          is labelled "training marginal, did not converge" (rule of 22:06). B2 holds -> FR-Bil shows neither
+          statement, and the solver is started on the PINN's path (full inversion; its steps converge in 100 %
+          here, so it is a clean reference) to read the solver's cost of that path. Then: why is the flux
+          condition not learned at FR-Bil (forward network on one path, 16 - 19 %)? That is the next
+          diagnosis (plan first), and it gates any PINN run on the second FR-Bil window (bil_dec20), should
+          the numerical inversion there pass the 5 cm gate.
+        (08:09) FR-Bil rfbil1c SCORED (jobs 15670377 cov, 15670378 score, 15670379 comparison: exit=0 in each, Traceback
+          lines 0 in each; numbers by jq from output/real_bil_oct23_own/result_rfbil1c.json, inversion_pinn.json and
+          runs/rfbil1cdc_it4/summary.json in the same command; reference lines read first).
+          REFERENCE (solver / data only): window from 2023-10-29 12:00, 11 d, 265 h, sensor below saturation in all
+            265; observed water table 1.375 -> 0.35 m (it rises by a metre in the window); soil of the fit: theta_s
+            0.563, theta_r 0.125, alpha 4.11 /m, n 9.996, Ks 6.4e-5 m/s; spline of the well vs the record 1.40 cm.
+            Solver WITH THE OBSERVED water table: sensor misfit 0.00724. Hydrostatic reading of the sensor: 46.89 cm
+            from the well (r -0.11).
+            Four numerical inversions, from the well / cost / on bound / posterior sd median / sensor misfit:
+              hydrostatic       55.77 cm (r -0.50)   1.34856   [0,9,10]             2.49 cm    0.00581
+              hydrostatic_flat  52.61 cm (r -0.52)   1.33236   [0,10]               11.35 cm   0.00577
+              constant:1.0      71.23 cm (r -0.74)   1.54189   [6,7,10,11,12,13]    126.77 cm  0.00621
+              constant:0.3      55.31 cm (r -0.52)   1.33379   [0,9,10]             11.79 cm   0.00577
+            Pairs of numerical inversions (rms): 18.22, 53.37, 18.20, 45.63, 4.88, 45.57 cm -> no single numerical
+            estimate (the two closest, hydrostatic_flat and constant:0.3, are 4.9 cm apart).
+          PINN (runs/rfbil1cdc_it4): from the well 43.03 cm (bias -20.71 cm, r -0.44), by day
+            [91.75,67.52,50.14,51.4,27.37,14.24,14.43,16.19,11.16,27.06,5.18] cm; sensor misfit 0.00770;
+            posterior sd median 4.35 cm. Five starts: costs 2.374 (previous) and 2.829 / 2.829 / 2.841 / 2.829,
+            spread 17.58 cm rms (11.96 cm inner), largest 81.3 cm.
+            PINN minus numerical: hydrostatic 33.60 cm, hydrostatic_flat 28.38 cm, constant:1.0 56.64 cm,
+            constant:0.3 32.77 cm; days 0 - 1 within 0.2 - 0.6 cm of the three low-cost ones, then 5 - 90 cm.
+            Refinement widths (logs/cpu_15670377.out): sd above 0.5 in 14 of 14 coefficients in every round
+            (the box is 3.0 wide; last coefficient 2.6 - 12.5): the "local" rounds were not local at all.
+          VERDICTS: B1 HOLDS (17.58 cm > 0.2 cm; R1 not met). B2 HOLDS (28.4 - 56.6 cm; R2 not met). B3 HOLDS
+            (43.0 cm > 40). B4 HOLDS (0.00770 against 0.00577 - 0.00581: 0.0019 above). R3 not met.
+          READ: nobody determines the water table from this sensor in this window. The solver gives the sensor
+            series to 0.0072 WITH THE OBSERVED water table and to 0.0058 with a path 53 cm away from it, and its own
+            four starts end 5 - 53 cm apart. The sensor sits at theta 0.14 - 0.25 (theta_s 0.56) and follows the
+            rain; with n = 10 the retention curve is a step: above the fringe (1/alpha = 24 cm) the profile is at
+            theta_r whatever the water table does. So the row shows neither statement, and the well comparison
+            says nothing about the PINN: it is the sensor-does-not-see-the-water-table case, like IT-SR2 and
+            DK-Sor, with the training marginal on top.
+          BY THE RULE: (a) the row is "training marginal, did not converge", with the wide-stage factors; (b) the
+            solver is started on the PINN's path (job below; event num5_bil_1h) to read its cost of that path;
+            (c) the diagnosis "why is the flux condition not learned here" gets its plan before any run, and it
+            gates a PINN run on bil_dec20.
+        (08:11) WHY THE FLUX CONDITION IS NOT LEARNED AT FR-Bil: what the files already say (no new run).
+          Flux error left (% of node rms, 10 sqrt(val_flux), last line of metrics.csv, four members) against the n of
+          the soil each run was trained on (result_*.json .soil.n):
+            station   n      wide stage              correction networks (all iterations)
+            BE-Dor    1.13   4.2 4.3 4.0 4.2         2.4 2.5
+            DK-Sor    1.10   7.0 7.2 7.0 6.9         6.3 5.9 4.2 3.9 3.8 3.3 3.3 3.1
+            SE-Nor    1.48   8.3 8.3 8.4 9.2         5.9 6.4 6.3 6.1 7.2 5.9
+            IT-SR2    2.78   14.0 13.3 13.6 13.7     12.3 11.8 13.7 15.4 13.1 12.5
+            FR-Bil    10.0   38.4 43.0 39.2 39.7     18.7 19.3 18.5 17.9 18.1 16.5 17.4 16.0
+          The error left grows with n in both stages (five soils; BE-Dor and DK-Sor, both n 1.1, swap places).
+          FR-Bil's n is the upper bound of the soil fit (scripts/calibrate_soil.py:28, UPPER ln(n-1) = ln 9.0 ->
+          n = 10; fitted 9.996): a retention curve that is a step at 1/alpha = 24 cm.
+          HYPOTHESIS H-n (not tested by a run): with a steep retention curve the conductivity at the surface
+          changes by orders of magnitude over a few cm of head, and the network in h does not resolve the
+          surface-flux condition; the error left is a property of the soil, not of the path sampling (the forward
+          networks on ONE path show the same order).
+          WHAT FOLLOWS, and what does not:
+            - FR-Bil first window: nothing to gain from a better-trained network. The numerical inversion has no
+              single estimate here (starts 4.9 - 53.4 cm apart) and none near the well, so neither statement can
+              be shown whatever the training. No repeat.
+            - Second selection: bil_dec20 (n 2.44) and nor_dec19 (n 2.62) are in IT-SR2's range (expect 12 - 15 %
+              left in the wide stage, usable as at IT-SR2). sor_feb26 was fitted to n 9.94
+              (output/real_sor_feb26_own/twin_config.yaml), FR-Bil's regime: a PINN run there, should the numerical
+              inversion pass the 5 cm gate, is expected to train marginally (above 30 % left). It is then started
+              only with a plan for step-like soils written first (candidate, to be planned, not decided: the
+              head variable of the network); without the gate being met nothing is done.
+            - The alpha of bil_dec20 and nor_dec19 is at the fit's upper bound (20 /m; theta_s at its lower bound
+              0.30, Ks at its upper 1e-3): these fits are held by three bounds, which the row has to say.
