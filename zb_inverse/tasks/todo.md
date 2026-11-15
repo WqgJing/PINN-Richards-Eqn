@@ -6157,3 +6157,26 @@ Real-case spec (first slice):
           "--set model.departure=conductive" > logs/full_rfnor1c.log (final directory runs/rfnor1cdc_it4).
           To check when its first job starts: runs/rfnor1c_w0/config.yaml carries model.departure:
           conductive. Read only after the numerical lines of logs/transfer_nor_oct23.log are recorded.
+        (19:48) rfsor1 (DK-Sor, additive form) WIDE STAGE, held-out losses only (runs/rfsor1_w?/metrics.csv,
+          columns val_pde and val_flux; no score, no inversion line read; no Traceback in logs/pipe_rfsor1.log):
+            w0   step 0: PDE 1.413  flux 531.7   step 42000: PDE 12.82  flux 504.2   flux fell by a factor 1.05   (225 % of node rms)
+            w1   step 0: PDE 1.507  flux 582.1   step 42000: PDE 21.17  flux 509.4   flux fell by a factor 1.14   (226 % of node rms)
+            w2   step 0: PDE 1.413  flux 564.6   step 42000: PDE 15.54  flux 528.7   flux fell by a factor 1.07   (230 % of node rms)
+            w3   step 0: PDE 1.496  flux 587.8   step 42000: PDE 15.11  flux 562.8   flux fell by a factor 1.04   (237 % of node rms)
+          AGAINST THE CRITERION WRITTEN ABOVE BEFORE ANY METRIC WAS READ (flux loss down by less than a
+            factor 10 in all four wide networks -> not learned -> stop, repeat in the conductive form):
+            MET. All four fell by a factor 1.0 - 1.1, as the additive form did at Ks 1e-3 (rfnc1t: 1.0);
+            the surface flux is still 2.2 - 2.4 times the node rms wrong after 42000 steps, and the PDE
+            loss went UP from its step-0 value. The additive form has not learned this soil (Ks 4.0e-4,
+            n 1.10, theta_r 0.20). So the form fails below Ks 1e-3 too; where between 6.4e-5 and 4.0e-4
+            it starts to fail is not known from one case, and rfbil1 (Ks 6.4e-5) is read against the
+            same criterion when its four wide networks end.
+          DONE (19:45 - 19:48): rfsor1 stopped (driver hpc/real_full_x.sh rfsor1 and its param_pipeline
+            children killed; my jobs rfsor1_r1_m0..3 cancelled; nothing with that tag left in the queue;
+            the other drivers untouched). runs/rfsor1_* kept as the record of the additive attempt.
+            RELAUNCHED: setsid nohup hpc/real_full_x.sh rfsor1c output/real_sor_dec24_own "[0.05,0.05]"
+            "--set model.departure=conductive" > logs/full_rfsor1c.log (final directory runs/rfsor1cdc_it4).
+            The DK-Sor row will say: additive form did not learn the surface flux, repeated conductive.
+            Same rule for the read: only after the numerical lines of logs/transfer_sor_dec24.log are recorded.
+          CHECKED (19:49): runs/rfnor1c_w0/config.yaml line 35 carries "departure: conductive" (SE-Nor run
+            is in the form its rule names).
