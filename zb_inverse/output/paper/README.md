@@ -418,9 +418,9 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 14:27). Five of the new windows have a finished PINN run: all four of the first selection and
-one of the second. They are reported here as run and are not yet in the counts above (one SE-Nor check is
-still going). All rows are in-sample (soil fitted on the same window with the well).
+State (15 Nov, 15:17). Five of the new windows have a finished PINN run: all four of the first selection and
+one of the second. They are reported here as run and are not yet in the counts above. All rows are in-sample
+(soil fitted on the same window with the well).
 
 | station, window (11 d from) | selection | numerical inversion: from the well | PINN: from the well | PINN minus numerical | one estimate from every start |
 |---|---|---|---|---|---|
@@ -444,12 +444,16 @@ still going). All rows are in-sample (soil fitted on the same window with the we
 - SE-Nor: from day 2 on the PINN is within 0.3 - 1.6 cm of the numerical estimate by day. On days 0 and 1 the two
   differ by 27.8 and 12.1 cm; there the sensor does not determine the water table (posterior sigma 45 and 19 cm
   in the PINN's inversion, 442 and 21 cm in the numerical one, whose first coefficients are on the bound).
-  Started on the PINN's path, the numerical inversion with 1 h steps returns to its own estimate, so at that step
-  the difference on days 0 - 1 is the PINN's. 11 - 12 % of the solver's 1 h steps do not converge in its worst
-  solve, so the numerical inversion was repeated with 1/4 h steps from the flat start: it ends 0.10 cm from the
-  1 h estimate (largest 0.23 cm), 11.45 cm from the well, and the PINN is as far from it as from the 1 h one
-  (9.18 cm over the window; 0.3 - 1.5 cm by day from day 2). The 1 h reference stands. The 1/4 h inversion
-  started on the PINN's path is still running. Statement (i) is not shown over the whole window here.
+  11 - 12 % of the solver's 1 h steps do not converge in its worst solve, so the numerical inversion was
+  repeated with 1/4 h steps from the flat start: it ends 0.10 cm from the 1 h estimate (largest 0.23 cm),
+  11.45 cm from the well, and the PINN is as far from it as from the 1 h one (9.18 cm over the window;
+  0.3 - 1.5 cm by day from day 2). The 1 h reference stands. Started on the PINN's path, the numerical
+  inversion returns to its own estimate at both step sizes (to 0.0006 cm with 1 h steps, 0.0001 cm with 1/4 h
+  steps): the PINN's path is not a second solution of the solver, and the difference on days 0 - 1 is the
+  PINN's own error. Statement (i) is not shown over the whole window here (9.2 cm against the 1 cm criterion;
+  1.1 cm on days 2 - 10). The run was made with the refinement defect described below (refinement rounds
+  2 - 4 ended with a PDE loss of 139 - 411829 and 18 - 47 % of the surface-flux error left); its repeat with
+  `sampling.local_box` is in its last stage and will be reported as its own row beside this one.
 - IT-SR2: the sensor does not determine the water table at this station in this window. The model run with the
   measured well fits the sensor to 0.0093, the numerical estimate to 0.0087, the PINN's to 0.0094; both
   estimates read each wetting of the sensor as a rise of the water table while the well rises smoothly. The two
@@ -593,8 +597,8 @@ each object.)
 
 ## Not yet in this set (running)
 
-- ICOS, first selection: the 1/4 h repeats of the numerical inversion at DK-Sor and IT-SR2; the 1/4 h
-  inversion started on the PINN's path at SE-Nor; the SE-Nor repeat with `sampling.local_box`.
+- ICOS, first selection: the 1/4 h repeats of the numerical inversion at DK-Sor and IT-SR2; the SE-Nor repeat
+  with `sampling.local_box`.
 - ICOS, second selection: the PINN run at FR-Bil (12 Dec 2020; outside the gate, see above) and a 1/4 h check
   of its numerical reference, both started 15 Nov, 10:29. Its first training stage ended with 17.4 - 18.8 % of
   the surface-flux error left (expected 15 - 25 %); refinement is running. As at SE-Nor (next item), its

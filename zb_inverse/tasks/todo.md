@@ -8511,3 +8511,40 @@ runs/rfbil2c_inv0: refinement sd per coefficient 1.81 0.50 0.47 0.36 0.48 0.42 0
           1 h search took 887 solves in 11 h; four times that is beyond the 24 h limit): it stays reported as
           found at 1 h, day 0 only.
           NOTHING changes for the PINN rows (rfnor2e the row, rfnor2c beside it): reference s0, rules as written.
+        (15:16) SE-Nor, 30 Oct 2023 (first selection): the 1/4 h numerical inversion STARTED ON THE PINN'S PATH ended (event num5_nor_025, 15:14).
+          Job check: rfq_nor_pinn025 15664498 COMPLETED 10:28:49, logs/cpu_15664498.out: exit=0 lines 1, Traceback lines 0.
+          BEFORE its numbers are read, the three branches of the rule of 04:3x in numbers (taken from the wording
+          of F2 there): "goes back" = within 0.2 cm rms of the 1/4 h flat-start estimate (nor_own_oct23_dt025_s1)
+          -> rule (1); "stops at the PINN's path" = within 1 cm rms of the PINN's estimate (runs/rfnor1cdc_it3)
+          -> rule (2); anything else -> rule (3), two end points at 1/4 h. No expectation was written for this
+          run (04:3x: "open"); at 1 h the same start went back (F2, 0.0006 cm).
+          REFERENCE lines, solver only (copied by jq from output/referee/<d>/summary.json in this command):
+            nor_own_oct23_dt025_s1  hydrostatic_flat, step 0.25 h: cost 0.52537, from the well 11.45 cm rms, bias 0.11 cm, max 26.35 cm, on bound [0,1,2,13], 12 it, 351 solves, sensor misfit 0.00362, sd median 3.36 cm, steps not converged (worst solve) 6.4 %, 39693 s
+            nor_own_oct23_dt025_spinn  runs/rfnor1cdc_it3/predictions.npz, step 0.25 h: cost 0.52537, from the well 11.45 cm rms, bias 0.11 cm, max 26.35 cm, on bound [0,1,2,13], 10 it, 298 solves, sensor misfit 0.00362, sd median 3.36 cm, steps not converged (worst solve) 6 %, 36813 s
+            nor_own_oct23_spinn  runs/rfnor1cdc_it3/predictions.npz, step 1.0 h: cost 0.547641, from the well 11.48 cm rms, bias 0.08 cm, max 26.34 cm, on bound [0,1,2,13], 8 it, 241 solves, sensor misfit 0.0037, sd median 3.37 cm, steps not converged (worst solve) 11.3 %, 8567 s
+          Its search (output/referee/nor_own_oct23_dt025_spinn/history.json; first, last two):
+            it 0: cost 0.53655, lambda 0.0033333333333333335, from the well 12.05 cm
+            it 8: cost 0.52537, lambda 0.008323934359599655, from the well 11.45 cm
+            it 9: cost 0.52537, lambda 0.0027746447865332185, from the well 11.45 cm
+          COMPARISON (job chk_nor025p 15686188, logs/cpu_15686188.out: exit=0 lines 1, Traceback lines 0; output/real_nor_oct23_own/inversion_pinn.json written again with seven numerical results; copied by jq in this command; cm).
+          REFERENCE lines first, solver only:
+            s0 minus dt025_spinn: rms 0.0977, largest 0.233 at day 4.25, by day [0.01,0.03,0.1,0.12,0.21,0.09,0.09,0.07,0.12,0.04,0.01]
+            s1 minus dt025_spinn: rms 0.0977, largest 0.233 at day 4.25, by day [0.01,0.03,0.1,0.12,0.21,0.09,0.09,0.07,0.12,0.04,0.01]
+            s2 minus dt025_spinn: rms 0.0977, largest 0.2331 at day 4.25, by day [0.01,0.03,0.1,0.12,0.21,0.09,0.09,0.07,0.12,0.04,0.01]
+            s3 minus dt025_spinn: rms 0.0978, largest 0.2333 at day 4.25, by day [0.01,0.03,0.1,0.12,0.21,0.09,0.09,0.07,0.12,0.04,0.01]
+            spinn minus dt025_spinn: rms 0.0978, largest 0.2333 at day 4.25, by day [0.01,0.03,0.1,0.12,0.21,0.09,0.09,0.07,0.12,0.04,0.01]
+            dt025_s1 minus dt025_spinn: rms 0.0001, largest 0.0003 at day 2.92, by day [0,0,0,0,0,0,0,0,0,0,0]
+            dt025_spinn from the well: 11.45 cm rms, bias 0.11 cm, r 0.92; by day [23.12,14.87,14.38,8.5,13.7,2.95,8.04,9.27,4.06,4.23,5.56]; posterior sd by day [461.77,21.82,2.75,3.63,3.26,2.71,3.03,4.09,2.8,2.54,3.24]
+          VERDICT on the branch: the 1/4 h inversion started on the PINN path ends 0.0001 cm rms (largest 0.0003 cm) from the 1/4 h flat-start estimate: it GOES BACK (limit 0.2 cm) -> RULE (1).
+          PINN lines (rfnor1c, a finished run whose losses are in the notes):
+            PINN minus dt025_s1: rms 9.18, largest 29.56 at day 0.46, by day [27.83,12.16,0.44,0.95,1.01,1.18,1.25,1.3,1.5,0.32,0.35]
+            PINN minus dt025_spinn: rms 9.18, largest 29.56 at day 0.46, by day [27.83,12.16,0.44,0.95,1.01,1.18,1.25,1.3,1.5,0.32,0.35]
+          RULE (1) of 04:3x APPLIES at SE-Nor, 30 Oct 2023: started on the PINN's path, the numerical inversion
+          goes back to the one numerical estimate at both step sizes (1 h: 0.0006 cm, entry of 07:11, line 7478; 1/4 h:
+          line above). The PINN's path is not an end point of the solver at either step, and the 27.8 and
+          12.2 cm on days 0 and 1 are the PINN's own error (inside one posterior sd of its own inversion on
+          those days, 45 and 19 cm, which does not make it right). ROW, final: R2 NOT met at SE-Nor's first
+          window (9.2 cm over the window; 1.1 cm on days 2 - 10), run made with the refinement defect
+          (rounds 2 - 4: PDE 139 - 411829, flux error 18.0 - 47.4 % of node rms; entries above). All checks of
+          this row are closed. What can still change the picture at this window is the repeat with
+          sampling.local_box (rfnor1e, in its dc loop), reported as its own row beside this one.
