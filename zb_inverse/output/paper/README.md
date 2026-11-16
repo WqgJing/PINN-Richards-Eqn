@@ -418,9 +418,9 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 20:17). Six of the new windows have a finished PINN run: all four of the first selection and
-two of the second (BE-Dor, and SE-Nor 6 Dec 2019, the one window inside the 5 cm gate); SE-Nor's first window
-has two (without and with `sampling.local_box`, see below). They are
+State (15 Nov, 20:48). Six of the new windows have a finished PINN run: all four of the first selection and
+two of the second (BE-Dor, and SE-Nor 6 Dec 2019, the one window inside the 5 cm gate); SE-Nor's two windows
+have two runs each (without and with `sampling.local_box`, see below). They are
 reported here as run and are not yet in the counts above. All rows are in-sample (soil fitted on the same
 window with the well).
 
@@ -430,12 +430,13 @@ window with the well).
 | SE-Nor, 30 Oct 2023 | first | 11.48 cm, r 0.92 | 9.30 cm, r 0.91 | 9.19 cm over the window; 1.07 cm on days 2 - 10 | yes, both |
 | SE-Nor, 30 Oct 2023, repeated with `sampling.local_box` | first | 11.48 cm, r 0.92 | 9.96 cm, r 0.91 | 4.33 cm over the window; 0.54 cm on days 2 - 10; the correction loop did not stop by its rule | yes, both |
 | SE-Nor, 6 Dec 2019, with `sampling.local_box` | second; inside the 5 cm gate | 4.35 cm, r 0.89 | 6.87 cm, r 0.83 | 2.88 cm over the window; 0.19 cm on days 3 - 10 | no (four of five PINN starts and three of four numerical starts end on one estimate; the 1.0 m start ends elsewhere in both) |
+| SE-Nor, 6 Dec 2019, without `sampling.local_box` (beside the row above) | second; inside the 5 cm gate | 4.35 cm, r 0.89 | 8.27 cm, r 0.80 | 4.65 cm over the window; 0.22 cm on days 3 - 10; the correction loop did not stop by its rule | no (four of five PINN starts end on one estimate; the 1.0 m start ends elsewhere, at 13.6 times the cost) |
 | IT-SR2, 13 Nov 2019 | first | 40.23 cm, r 0.11 | 22.65 cm, r 0.44 | 31.61 cm over the window; 0.3 - 3.2 cm by day on days 0 - 3 and 8 - 10 | no (one of five PINN starts and one of four numerical starts end elsewhere) |
 | DK-Sor, 8 Dec 2024 | first | 40.88 cm, r 0.32 | 42.71 cm, r 0.41 | 9.64 cm over the window; 0.0 - 1.2 cm by day on days 4 - 10; the PINN run did not converge | yes, both |
 | FR-Bil, 29 Oct 2023 | first | 52.61 cm, r -0.52 (the other three starts 55.3 - 71.2 cm) | 43.03 cm, r -0.44 | 28.4 - 56.6 cm against the five numerical end points; training marginal, the PINN run did not converge | no (PINN starts 17.6 cm apart, numerical end points 4.9 - 53.4 cm apart) |
 
 (RMS over the hourly record; r against the hourly well. Figures: `output/real_dor_mar24_own/result_rfdor1c.png`,
-`output/real_nor_oct23_own/result_rfnor1c.png` and `result_rfnor1e.png`, `output/real_nor_dec19_own/result_rfnor2e.png`,
+`output/real_nor_oct23_own/result_rfnor1c.png` and `result_rfnor1e.png`, `output/real_nor_dec19_own/result_rfnor2e.png` and `result_rfnor2c.png`,
 `output/real_sr2_nov19_own/result_rfsr21c.png`,
 `output/real_sor_dec24_own/result_rfsor1c.png`, `output/real_bil_oct23_own/result_rfbil1c.png`.)
 
@@ -543,8 +544,8 @@ window with the well).
   0.19 cm from it over the window (at most 0.47 cm by day, on day 0; largest 0.66 cm), 4.35 cm from the well,
   and the 1 h estimate stands as the reference. One limit: the soil fit is held by three of its bounds (theta_s
   lower, alpha and Ks upper). The PINN run of this window is the next item.
-- SE-Nor, 6 Dec 2019, the PINN run (with `sampling.local_box`; the run without it is in its last stage and
-  will be reported beside this one). On days 3 - 10 the PINN returns the numerical estimate to 0.19 cm
+- SE-Nor, 6 Dec 2019, the PINN run (with `sampling.local_box`; the run without it is the next item). On
+  days 3 - 10 the PINN returns the numerical estimate to 0.19 cm
   (0.03 - 0.46 cm by day), and the two are 1.79 and 1.75 cm from the well there (the PINN 0.7 - 3.0 cm on each
   of those days, with a posterior sigma of 0.25 - 0.56 cm). On days 0 - 2 the PINN is 4.0, 5.2 and 7.0 cm
   from the solver and 12.9 cm from the well (solver 7.8 cm): the well rises from 0.41 to 0.22 m in those days
@@ -563,6 +564,18 @@ window with the well).
   numbers were read; it describes the result and is not a criterion. Whether the difference on days 0 - 2 is
   the PINN's own error is being checked as at the first window (the numerical inversion started on the PINN's
   path; running).
+- SE-Nor, 6 Dec 2019, the same window without `sampling.local_box` (same first stage, one switch differs;
+  reported beside the row, as declared before either estimate was read). The switch does here what it did at
+  the first SE-Nor window. Without it the PINN is 4.65 cm from the solver over the window instead of 2.88 cm
+  (days 0 - 2: 3.6, 9.2 and 11.9 cm instead of 4.0, 5.2 and 7.0 cm), 8.27 cm from the well (r 0.80) instead of
+  6.87 cm, and the correction loop used its four iterations without meeting its stop rule (last move 0.30
+  posterior sd, limit 0.2) instead of stopping at the second. On days 3 - 10 the two runs give the same
+  curve: 0.22 and 0.19 cm from the solver, 1.78 and 1.79 cm from the well, at most 0.12 cm from each other
+  by day. In training the run without the switch shows the refinement defect in full: its refinement rounds
+  ended with a PDE loss of 307 - 359284 and 28 - 69 % of the surface-flux error left, the first pair of
+  forward networks of the correction loop with 74 - 77 % left; at its own first estimate the fast model was
+  0.0039 in soil moisture from the separately trained forward networks, against 0.00028 with the switch. Four
+  of its five starts end on one estimate; the 1.0 m start ends elsewhere at 13.6 times the cost.
 - Second selection, count: one window of five inside the 5 cm gate, SE-Nor (4.35 cm at the lowest cost of four
   starts). Outside: BE-Dor 5.41 cm, FR-Bil 7.61 cm, IT-SR2 and DK-Sor far outside.
 - Found on these runs (`tasks/todo.md`, 06:57): the refinement rounds drew their local paths without keeping them
@@ -667,9 +680,9 @@ each object.)
   (`sampling.local_box`) held its loss expectation at SE-Nor's first window (PDE 8 - 106, flux error
   7.5 - 11.1 % in rounds 2 - 4, against 139 - 411829 and 18 - 47 % without it) and is the setting of every run
   started from now on. A second run with the switch was started here from the same first stage (15 Nov,
-  12:20); it is finished and is the row above. Still running at this window: the run without the switch (in
-  its last stage; it will be reported beside the row) and the numerical inversion started on the PINN's path
-  (started 15 Nov, 19:50).
+  12:20); it is finished and is the row above, and the run without the switch is finished and is the row
+  beside it. Still running at this window: the numerical inversion started on the PINN's path (started
+  15 Nov, 19:50).
 
 ## Regenerate
 
