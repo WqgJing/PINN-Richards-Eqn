@@ -517,7 +517,12 @@ window with the well).
   6.4 cm on days 8 - 9 and 21 - 23 cm on day 10. A PINN run was started here all the same, declared as outside
   the gate and after these by-day numbers were read: it is the first of these windows after BE-Dor in which the
   solver has a single estimate, which is what statement (i) needs. It cannot show (ii) by the written
-  criterion.
+  criterion. In the worst solve of each search 38 - 55 % of the solver's 1 h steps did not converge, so the
+  inversion was repeated with 1/4 h steps from the lowest-cost estimate: on days 0 - 9 it stays within 0.6 cm
+  of it by day (0.0 - 0.02 cm on days 0 - 6), and the 1 h estimate stands as the reference. On the last half
+  day the two step sizes differ by 12.7 cm (22 and 33 cm from the well; posterior sigma 2.5 and 3.1 m): there
+  the solver's own estimate depends on its step, and the PINN's distance to it on that day is given against
+  both.
 - SE-Nor, second selection (6 Dec 2019, well 0.15 - 0.41 m): inside the 5 cm gate. Three of the four numerical
   starts end on one estimate (0.01 cm apart), 4.35 cm from the well over the window (r 0.89, bias 0.26 cm). The
   1.0 m start ends on a second path with a cost 1.4 % higher, 9.53 cm from the well; it differs from the other
@@ -617,8 +622,8 @@ each object.)
 - ICOS, first selection: the 1/4 h repeats of the numerical inversion at DK-Sor and IT-SR2; a repeat of the
   DK-Sor PINN run with `sampling.local_box` from the same first stage (started 15 Nov, 16:01; it can test
   statement (i) there, not (ii)).
-- ICOS, second selection: the PINN run at FR-Bil (12 Dec 2020; outside the gate, see above) and a 1/4 h check
-  of its numerical reference, both started 15 Nov, 10:29. Its first training stage ended with 17.4 - 18.8 % of
+- ICOS, second selection: the PINN run at FR-Bil (12 Dec 2020; outside the gate, see above), started 15 Nov,
+  10:29 (the 1/4 h check of its numerical reference is finished, see above). Its first training stage ended with 17.4 - 18.8 % of
   the surface-flux error left (expected 15 - 25 %); refinement is running. As at SE-Nor (next item), its
   refinement draws leave the range the inversion evaluates, here on the last four coefficients, and a second
   run with `sampling.local_box` was started from the same first stage (15 Nov, 12:21); that run is the one

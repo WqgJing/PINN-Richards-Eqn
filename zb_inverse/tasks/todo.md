@@ -8710,3 +8710,78 @@ runs/rfbil2c_inv0: refinement sd per coefficient 1.81 0.50 0.47 0.36 0.48 0.42 0
           scripts/referee_step_check.py: optional --pinn_other added (the --pinn estimate minus other PINN results on the
           same data, key pinn.minus_other_pinn); without it the output is as before plus an empty list under that key.
           README: second SE-Nor row and bullet, figure output/real_nor_oct23_own/result_rfnor1e.png, "Not yet in this set".
+        (19:28) EVENT stepq_bil2 (19:23): FR-Bil 12 Dec 2020, the numerical inversion with 1/4 h steps from the lowest-cost 1 h estimate (job 15673952 rfq_bil2_dt025: COMPLETED 08:52:34; logs/cpu_15673952.out: 1 exit=0 line, 0 Traceback lines)
+          REFERENCE LINES (solver only; jq on output/referee/<dir>/summary.json in this command):
+            bil_own_dec20_s0  hydrostatic, step 1.0 h: cost 0.249335, from the well 7.75 cm rms, bias 2.63 cm, max 30.49 cm, on bound [13], 11 it, 345 solves, sensor misfit 0.0025, sd median 0.38 cm, steps not converged (worst solve) 39.2 %, 20630 s
+            bil_own_dec20_s1  hydrostatic_flat, step 1.0 h: cost 0.249342, from the well 7.25 cm rms, bias 2.48 cm, max 27.96 cm, on bound [13], 10 it, 309 solves, sensor misfit 0.0025, sd median 0.38 cm, steps not converged (worst solve) 38.1 %, 16701 s
+            bil_own_dec20_s2  constant:1.0, step 1.0 h: cost 0.249332, from the well 7.61 cm rms, bias 2.61 cm, max 29.73 cm, on bound [13], 20 it, 604 solves, sensor misfit 0.0025, sd median 0.38 cm, steps not converged (worst solve) 55.1 %, 29286 s
+            bil_own_dec20_s3  constant:0.3, step 1.0 h: cost 0.249335, from the well 7.52 cm rms, bias 2.57 cm, max 29.34 cm, on bound [], 17 it, 518 solves, sensor misfit 0.0025, sd median 0.38 cm, steps not converged (worst solve) 41.1 %, 26195 s
+            bil_own_dec20_dt025_s2  file:/storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/referee/bil_own_dec20_s2/predictions.npz, step 0.25 h: cost 0.250594, from the well 10.58 cm rms, bias 3.25 cm, max 58.31 cm, on bound [13], 3 it, 99 solves, sensor misfit 0.0025, sd median 0.38 cm, steps not converged (worst solve) 39.7 %, 30286 s
+          history of the 1/4 h run (cost by iteration): [0.250692,0.250594,0.250594]
+          BY DAY (job 15695238 chk_bil20q: 1 exit=0 line, 0 Traceback lines; jq on output/real_bil_dec20_own/inversion_num_q.json in this command):
+            bil_own_dec20_s0 minus bil_own_dec20_dt025_s2: rms 3.75 cm, bias -0.62, largest 32.73 at day 11, by day [0,0,0,0,0,0,0,0.05,0.45,0.32,12.2]
+            bil_own_dec20_s1 minus bil_own_dec20_dt025_s2: rms 4.24 cm, bias -0.77, largest 35.55 at day 11, by day [0,0,0,0,0,0,0.01,0.07,0.37,0.32,13.81]
+            bil_own_dec20_s2 minus bil_own_dec20_dt025_s2: rms 3.9 cm, bias -0.64, largest 33.56 at day 11, by day [0,0,0,0,0,0.01,0.02,0.18,0.57,0.3,12.67]
+            bil_own_dec20_s3 minus bil_own_dec20_dt025_s2: rms 3.97 cm, bias -0.68, largest 33.91 at day 11, by day [0,0,0,0,0,0,0.01,0.1,0.58,0.36,12.9]
+            bil_own_dec20_s2 from the well: 7.61 cm, bias 2.61, r 0.8819, by day [1.39,0.35,1.85,0.76,2.32,3.31,2.61,2.52,7.64,6.33,22.03]; sd by day (cm) [0.27,0.26,0.22,0.2,0.25,0.35,0.62,1.8,5.86,4.41,245.51]
+            bil_own_dec20_dt025_s2 from the well: 10.58 cm, bias 3.25, r 0.8165, by day [1.39,0.35,1.85,0.76,2.32,3.31,2.6,2.39,7.09,6.05,32.7]; sd by day (cm) [0.27,0.25,0.22,0.2,0.25,0.35,0.61,1.73,5.03,4.1,312.17]
+          VERDICT P5 (from the BY DAY lines above): HOLDS. s2 (1 h) minus the 1/4 h estimate started on it is 0 - 0.57 cm
+            by day on days 0 - 9 (largest on day 8), inside the 1 cm written. By the rule of the plan the 1 h estimate
+            s2 stands as the reference of this window and the gate distance stays 7.61 cm (outside the 5 cm gate).
+            Day 10, read apart: the two step sizes differ by 12.67 cm there (the four 1 h starts by 12.2 - 13.81 cm
+            from the 1/4 h estimate), where the posterior sd is 245.51 cm (1 h) and 312.17 cm (1/4 h): the sensor does
+            not determine the water table on the last half day, and the solver's own estimate there depends on its
+            step. From the well on day 10: 22.03 cm (1 h), 32.7 cm (1/4 h); that day alone makes the 10.58 cm of the
+            1/4 h estimate over the window (days 0 - 9 by day are the same to 0.6 cm).
+            The 1/4 h search stopped after 3 iterations (cost 0.250692 -> 0.250594); 39.7 % of its steps did not
+            converge in the worst solve, against 55.1 % for s2 at 1 h.
+          READING RULE for the PINN scores of this window, written before any is read: PINN minus solver is read
+            against s2 (1 h) as planned (over the window, and over days 0 - 9); on day 10 the difference to the 1/4 h
+            estimate is reported beside it, since the reference itself moves 12.67 cm with the step there.
+        (19:29) EVENT rfnor2e_driver_gone (19:27): SE-Nor 6 Dec 2019 (inside the gate), PINN run with sampling.local_box (the row)
+          logs/full_rfnor2e.log: 1 'done' line; logs/dc_rfnor2edc.log: converged at it 2
+          JOB CHECK (ids from logs/pipe_rfnor2e.log and logs/dc_rfnor2edc.log in this command):
+            refinement r1-r4: 16 logs, exit=0 lines 16, Traceback lines 0
+            inversions inv0-inv4: 5 logs, exit=0 lines 5, Traceback lines 0
+            dc forward networks: 4 logs, exit=0 lines 4, Traceback lines 0
+            dc inversions: 2 logs, exit=0 lines 2, Traceback lines 0
+          LOSSES (last line of each runs/<dir>/metrics.csv, awk in this command; '% of node rms' = 10*sqrt(val_flux)):
+            rfnor2e_w0         step 42000: PDE 11.05  flux 3.281   (18.1 % of node rms)
+            rfnor2e_w1         step 42000: PDE 11.00  flux 3.244   (18.0 % of node rms)
+            rfnor2e_w2         step 42000: PDE 11.23  flux 2.847   (16.9 % of node rms)
+            rfnor2e_w3         step 42000: PDE 11.67  flux 3.167   (17.8 % of node rms)
+            rfnor2e_r1_m0      step 18000: PDE 14.46  flux 2.574   (16.0 % of node rms)
+            rfnor2e_r1_m1      step 18000: PDE 11.07  flux 2.532   (15.9 % of node rms)
+            rfnor2e_r1_m2      step 18000: PDE 20.20  flux 2.412   (15.5 % of node rms)
+            rfnor2e_r1_m3      step 18000: PDE 16.35  flux 2.654   (16.3 % of node rms)
+            rfnor2e_r2_m0      step 18000: PDE 20.41  flux 2.575   (16.0 % of node rms)
+            rfnor2e_r2_m1      step 18000: PDE 14.00  flux 2.516   (15.9 % of node rms)
+            rfnor2e_r2_m2      step 18000: PDE 11.13  flux 2.599   (16.1 % of node rms)
+            rfnor2e_r2_m3      step 18000: PDE 14.77  flux 2.792   (16.7 % of node rms)
+            rfnor2e_r3_m0      step 18000: PDE 9.98  flux 2.341   (15.3 % of node rms)
+            rfnor2e_r3_m1      step 18000: PDE 8.35  flux 2.248   (15.0 % of node rms)
+            rfnor2e_r3_m2      step 18000: PDE 8.19  flux 2.619   (16.2 % of node rms)
+            rfnor2e_r3_m3      step 18000: PDE 9.50  flux 2.369   (15.4 % of node rms)
+            rfnor2e_r4_m0      step 18000: PDE 8.14  flux 2.057   (14.3 % of node rms)
+            rfnor2e_r4_m1      step 18000: PDE 6.81  flux 1.950   (14.0 % of node rms)
+            rfnor2e_r4_m2      step 18000: PDE 6.65  flux 2.308   (15.2 % of node rms)
+            rfnor2e_r4_m3      step 18000: PDE 6.97  flux 2.593   (16.1 % of node rms)
+            rfnor2edc_f1_m0    step 28000: PDE 1.67  flux 1.248   (11.2 % of node rms)
+            rfnor2edc_f1_m1    step 28000: PDE 1.53  flux 1.321   (11.5 % of node rms)
+            rfnor2edc_f2_m0    step 28000: PDE 1.59  flux 0.968   (9.8 % of node rms)
+            rfnor2edc_f2_m1    step 28000: PDE 1.47  flux 0.935   (9.7 % of node rms)
+          DC LOOP (logs/dc_rfnor2edc.log, scoring part cut):
+            it 1: step/sigma max 0.6211350389303013, by segment [0.26,0.62,0.04,0.01], over the smaller sd max 0.6211350389303013, by segment [0.26,0.62,0.04,0.01], bound set changed true, fwd offset rms 0.00027706869926915473
+            it 2: step/sigma max 0.030666595618809307, by segment [0.01,0.03,0,0], over the smaller sd max 0.031148487014662597, by segment [0.01,0.03,0,0], bound set changed true, fwd offset rms 0.00028889752197082803
+          VERDICT F2 (from the LOSSES lines above; "PDE below 150 and flux at most 18.1 % of node rms in all sixteen"):
+            HOLDS. Rounds 1 - 4: PDE 6.65 - 20.41, flux 14.0 - 16.7 %. The two forward networks of each
+            correction iteration end at PDE 1.47 - 1.67, flux 9.7 - 11.5 %.
+          CORRECTION LOOP: stopped by its rule at iteration 2 (move over the smaller sd 0.62, then 0.03; limit 0.2).
+            That part of F4 HOLDS. M1 (fwd offset rms) 0.00028, 0.00029. Final estimate: runs/rfnor2edc_it2.
+          F3 (M1 and M2 lower than in rfnor2c): iteration 1 of both runs is in (logs/dc_rfnor2cdc.log line of it 1
+            read earlier in this file); the verdict is written at rfnor2c's end, as the plan says.
+          WHAT FOLLOWS (nothing of the estimate has been read): two score jobs on runs/rfnor2edc_it2. Read in this
+            order: reference lines (s0 - s3 at 1 h, the 1/4 h repeat from s0), then the PINN lines. Verdicts by
+            what is written above: F4 against s0 (1 cm rms over the window; starts within 0.2 cm, R1 as written),
+            F5 (4 - 5 cm from the well, bias under 1 cm; R3 = 3 cm, |bias| 2 cm, r 0.98). Days 0 - 3 are the named
+            risk and are reported by day whatever they show.
