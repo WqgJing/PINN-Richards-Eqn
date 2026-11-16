@@ -15,6 +15,7 @@ Usage: python -u scripts/fem_referee.py --config configs/p1_param_synth_v3.yaml 
 import argparse
 import json
 import os
+import shutil
 import time
 import numpy as np
 
@@ -43,6 +44,15 @@ def main():
                          'value at the sensor on that path against the value stored in the file (theta_obs_pred), by '
                          'day, and the solver\'s first step from that path split into the part of that value '
                          'difference and the rest')
+    ap.add_argument('--path_prior', action='store_true',
+                    help='add the path term of the prior to the cost (CPrior.increments: the steps of the knot depths '
+                         'over prior.step_sd_m), as scripts/param_invert.py --path_prior: the estimate is then the '
+                         'most probable path given the data and that prior')
+    ap.add_argument('--twin_out', default=None,
+                    help='no inversion: write a twin of the data set to this directory. Its water table is the spline '
+                         'fit of the record (truth_coef; with --box clipped to the box), its soil moisture at the '
+                         'sensor the FEM on that path (the forward model of this script). Noise is added on reading '
+                         '(obs.noise_sigma, obs.noise_seed)')
     args = ap.parse_args()
     cfg = load_with_overrides(args.config, args.set)
     os.makedirs(args.out, exist_ok=True)
@@ -85,20 +95,62 @@ def main():
         info['not_converged'] = max(info['not_converged'], 1.0 - float(A['converged'].mean()))
         return A['theta_obs'][:, k_obs]
 
-    def cost_of(th):
-        r = (th - y) / sig
-        return float(np.mean(r ** 2)) if np.all(np.isfinite(r)) else np.inf
-
-    box = None
-    if args.box:
+    box, prior = None, None
+    if args.box or args.path_prior:
+        import torch
         from zbinv.parametric import CPrior
         pc = cfg.get('prior', {})
-        box = CPrior(spline, ds['zb_min'], pc.get('mean_range_m', (0.3, 1.2)), pc.get('step_sd_m', 0.15),
-                     pc.get('clip_m', (0.2, 1.5))).box()
+        cp = CPrior(spline, ds['zb_min'], pc.get('mean_range_m', (0.3, 1.2)), pc.get('step_sd_m', 0.15),
+                    pc.get('clip_m', (0.2, 1.5)))
+    if args.box:
+        box = cp.box()
         print(f"[ref] coefficients kept in the prior box [{box[0]:.3f}, {box[1]:.3f}]", flush=True)
+    if args.path_prior:      # p (n_coef - 1,) and P = dp/dc: rows added to the residual and the Jacobian
+        def prior(cc):
+            p, P = cp.increments(torch.as_tensor(np.asarray(cc, dtype=float)))
+            return p.numpy(), P.numpy()
+        print(f"[ref] path term in the cost: steps of the knot depths over {cp.step_sd} m", flush=True)
+
+    def cost_of(th, cc):
+        """Data misfit mean(r^2); with --path_prior plus sum(p^2) / n_obs (minus twice the log posterior / n_obs)."""
+        r = (th - y) / sig
+        if not np.all(np.isfinite(r)):
+            return np.inf
+        data = float(np.mean(r ** 2))
+        return data if prior is None else data + float(np.sum(prior(cc)[0] ** 2)) / r.size
+
+    if args.twin_out:
+        ct = np.array(ds['truth_coef'], dtype=float)
+        if ct.shape != (spline.n_coef,):
+            raise SystemExit(f'truth_coef {ct.shape}: the spline of this data set has {spline.n_coef} coefficients')
+        if t_obs.size != t_h.size or not np.allclose(t_obs, t_h):
+            raise SystemExit('--twin_out needs the hourly observations (obs.use=hourly)')
+        if box is not None:
+            print(f"[twin] {int(np.sum((ct < box[0]) | (ct > box[1])))} coefficient(s) of the fit clipped to the box",
+                  flush=True)
+            ct = np.clip(ct, box[0], box[1])
+        th_t = forward(ct)[0]
+        if not np.all(np.isfinite(th_t)):
+            raise SystemExit('the solver failed on the path of the twin')
+        tw = dict(np.load(cfg['twin_npz'], allow_pickle=False))
+        k_d = np.round((tw['t_obs_days'] - t_h[0]) / (t_h[1] - t_h[0])).astype(int)
+        if not np.allclose(t_h[k_d], tw['t_obs_days'], rtol=0, atol=1e-9):
+            raise SystemExit('t_obs_days is not on the hourly grid')
+        zb_t = ZbSplineNumpy(spline, ct, ds['zb_min']).zb(t_h)
+        tw.update(theta_obs_hourly=th_t, theta_obs_daily=th_t[k_d], zb_true=zb_t, zb_spline=zb_t, truth_coef=ct,
+                  twin_of=np.array(os.path.abspath(cfg['twin_npz'])))
+        os.makedirs(args.twin_out, exist_ok=True)
+        np.savez(os.path.join(args.twin_out, os.path.basename(cfg['twin_npz'])), **tw)
+        shutil.copy(os.path.join(os.path.dirname(cfg['twin_npz']), 'twin_config.yaml'), args.twin_out)
+        print(f"[twin] {args.twin_out}: water table {zb_t.min():.3f}-{zb_t.max():.3f} m, rms of the fit minus the "
+              f"record {np.sqrt(np.mean((zb_t - ds['zb_true']) ** 2)):.4f} m; theta at the sensor rms of twin minus "
+              f"observed {np.sqrt(np.mean((th_t - ds['theta_obs_true']) ** 2)):.4f}; steps not converged "
+              f"{info['not_converged']:.3f}", flush=True)
+        return
+
     c = coef0.copy() if box is None else np.clip(coef0, box[0], box[1])
     th = forward(c)[0]
-    cost = cost_of(th)
+    cost = cost_of(th, c)
     lam = 1e-2
     tic = time.time()
     inner = t_h <= ds['n_days'] - spline.dt
@@ -128,14 +180,21 @@ def main():
             raise SystemExit('the solver failed at the path or at a shifted path')
         J = (res[:n_c] - res[n_c:]).T / (2 * args.delta) / sig
         g = J.T @ ((th - y) / sig)
+        if prior is not None:      # the path term is the same for both values: it stays in total and in rest
+            p, P = prior(c)
+            g = g + P.T @ p
         free = np.ones(n_c, dtype=bool) if box is None else ~(((c <= box[0]) & (g > 0)) | ((c >= box[1]) & (g < 0)))
         Jf = J[:, free]
         Af = Jf.T @ Jf
+        gp = 0.0
+        if prior is not None:
+            Af, gp = Af + P[:, free].T @ P[:, free], P[:, free].T @ p
         Ad = Af + lam * np.diag(np.diag(Af)) + 1e-12 * np.eye(int(free.sum()))
         G = ZbSplineNumpy(spline, c, ds['zb_min']).dzb_dcoef(t_h)[:, free]       # zb moves by G @ step (linearised)
         e = th_p - th
-        parts = {'total': -np.linalg.solve(Ad, Jf.T @ ((th - y) / sig)), 'value_part': np.linalg.solve(Ad, Jf.T @ (e / sig)),
-                 'rest': -np.linalg.solve(Ad, Jf.T @ ((th_p - y) / sig))}
+        parts = {'total': -np.linalg.solve(Ad, Jf.T @ ((th - y) / sig) + gp),
+                 'value_part': np.linalg.solve(Ad, Jf.T @ (e / sig)),
+                 'rest': -np.linalg.solve(Ad, Jf.T @ ((th_p - y) / sig) + gp)}
         n_day = int(np.ceil(t_h[-1] - t_h[0]))
 
         def by_day(t, v, f):
@@ -145,7 +204,7 @@ def main():
         def rms(v):
             return float(np.sqrt(np.mean(v ** 2)))
         out = {'start': args.start, 'fem_dt_hours': float((t_s[1] - t_s[0]) * 24.0), 'cost_solver': cost,
-               'cost_file_value': cost_of(th_p), 'free': [int(j) for j in np.where(free)[0]],
+               'cost_file_value': cost_of(th_p, c), 'free': [int(j) for j in np.where(free)[0]],
                'fem_not_converged_max': info['not_converged'],
                'theta_file_minus_solver': {'rms': rms(e), 'bias': float(e.mean()), 'maxabs': float(np.abs(e).max()),
                                            'rms_by_day': by_day(t_obs, e, rms), 'mean_by_day': by_day(t_obs, e, np.mean)},
@@ -164,6 +223,9 @@ def main():
         J = np.where(np.isfinite(res[:n_c] - res[n_c:]), res[:n_c] - res[n_c:], 0.0).T / (2 * args.delta) / sig
         r = (th - y) / sig
         A, g = J.T @ J, J.T @ r
+        if prior is not None:
+            p, P = prior(c)
+            A, g = A + P.T @ P, g + P.T @ p
         free = np.ones(n_c, dtype=bool)
         if box is not None:      # a coefficient on a bound whose descent direction leaves the box is held there
             free = ~(((c <= box[0]) & (g > 0)) | ((c >= box[1]) & (g < 0)))
@@ -177,7 +239,7 @@ def main():
             if box is not None:
                 step = np.clip(c + step, box[0], box[1]) - c
             th_new = forward(c + step)[0]
-            cost_new = cost_of(th_new)
+            cost_new = cost_of(th_new, c + step)
             if cost_new < cost:
                 rel = (cost - cost_new) / cost
                 c, th, cost = c + step, th_new, cost_new
@@ -206,6 +268,11 @@ def main():
         'coef_on_bound': [] if box is None else [int(j) for j in np.where((c <= box[0]) | (c >= box[1]))[0]],
         'iterations': len(hist), 'member_solves': info['solves'], 'fem_not_converged_max': info['not_converged'],
         'wall_s': round(time.time() - tic, 1),
+        # with --path_prior 'cost' is data + path term; here the two parts at the estimate
+        'path_prior': None if prior is None else {
+            'step_sd_m': cp.step_sd, 'cost_data': float(np.mean(((th - y) / sig) ** 2)),
+            'cost_prior': float(np.sum(prior(c)[0] ** 2)) / y.size,
+            'max_abs_increment_sd': float(np.abs(prior(c)[0]).max())},
     }
     np.savez(os.path.join(args.out, 'predictions.npz'), t_days=t_h, zb_pred=zb, zb_true=ds['zb_true'],
              zb_init=ZbSplineNumpy(spline, coef0, ds['zb_min']).zb(t_h), zb_sigma=s_zb,

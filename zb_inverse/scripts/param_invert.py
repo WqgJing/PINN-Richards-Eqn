@@ -73,6 +73,11 @@ def main():
                          'range of the wide-stage training paths): the fine stage is then the constrained fit, as '
                          'the coarse stage always is. A coefficient the data do not identify stops at the bound '
                          'instead of running away')
+    ap.add_argument('--path_prior', action='store_true',
+                    help='add the path term of the prior the members are trained on to the cost (CPrior.increments: '
+                         'the steps of the knot depths over prior.step_sd_m), in the coarse and the fine stage and in '
+                         'the posterior covariance: the estimate is then the most probable path given the data and '
+                         'that prior. Same option as scripts/fem_referee.py --path_prior')
     args = ap.parse_args()
     tic = time.time()
     dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -91,15 +96,22 @@ def main():
     t_h = ds['t_hourly']
     inner = t_h <= ds['n_days'] - sp.dt
 
-    def prior_box(c):
-        """Support of the path prior of config c in coefficient space (lo, hi)."""
+    def path_prior(c):
+        """Path prior of config c (the distribution the wide-stage training paths are drawn from)."""
         pc = c.get('prior', {})
         return CPrior(sp, ds['zb_min'], pc.get('mean_range_m', (0.3, 1.2)), pc.get('step_sd_m', 0.15),
-                      pc.get('clip_m', (0.2, 1.5))).box()
+                      pc.get('clip_m', (0.2, 1.5)))
+
+    def prior_box(c):
+        """Support of the path prior of config c in coefficient space (lo, hi)."""
+        return path_prior(c).box()
 
     fine_box = prior_box(cfg) if args.box else None
     if fine_box is not None:
         print(f"[box] estimate kept in the prior box [{fine_box[0]:.3f}, {fine_box[1]:.3f}]", flush=True)
+    path_term = path_prior(cfg).increments if args.path_prior else None
+    if path_term is not None:
+        print(f"[prior] path term in the cost: steps of the knot depths over {path_prior(cfg).step_sd} m", flush=True)
 
     offset, lin, fwd_info = None, None, None
     if args.fwd:
@@ -230,12 +242,12 @@ def main():
         print(f"== start {s}: zb RMSE {score(c0)[0]:.4f} m", flush=True)
         c_start = torch.tensor(c0, device=dev)
         if coarse is not None and s != 'previous':
-            rc = invert_lm(coarse, t_obs, depth, y, sig, c_start, verbose=False, box=coarse_box)
+            rc = invert_lm(coarse, t_obs, depth, y, sig, c_start, verbose=False, box=coarse_box, prior=path_term)
             c_start = rc['c'].detach()
             print(f"== start {s}: after the coarse (wide) stage cost {rc['cost']:.5f}, zb RMSE "
                   f"{score(c_start.cpu().numpy())[0]:.4f} m, coefficients "
                   + " ".join(f"{v:+.3f}" for v in c_start.cpu().numpy()), flush=True)
-        r = invert_lm(members, t_obs, depth, y, sig, c_start, offset=offset, lin=lin, box=fine_box)
+        r = invert_lm(members, t_obs, depth, y, sig, c_start, offset=offset, lin=lin, box=fine_box, prior=path_term)
         c = r['c'].detach().cpu().numpy()
         e_all, e_in = score(c)
         zb_s = ZbSplineNumpy(sp, c, ds['zb_min']).zb(t_h)
@@ -245,15 +257,16 @@ def main():
         results.append({'start': s, 'c0': c0, 'c': c, 'cost': r['cost'], 'iters': len(r['hist']),
                         'zb_rmse': e_all, 'zb_rmse_inner': e_in, 'theta': r['theta'].detach().cpu().numpy(),
                         'J': r['J'], 'last_step': r['last_step'].detach().cpu().numpy()})
-    best = min(results, key=lambda r: r['cost'])            # chosen by the data misfit only
-    c_hat = torch.tensor(best['c'], device=dev)
+    best = min(results, key=lambda r: r['cost'])            # chosen by the cost only (the data misfit; with
+    c_hat = torch.tensor(best['c'], device=dev)             # --path_prior plus the path term)
+    p_hat, P_hat = path_term(c_hat) if path_term is not None else (None, None)
     # surrogate covariance Sigma_e = spread of the networks whose VALUE is fitted. With --fwd the fitted value at c_k
     # is the forward members' mean (the operator's value cancels there), so it is their spread on the one path they
     # were trained on; the operator members' spread would charge the estimate for an error that was removed.
     if args.fwd:
-        cov, cov_noise, Se = posterior_cov(best['J'], sig, fwd, t_obs, depth, ct)
+        cov, cov_noise, Se = posterior_cov(best['J'], sig, fwd, t_obs, depth, ct, P=P_hat)
     else:
-        cov, cov_noise, Se = posterior_cov(best['J'], sig, members, t_obs, depth, c_hat)
+        cov, cov_noise, Se = posterior_cov(best['J'], sig, members, t_obs, depth, c_hat, P=P_hat)
     cov, cov_noise = cov.cpu().numpy(), cov_noise.cpu().numpy()
     m = ZbSplineNumpy(sp, best['c'], ds['zb_min'])
     zb = m.zb(t_h)
@@ -324,6 +337,12 @@ def main():
         'box': None if fine_box is None else list(fine_box),
         'coef_on_bound': bound, 'coef_on_bound_prev': bound_prev,
         'bound_set_changed': None if bound is None or bound_prev is None else bound != bound_prev,
+        # with --path_prior 'cost' of every start is data + path term; here the two parts at the estimate
+        'path_prior': None if path_term is None else {
+            'step_sd_m': path_prior(cfg).step_sd,
+            'cost_data': float(np.mean(((best['theta'] - ds['theta_obs']) / sig) ** 2)),
+            'cost_prior': float(torch.sum(p_hat ** 2)) / ds['theta_obs'].size,
+            'max_abs_increment_sd': float(p_hat.abs().max())},
     }
     with open(os.path.join(args.out, 'summary.json'), 'w') as f:
         json.dump(summary, f, indent=2)

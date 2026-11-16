@@ -66,6 +66,20 @@ class CPrior:
         lo, hi = inv_softplus_t(torch.tensor(self.clip, dtype=torch.float64) - self.zb_min).tolist()
         return lo, hi
 
+    def increments(self, c):
+        """Path term of an inversion cost for the coefficients c (n_coef,): p (n_coef - 1,), the steps of the knot
+        depths z_k = zb_min + softplus(c_k) between neighbouring knots over step_sd, and P = dp/dc (n_coef - 1, n_coef).
+        Before clipping, the draws of sample_zb have independent N(0, 1) entries of p, so sum(p^2) is minus twice the
+        log density of this prior over the shape of a path (its level, the mean of the knot depths, is uniform)."""
+        s = torch.sigmoid(c)                                          # d softplus
+        p = torch.diff(torch.nn.functional.softplus(c)) / self.step_sd
+        n = c.shape[0]
+        i = torch.arange(n - 1, device=c.device)
+        P = torch.zeros(n - 1, n, dtype=c.dtype, device=c.device)
+        P[i, i + 1] = s[1:] / self.step_sd
+        P[i, i] = -s[:-1] / self.step_sd
+        return p, P
+
 
 class LocalGaussian:
     """c ~ N(center, cov). With box=(lo, hi) every draw is projected onto the box, the support of the path prior
@@ -550,7 +564,7 @@ def affine_slope(C, O):
 
 
 def invert_lm(members, t_obs, depth, y, sigma, c0, max_iter=60, lam0=1e-2, verbose=True, offset=None, lin=None,
-              box=None):
+              box=None, prior=None):
     """Levenberg-Marquardt on mean((theta_model(c) - y)^2) / sigma^2 with the exact (autograd) Jacobian of the model.
     Same loop and stopping rules as scripts/classical_inversion.py.
     theta_model(c) = theta_bar(c)            ensemble mean of the operator members
@@ -565,7 +579,11 @@ def invert_lm(members, t_obs, depth, y, sigma, c0, max_iter=60, lam0=1e-2, verbo
     outside it they extrapolate). The start and every trial step are projected onto the box, and a coefficient that
     sits on a bound while the descent direction points out of the box is held there (active set): the others solve
     the reduced system, so the iteration converges to the constrained minimum (free gradient 0, bound gradient
-    pointing out). Without a box every coefficient is free and this is the plain LM."""
+    pointing out). Without a box every coefficient is free and this is the plain LM.
+    prior = c -> (p, P), further residuals and their Jacobian (CPrior.increments: the steps of the knot depths over
+    the sd of the path prior the members are trained on). The cost is then (sum of the squared data residuals +
+    sum(p^2)) / n_obs: minus twice the log posterior of the path, in the units of the data misfit. Without it the
+    cost is the data misfit alone, as before."""
     def fn(c):
         th = member_thetas(members, t_obs, depth, c).mean(0)
         if offset is not None:
@@ -574,20 +592,26 @@ def invert_lm(members, t_obs, depth, y, sigma, c0, max_iter=60, lam0=1e-2, verbo
             th = th + lin[0] @ (c - lin[1])
         return th
 
-    def cost_of(th):
+    def cost_of(th, cc):
         r = (th - y) / sigma
-        return float(torch.mean(r ** 2)) if bool(torch.all(torch.isfinite(r))) else math.inf
+        if not bool(torch.all(torch.isfinite(r))):
+            return math.inf
+        data = float(torch.mean(r ** 2))
+        return data if prior is None else data + float(torch.sum(prior(cc)[0] ** 2)) / r.numel()
 
     proj = (lambda v: v) if box is None else (lambda v: torch.clamp(v, box[0], box[1]))
     c = proj(c0.clone())
     th = fn(c)
-    cost, lam = cost_of(th), lam0
+    cost, lam = cost_of(th, c), lam0
     hist, step = [], torch.zeros_like(c)
     rel = 1.0
     for it in range(max_iter):
         J = jacobian(fn, c) / sigma
         r = (th - y) / sigma
         A, g = J.T @ J, J.T @ r
+        if prior is not None:
+            p, P = prior(c)
+            A, g = A + P.T @ P, g + P.T @ p
         free = torch.ones_like(c, dtype=torch.bool)
         if box is not None:
             free = ~(((c <= box[0]) & (g > 0)) | ((c >= box[1]) & (g < 0)))
@@ -600,7 +624,7 @@ def invert_lm(members, t_obs, depth, y, sigma, c0, max_iter=60, lam0=1e-2, verbo
             step[free] = -torch.linalg.solve(Af + lam * torch.diag(torch.diag(Af)), gf)
             step = proj(c + step) - c
             th_new = fn(c + step)
-            cost_new = cost_of(th_new)
+            cost_new = cost_of(th_new, c + step)
             if cost_new < cost:
                 rel = (cost - cost_new) / cost
                 c, th, cost = c + step, th_new, cost_new
@@ -617,9 +641,10 @@ def invert_lm(members, t_obs, depth, y, sigma, c0, max_iter=60, lam0=1e-2, verbo
     return {'c': c, 'theta': th, 'cost': cost, 'J': J, 'hist': hist, 'last_step': step}
 
 
-def posterior_cov(J, sigma, members, t_obs, depth, c):
+def posterior_cov(J, sigma, members, t_obs, depth, c, P=None):
     """Coefficient covariance with noise sigma^2 I plus the ensemble (surrogate) covariance Sigma_e:
-    (J^T W J)^-1, W = (sigma^2 I + Sigma_e)^-1. Also returns the noise-only covariance."""
+    (J^T W J)^-1, W = (sigma^2 I + Sigma_e)^-1. Also returns the noise-only covariance.
+    P: Jacobian of the path term at the estimate (invert_lm prior); its precision P^T P is added to both."""
     n = J.shape[0]
     th = member_thetas(members, t_obs, depth, c)
     K = th.shape[0]
@@ -628,6 +653,9 @@ def posterior_cov(J, sigma, members, t_obs, depth, c):
         D = th - th.mean(0, keepdim=True)
         Se = D.T @ D / (K - 1)
     W = torch.linalg.inv(sigma ** 2 * torch.eye(n, dtype=J.dtype, device=J.device) + Se)
-    cov = torch.linalg.pinv(J.T @ W @ J, rtol=1e-12)
-    cov_noise = torch.linalg.pinv(J.T @ J / sigma ** 2, rtol=1e-12)
+    H, H_noise = J.T @ W @ J, J.T @ J / sigma ** 2
+    if P is not None:
+        H, H_noise = H + P.T @ P, H_noise + P.T @ P
+    cov = torch.linalg.pinv(H, rtol=1e-12)
+    cov_noise = torch.linalg.pinv(H_noise, rtol=1e-12)
     return cov, cov_noise, Se

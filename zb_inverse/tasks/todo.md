@@ -9553,3 +9553,116 @@ RULE (fixed now):
        of the steps in the worst of the 29 solves on and around that path (inversions of this window 61.1 and 58.1 %,
        1/4 h run 36.2 %; Oct 2023 8.7 %; BE-Dor 0 %). Such a path is far outside the path prior the operator is
        trained on (knot steps of sd 0.15 m): the search is free to go there because the cost has no path prior.
+
+### PLAN (00:18): the path prior of the training goes into the cost of the inversion (both methods), default off
+
+Why (from the value check above, rule (a)): the cost of the inversion is the data misfit alone
+(`src/zbinv/parametric.py:577-579` `r = (th - y) / sigma; return float(torch.mean(r ** 2))`, and
+`scripts/fem_referee.py:88-90` the same). Where the sensor says nothing the search is free, and at SE-Nor Dec 2019 it
+ends on a path whose control depths go 0.10 -> 1.50 -> 0.11 -> 0.97 m in three knots (coefficients -2.971, 1.183,
+-2.790, 0.412 with zb_min 0.05). The operator is trained on paths drawn by `CPrior.sample_zb`
+(`walk = torch.cumsum(self.step_sd * torch.randn(n, self.k, ...), dim=1)`; `z = m + walk - walk.mean(...)`), i.e.
+independent increments of the control depths with sd `prior.step_sd_m` = 0.15 m per knot
+(`configs/p1_param_synth_v3.yaml:27`). Steps of 1.4 m are 9 sd: such a path is not in the training set, the PINN's
+value at the sensor is off there (1.3e-3), and the solver itself misses its tolerance on 52.6 % of its steps.
+
+Change (no new number: the sd is the one the networks have been trained with since the first parametric run):
+  cost(c) = [ sum_i ((theta_i(c) - y_i) / sigma)^2 + sum_k ((z_{k+1}(c) - z_k(c)) / step_sd)^2 ] / N,
+  z_k = zb_min + softplus(c_k) the control depths, k = 0 .. n_coef - 2, N the number of observations.
+This is minus twice the log posterior of the path under the noise model and the Gaussian increments of the training
+prior (MAP), written in the units of the cost so far. The level of the path stays free inside the box as before
+(the prior's level is uniform), and the box stays. In the Levenberg-Marquardt loops the prior adds rows to the
+residual and the Jacobian: A = J^T J + P^T P, g = J^T r + P^T p, with p_k = (z_{k+1} - z_k) / step_sd and
+P = dp/dc (exact: d softplus = sigmoid). The posterior covariance gets the same P^T P in its precision.
+The same term, from one function, in `invert_lm` (PINN, `scripts/param_invert.py --path_prior`) and in
+`scripts/fem_referee.py --path_prior`. Default off: without the flag no line of the present path changes.
+Training is not touched. Criteria R1-R4 and the 5 cm selection gate are unchanged. Rows of the README of finished
+runs stay as they are; anything run with the prior is labelled so.
+
+Steps
+  1. code + unit tests (via sbatch, hpc/run_tests.slurm): the residual of a flat path is 0; p equals the differences
+     of the control depths over the sd; P against central differences; for unclipped draws of CPrior the mean of p^2
+     is 1 (the term is the density of the training draws); `invert_lm` with a prior on a small analytic model
+     returns the minimiser of the stated cost, and without it the present result bit for bit.
+  2. solver-only checks (numerical inversion with the term; nothing a PINN run reads), same commands as the stored
+     runs (first line of their job logs) plus `--path_prior` and a new --out:
+       mp_dor   BE-Dor Mar 2024     start hydrostatic        (stored: output/referee/dor_own_mar24_s0, job 15655372)
+       mp_nc2   US-NC2 Sep 2023 c   start hydrostatic_flat   (stored: nc2_own_sep23c_s1, job 15578770)
+       mp_nor2  SE-Nor Dec 2019     start hydrostatic        (stored: nor_own_dec19_s0, job 15660642)
+       mp_nor2b SE-Nor Dec 2019     start constant:1.0       (second start, for E3)
+       mp_nor1  SE-Nor Oct 2023     start hydrostatic        (stored: nor_own_oct23_s0, job 15645980)
+       mp_bil2  FR-Bil Dec 2020     start hydrostatic        (stored: bil_own_dec20_s0, job 15660560)
+     and a twin with known truth: forcing, soil, sensor and window of SE-Nor Dec 2019; truth = the spline fit of the
+     well record (`truth_coef` of real.npz, on the same 14 coefficients, so the truth is a path the inversion can
+     reach exactly); theta at the sensor = the solver on that path (the referee's own `forward`), noise sd 0.005
+     added by `load_dataset` (`th_obs = th_true + cfg['obs'].get('noise_sigma', 0.0) * rng.standard_normal(...)`,
+     seed `obs.noise_seed`), seeds 0 and 1:
+       tw_p0 / tw_p1   plain inversion of the twin, seeds 0 / 1, start hydrostatic
+       tw_m0 / tw_m1   with the term, seeds 0 / 1, start hydrostatic
+  3. by-day comparison of every pair with `scripts/referee_step_check.py` (fields: `sigma_by_day_m` line 75
+     `by_day(a['sigma'], np.median)`; `pairs[].a_minus_b.rms_by_day_m` and `.rms_m` lines 26-28, 79-81;
+     `vs_well` and `vs_well_rms_by_day_m` lines 75-76; on the twin "well" is the twin's truth, `zb_true` of its npz);
+     truth distance of a twin run: `zb_rmse` of its summary.json (`scripts/fem_referee.py:202`, e = zb - zb_true).
+
+EXPECTATIONS (written before any of these runs; "plain" = the stored run without the term, "MAP" = with it)
+  E1  days the sensor determines do not move: on every day on which the plain run's `sigma_by_day_m` is <= 1 cm, the
+      rms of MAP minus plain on that day (`rms_by_day_m`) is <= 0.2 cm (the limit of R1). Holds at every window of
+      step 2 and on both twins.
+  E2  at SE-Nor Dec 2019 the largest step of the MAP path's control depths is <= 3 sd = 0.45 m
+      (new field `path_prior.max_abs_increment_sd` of summary.json, the largest |p_k|).
+  E3  one estimate: mp_nor2 and mp_nor2b differ by <= 0.2 cm rms over the whole window (`pairs[].a_minus_b.rms_m`).
+  E4  known truth: on both twins `zb_rmse` of the MAP run is <= `zb_rmse` of the plain run.
+  E5  nothing lost at the control: at BE-Dor and US-NC2 MAP minus plain is <= 0.2 cm rms over the whole window.
+  Not expectations, only reported: distance to the well of every MAP run by day and over the window (the R3 limits
+  and the 5 cm gate are the stored ones); the solver's `fem_not_converged_max` (`scripts/fem_referee.py:207`) on the
+  MAP path; the sd by day of the MAP run.
+
+RULE (fixed now)
+  (a) E1, E3, E4 and E5 all hold -> the term is part of the cost of both inversions from here on (`--path_prior`).
+      Next: PINN runs with the same cost, first on the twin (truth known), then SE-Nor Dec 2019; R2 is then
+      the PINN against the numerical inversion with the same cost over the whole window; a value check
+      (`--value_only`) at the PINN's final path belongs to each run. E2 is reported with it.
+  (b) E1 or E5 fails (the term moves what the sensor determines) -> not used as it stands; reported; no PINN run
+      with it.
+  (c) E1 and E5 hold but E3 or E4 fails -> not used; the start of such windows stays "not determined by the
+      sensor" in the README; reported.
+  A limit above is not changed after the numbers are in. Splits made after reading are labelled descriptive.
+
+#### Step 1 (00:27): code and unit tests of the path term
+- Code: `CPrior.increments` (src/zbinv/parametric.py), `invert_lm(..., prior=)`, `posterior_cov(..., P=)`;
+  `scripts/param_invert.py --path_prior`; `scripts/fem_referee.py --path_prior` and `--twin_out <dir>` (writes the
+  twin of step 2 with the script's own forward model). Without the flags no line of the previous path changes.
+- Tests: tests/test_path_prior.py (7 tests). First run, job 15711596: 1 failed,
+  `test_lm_with_the_term_ends_at_the_minimum_of_the_stated_cost`, at an assert of the TEST that is not a property of
+  the method (two runs from one start: "the run without the term ends lower in the data misfit" holds for global
+  minima only). The asserts on the code in that test had passed (cost reported = stated cost; gradient
+  J^T r + P^T p = 0; no nearby path lower). Replaced by what the loop guarantees: the run without the term STARTED AT
+  the estimate lowers the data misfit (the estimate is not a minimum of the data alone). Lesson recorded.
+- Second run, job 15711708: 36 PASS lines, last line "0 failed" (filters path_prior parametric convergence).
+- Flag off = the stored result (BE-Dor Mar 2024, job 15711743, the stored command of job 15655372, new --out):
+  stored: {"start":"hydrostatic","fem_dt_hours":1.0,"zb_rmse":0.05407092082294852,"zb_rmse_inner":0.05595546832322349,"zb_bias":0.001379219818776936,"zb_maxabs":0.1225828803677051,"theta_rmse_vs_obs":0.0018010709304941872,"cost":0.12975425986684788,"posterior_sigma_zb_median_m":0.013219101582877974,"coef_on_bound":[],"iterations":3,"member_solves":88,"fem_not_converged_max":0.0}
+  new:    {"start":"hydrostatic","fem_dt_hours":1.0,"zb_rmse":0.05407092082294852,"zb_rmse_inner":0.05595546832322349,"zb_bias":0.001379219818776936,"zb_maxabs":0.1225828803677051,"theta_rmse_vs_obs":0.0018010709304941872,"cost":0.12975425986684788,"posterior_sigma_zb_median_m":0.013219101582877974,"coef_on_bound":[],"iterations":3,"member_solves":88,"fem_not_converged_max":0.0,"path_prior":null}
+  history.json: identical
+- Twin of SE-Nor Dec 2019 (job 15711744, output/twin_site_nor_dec19/real.npz; exit=0 lines 1):
+  [twin] 1 coefficient(s) of the fit clipped to the box
+      [twin] /storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/twin_site_nor_dec19: water table 0.149-0.427 m, 
+    rms of the fit minus the record 0.0061 m; theta at the sensor rms of twin minus observed 0.0051; steps not 
+    converged 0.438
+  The solver misses its (tight) tolerance on that share of its steps on the twin's own truth path; the twin's
+  theta is that solver's value, and the inversions of the twin use the same solver (the truth is reachable).
+
+#### Step 2 launched (00:39): solver-only checks, jobs
+  mp_dor: job 15712047
+  mp_nc2: job 15712048
+  mp_nor2: job 15712049
+  mp_nor2b: job 15712050
+  mp_nor1: job 15712051
+  mp_bil2: job 15712052
+  tw_p0: job 15712053
+  tw_m0: job 15712054
+  tw_p1: job 15712055
+  tw_m1: job 15712057
+  out dirs under output/referee: dor_own_mar24_mp_s0, nc2_own_sep23c_mp_s1, nor_own_dec19_mp_s0, nor_own_dec19_mp_s2,
+  nor_own_oct23_mp_s0, bil_own_dec20_mp_s0, twin_nor_dec19_p_n0/_p_n1 (plain), twin_nor_dec19_mp_n0/_mp_n1 (with the term).
+  Twin runs: obs.noise_sigma=0.005, obs.noise_seed=0|1, prior.clip_m=[0.10,1.5], --box, start hydrostatic.
+  Nothing is read from these before every job shows a final state, exit=0 and its summary.json.
