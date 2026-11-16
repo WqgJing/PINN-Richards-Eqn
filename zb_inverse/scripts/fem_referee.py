@@ -38,6 +38,11 @@ def main():
     ap.add_argument('--dt_hours', type=float, default=None,
                     help='time step of the FEM (default: the hourly grid of the data set); the forcing stays linear '
                          'between its nodes and the observations are read at their own times')
+    ap.add_argument('--value_only', action='store_true',
+                    help='with --start file:<predictions.npz>: no inversion. Writes <out>/value_at.json: the solver\'s '
+                         'value at the sensor on that path against the value stored in the file (theta_obs_pred), by '
+                         'day, and the solver\'s first step from that path split into the part of that value '
+                         'difference and the rest')
     args = ap.parse_args()
     cfg = load_with_overrides(args.config, args.set)
     os.makedirs(args.out, exist_ok=True)
@@ -105,6 +110,55 @@ def main():
         return float(np.sqrt(np.mean(e ** 2))), float(np.sqrt(np.mean(e[inner] ** 2)))
 
     print(f"[ref] start {args.start}: cost {cost:.4e}, zb RMSE {zb_err(c)[0]:.4f} m", flush=True)
+    if args.value_only:
+        # The file's estimate has its own value at the sensor, th_p (a PINN's: scripts/param_invert.py). With the
+        # solver's value th at the same path and e = th_p - th, the solver's first step from the path (the first trial
+        # step of the loop below, before clipping) is  -M (th - y) = M e - M (th_p - y),  M = (A + lam diag A)^-1 J^T:
+        # 'value_part' is what the value difference alone moves, 'rest' what is left with the file's own value.
+        if kind != 'file':
+            raise SystemExit('--value_only needs --start file:<predictions.npz>')
+        z = np.load(val, allow_pickle=False)
+        if z['t_obs_days'].shape != t_obs.shape or not np.allclose(z['t_obs_days'], t_obs):
+            raise SystemExit(f'{val}: other observation times than the data set')
+        if not np.allclose(c, coef0):
+            raise SystemExit(f'{val}: its path is outside the box')
+        th_p = np.asarray(z['theta_obs_pred'], dtype=float)
+        res = forward(np.concatenate([c + args.delta * np.eye(n_c), c - args.delta * np.eye(n_c)]))
+        if not (np.all(np.isfinite(res)) and np.all(np.isfinite(th))):
+            raise SystemExit('the solver failed at the path or at a shifted path')
+        J = (res[:n_c] - res[n_c:]).T / (2 * args.delta) / sig
+        g = J.T @ ((th - y) / sig)
+        free = np.ones(n_c, dtype=bool) if box is None else ~(((c <= box[0]) & (g > 0)) | ((c >= box[1]) & (g < 0)))
+        Jf = J[:, free]
+        Af = Jf.T @ Jf
+        Ad = Af + lam * np.diag(np.diag(Af)) + 1e-12 * np.eye(int(free.sum()))
+        G = ZbSplineNumpy(spline, c, ds['zb_min']).dzb_dcoef(t_h)[:, free]       # zb moves by G @ step (linearised)
+        e = th_p - th
+        parts = {'total': -np.linalg.solve(Ad, Jf.T @ ((th - y) / sig)), 'value_part': np.linalg.solve(Ad, Jf.T @ (e / sig)),
+                 'rest': -np.linalg.solve(Ad, Jf.T @ ((th_p - y) / sig))}
+        n_day = int(np.ceil(t_h[-1] - t_h[0]))
+
+        def by_day(t, v, f):
+            day = np.minimum(np.floor(t - t_h[0]).astype(int), n_day - 1)
+            return [float(f(v[day == k])) for k in range(n_day)]
+
+        def rms(v):
+            return float(np.sqrt(np.mean(v ** 2)))
+        out = {'start': args.start, 'fem_dt_hours': float((t_s[1] - t_s[0]) * 24.0), 'cost_solver': cost,
+               'cost_file_value': cost_of(th_p), 'free': [int(j) for j in np.where(free)[0]],
+               'fem_not_converged_max': info['not_converged'],
+               'theta_file_minus_solver': {'rms': rms(e), 'bias': float(e.mean()), 'maxabs': float(np.abs(e).max()),
+                                           'rms_by_day': by_day(t_obs, e, rms), 'mean_by_day': by_day(t_obs, e, np.mean)},
+               'first_step_zb_m': {k: {'rms': rms(G @ v), 'rms_by_day': by_day(t_h, G @ v, rms),
+                                       'mean_by_day': by_day(t_h, G @ v, np.mean)} for k, v in parts.items()}}
+        with open(os.path.join(args.out, 'value_at.json'), 'w') as f:
+            json.dump(out, f, indent=2)
+        print(f"[val] cost: solver {cost:.6f}, with the file's value {out['cost_file_value']:.6f}; value difference "
+              f"rms {rms(e):.2e}, by day {' '.join(f'{v:.1e}' for v in out['theta_file_minus_solver']['rms_by_day'])}")
+        for k, v in out['first_step_zb_m'].items():
+            print(f"[val] first step, {k:10s}: rms {100 * v['rms']:.2f} cm, mean by day (cm) "
+                  f"{' '.join(f'{100 * x:+.2f}' for x in v['mean_by_day'])}", flush=True)
+        return
     for it in range(args.max_iter):
         res = forward(np.concatenate([c + args.delta * np.eye(n_c), c - args.delta * np.eye(n_c)]))
         J = np.where(np.isfinite(res[:n_c] - res[n_c:]), res[:n_c] - res[n_c:], 0.0).T / (2 * args.delta) / sig

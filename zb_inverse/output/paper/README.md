@@ -418,7 +418,7 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 23:33). Seven of the new windows have a finished PINN run: all four of the first selection and
+State (16 Nov, 00:09). Seven of the new windows have a finished PINN run: all four of the first selection and
 three of the second (BE-Dor, FR-Bil 12 Dec 2020, and SE-Nor 6 Dec 2019, the one window inside the 5 cm gate);
 SE-Nor's two windows, FR-Bil 12 Dec 2020 and DK-Sor 8 Dec 2024 have two runs each (without and with
 `sampling.local_box`, see below). They are
@@ -622,6 +622,19 @@ window with the well).
   solver. In units of the solver's posterior sd on those days (19.1, 2.9 and 3.4 cm) the PINN is 0.2, 1.8 and
   2.1 sd away: day 0 is hardly determined by the sensor (the 4 cm there are inside what it admits), days 1
   and 2 are not (5 - 7 cm against about 3 cm). The method is not changed on these scores.
+  Where that error comes from (solver only, `scripts/fem_referee.py --value_only`; expectations and rule written
+  before the run): on its own path the PINN's soil moisture at the sensor differs from the solver's by 1.3e-3
+  rms over the window, and the difference sits at the start (3.46e-3, 1.51e-3, 1.19e-3 and 1.53e-3 on days
+  0 - 3, 0.16e-3 - 0.39e-3 on days 4 - 10). This is why the PINN's cost at its estimate is 0.267108 where the solver has
+  0.340526 for the same path. Of the solver's first step back from the PINN's path (linearised: -1.81 and
+  -3.08 cm on days 1 and 2) the value difference alone makes -1.75 and -2.92 cm; what is left with the PINN's
+  own value is -0.06 and -0.15 cm. So the error at the start of this window is the PINN's value at the sensor,
+  not its sensitivity. That path goes from the shallow to the deep bound of the range within two knots, on a
+  day the sensor hardly determines; the solver itself misses its tight tolerance on 52.6 % of the steps in the
+  worst of the solves around it. The same check at BE-Dor (the control) gives a value difference of 0.06e-3
+  and a first step of 0.04 cm. At the first SE-Nor window (with the switch) the value difference is flat
+  (0.31e-3 - 0.58e-3 on every day) and the start of the window is something else: two days the sensor does not
+  determine (solver sd 441.98 and 21.41 cm).
 - SE-Nor, 6 Dec 2019, the same window without `sampling.local_box` (same first stage, one switch differs;
   reported beside the row, as declared before either estimate was read). The switch does here what it did at
   the first SE-Nor window. Without it the PINN is 4.65 cm from the solver over the window instead of 2.88 cm

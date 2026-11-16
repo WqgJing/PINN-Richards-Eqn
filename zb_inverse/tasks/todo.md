@@ -9454,3 +9454,102 @@ runs/rfbil2c_inv0: refinement sd per coefficient 1.81 0.50 0.47 0.36 0.48 0.42 0
             rfsor1e (with) minus sor_own_dec24_dt025_s0: rms 6.89, by day [1.23,5.27,11.01,7.93,1.61,1.94,14.38,9.8,1.06,0.67,0.47]
             result files: rfsor1c referee sor_own_dec24_s2, PINN from the well 42.71 (r 0.4051), solver 40.88 (r 0.3249), sensor misfit PINN 0.00312
             result files: rfsor1e referee sor_own_dec24_s2, PINN from the well 41.64 (r 0.2646), solver 40.88 (r 0.3249), sensor misfit PINN 0.00264
+
+### PLAN (23:43): where does the PINN's own error at the window start come from? (scoring only, solver's value at the PINN's path)
+Why: at SE-Nor 6 Dec 2019 the 4 - 7 cm between the PINN and the numerical inversion on days 0 - 2 are the PINN's own
+error (K2 above). Already seen, and the reason for this check: the PINN's cost at its estimate is 0.267108
+(runs/rfnor2edc_it2/summary.json, starts, best), the solver's cost of the same path is 0.34053 (start line of job
+15695522). So the PINN's value at the sensor on its own path is not the solver's. Is that value difference what puts the
+estimate where it is, or is it the slope?
+What is new in code: option --value_only of scripts/fem_referee.py (staged copy scripts/fem_referee_stage.py, 54 added
+lines, 0 changed; the inversion path is untouched). No PINN run reads its output. Fields, with the line that writes them
+(lesson of 15 Nov): `cost_solver` = `cost` (stage:147, the number of the `[ref] start` line); `cost_file_value` =
+cost_of(theta_obs_pred of the file) (stage:148; theta_obs_pred is best['theta'], scripts/param_invert.py:271, the
+operator's mean plus the offset of the forward networks, src/zbinv/parametric.py:570-575; the cost formula is the same
+mean((th - y)^2)/sigma^2 in both codes, parametric.py:577-579 and fem_referee.py cost_of); `theta_file_minus_solver`
+(stage:150) = that value minus the solver's, hourly, rms and mean by day; `first_step_zb_m` (stage:152, parts at
+stage:137-138): the solver's first step from the path (damped as the first trial step of its loop, lam 1e-2, free set by
+its own bound rule), in zb by day (linearised), as `total` = `value_part` + `rest`, where value_part is what the value
+difference alone moves and rest is what is left with the PINN's own value (zero if the PINN's slope were the solver's).
+Runs (cpu, one solve of 29 members each, hourly step, same options as the inversions of each window):
+  va_nor2   SE-Nor 6 Dec 2019, path of runs/rfnor2edc_it2 (prior.clip_m=[0.10,1.5])
+  va_nor1   SE-Nor Oct 2023 with the switch, path of runs/rfnor1edc_it4
+  va_dor    BE-Dor Mar 2024, path of runs/rfdor1cdc_it1 (prior.clip_m=[0.10,1.5]) - the control: PINN 0.04 cm from the solver
+EXPECTATIONS (written before the jobs; guesses are marked):
+  W0 (reproduction, va_nor2): cost_solver = 0.3405 to four digits, cost_file_value = 0.267108 to six. If not, the option
+     or the file reading is wrong: stop and fix, nothing else is read.
+  W1 (va_nor2, guess): the value difference is larger at the start: mean of rms_by_day over days 0 - 2 at least twice the
+     mean over days 3 - 10; rms over the window between 5e-4 and 2e-3.
+  W2 (va_nor2, guess): on day 1 and on day 2 `value_part` has the sign of `total` and at least half its size (means by day).
+  W3 (va_dor, guess): value difference rms below 3e-4; `total` rms below 0.5 cm.
+  W4 (va_nor1, guess): as W1/W2, on days 0 - 1 (the days the PINN is off there).
+RULE (fixed now):
+  (a) W1 and W2 hold: the PINN's error at the window start is the error of its value at the sensor. The next design step
+      is the accuracy of that value at the window start. It is developed and validated on twins with known truth (this
+      station's soil and forcing), not on the scores of these windows; the rows of the README stay as they are.
+  (b) W2 fails with `rest` the larger part on days 1 and 2: the value is not the cause, the operator's slope at a
+      non-zero misfit is. Next design step: slope from the forward networks (the existing --fwd-jac path), same validation.
+  (c) W0 fails, or neither part is clearly the larger: recorded as it is, no method change.
+  All numbers of this check are descriptive (a linearised first step); no criterion changes.
+
+  NOTE (00:01): the wait for va_nor2 / va_nor1 ended at its own limit (25 min) while both jobs were still RUNNING
+  (they had queued). A record block written in the same command was therefore wrong (no result file yet) and is
+  removed; no result line was printed by it (only the two known costs 0.267108 and 0.34053). Redone below once both
+  jobs have ended.
+
+### EVENT va_jobs_done (00:06): value checks (plan above)
+  JOB CHECK: va_dor 15709184 (staged copy, identical content to the file now in place), va_nor2 15709404, va_nor1 15709406:
+            15709184:  COMPLETED 00:03:39 , exit=0 lines 1, Traceback lines 0
+            15709404:  COMPLETED 00:17:32 , exit=0 lines 1, Traceback lines 0
+            15709406:  COMPLETED 00:13:08 , exit=0 lines 1, Traceback lines 0
+  W0 LINES (va_nor2 only, nothing else read yet):
+            value_at.json: cost_solver 0.340526, cost_file_value 0.267108, step 1.0 h, steps not converged (worst solve) 52.6 %
+            PINN summary (runs/rfnor2edc_it2): cost of best start 0.267108
+            job 15695522: [ref] start file:runs/rfnor2edc_it2/predictions.npz: cost 3.4053e-01
+  W0 VERDICT: HOLDS (cost_solver 0.340526 = 0.3405 of the start line to four digits; cost_file_value 0.267108 = the PINN's own cost to six).
+  SAME FIELD AT THE INVERSIONS OF EACH WINDOW (for the 'steps not converged' number above):
+            nor_own_dec19_s0: steps not converged (worst solve) 61.1 %, cost 0.332434
+            nor_own_dec19_spinn: steps not converged (worst solve) 58.1 %, cost 0.332434
+            nor_own_oct23_s0: steps not converged (worst solve) 12.1 %, cost 0.547641
+            dor_own_mar24_s0: steps not converged (worst solve) 0 %, cost 0.129754
+  VALUE LINES (theta of the PINN at its estimate minus the solver's on the same path; units 1e-3 m3/m3):
+            nor_dec19_rfnor2e: cost solver 0.340526, with the PINN value 0.267108; value difference rms 1.3, bias 0.14, max 8.22; rms by day [3.46,1.51,1.19,1.53,0.22,0.17,0.37,0.16,0.31,0.39,0.38]; mean by day [0.97,0.46,-0.21,-0.79,-0.02,0.04,-0.06,0.11,0.27,0.38,0.37]; free [2,3,4,5,6,7,8,9,10,11,12,13]; not converged 52.6 %
+            nor_oct23_rfnor1e: cost solver 0.551786, with the PINN value 0.531067; value difference rms 0.45, bias -0, max 1.56; rms by day [0.58,0.47,0.41,0.41,0.55,0.44,0.37,0.38,0.55,0.31,0.37]; mean by day [0.24,0.14,-0.31,0.05,-0.09,-0.18,-0.27,0.27,0.31,-0,-0.17]; free [2,3,4,5,6,7,8,9,10,11,12]; not converged 8.7 %
+            dor_mar24_rfdor1c: cost solver 0.129777, with the PINN value 0.129043; value difference rms 0.06, bias -0.01, max 0.47; rms by day [0.02,0.01,0.01,0.02,0.02,0.07,0.04,0.03,0.03,0.03,0.16]; mean by day [0.01,0.01,-0.01,-0.02,-0.02,0.01,-0.01,-0.02,-0.01,0.02,-0.06]; free [0,1,2,3,4,5,6,7,8,9,10,11,12,13]; not converged 0 %
+  FIRST-STEP LINES (solver's first step from the PINN's path, zb in cm, linearised; total = value_part + rest):
+            nor_dec19_rfnor2e total: rms 1.58; mean by day [2.07,-1.81,-3.08,0.28,-0.11,0.06,-0.02,-0.04,-0.07,-0.09,-0.09]; rms by day [2.11,2.94,3.79,0.32,0.13,0.06,0.02,0.04,0.07,0.09,0.09]
+            nor_dec19_rfnor2e value_part: rms 1.45; mean by day [1.76,-1.75,-2.92,0.2,-0.09,0.05,-0.01,-0.04,-0.06,-0.09,-0.09]; rms by day [1.79,2.73,3.55,0.24,0.1,0.06,0.03,0.04,0.07,0.09,0.09]
+            nor_dec19_rfnor2e rest: rms 0.14; mean by day [0.32,-0.06,-0.15,0.07,-0.02,0,-0.01,0,-0,0,-0]; rms by day [0.32,0.23,0.26,0.09,0.03,0.01,0.01,0,0,0,0]
+            nor_oct23_rfnor1e total: rms 6.34; mean by day [16.34,10.23,-0.33,0.15,-0.31,0.58,0.26,-0.83,-0.87,-0.02,0.27]; rms by day [17.14,12.15,0.55,0.48,0.45,0.59,0.37,0.88,0.9,0.22,0.27]
+            nor_oct23_rfnor1e value_part: rms 2.1; mean by day [-5.19,-3.14,0.76,-0.04,0.1,0.63,0.37,-1.07,-1.09,0.09,0.26]; rms by day [5.44,3.81,0.8,0.38,0.36,0.64,0.38,1.25,1.23,0.11,0.28]
+            nor_oct23_rfnor1e rest: rms 8.33; mean by day [21.54,13.38,-1.08,0.19,-0.41,-0.05,-0.11,0.24,0.22,-0.11,0.01]; rms by day [22.58,15.95,1.24,0.28,0.41,0.18,0.21,0.43,0.4,0.2,0.15]
+            dor_mar24_rfdor1c total: rms 0.04; mean by day [-0.01,-0.01,0,0.02,0.01,-0.01,0.01,0.03,0.01,-0.02,0.1]; rms by day [0.01,0.01,0.01,0.03,0.02,0.01,0.02,0.03,0.01,0.02,0.12]
+            dor_mar24_rfdor1c value_part: rms 0.04; mean by day [-0.01,-0.01,0,0.03,0.01,-0.02,0.02,0.03,0.01,-0.02,0.11]; rms by day [0.01,0.01,0,0.03,0.02,0.02,0.02,0.03,0.02,0.02,0.12]
+            dor_mar24_rfdor1c rest: rms 0; mean by day [0,-0,0,-0,-0,0,-0,0,-0,-0,-0]; rms by day [0,0,0,0.01,0.01,0.01,0.01,0,0,0,0]
+  DESCRIPTIVE LINES (read after the lines above; not criteria):
+            means used for W1: days 0-2 2.05, days 3-10 0.44 (1e-3); for W4: days 0-1 0.52, days 2-10 0.42 (1e-3)
+            value_part / total, means by day: nor_dec19 day 1 0.97, day 2 0.95; nor_oct23 day 0 -0.32, day 1 -0.31
+            solver sd by day, output/referee/nor_own_dec19_s0 (inversion_num.json): [19.06,2.85,3.41,0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32] cm
+            solver sd by day, output/referee/nor_own_oct23_s0 (inversion_pinn.json): [441.98,21.41,2.76,3.66,3.27,2.72,3.05,4.13,2.82,2.55,3.26] cm
+            PINN paths at the start: rfnor2edc_it2 coefficients 0-3 -2.971 1.183 -2.790 0.412  (box -2.971 .. 1.183); rfnor1edc_it4 coefficients 0-3 1.183 1.183 0.837 -1.202  (box -1.821 .. 1.183)
+            solver runs at SE-Nor Dec 2019: nor_own_dec19_dt025_s0 nor_own_dec19_s0 nor_own_dec19_s1 nor_own_dec19_s2 nor_own_dec19_s3 nor_own_dec19_spinn 
+            nor_own_dec19_dt025_s0: step 0.25 h, cost 0.33114, steps not converged (worst solve) 36.2 %
+  VERDICTS (written after the lines above were on the screen):
+    W1 HOLDS (SE-Nor Dec 2019): value difference by day, mean of days 0 - 2 2.05e-3 against 0.44e-3 on days 3 - 10
+       (4.7 times; asked: at least twice); rms over the window 1.3e-3 (asked: 5e-4 .. 2e-3).
+    W2 HOLDS: day 1 value_part -1.75 cm of total -1.81 cm (0.97), day 2 -2.92 of -3.08 cm (0.95), same signs; rest is
+       -0.06 and -0.15 cm.
+    W3 HOLDS (BE-Dor control): value difference rms 0.06e-3 (asked: below 0.3e-3), total first step rms 0.04 cm (below 0.5).
+    W4 NOT MET (SE-Nor Oct 2023): the value difference is flat (days 0 - 1 0.52e-3, days 2 - 10 0.42e-3; 1.2 times), and
+       on days 0 and 1 value_part is -0.32 and -0.31 of total (opposite sign); rest is 21.54 and 13.38 cm of a total of
+       16.34 and 10.23 cm. The solver's sd on those two days is 441.98 and 21.41 cm: not determined by the sensor.
+    RULE (a) applies at SE-Nor Dec 2019: the PINN's error on days 0 - 2 there is the error of its value at the sensor on
+       its own path. Next design step: that value at the window start, on twins with known truth; README rows unchanged.
+       At Oct 2023 the start of the window is not a value error; it is two days the sensor does not determine. No
+       design consequence from that window; its reported days 2 - 10 stay.
+    DESCRIPTIVE (not a criterion): where the value is off at Dec 2019 the PINN's path goes from bound to bound within
+       two knots (coefficients 0 - 3: -2.971, 1.183, -2.790, 0.412; box -2.971 .. 1.183), on a day the sensor hardly
+       determines (solver sd 19.06 cm on day 0). The solver itself does not converge to its tight tolerance on 52.6 %
+       of the steps in the worst of the 29 solves on and around that path (inversions of this window 61.1 and 58.1 %,
+       1/4 h run 36.2 %; Oct 2023 8.7 %; BE-Dor 0 %). Such a path is far outside the path prior the operator is
+       trained on (knot steps of sd 0.15 m): the search is free to go there because the cost has no path prior.
