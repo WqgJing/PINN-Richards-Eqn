@@ -9706,3 +9706,22 @@ Scratch copies (git_backups/work_20261116/), nothing on GitHub or in the local c
 The force-push of NOAH-s- (lease pinned to 4cfa6a3) was stopped by the permission check of this session before
 anything ran: remote main is still 4cfa6a3, the local clone is still at 4aab137 with its old user.email.
 Open: the user's yes for the pushes; then step 4 (push, resync of the local clone, user.email) and step 5.
+
+Health check (01:06) of the two short solver checks: mp_dor 15712047 and mp_nc2 15712048 COMPLETED, exit=0, no
+Traceback, summary.json / history.json / predictions.npz present. No result read; the other eight are still running.
+
+#### Steps 4-5 done (01:10) after the user's "Yes, push both"
+Pushed with leases pinned to the old tips:
+  - NOAH-s- main 4cfa6a3 -> daad5b3 (12 published commits). Local clone: fetch + reset --soft to 0c24249, status
+    list identical before and after (working files and index untouched), "ahead 6" as before; its user.email is now
+    the noreply identity (undo: git config --local user.email <old address>).
+  - SMAP-Recharge-Flux, one atomic push of 7 branches: Resample-interp 401f796 -> 873143a, SM-as-BC 5d4ecd8 ->
+    fe0835e, add-complementary-logs 1ecd948 -> b7fe686, main 8aea728 -> ea256a3, normalization dd745d5 -> d8a456a,
+    sinusoidal-bc 6be71d3 -> bce8446, spike-treatement 044cb9c -> 05aba4b.
+Read back from GitHub right after the push:
+  - commits API: NOAH-s- 12 of 12 and SMAP-Recharge-Flux main 25 of 25 have author = committer = WqgJing.
+  - page box: SMAP-Recharge-Flux lists WqgJing (count 1). NOAH-s- lists WqgJing and still the old "claude" entry
+    (count 2): no commit in the repository carries that name any more (0 lines, checked before the push), so the
+    entry is GitHub's stored list, as on PINN-Richards-Eqn.
+  - contributors API (anon=1): still the list from before the push in both (cached on GitHub's side).
+Other clones of either repository must be re-cloned or reset to the new tips, not pulled.
