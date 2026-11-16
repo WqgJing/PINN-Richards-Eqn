@@ -418,7 +418,7 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 21:15). Seven of the new windows have a finished PINN run: all four of the first selection and
+State (15 Nov, 21:10). Seven of the new windows have a finished PINN run: all four of the first selection and
 three of the second (BE-Dor, FR-Bil 12 Dec 2020, and SE-Nor 6 Dec 2019, the one window inside the 5 cm gate);
 SE-Nor's two windows have two runs each (without and with `sampling.local_box`, see below). They are
 reported here as run and are not yet in the counts above. All rows are in-sample (soil fitted on the same
