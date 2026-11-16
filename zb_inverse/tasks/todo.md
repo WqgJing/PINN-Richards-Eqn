@@ -9725,3 +9725,82 @@ Read back from GitHub right after the push:
     entry is GitHub's stored list, as on PINN-Richards-Eqn.
   - contributors API (anon=1): still the list from before the push in both (cached on GitHub's side).
 Other clones of either repository must be re-cloned or reset to the new tips, not pulled.
+
+Wait ended early (01:34): the wait for the ten checks stopped after 53 loops on one empty squeue answer; eight jobs
+(15712049-15712057) are still RUNNING. Nothing read. New wait /tmp/wait_jobs.sh ends only when sacct gives a final
+state for every job twice in a row (lesson recorded in tasks/lessons.md).
+
+Status (04:43): the IT-SR2 waiter ended with "no event in 300 min" (job 15662571 still RUNNING, 25 h of 60 h, log
+written 04:16) and was restarted. Of the ten checks, 15712049 mp_nor2, 15712050 mp_nor2b, 15712052 mp_bil2 and
+15712054 tw_m0 are still RUNNING (4 h of 24 h, logs still written, no Traceback). Nothing read.
+
+        (05:15, 16 Nov) EVENT stepq_sr2 (05:14): the 1/4 h repeat of the numerical inversion at IT-SR2, 13 Nov 2019 (plan of
+          03:22 on 15 Nov, QR1 / QR2 and the 1 cm rule, lines 6996 - 7003). Solver only.
+          JOB CHECK: 15662571 rfq_sr2_dt025_s0 COMPLETED 1-01:51:21 ; exit=0 lines 1, Traceback lines 0 (logs/cpu_15662571.out)
+          REFERENCE LINES (by jq from output/referee/<dir>/summary.json):
+            sr2_own_nov19_s0  hydrostatic, step 1.0 h: cost 2.991206, from the well 40.22 cm rms, bias 6.47 cm, max 88.17 cm, on bound [0,3,6,7,8,13], 18 it, 539 solves, sensor misfit 0.00865, sd median 8.25 cm, steps not converged (worst solve) 24.9 %, 21909 s
+            sr2_own_nov19_s1  hydrostatic_flat, step 1.0 h: cost 2.991205, from the well 40.23 cm rms, bias 6.47 cm, max 88.17 cm, on bound [0,3,6,7,8,13], 20 it, 599 solves, sensor misfit 0.00865, sd median 8.25 cm, steps not converged (worst solve) 27.1 %, 24400 s
+            sr2_own_nov19_s2  constant:1.0, step 1.0 h: cost 3.084979, from the well 39.38 cm rms, bias 18.23 cm, max 88.17 cm, on bound [0,2,3,6,7,8,13], 14 it, 418 solves, sensor misfit 0.00878, sd median 52.84 cm, steps not converged (worst solve) 24.5 %, 16428 s
+            sr2_own_nov19_s3  constant:0.3, step 1.0 h: cost 2.991205, from the well 40.23 cm rms, bias 6.47 cm, max 88.17 cm, on bound [0,3,6,7,8,13], 21 it, 630 solves, sensor misfit 0.00865, sd median 8.27 cm, steps not converged (worst solve) 25.7 %, 25829 s
+            sr2_own_nov19_spinn  verse/runs/rfsr21cdc_it3/predictions.npz, step 1.0 h: cost 2.998992, from the well 22.64 cm rms, bias -6.81 cm, max 61.68 cm, on bound [0,2,3,6,8,13], 1 it, 32 solves, sensor misfit 0.00866, sd median 6.25 cm, steps not converged (worst solve) 25.3 %, 1538 s
+            sr2_own_nov19_dt025_s0  hydrostatic, step 0.25 h: cost 2.935258, from the well 40.2 cm rms, bias 6.67 cm, max 88.17 cm, on bound [0,3,6,7,8,13], 21 it, 629 solves, sensor misfit 0.00857, sd median 8.52 cm, steps not converged (worst solve) 14.1 %, 92062 s
+          COST HISTORY of the 1/4 h run (history.json: iteration, cost, from the well cm):
+            0:3.2305/23.26  1:3.0015/23.43  2:2.9645/21.96  3:2.9562/22.58  4:2.947/22.7  5:2.9394/22.83  6:2.9388/23.15  7:2.9384/23.66  8:2.938/24.23  
+            9:2.937/25.48  10:2.9357/37.02  11:2.9356/40.23  12:2.9354/40.18  13:2.9353/40.22  14:2.9353/40.2  15:2.9353/40.21  16:2.9353/40.2  17:2.9353/40.21  
+            18:2.9353/40.2  19:2.9353/40.2  20:2.9353/40.2
+          By-day comparison submitted: chk_sr2q, job 15719238 -> output/real_sr2_nov19_own/inversion_num_q.json. Verdicts after it.
+          JOB CHECK: 15719238 chk_sr2q COMPLETED ; exit=0 lines 1, Traceback lines 0 (logs/cpu_15719238.out); file output/real_sr2_nov19_own/inversion_num_q.json
+          BY DAY (by jq from that file; cm; days 0 .. 10 of the 11-day window):
+            each 1 h estimate minus the 1/4 h estimate:
+              sr2_own_nov19_s0 (hydrostatic) minus dt025_s0: rms 0.49, bias -0.2, largest 2.09 at day 0.08, by day [1.39,0.46,0.37,0.55,0.23,0.04,0.02,0.1,0.13,0.11,0.03]
+              sr2_own_nov19_s1 (hydrostatic_flat) minus dt025_s0: rms 0.47, bias -0.2, largest 1.97 at day 0.08, by day [1.32,0.41,0.37,0.54,0.24,0.05,0.02,0.11,0.12,0.1,0.04]
+              sr2_own_nov19_s2 (constant:1.0) minus dt025_s0: rms 30.62, bias 11.57, largest 98.79 at day 1.83, by day [12.42,80.62,59.98,9.91,2.18,0.75,0.02,0.1,0.13,0.11,0.03]
+              sr2_own_nov19_s3 (constant:0.3) minus dt025_s0: rms 0.45, bias -0.19, largest 1.89 at day 0.08, by day [1.27,0.38,0.36,0.54,0.24,0.05,0.02,0.1,0.13,0.11,0.03]
+              sr2_own_nov19_spinn (runs/rfsr21cdc_it3/predictions.npz) minus dt025_s0: rms 30.71, bias -13.47, largest 94.46 at day 6, by day [2.06,1.71,1.32,2.07,8.8,70.31,72.7,9.89,0.05,0.23,0.17]
+            1 h estimates among themselves:
+              sr2_own_nov19_s0 minus sr2_own_nov19_s1: rms 0.03, largest 0.13 at day 0
+              sr2_own_nov19_s0 minus sr2_own_nov19_s2: rms 30.54, largest 98.63 at day 1.83
+              sr2_own_nov19_s0 minus sr2_own_nov19_s3: rms 0.05, largest 0.2 at day 0.04
+              sr2_own_nov19_s0 minus sr2_own_nov19_spinn: rms 30.71, largest 94.46 at day 6
+              sr2_own_nov19_s1 minus sr2_own_nov19_s2: rms 30.55, largest 98.65 at day 1.83
+              sr2_own_nov19_s1 minus sr2_own_nov19_s3: rms 0.02, largest 0.08 at day 0.04
+              sr2_own_nov19_s1 minus sr2_own_nov19_spinn: rms 30.7, largest 94.46 at day 6
+              sr2_own_nov19_s2 minus sr2_own_nov19_s3: rms 30.56, largest 98.66 at day 1.83
+              sr2_own_nov19_s2 minus sr2_own_nov19_spinn: rms 43.23, largest 98.41 at day 1.83
+              sr2_own_nov19_s3 minus sr2_own_nov19_spinn: rms 30.7, largest 94.46 at day 6
+            from the well and posterior sd by day:
+              sr2_own_nov19_s0, step 1.0 h: from the well 40.22, bias 6.47, max 88.17, r 0.1054; by day [10.72,43.55,40.29,24.72,23.17,73.99,81.69,27.18,8.09,11.3,1.89]; sd by day [131.76,9.5,4.04,7.18,21.34,923.2,978.26,25.63,1.95,4.9,1.26]
+              sr2_own_nov19_s2, step 1.0 h: from the well 39.38, bias 18.23, max 88.17, r 0.4955; by day [19.25,38.93,21.2,32.83,23.76,74.41,81.69,27.18,8.09,11.3,1.89]; sd by day [310.85,1093.82,154.87,4.62,25.63,961.8,1021.03,26.56,1.95,4.91,1.26]
+              sr2_own_nov19_dt025_s0, step 0.25 h: from the well 40.2, bias 6.67, max 88.17, r 0.1088; by day [10.05,43.86,40.1,24.25,23.08,74.01,81.7,27.22,8.06,11.41,1.86]; sd by day [104.21,10.04,4.09,7.34,26.14,1222.39,1296.77,33.19,1.98,4.91,1.25]
+          PINN LINES (after the reference lines; runs/rfsr21cdc_it3, the run of the IT-SR2 row; same file; cm):
+            PINN from the well 22.65, bias -8.06, max 62.5, r 0.4348; by day [10.76,44.92,40.99,24.06,18.79,6.19,18.84,18.03,8.04,11.43,2.09]; sd median 8.01, sd by day [24.65,10.5,4.51,8.42,11.31,15.32,13.24,11.49,2.59,5.94,1.37]
+            PINN minus sr2_own_nov19_s0 (step 1.0 h): rms 31.61, bias -14.53, largest 95.07 at day 5.96, by day [3.15,2.27,0.81,0.79,12.93,74.41,72.24,9.58,0.62,0.42,0.31]
+            PINN minus sr2_own_nov19_s1 (step 1.0 h): rms 31.61, bias -14.53, largest 95.07 at day 5.96, by day [3.18,2.21,0.82,0.79,12.93,74.41,72.24,9.58,0.6,0.41,0.3]
+            PINN minus sr2_own_nov19_s2 (step 1.0 h): rms 44.48, bias -26.29, largest 99.46 at day 1.83, by day [14.71,81.96,60.75,9.86,14.84,74.79,72.24,9.58,0.62,0.42,0.31]
+            PINN minus sr2_own_nov19_s3 (step 1.0 h): rms 31.61, bias -14.53, largest 95.07 at day 5.96, by day [3.2,2.19,0.82,0.79,12.93,74.41,72.24,9.58,0.62,0.42,0.31]
+            PINN minus sr2_own_nov19_spinn (step 1.0 h): rms 3.12, bias -1.25, largest 8.55 at day 5.04, by day [6.11,3.53,0.41,2.07,4.39,5.77,0.68,0.32,0.46,0.28,0.16]
+            PINN minus sr2_own_nov19_dt025_s0 (step 0.25 h): rms 31.63, bias -14.73, largest 95.07 at day 5.96, by day [4.16,1.82,1.16,0.68,13.05,74.43,72.25,9.63,0.49,0.41,0.33]
+          VERDICTS (05:21; expectations of 03:22 on 15 Nov, lines 6996 - 7003; written after all lines above were printed):
+            QR1 NOT MET: with 1/4 h steps the worst solve still has 14.1 % of its steps not converged (1 h:
+                24.5 - 27.1 % over the four starts); I expected under 5 %. Four times more steps roughly halve
+                the count, they do not remove it.
+            QR2 first part NOT MET, in the favourable direction: the 1/4 h estimate is 0.49 cm rms from the 1 h
+                estimate of the same start (largest 2.09 cm, at day 0.08; 0.45 - 0.47 cm from the two other 1 h
+                starts that agree with it), not 2 - 15 cm. By day: 1.39 cm on day 0, 0.02 - 0.55 cm on days 1 - 10.
+                Second part HOLDS: 40.2 cm from the well (more than 25 cm).
+            RULE applied (differ by less than 1 cm rms): the 1 h lines stand as the numerical reference of the
+                IT-SR2 row, and the row says so. No 1/16 h run. The cost is 1.87 % lower with 1/4 h steps
+                (2.935258 against 2.991206), the same six coefficients are on the bound ([0,3,6,7,8,13]), and
+                the PINN is as far from the 1/4 h estimate (31.63 cm) as from the 1 h one (31.61 cm).
+            Not changed by this check: the 1 h start constant:1.0 ends elsewhere (30.62 cm from the 1/4 h
+                estimate, cost 3.084979), and the estimate from the PINN's path stays 30.71 cm from it. So the 40 cm
+                from the well are not an effect of the solver's step. Only the hydrostatic start was repeated: whether
+                the 1.0 m start ends elsewhere with 1/4 h steps too was not run.
+            Seen in the cost history of the 1/4 h run (not an expectation, reported as seen): at iteration 9 the
+                path is 25.48 cm from the well at cost 2.936993; at iteration 11 it is 40.23 cm from the well at
+                cost 2.935576; the run ends at 2.935258 (40.2 cm). Two paths whose distance from the well differs by 14.75 cm
+                differ by 0.059 % in the cost. The posterior sd of the 1/4 h estimate is 12 - 13 m on
+                days 5 - 6 (9 - 10 m at 1 h): on those days the sensor does not constrain the water table within
+                the path range. This is the statement already in the README for this window; the check does not
+                alter it.
+          README: the IT-SR2 note gets the step check; the open item "1/4 h repeat at IT-SR2" is closed.

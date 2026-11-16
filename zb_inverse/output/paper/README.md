@@ -434,7 +434,7 @@ window with the well).
 | SE-Nor, 6 Dec 2019, without `sampling.local_box` (beside the row above) | second; inside the 5 cm gate | 4.35 cm, r 0.89 | 8.27 cm, r 0.80 | 4.65 cm over the window; 0.22 cm on days 3 - 10; the correction loop did not stop by its rule | no (four of five PINN starts end on one estimate; the 1.0 m start ends elsewhere, at 13.6 times the cost) |
 | FR-Bil, 12 Dec 2020, with `sampling.local_box` | second; outside the 5 cm gate | 7.61 cm, r 0.88 | 10.52 cm, r 0.80 | 4.21 cm over the window; 1.6 cm on days 0 - 9 (0.02 - 0.07 cm by day on days 0 - 6); 1.38 cm over the window against the numerical estimate with 1/4 h steps | yes (five PINN starts on one estimate; the four numerical starts 0.0 - 0.2 cm apart by day on days 0 - 9, 0.3 - 1.9 cm on the last half day) |
 | FR-Bil, 12 Dec 2020, without `sampling.local_box` (beside the row above) | second; outside the 5 cm gate | 7.61 cm, r 0.88 | 6.43 cm, r 0.87 | 2.39 cm over the window; 1.24 cm on days 0 - 9 (0.02 - 0.08 cm by day on days 0 - 6); 4.32 cm over the window against the numerical estimate with 1/4 h steps; the correction loop did not stop by its rule | yes (five PINN starts on one estimate) |
-| IT-SR2, 13 Nov 2019 | first | 40.23 cm, r 0.11 | 22.65 cm, r 0.44 | 31.61 cm over the window; 0.3 - 3.2 cm by day on days 0 - 3 and 8 - 10 | no (one of five PINN starts and one of four numerical starts end elsewhere) |
+| IT-SR2, 13 Nov 2019 | first | 40.23 cm, r 0.11 | 22.65 cm, r 0.44 | 31.61 cm over the window; 0.3 - 3.2 cm by day on days 0 - 3 and 8 - 10; 31.63 cm over the window against the numerical estimate with 1/4 h steps | no (one of five PINN starts and one of four numerical starts end elsewhere) |
 | DK-Sor, 8 Dec 2024 | first | 40.88 cm, r 0.32 | 42.71 cm, r 0.41 | 9.64 cm over the window; 0.0 - 1.2 cm by day on days 4 - 10; the PINN run did not converge | yes, both |
 | DK-Sor, 8 Dec 2024, repeated with `sampling.local_box` (beside the row above) | first | 40.88 cm, r 0.32 | 41.64 cm, r 0.26 | 6.77 cm over the window; by day 1.26, 5.44, 11.07, 7.93, 1.61, 1.87, 13.85, 9.45, 1.02, 0.61, 0.48 cm (days 0 - 10); the correction loop stopped by its rule at its third iteration | yes, both |
 | FR-Bil, 29 Oct 2023 | first | 52.61 cm, r -0.52 (the other three starts 55.3 - 71.2 cm) | 43.03 cm, r -0.44 | 28.4 - 56.6 cm against the five numerical end points; training marginal, the PINN run did not converge | no (PINN starts 17.6 cm apart, numerical end points 4.9 - 53.4 cm apart) |
@@ -482,7 +482,19 @@ window with the well).
   measured well fits the sensor to 0.0093, the numerical estimate to 0.0087, the PINN's to 0.0094; both
   estimates read each wetting of the sensor as a rise of the water table while the well rises smoothly. The two
   estimates differ on days 4 - 7, where the solver goes to the 1.50 m bound of the path range; the solver's own
-  cost of the PINN's path is within 0.6 % of its best.
+  cost of the PINN's path is within 0.6 % of its best. Step check of the reference: 24.5 - 27.1 % of the
+  solver's 1 h steps do not converge in its worst solve, so the numerical inversion was repeated with 1/4 h
+  steps from the hydrostatic start. It ends 0.49 cm from the 1 h estimate of the same start (largest 2.09 cm,
+  in the first hours; 1.39 cm on day 0, 0.02 - 0.55 cm by day on days 1 - 10; 0.45 - 0.47 cm from the two
+  other 1 h starts that agree with it), 40.20 cm from the well, with the same six coefficients on the bound;
+  the 1 h reference stands, and the PINN is as far from the 1/4 h estimate (31.63 cm) as from the 1 h one
+  (31.61 cm). The 40 cm from the well are therefore not an effect of the solver's step. Only this start was
+  repeated: whether the 1.0 m start ends elsewhere with 1/4 h steps too was not run. With 1/4 h steps 14.1 %
+  of the steps still do not converge in the worst solve (expected: under 5 %); that count is reported as it
+  is, not explained. Seen in that run, not an expectation: its path at iteration 9 is 25.5 cm from the well
+  at a cost 0.06 % above the final one (40.2 cm from the well). On days 5 - 6, where the solver's estimate is
+  at the bound, its posterior sd is 9 - 10 m (12 - 13 m with 1/4 h steps); the PINN's is 13 - 15 cm on its
+  own path.
 - DK-Sor: no estimate is near the well. The well rises steadily from 1.25 to 0.38 m while the sensor stays
   within 0.311 - 0.347; the numerical inversion, the PINN and the hydrostatic reading are all about 40 cm off, and
   the model run with the measured well fits the sensor worse (0.0053) than either estimate (0.0024 numerical,
@@ -732,9 +744,9 @@ each object.)
 
 ## Not yet in this set (running)
 
-- ICOS, first selection: the 1/4 h repeat of the numerical inversion at IT-SR2 (DK-Sor's is finished, see its
-  item above). The repeat of the DK-Sor PINN run with `sampling.local_box` is finished and is the row beside
-  DK-Sor's first.
+- ICOS, first selection: nothing is running any more. The 1/4 h repeats of the numerical inversion at IT-SR2
+  and DK-Sor are finished (see their items above). The repeat of the DK-Sor PINN run with
+  `sampling.local_box` is finished and is the row beside DK-Sor's first.
 - ICOS, second selection, FR-Bil (12 Dec 2020; outside the gate, see above): nothing is running any more.
   Both PINN runs are finished: the one with `sampling.local_box` is the row of this window, the one without
   it the row beside it (both started from the same first training stage, which ended with 17.4 - 18.8 % of
