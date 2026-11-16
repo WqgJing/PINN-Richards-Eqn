@@ -9036,3 +9036,121 @@ runs/rfbil2c_inv0: refinement sd per coefficient 1.81 0.50 0.47 0.36 0.48 0.42 0
             (0.2 cm). The days 0 - 2 / 3 - 10 split is the descriptive one of 19:27 (made after reading), not a
             criterion. Whose error days 0 - 2 are is the open check (job 15695522, K1 / K2). No method change
             on these scores.
+        (21:09) EVENT rfbil2e_driver_gone (21:03): FR-Bil, 12 Dec 2020, the run WITH sampling.local_box (the row of this window; outside the 5 cm gate).
+          DRIVER: full rfbil2e done at Sun Nov 15 21:02:37 EST 2026; driver processes left: 0
+          JOB CHECK (job ids from logs/pipe_rfbil2e.log and logs/dc_rfbil2edc.log; logs/gpu_<id>.out, logs/cpu_<id>.out):
+            refinement rounds: 16 logs, exit=0 lines 16, Traceback lines 0
+            inversions 0 - 4:  5 logs, exit=0 lines 5, Traceback lines 0
+            dc forward nets:   6 logs, exit=0 lines 6, Traceback lines 0
+            dc inversions:     3 logs, exit=0 lines 3, Traceback lines 0
+            (the wide stage is rfbil2c's, by links; its job check is in the entry of rfbil2c's wide stage)
+          LOSSES, held-out, last line of metrics.csv ("% of node rms" = 10 sqrt(val_flux)); before any score of this run:
+            rfbil2e_w0         step 42000: PDE 23.90  flux 3.344   (18.3 % of node rms)
+            rfbil2e_w1         step 42000: PDE 22.49  flux 3.544   (18.8 % of node rms)
+            rfbil2e_w2         step 42000: PDE 20.65  flux 3.042   (17.4 % of node rms)
+            rfbil2e_w3         step 42000: PDE 23.77  flux 3.238   (18.0 % of node rms)
+            rfbil2e_r1_m0      step 18000: PDE 26.99  flux 3.526   (18.8 % of node rms)
+            rfbil2e_r1_m1      step 18000: PDE 24.36  flux 3.331   (18.3 % of node rms)
+            rfbil2e_r1_m2      step 18000: PDE 35.24  flux 3.112   (17.6 % of node rms)
+            rfbil2e_r1_m3      step 18000: PDE 22.83  flux 3.155   (17.8 % of node rms)
+            rfbil2e_r2_m0      step 18000: PDE 18.59  flux 4.644   (21.5 % of node rms)
+            rfbil2e_r2_m1      step 18000: PDE 19.88  flux 3.380   (18.4 % of node rms)
+            rfbil2e_r2_m2      step 18000: PDE 26.46  flux 2.745   (16.6 % of node rms)
+            rfbil2e_r2_m3      step 18000: PDE 15.88  flux 3.177   (17.8 % of node rms)
+            rfbil2e_r3_m0      step 18000: PDE 17.00  flux 3.671   (19.2 % of node rms)
+            rfbil2e_r3_m1      step 18000: PDE 14.67  flux 2.819   (16.8 % of node rms)
+            rfbil2e_r3_m2      step 18000: PDE 15.04  flux 2.742   (16.6 % of node rms)
+            rfbil2e_r3_m3      step 18000: PDE 17.44  flux 3.567   (18.9 % of node rms)
+            rfbil2e_r4_m0      step 18000: PDE 13.79  flux 3.522   (18.8 % of node rms)
+            rfbil2e_r4_m1      step 18000: PDE 14.32  flux 2.696   (16.4 % of node rms)
+            rfbil2e_r4_m2      step 18000: PDE 12.02  flux 2.639   (16.2 % of node rms)
+            rfbil2e_r4_m3      step 18000: PDE 12.54  flux 3.602   (19.0 % of node rms)
+            rfbil2edc_f1_m0    step 28000: PDE 4.59  flux 1.233   (11.1 % of node rms)
+            rfbil2edc_f1_m1    step 28000: PDE 1.89  flux 1.027   (10.1 % of node rms)
+            rfbil2edc_f2_m0    step 28000: PDE 0.90  flux 0.802   (9.0 % of node rms)
+            rfbil2edc_f2_m1    step 28000: PDE 0.84  flux 0.800   (8.9 % of node rms)
+            rfbil2edc_f3_m0    step 28000: PDE 0.64  flux 0.661   (8.1 % of node rms)
+            rfbil2edc_f3_m1    step 28000: PDE 0.99  flux 0.558   (7.5 % of node rms)
+          DC LOOP (logs/dc_rfbil2edc.log, scoring part cut):
+            it 1: step/sigma max 5.299209724585331, by segment [0.02,0.1,0.67,5.3], over the smaller sd max 5.299209724585331, by segment [0.02,0.1,0.67,5.3], bound set changed true, fwd offset rms 0.0009909245660627269
+            it 2: step/sigma max 0.7071072855170052, by segment [0,0,0.03,0.71], over the smaller sd max 0.7071072855170052, by segment [0,0,0.03,0.71], bound set changed false, fwd offset rms 0.0011902909523166811
+            it 3: step/sigma max 0.1628551588006767, by segment [0,0,0.03,0.16], over the smaller sd max 0.17176889526584835, by segment [0,0,0.03,0.17], bound set changed false, fwd offset rms 0.0010651910414109726
+            converged at it 3
+          SAME LINES OF THE RUN WITHOUT THE SWITCH so far, for G3 (logs/dc_rfbil2cdc.log, scoring part cut; that driver is still running):
+            it 1: step/sigma max 15.463019055531078, by segment [0.05,0.09,1.06,15.46], over the smaller sd max 15.463019055531078, by segment [0.05,0.09,1.06,15.46], bound set changed true, fwd offset rms 0.0032152702883528938
+            it 2: step/sigma max 1.2066209452123198, by segment [0,0,0.09,1.21], over the smaller sd max 2.7567761315922574, by segment [0,0,0.09,2.76], bound set changed true, fwd offset rms 0.001836398777511955
+            it 3: step/sigma max 1.0869818814949985, by segment [0,0.01,0.05,1.09], over the smaller sd max 1.0869818814949985, by segment [0,0.01,0.05,1.09], bound set changed true, fwd offset rms 0.002367551835447958
+          VERDICTS on the losses and the loop (from the LOSSES and DC LOOP blocks above; no score read yet):
+            G2 (line 8417: PDE below 150 and flux at most 18.8 % in all sixteen refinement networks) NOT MET in
+               its flux part: PDE is 12.0 - 35.2 in all sixteen (below 150), but four networks end above 18.8 %
+               of the surface-flux error: r2_m0 21.5 %, r3_m0 19.2 %, r4_m3 19.0 %, r3_m3 18.9 %; the other
+               twelve are at 16.2 - 18.8 %. The refinement did not lower the flux error here (wide stage 17.4 -
+               18.8 %); the forward networks of the correction loop did (11.1 - 7.5 % over its three pairs).
+            G3 (line 8421) HOLDS: fwd offset rms of iteration 1 is 0.00099 with the switch against 0.0032
+               without; first correction step over the posterior sd (old key) 5.30 against 15.46.
+            P4 (line 8182) HOLDS for this run: the correction loop stopped by its rule at iteration 3 (moves of
+               5.30, 0.71 and 0.17 of the smaller posterior sd, limit 0.2; all in the last segment, days 7.5 -
+               10).
+          SCORES: expectations G4 (= P2) and P3 of lines 8174 - 8181 and 8423 - 8425 stand, with the reading rule
+            of line 8738 (against s2 at 1 h over the window and over days 0 - 9; on day 10 the difference to
+            the 1/4 h estimate beside it). The reference lines of this window are in the stepq_bil2 entry and
+            are not repeated; PINN lines follow the jobs.
+          SCORE rfbil2e (jobs 15700208 sc_bil2e, 15700209 chk_bil2e: exit=0 lines 2, Traceback lines 0).
+          REFERENCE, repeated here only for the by-day reading (solver; from output/real_bil_dec20_own/inversion_pinn_rfbil2e.json; cm):
+            bil_own_dec20_s2 (constant:1.0, step 1.0 h): cost 0.249332, from the well 7.61, bias 2.61, max 29.73, r 0.8819; by day [1.39,0.35,1.85,0.76,2.32,3.31,2.61,2.52,7.64,6.33,22.03] (days 0 - 9: 3.66, days 0 - 7: 2.11); sd by day [0.27,0.26,0.22,0.2,0.25,0.35,0.62,1.8,5.86,4.41,245.51]
+            bil_own_dec20_dt025_s2 (file:/storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/output/referee/bil_own_dec20_s2/predictions.npz, step 0.25 h): cost 0.250594, from the well 10.58, bias 3.25, max 58.31, r 0.8165; by day [1.39,0.35,1.85,0.76,2.32,3.31,2.6,2.39,7.09,6.05,32.7] (days 0 - 9: 3.49, days 0 - 7: 2.09); sd by day [0.27,0.25,0.22,0.2,0.25,0.35,0.61,1.73,5.03,4.1,312.17]
+          PINN LINES (runs/rfbil2edc_it3; by jq from output/real_bil_dec20_own/result_rfbil2e.json and output/real_bil_dec20_own/inversion_pinn_rfbil2e.json; cm):
+            from the well: rms 10.52, bias 2.81, max 57.69, r 0.7989; starts spread (largest) 0 m; sensor misfit PINN 0.00238, solver 0.0025 (bil_own_dec20_s2), model with observed well 0.00545; hydrostatic reading 3.44 (r 0.9286); 265 hours; well range [0.15,0.38] m
+            from the well by day [1.43,0.37,1.85,0.74,2.31,3.35,2.59,1.96,3.49,5,33.26] (days 0 - 9: 2.65, days 0 - 7: 2.04); sd median 0.37, sd by day [0.26,0.25,0.22,0.2,0.24,0.34,0.6,1.58,3.63,4.83,26.45]
+            PINN minus bil_own_dec20_s0 (hydrostatic, step 1.0 h): rms 4.05, bias 0.17, largest 32.1 at day 11, by day [0.05,0.03,0.01,0.04,0.03,0.04,0.07,1.75,4.14,1.95,12.27] (days 0 - 9: 1.55)
+            PINN minus bil_own_dec20_s1 (hydrostatic_flat, step 1.0 h): rms 4.53, bias 0.32, largest 34.93 at day 11, by day [0.05,0.04,0.02,0.04,0.02,0.04,0.07,1.77,4.07,1.93,13.95] (days 0 - 9: 1.53)
+            PINN minus bil_own_dec20_s2 (constant:1.0, step 1.0 h): rms 4.21, bias 0.2, largest 32.93 at day 11, by day [0.05,0.04,0.02,0.04,0.02,0.05,0.07,1.88,4.27,1.94,12.77] (days 0 - 9: 1.6)
+            PINN minus bil_own_dec20_s3 (constant:0.3, step 1.0 h): rms 4.28, bias 0.24, largest 33.28 at day 11, by day [0.05,0.04,0.02,0.04,0.02,0.04,0.07,1.8,4.27,2.01,13.02] (days 0 - 9: 1.6)
+            PINN minus bil_own_dec20_dt025_s2 (e/bil_own_dec20_s2/predictions.npz, step 0.25 h): rms 1.38, bias -0.44, largest 4 at day 8.54, by day [0.05,0.04,0.02,0.04,0.03,0.04,0.07,1.7,3.71,1.66,1.29] (days 0 - 9: 1.39)
+            it3 minus rfbil2edc_it2: rms 1.98, bias 0.6, largest 9.35 at day 11, by day [0,0,0,0,0,0,0.02,0.06,0.26,1.03,6.36]
+            it3 minus rfbil2edc_it1: rms 1.52, bias -0.36, largest 5.41 at day 10.04, by day [0,0,0,0,0,0.01,0.04,0.09,0.66,3.27,3.7]
+            it3 minus rfbil2e_inv4: rms 28.17, bias -11.93, largest 87.9 at day 10.29, by day [0,0.01,0.01,0.01,0.03,0.08,0.25,2.42,5.99,48.06,78.43]
+          PINN STARTS (runs/rfbil2edc_it3/summary.json):
+            previous: cost 0.227255, 26 it, from the well 10.52 cm
+            hydrostatic: cost 0.227255, 21 it, from the well 10.52 cm
+            hydrostatic_flat: cost 0.227255, 21 it, from the well 10.52 cm
+            constant:1.0: cost 0.227255, 21 it, from the well 10.52 cm
+            constant:0.3: cost 0.227255, 21 it, from the well 10.52 cm
+            best start previous; coefficients on bound [13] (previous iteration [13]); starts spread rms 0.0000018747857896059454 m
+          SOLVER STARTS (output/referee/bil_own_dec20_s?/summary.json):
+            bil_own_dec20_s0 hydrostatic: cost 0.249335, from the well 7.75 cm, on bound [13]
+            bil_own_dec20_s1 hydrostatic_flat: cost 0.249342, from the well 7.25 cm, on bound [13]
+            bil_own_dec20_s2 constant:1.0: cost 0.249332, from the well 7.61 cm, on bound [13]
+            bil_own_dec20_s3 constant:0.3: cost 0.249335, from the well 7.52 cm, on bound []
+          VERDICTS on the scores of rfbil2e (written after the lines above were on the screen; every claim
+          with the number it rests on; the window is OUTSIDE the 5 cm gate (7.61 cm) and the run was started
+          after the solver's by-day distances were read, so none of this counts for the selection):
+            R1 (one estimate from every start): HOLDS. Five starts, cost 0.227255 each, starts spread rms
+               0.0000019 m, largest 0 m as printed.
+            R2 over the window as written (1 cm against the solver's lowest-cost estimate, s2 at 1 h):
+               NOT MET, 4.21 cm. This is what P2's second part predicted (odds 65 %).
+            G4 / P2 first part (within 1 cm over days 0 - 9): NOT MET, 1.6 cm. By day against s2: days 0 - 6
+               are 0.05, 0.04, 0.02, 0.04, 0.02, 0.05, 0.07 cm; days 7 - 9 are 1.88, 4.27, 1.94 cm. The part
+               "the same from its starts within 0.2 cm there" holds (spread 0.0000019 m).
+            Day 10 by the reading rule of line 8738: 12.77 cm against s2 (1 h) and 1.29 cm against the 1/4 h
+               estimate (dt025_s2). Beside it: PINN minus the 1/4 h estimate over the window 1.38 cm (days
+               0 - 9: 1.39 cm), largest 4 cm at day 8.54. The criterion is read against s2 only, as written.
+            P3 (against the well as the solver: 7 - 8 cm over the window, bias 2 - 3 cm, under 3.5 cm by day
+               on days 0 - 7): first part NOT MET (10.52 cm; solver s2 7.61 cm, solver at 1/4 h 10.58 cm);
+               bias HOLDS (2.81 cm); by-day part HOLDS (largest of days 0 - 7 is 3.35 cm on day 5; days
+               0 - 7 together 2.04 cm, solver s2 2.11 cm). r 0.7989.
+            R3 (3 cm, |bias| 2 cm, r 0.98 against the well): NOT MET (10.52 cm, 2.81 cm, 0.7989).
+            Beside the criteria, as printed: the hydrostatic reading of the sensor is 3.44 cm from the well
+               (r 0.9286), nearer than the PINN (10.52) and the solver (7.61); the model run with the observed
+               well misses the sensor by 0.00545, the PINN at its estimate by 0.00238, the solver by 0.0025.
+               PINN cost 0.227255 is below the solver's 0.249332 (two different forward models of the same
+               equation; not a ranking of the estimates).
+            DESCRIPTIVE (split made after reading the numbers, not a criterion): the first seven days agree
+               with the solver to 0.02 - 0.07 cm by day and are 0.37 - 3.35 cm from the well; from day 7 the
+               posterior sd grows (PINN 1.58, 3.63, 4.83, 26.45 cm on days 7 - 10; solver 1.8, 5.86, 4.41,
+               245.51 cm) and the two estimates part.
+          FIGURE output/real_bil_dec20_own/result_rfbil2e.png viewed: two panels, lines only, axis labels and
+            legends, no title; the PINN and solver paths lie on each other to day 7 and both leave the well
+            after day 10.
+          RULE applied: no change of method on these scores. rfbil2e is the row of this window in the README,
+            labelled outside the gate; rfbil2c (without the switch, still running) goes beside it.
