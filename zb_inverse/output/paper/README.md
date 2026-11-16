@@ -418,7 +418,7 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 21:16). Seven of the new windows have a finished PINN run: all four of the first selection and
+State (15 Nov, 21:53). Seven of the new windows have a finished PINN run: all four of the first selection and
 three of the second (BE-Dor, FR-Bil 12 Dec 2020, and SE-Nor 6 Dec 2019, the one window inside the 5 cm gate);
 SE-Nor's two windows and FR-Bil 12 Dec 2020 have two runs each (without and with `sampling.local_box`, see
 below). They are
@@ -430,7 +430,7 @@ window with the well).
 | BE-Dor, 17 Mar 2024 | second; outside the 5 cm gate | 5.41 cm, r 0.913 | 5.41 cm, r 0.913 | 0.04 cm (largest 0.17 cm) | yes, both |
 | SE-Nor, 30 Oct 2023 | first | 11.48 cm, r 0.92 | 9.30 cm, r 0.91 | 9.19 cm over the window; 1.07 cm on days 2 - 10 | yes, both |
 | SE-Nor, 30 Oct 2023, repeated with `sampling.local_box` | first | 11.48 cm, r 0.92 | 9.96 cm, r 0.91 | 4.33 cm over the window; 0.54 cm on days 2 - 10; the correction loop did not stop by its rule | yes, both |
-| SE-Nor, 6 Dec 2019, with `sampling.local_box` | second; inside the 5 cm gate | 4.35 cm, r 0.89 | 6.87 cm, r 0.83 | 2.88 cm over the window; 0.19 cm on days 3 - 10 | no (four of five PINN starts and three of four numerical starts end on one estimate; the 1.0 m start ends elsewhere in both) |
+| SE-Nor, 6 Dec 2019, with `sampling.local_box` | second; inside the 5 cm gate | 4.35 cm, r 0.89 | 6.87 cm, r 0.83 | 2.88 cm over the window; 0.19 cm on days 3 - 10; 4.0, 5.2 and 7.0 cm on days 0 - 2, which is the PINN's own error (started on the PINN's path, the numerical inversion returns to its own estimate, 0.01 cm) | no (four of five PINN starts and three of four numerical starts end on one estimate; the 1.0 m start ends elsewhere in both) |
 | SE-Nor, 6 Dec 2019, without `sampling.local_box` (beside the row above) | second; inside the 5 cm gate | 4.35 cm, r 0.89 | 8.27 cm, r 0.80 | 4.65 cm over the window; 0.22 cm on days 3 - 10; the correction loop did not stop by its rule | no (four of five PINN starts end on one estimate; the 1.0 m start ends elsewhere, at 13.6 times the cost) |
 | FR-Bil, 12 Dec 2020, with `sampling.local_box` | second; outside the 5 cm gate | 7.61 cm, r 0.88 | 10.52 cm, r 0.80 | 4.21 cm over the window; 1.6 cm on days 0 - 9 (0.02 - 0.07 cm by day on days 0 - 6); 1.38 cm over the window against the numerical estimate with 1/4 h steps | yes (five PINN starts on one estimate; the four numerical starts 0.0 - 0.2 cm apart by day on days 0 - 9, 0.3 - 1.9 cm on the last half day) |
 | FR-Bil, 12 Dec 2020, without `sampling.local_box` (beside the row above) | second; outside the 5 cm gate | 7.61 cm, r 0.88 | 6.43 cm, r 0.87 | 2.39 cm over the window; 1.24 cm on days 0 - 9 (0.02 - 0.08 cm by day on days 0 - 6); 4.32 cm over the window against the numerical estimate with 1/4 h steps; the correction loop did not stop by its rule | yes (five PINN starts on one estimate) |
@@ -594,9 +594,14 @@ window with the well).
   Two limits of this window: from day 3 the well is nearly flat (0.15 - 0.22 m), so the eight days in which
   everything agrees say little about following a moving water table; and the model run with the observed
   well does not follow the sensor after day 6. The split into days 0 - 2 and 3 - 10 was made after the by-day
-  numbers were read; it describes the result and is not a criterion. Whether the difference on days 0 - 2 is
-  the PINN's own error is being checked as at the first window (the numerical inversion started on the PINN's
-  path; running).
+  numbers were read; it describes the result and is not a criterion. The difference on days 0 - 2 is the
+  PINN's own error, checked as at the first window: the solver's cost of the PINN's path is 0.34053 against
+  0.332434 at its own estimate (2.4 % higher), and started on the PINN's path the numerical inversion goes
+  back to its own estimate in 7 iterations (0.01 cm rms over the window, largest 0.06 cm; expectation and
+  rule written before the run). So the PINN's path is not a second water table that the sensor admits in the
+  solver. In units of the solver's posterior sd on those days (19.1, 2.9 and 3.4 cm) the PINN is 0.2, 1.8 and
+  2.1 sd away: day 0 is hardly determined by the sensor (the 4 cm there are inside what it admits), days 1
+  and 2 are not (5 - 7 cm against about 3 cm). The method is not changed on these scores.
 - SE-Nor, 6 Dec 2019, the same window without `sampling.local_box` (same first stage, one switch differs;
   reported beside the row, as declared before either estimate was read). The switch does here what it did at
   the first SE-Nor window. Without it the PINN is 4.65 cm from the solver over the window instead of 2.88 cm
@@ -712,8 +717,8 @@ each object.)
   7.5 - 11.1 % in rounds 2 - 4, against 139 - 411829 and 18 - 47 % without it) and is the setting of every run
   started from now on. A second run with the switch was started here from the same first stage (15 Nov,
   12:20); it is finished and is the row above, and the run without the switch is finished and is the row
-  beside it. Still running at this window: the numerical inversion started on the PINN's path (started
-  15 Nov, 19:50).
+  beside it. The numerical inversion started on the PINN's path is finished too (see the item of the PINN
+  run above); nothing is running at this window any more.
 
 ## Regenerate
 

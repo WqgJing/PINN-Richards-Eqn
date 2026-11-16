@@ -9280,3 +9280,55 @@ runs/rfbil2c_inv0: refinement sd per coefficient 1.81 0.50 0.47 0.36 0.48 0.42 0
           FIGURE output/real_bil_dec20_own/result_rfbil2c.png viewed: two panels, lines only, axis labels
             and legends, no title; same picture as rfbil2e to day 8, the PINN path ends at 0.74 m instead of
             0.96 m.
+        (21:52) EVENT num5_nor2_1h (21:46): SE-Nor 6 Dec 2019, numerical inversion started on the PINN's path
+          (plan of line 8850). JOB CHECK: 15695522 rfq_nor2_pinn1h COMPLETED 02:12:29, logs/cpu_15695522.out: exit=0 lines 1, Traceback lines 0
+          REFERENCE LINES, solver only (by jq from output/referee/<d>/summary.json and history.json in this command):
+            nor_own_dec19_s0  hydrostatic, step 1.0 h: cost 0.332434, from the well 4.35 cm rms, bias 0.26 cm, max 16.92 cm, on bound [0], 7 it, 217 solves, sensor misfit 0.00288, sd median 0.46 cm, steps not converged (worst solve) 61.1 %, 13659 s
+            nor_own_dec19_s1  hydrostatic_flat, step 1.0 h: cost 0.332434, from the well 4.36 cm rms, bias 0.26 cm, max 16.96 cm, on bound [0], 10 it, 295 solves, sensor misfit 0.00288, sd median 0.46 cm, steps not converged (worst solve) 59.2 %, 12765 s
+            nor_own_dec19_s2  constant:1.0, step 1.0 h: cost 0.337049, from the well 9.53 cm rms, bias 1.62 cm, max 66.01 cm, on bound [0,1], 30 it, 887 solves, sensor misfit 0.0029, sd median 0.46 cm, steps not converged (worst solve) 58.9 %, 39563 s
+            nor_own_dec19_s3  constant:0.3, step 1.0 h: cost 0.332434, from the well 4.35 cm rms, bias 0.26 cm, max 16.94 cm, on bound [0], 13 it, 395 solves, sensor misfit 0.00288, sd median 0.46 cm, steps not converged (worst solve) 61.1 %, 22112 s
+            nor_own_dec19_spinn  verse/runs/rfnor2edc_it2/predictions.npz, step 1.0 h: cost 0.332434, from the well 4.36 cm rms, bias 0.26 cm, max 16.98 cm, on bound [0], 7 it, 204 solves, sensor misfit 0.00288, sd median 0.46 cm, steps not converged (worst solve) 58.1 %, 7506 s
+          HISTORY of nor_own_dec19_spinn (iteration: cost, from the well cm):
+            it 0: cost 0.334742, lambda 0.0033333333333333335, from the well 6.11
+            it 1: cost 0.332841, lambda 0.0011111111111111111, from the well 4.53
+            it 2: cost 0.332477, lambda 0.00037037037037037035, from the well 4.53
+            it 3: cost 0.332438, lambda 0.0001234567901234568, from the well 4.37
+            it 4: cost 0.332434, lambda 0.0000411522633744856, from the well 4.37
+            it 5: cost 0.332434, lambda 0.000013717421124828534, from the well 4.36
+            it 6: cost 0.332434, lambda 0.000004572473708276178, from the well 4.36
+          START LINE of nor_own_dec19_spinn (the solver's cost of the PINN's path; grep '\[ref\] start' logs/cpu_15695522.out;
+          history.json's entry 'it 0' is the state AFTER the first accepted step, scripts/fem_referee.py:135):
+            [ref] coefficients kept in the prior box [-2.971, 1.183]
+            [ref] start file:/storage/project/r-rbras6-0/jjason3/pinn/zb_inverse/runs/rfnor2edc_it2/predictions.npz: cost 3.4053e-01, zb RMSE 0.0687 m
+            [ref] coefficients -2.971 +0.793 -2.390 -0.221 -1.951 -1.823 -1.811 -1.931 -2.060 -2.073 -2.208 -2.162 -2.214 -2.039
+          BY DAY (job 15702277 chk_nor2k: exit=0 lines 1, Traceback lines 0; by jq from output/real_nor_dec19_own/inversion_num_k.json; cm):
+            nor_own_dec19_spinn minus nor_own_dec19_s0: rms 0.01, bias 0.01, largest 0.06 at day 0, by day [0.03,0.02,0.03,0,0,0,0,0,0,0,0]
+            nor_own_dec19_spinn minus nor_own_dec19_s1: rms 0, bias 0, largest 0.01 at day 0, by day [0.01,0,0.01,0,0,0,0,0,0,0,0]
+            nor_own_dec19_spinn minus nor_own_dec19_s2: rms 6.25, bias -1.36, largest 49.29 at day 0, by day [20.76,0.22,0.44,0.03,0.02,0.01,0,0,0,0,0]
+            nor_own_dec19_spinn minus nor_own_dec19_s3: rms 0.01, bias 0, largest 0.03 at day 0, by day [0.02,0.01,0.01,0,0,0,0,0,0,0,0]
+            nor_own_dec19_spinn minus nor_own_dec19_dt025_s0: rms 0.19, bias 0.01, largest 0.61 at day 0.08, by day [0.44,0.27,0.34,0.01,0,0,0,0,0,0,0]
+            nor_own_dec19_spinn from the well by day [10.1,5.73,7.08,2.63,2.19,0.83,1.07,1.24,1.2,0.72,2.71]; sd by day [19.06,2.85,3.42,0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32]
+            nor_own_dec19_s0 from the well by day [10.07,5.72,7.05,2.63,2.19,0.83,1.07,1.24,1.2,0.72,2.71]; sd by day [19.06,2.85,3.41,0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32]
+            PINN (rfnor2edc_it2) minus nor_own_dec19_spinn (step 1.0 h): rms 2.87, bias 0.98, largest 10.86 at day 2.04, by day [3.97,5.15,6.96,0.46,0.2,0.1,0.03,0.03,0.07,0.09,0.09]
+            PINN (rfnor2edc_it2) minus nor_own_dec19_s0 (step 1.0 h): rms 2.88, bias 0.99, largest 10.91 at day 2.04, by day [4,5.17,6.99,0.46,0.2,0.1,0.03,0.03,0.07,0.09,0.09]
+            PINN (rfnor2edc_it2) minus nor_own_dec19_s1 (step 1.0 h): rms 2.87, bias 0.98, largest 10.87 at day 2.04, by day [3.97,5.15,6.97,0.46,0.2,0.1,0.03,0.03,0.07,0.09,0.09]
+            PINN (rfnor2edc_it2) minus nor_own_dec19_s2 (step 1.0 h): rms 5.71, bias -0.38, largest 40.91 at day 0, by day [17.09,5.03,6.52,0.43,0.19,0.09,0.03,0.03,0.07,0.09,0.09]
+            PINN (rfnor2edc_it2) minus nor_own_dec19_s3 (step 1.0 h): rms 2.88, bias 0.98, largest 10.88 at day 2.04, by day [3.98,5.15,6.97,0.46,0.2,0.1,0.03,0.03,0.07,0.09,0.09]
+            PINN (rfnor2edc_it2) minus nor_own_dec19_dt025_s0 (step 0.25 h): rms 2.95, bias 0.99, largest 11.38 at day 2.04, by day [3.66,5.42,7.3,0.47,0.21,0.1,0.03,0.03,0.07,0.09,0.09]
+          VERDICTS (written after the lines above were on the screen; each with its number from those lines):
+            K1 HOLDS: the solver's cost of the PINN's path is 0.34053 (START LINE), above its lowest cost 0.332434 and inside
+              the guess 0.34 - 0.37. (The plan's words 'cost of iteration 0' named the wrong field: history 'it 0', 0.334742,
+              is the state after the first accepted step. The verdict uses the START LINE, which is what K1 meant.)
+            K2 HOLDS: started on the PINN's path the search ends on s0's estimate: 0.01 cm rms over the window (largest
+              0.06 cm, at day 0), cost 0.332434, 7 iterations; limit 0.2 cm. It does not end on s2's point (6.25 cm rms from
+              it, 20.76 cm on day 0). The 55 % outcome.
+            RULE applied as written: 'ends on s0's estimate -> the 4 - 7 cm of days 0 - 2 are the PINN's own error and the
+              row says so'. PINN minus this estimate by day: 3.97, 5.15, 6.96 cm on days 0 - 2; 0.46, 0.2, 0.1, 0.03, 0.03,
+              0.07, 0.09, 0.09 cm on days 3 - 10. The PINN's path is not a second minimum of the solver's cost.
+            DESCRIPTIVE (computed after reading the numbers; not a criterion): the solver's cost of the PINN's path is 2.4 %
+              above its lowest (0.34053 / 0.332434 = 1.0244). In units of the solver's posterior sd (19.06, 2.85, 3.41 cm on
+              days 0 - 2) the PINN's difference is 0.21, 1.81 and 2.05 sd: day 0 is hardly determined by the sensor (the 4 cm
+              there are inside what it admits), days 1 and 2 are not (5 - 7 cm against 3 cm).
+            In no case is the method changed on these scores (as declared). The row SE-Nor 6 Dec 2019 gets the sentence.
+          LESSON (to lessons.md): an expectation named a file field ('cost of iteration 0') without checking in the code what
+            the field holds.
