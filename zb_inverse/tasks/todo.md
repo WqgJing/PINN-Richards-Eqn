@@ -9332,3 +9332,125 @@ runs/rfbil2c_inv0: refinement sd per coefficient 1.81 0.50 0.47 0.36 0.48 0.42 0
             In no case is the method changed on these scores (as declared). The row SE-Nor 6 Dec 2019 gets the sentence.
           LESSON (to lessons.md): an expectation named a file field ('cost of iteration 0') without checking in the code what
             the field holds.
+        (23:30) EVENT rfsor1e_driver_gone (23:27): DK-Sor 8 Dec 2024 repeated with sampling.local_box (plan of 16:00)
+          DRIVER: full rfsor1e done at Sun Nov 15 23:27:47 EST 2026 (started 16:01:05)
+          JOB CHECK (exit=0 and Traceback counted in each job log):
+            refinement:   16 logs, exit=0 lines 16, Traceback lines 0
+            inversions:   5 logs, exit=0 lines 5, Traceback lines 0
+            dc forward:   6 logs, exit=0 lines 6, Traceback lines 0
+            dc inversion: 3 logs, exit=0 lines 3, Traceback lines 0
+          LOSSES (last line of each metrics.csv; '% of node rms' = 10*sqrt(val_flux)):
+            rfsor1e_r1_m0      step 18000: PDE 5.06  flux 0.499   (7.1 % of node rms)
+            rfsor1e_r1_m1      step 18000: PDE 31.10  flux 0.444   (6.7 % of node rms)
+            rfsor1e_r1_m2      step 18000: PDE 9.62  flux 0.464   (6.8 % of node rms)
+            rfsor1e_r1_m3      step 18000: PDE 42.83  flux 0.374   (6.1 % of node rms)
+            rfsor1e_r2_m0      step 18000: PDE 8.05  flux 0.372   (6.1 % of node rms)
+            rfsor1e_r2_m1      step 18000: PDE 1.63  flux 0.389   (6.2 % of node rms)
+            rfsor1e_r2_m2      step 18000: PDE 9.19  flux 0.400   (6.3 % of node rms)
+            rfsor1e_r2_m3      step 18000: PDE 10.60  flux 0.349   (5.9 % of node rms)
+            rfsor1e_r3_m0      step 18000: PDE 15.88  flux 0.328   (5.7 % of node rms)
+            rfsor1e_r3_m1      step 18000: PDE 3.89  flux 0.311   (5.6 % of node rms)
+            rfsor1e_r3_m2      step 18000: PDE 5.45  flux 0.339   (5.8 % of node rms)
+            rfsor1e_r3_m3      step 18000: PDE 2.94  flux 0.253   (5.0 % of node rms)
+            rfsor1e_r4_m0      step 18000: PDE 2.59  flux 0.265   (5.1 % of node rms)
+            rfsor1e_r4_m1      step 18000: PDE 19.07  flux 0.298   (5.5 % of node rms)
+            rfsor1e_r4_m2      step 18000: PDE 2.18  flux 0.264   (5.1 % of node rms)
+            rfsor1e_r4_m3      step 18000: PDE 4.45  flux 0.239   (4.9 % of node rms)
+            rfsor1edc_f1_m0    step 28000: PDE 3.18  flux 0.280   (5.3 % of node rms)
+            rfsor1edc_f1_m1    step 28000: PDE 3.05  flux 0.292   (5.4 % of node rms)
+            rfsor1edc_f2_m0    step 28000: PDE 2.31  flux 0.190   (4.4 % of node rms)
+            rfsor1edc_f2_m1    step 28000: PDE 1.37  flux 0.180   (4.2 % of node rms)
+            rfsor1edc_f3_m0    step 28000: PDE 1.40  flux 0.172   (4.1 % of node rms)
+            rfsor1edc_f3_m1    step 28000: PDE 2.67  flux 0.123   (3.5 % of node rms)
+          DC LOOP (logs/dc_rfsor1edc.log):
+            it 1: step/sigma max 1.5103282139659917, by segment [1.51,0.79,0.01,0.03], over the smaller sd max 1.5103282139659917, by segment [1.51,0.79,0.01,0.03], bound set changed true, fwd offset rms 0.0010637808437455238
+            it 2: step/sigma max 0.5801318619490701, by segment [0.58,0.3,0,0.03], over the smaller sd max 0.6382215450899135, by segment [0.64,0.34,0,0.03], bound set changed true, fwd offset rms 0.0008096449801356383
+            it 3: step/sigma max 0.14129973627735778, by segment [0.14,0.03,0,0.03], over the smaller sd max 0.14129973627735778, by segment [0.14,0.03,0,0.03], bound set changed false, fwd offset rms 0.0008465593151947305
+            converged at it 3
+          H1 CHECK (coef.npy of runs/rfsor1c_inv0/predictions.npz against runs/rfsor1e_inv0/predictions.npz; unzip -p | cmp, and od -t f8 of the 14 values):
+            coef.npy byte-identical: yes
+            centre, max |rfsor1e_inv0 - rfsor1c_inv0| over 14 coefficients: 0 (od -v; the first count, 13, came from od folding the three equal values into one line)
+          VERDICTS on training and the loop (written after the lines above were on the screen; no score read yet):
+            H1 HOLDS: coef.npy of inversion 0 is byte-identical to runs/rfsor1c_inv0's (max difference 0 over 14 coefficients).
+            H2 HOLDS: rounds 2 - 4, all twelve networks: PDE 1.63 - 19.07 (limit 150), flux 4.9 - 6.3 % (limit 15 %).
+              Round 1: PDE 5.06 - 42.83, flux 6.1 - 7.1 %. Beside rfsor1c (baseline in the plan): rounds 2 - 4 PDE 93 - 851,
+              flux 16.5 - 21.9 %. Forward networks of the loop: PDE 1.37 - 3.18, flux 3.5 - 5.4 %.
+            H3 HOLDS: M1 (fwd offset rms) 0.00106, 0.00081, 0.00085, all below 0.0016; M2 (step/sigma max of it 1, old key)
+              1.51, below 5.83.
+            H4 HOLDS: the loop stopped by its rule at iteration 3 (move over the smaller sd 1.51, 0.64, 0.14; limit 0.2;
+              bound set changed false at it 3). rfsor1c alternated between two paths (5.83, 0.26, 3.90, 0.24).
+            Final directory: runs/rfsor1edc_it3. Scores are read next (H5), by score jobs.
+          REFERENCE LINES (solver only; by jq from output/referee/<dir>/summary.json; as recorded before, repeated here before any PINN line):
+            sor_own_dec24_s0  hydrostatic, step 1.0 h: cost 0.22829, from the well 40.84 cm rms, bias 10.89 cm, max 80.24 cm, on bound [0,4,5,6,7,12,13], 31 it, 924 solves, sensor misfit 0.00239, sd median 16.05 cm, steps not converged (worst solve) 9.4 %, 15552 s
+            sor_own_dec24_s1  hydrostatic_flat, step 1.0 h: cost 0.228292, from the well 40.83 cm rms, bias 10.88 cm, max 80.24 cm, on bound [0,4,5,6,7,12,13], 35 it, 1043 solves, sensor misfit 0.00239, sd median 16.05 cm, steps not converged (worst solve) 9.8 %, 16903 s
+            sor_own_dec24_s2  constant:1.0, step 1.0 h: cost 0.22829, from the well 40.88 cm rms, bias 10.93 cm, max 80.24 cm, on bound [0,4,5,6,7,12,13], 40 it, 1193 solves, sensor misfit 0.00239, sd median 16.04 cm, steps not converged (worst solve) 9.4 %, 19824 s
+            sor_own_dec24_s3  constant:0.3, step 1.0 h: cost 0.228291, from the well 40.83 cm rms, bias 10.89 cm, max 80.24 cm, on bound [0,4,5,6,7,12,13], 40 it, 1192 solves, sensor misfit 0.00239, sd median 16.05 cm, steps not converged (worst solve) 9.8 %, 19721 s
+            sor_own_dec24_spinn  verse/runs/rfsor1cdc_it4/predictions.npz, step 1.0 h: cost 0.228289, from the well 40.86 cm rms, bias 10.92 cm, max 80.24 cm, on bound [0,4,5,6,7,12,13], 9 it, 278 solves, sensor misfit 0.00239, sd median 16.04 cm, steps not converged (worst solve) 11.3 %, 5517 s
+            sor_own_dec24_dt025_s0  hydrostatic, step 0.25 h: cost 0.227128, from the well 40.82 cm rms, bias 10.83 cm, max 80.17 cm, on bound [0,4,5,6,7,12,13], 33 it, 984 solves, sensor misfit 0.00238, sd median 15.79 cm, steps not converged (worst solve) 7.9 %, 62320 s
+          SCORE JOBS submitted 23:30: sc_sor1e 15708512 (scripts/score_real.py), chk_sor1e 15708513 (scripts/referee_step_check.py, --pinn runs/rfsor1edc_it3, --pinn_other it2, it1, runs/rfsor1cdc_it4).
+          SCORE rfsor1e (jobs 15708512 sc_sor1e, 15708513 chk_sor1e: exit=0 lines 1 each, Traceback lines 0):
+          PINN LINES (runs/rfsor1edc_it3; by jq from output/real_sor_dec24_own/result_rfsor1e.json and output/real_sor_dec24_own/inversion_pinn_rfsor1e.json; cm):
+            from the well: rms 41.64, bias 10.47, max 81.45, r 0.2646; starts spread (largest) 0 cm; sensor misfit PINN 0.00264, solver 0.00239 (sor_own_dec24_s2), model with observed well 0.00527; hydrostatic reading 39.94 (r 0.2394); 265 hours; well range [0.38,1.25] m
+            from the well by day [58.49,16.28,17.41,45.98,57.17,63.72,62.27,21.82,26.23,9.44,23.56] (days 0 - 9: 43.09, days 0 - 7: 47.15); sd median 15.3, sd by day [9.31,13.23,16.86,22.08,23.52,28.23,30.56,11.07,5.42,6.95,5.47]
+            PINN minus sor_own_dec24_s0 (hydrostatic, step 1.0 h): rms 6.85, bias -0.42, largest 18.18 at day 6.83, by day [1.26,5.44,11.07,7.93,1.61,1.91,14.16,9.65,1.05,0.62,0.49] (days 0 - 9: 7.2)
+            PINN minus sor_own_dec24_s1 (hydrostatic_flat, step 1.0 h): rms 6.88, bias -0.41, largest 18.3 at day 6.83, by day [1.26,5.44,11.07,7.93,1.61,1.92,14.25,9.71,1.07,0.63,0.49] (days 0 - 9: 7.22)
+            PINN minus sor_own_dec24_s2 (constant:1.0, step 1.0 h): rms 6.77, bias -0.46, largest 17.79 at day 6.83, by day [1.26,5.44,11.07,7.93,1.61,1.87,13.85,9.45,1.02,0.61,0.48] (days 0 - 9: 7.11)
+            PINN minus sor_own_dec24_s3 (constant:0.3, step 1.0 h): rms 6.86, bias -0.42, largest 18.23 at day 6.83, by day [1.26,5.44,11.07,7.93,1.61,1.92,14.2,9.68,1.06,0.63,0.49] (days 0 - 9: 7.21)
+            PINN minus sor_own_dec24_spinn (verse/runs/rfsor1cdc_it4/predictions.npz, step 1.0 h): rms 6.81, bias -0.45, largest 17.97 at day 6.83, by day [1.26,5.44,11.07,7.93,1.61,1.89,14,9.55,1.04,0.61,0.48] (days 0 - 9: 7.15)
+            PINN minus sor_own_dec24_dt025_s0 (hydrostatic, step 0.25 h): rms 6.89, bias -0.36, largest 18.46 at day 6.83, by day [1.23,5.27,11.01,7.93,1.61,1.94,14.38,9.8,1.06,0.67,0.47] (days 0 - 9: 7.24)
+            this run minus rfsor1edc_it2: rms 0.93, bias -0.26, largest 3.26 at day 2.04, by day [0.34,1.94,2.24,0.72,0.25,0.02,0.05,0.27,0.2,0.02,0]
+            this run minus rfsor1edc_it1: rms 4.49, bias 2.3, largest 11.68 at day 2.63, by day [0.92,5.68,11.08,7.89,1.87,0.14,0.1,0.53,0.3,0.12,0.15]
+            this run minus rfsor1cdc_it4: rms 14.41, bias -4.66, largest 39.52 at day 2.08, by day [3.79,27.73,33.03,10.73,1.61,1.97,14.4,9.11,1.84,1.19,0.46]
+          PINN STARTS (runs/rfsor1edc_it3/summary.json):
+            previous: cost 0.278803, 4 it, from the well 41.64 cm
+            hydrostatic: cost 0.278803, 6 it, from the well 41.64 cm
+            hydrostatic_flat: cost 0.278803, 6 it, from the well 41.64 cm
+            constant:1.0: cost 0.278803, 6 it, from the well 41.64 cm
+            constant:0.3: cost 0.278803, 6 it, from the well 41.64 cm
+            best start constant:1.0; coefficients on bound [0,6,7,8,12,13] (previous iteration [0,6,7,8,12,13]); starts spread rms 7.420914641470962E-7 m
+          DESCRIPTIVE LINES (by jq from output/real_sor_dec24_own/inversion_pinn_rfsor1e.json; cm; computed after the scores were read, not criteria):
+            solver sor_own_dec24_s2: sd by day [9.95,15.55,22.34,36.43,40.1,38.09,30.74,9.04,5.59,6.93,5.48]; from the well by day [57.29,13.52,27.34,53.29,58.49,62.53,49.87,16.77,25.33,9.87,23.17]
+            solver sor_own_dec24_dt025_s0: sd by day [9.79,15.16,22.01,35.79,39.44,37.51,30.29,8.92,5.57,6.87,5.46]; from the well by day [57.3,13.67,27.3,53.29,58.49,62.48,49.4,16.65,25.31,9.94,23.18]
+            PINN minus s2 by day over the solver sd: [0.13,0.35,0.5,0.22,0.04,0.05,0.45,1.05,0.18,0.09,0.09]; over the PINN sd: [0.14,0.41,0.66,0.36,0.07,0.07,0.45,0.85,0.19,0.09,0.09]
+            solver pair sor_own_dec24_s0 minus sor_own_dec24_s2: rms 0.11, largest 0.39 at day 6.83, by day [0,0,0,0,0,0.04,0.31,0.2,0.03,0.02,0.01]
+            solver pair sor_own_dec24_s1 minus sor_own_dec24_s2: rms 0.14, largest 0.51 at day 6.83, by day [0,0,0,0,0,0.06,0.4,0.26,0.04,0.02,0.01]
+            solver pair sor_own_dec24_s2 minus sor_own_dec24_s3: rms 0.13, largest 0.44 at day 6.83, by day [0,0,0,0,0,0.05,0.35,0.23,0.04,0.02,0.01]
+            solver pair sor_own_dec24_s2 minus sor_own_dec24_spinn: rms 0.05, largest 0.18 at day 6.83, by day [0,0,0,0,0,0.02,0.14,0.09,0.02,0.01,0]
+            solver pair sor_own_dec24_s2 minus sor_own_dec24_dt025_s0: rms 0.2, largest 0.67 at day 6.83, by day [0.09,0.19,0.07,0.01,0,0.07,0.53,0.35,0.05,0.08,0.01]
+          FIGURE viewed (output/real_sor_dec24_own/result_rfsor1e.png): the PINN and the solver draw the same shape (down to
+            the 1.50 m bound by day 3 - 4, back up between days 6 and 8, 0.5 - 0.65 m on days 8 - 10); the PINN is later than
+            the solver on the way down (days 1 - 3) and on the way up (days 6 - 7). The observed well rises steadily from
+            1.25 to 0.6 m; neither follows it.
+          VERDICTS on scores (written after the lines above were on the screen; each with its number):
+            R1 HOLDS: five PINN starts end on one estimate (cost 0.278803 each, spread rms 0.00000074 m).
+            H5 first part (days 4 - 10 at most 1.2 cm by day) NOT MET: PINN minus s2 by day on days 4 - 10: 1.61, 1.87,
+              13.85, 9.45, 1.02, 0.61, 0.48 cm (days 8 - 10 inside, days 4 - 7 outside; days 6 and 7 by 12.7 and 8.3 cm).
+            H5 second part (days 1 - 2 below 10 cm by day) NOT MET: 5.44 and 11.07 cm (day 1 inside, day 2 outside).
+            H5 third part = R2 (1 cm over the window) NOT MET: 6.77 cm from s2 (6.85 from s0, 6.89 from the 1/4 h estimate).
+            Statement (ii) is not tested here, as declared: PINN 41.64 cm from the well (r 0.26), solver 40.88 (s2),
+              hydrostatic reading 39.94.
+            WITH / WITHOUT the switch: over the window 6.85 cm from s0 with it (this run) against 9.64 cm without (rfsor1c,
+              baseline in the plan); by day with [1.26,5.44,11.07,7.93,1.61,1.91,14.16,9.65,1.05,0.62,0.49], without
+              [3.01,22.33,22.49,3.16,0,0.08,0.43,1.12,0.84,0.63,0.06]: closer on days 0 - 2, farther on days 3 - 7. The two
+              PINN runs are 14.41 cm apart (27.73 and 33.03 cm on days 1 - 2). Training and loop are what separates them
+              cleanly: H2 - H4 hold with the switch, the run without it did not stop.
+            DESCRIPTIVE (not a criterion): in units of the solver's posterior sd by day the PINN is 0.13, 0.35, 0.5, 0.22,
+              0.04, 0.05, 0.45, 1.05, 0.18, 0.09, 0.09 sd from s2; the solver's sd is 9.95 - 40.1 cm on days 0 - 6 and
+              5.48 - 9.04 cm on days 7 - 10. The solver's own starts are 0.11 - 0.2 cm apart over the window.
+            RULE applied as written: 'Not met -> by-day numbers in the row and no further repeat at this station.' rfsor1e
+              gets its own row beside rfsor1c's. DK-Sor is not a second station for statement (i). No method change.
+          SAME REFERENCE for both runs (by jq; cm): the 'without' numbers above were the plan's baseline (against spinn), the 'with' numbers against s0; against each solver result:
+            rfsor1c (without) minus sor_own_dec24_s0: rms 9.64, by day [3.01,22.33,22.49,3.16,0,0.06,0.28,1.17,0.83,0.62,0.06]
+            rfsor1c (without) minus sor_own_dec24_s1: rms 9.64, by day [3.01,22.33,22.49,3.16,0,0.05,0.21,1.19,0.82,0.62,0.06]
+            rfsor1c (without) minus sor_own_dec24_s2: rms 9.64, by day [3.01,22.33,22.49,3.17,0,0.1,0.57,1.09,0.86,0.64,0.06]
+            rfsor1c (without) minus sor_own_dec24_s3: rms 9.64, by day [3.01,22.33,22.49,3.16,0,0.06,0.25,1.18,0.82,0.62,0.06]
+            rfsor1c (without) minus sor_own_dec24_spinn: rms 9.64, by day [3.01,22.33,22.49,3.16,0,0.08,0.43,1.12,0.84,0.63,0.06]
+            rfsor1c (without) minus sor_own_dec24_dt025_s0: rms 9.69, by day [3.09,22.5,22.56,3.17,0,0.03,0.15,1.25,0.81,0.56,0.05]
+            rfsor1e (with) minus sor_own_dec24_s0: rms 6.85, by day [1.26,5.44,11.07,7.93,1.61,1.91,14.16,9.65,1.05,0.62,0.49]
+            rfsor1e (with) minus sor_own_dec24_s1: rms 6.88, by day [1.26,5.44,11.07,7.93,1.61,1.92,14.25,9.71,1.07,0.63,0.49]
+            rfsor1e (with) minus sor_own_dec24_s2: rms 6.77, by day [1.26,5.44,11.07,7.93,1.61,1.87,13.85,9.45,1.02,0.61,0.48]
+            rfsor1e (with) minus sor_own_dec24_s3: rms 6.86, by day [1.26,5.44,11.07,7.93,1.61,1.92,14.2,9.68,1.06,0.63,0.49]
+            rfsor1e (with) minus sor_own_dec24_spinn: rms 6.81, by day [1.26,5.44,11.07,7.93,1.61,1.89,14,9.55,1.04,0.61,0.48]
+            rfsor1e (with) minus sor_own_dec24_dt025_s0: rms 6.89, by day [1.23,5.27,11.01,7.93,1.61,1.94,14.38,9.8,1.06,0.67,0.47]
+            result files: rfsor1c referee sor_own_dec24_s2, PINN from the well 42.71 (r 0.4051), solver 40.88 (r 0.3249), sensor misfit PINN 0.00312
+            result files: rfsor1e referee sor_own_dec24_s2, PINN from the well 41.64 (r 0.2646), solver 40.88 (r 0.3249), sensor misfit PINN 0.00264
