@@ -9814,3 +9814,156 @@ Contributors lists read once (05:22, 16 Nov; public page data and public API, no
   watcher (/tmp/wait_contrib2.sh NOAH-s-) reads its box every 10 minutes.
 Solver checks (05:22): nine of ten final (exit code 0:0); 15712050 mp_nor2b still RUNNING (4 h 43 min of 24 h).
 Nothing of the ten read. No ICOS job is left in the queue; the ICOS waiter is not restarted.
+
+#### Step 2 ended, step 3 launched (09:52, 16 Nov): by-day comparisons of the ten solver checks
+  JOB CHECK of step 2 (sacct and the job logs; nothing else read): all ten COMPLETED with exit code 0:0, one
+  "exit=0" line and no Traceback line each, summary.json and predictions.npz present. Elapsed: mp_dor 00:25:48,
+  mp_nc2 00:19:26, mp_nor2 04:24:01, mp_nor2b 09:11:03, mp_nor1 01:46:26, mp_bil2 04:23:22, tw_p0 03:58:11,
+  tw_m0 04:31:25, tw_p1 02:04:54, tw_m1 02:56:31.
+  Comparison jobs (scripts/referee_step_check.py; "plain" first, "MAP" second in each pair):
+    chk_mp_dor: job 15727770
+    chk_mp_nc2: job 15727771
+    chk_mp_nor2: job 15727772
+    chk_mp_nor1: job 15727773
+    chk_mp_bil2: job 15727774
+    chk_mp_tw0: job 15727775
+    chk_mp_tw1: job 15727776
+  Outputs: output/real_dor_mar24_own/inversion_mp.json, output/real_nc2_sep23c_own/inversion_mp.json,
+  output/real_nor_dec19_own/inversion_mp.json (plain s0, plain s2, MAP s0, MAP s2), output/real_nor_oct23_own/
+  inversion_mp.json, output/real_bil_dec20_own/inversion_mp.json, output/twin_site_nor_dec19/inversion_mp_n0.json
+  and _n1.json (on the twin "the well" is the twin's truth).
+  How each expectation is read (as fixed at 00:18, nothing added): E1 per window from the pair plain/MAP of the
+  same start: days with `sigma_by_day_m` of the plain run <= 0.01, and `a_minus_b.rms_by_day_m` on those days
+  <= 0.002; E2 `path_prior.max_abs_increment_sd` of nor_own_dec19_mp_s0/summary.json <= 3; E3 pair MAP s0 / MAP s2
+  `a_minus_b.rms_m` <= 0.002; E4 `zb_rmse` of twin_nor_dec19_mp_n{0,1} <= that of twin_nor_dec19_p_n{0,1};
+  E5 `a_minus_b.rms_m` of the BE-Dor and US-NC2 pairs <= 0.002. Lines are printed first, verdicts in a later command.
+
+#### Step 3 ended (10:04, 16 Nov): the ten solver checks of the path term, lines, verdicts, rule
+- JOB CHECK of step 3 (first command after the wait's notification, before any number was read): chk_mp_* 15727770 -
+  15727776 all COMPLETED 0:0, one exit=0 line in each log, no Traceback, the seven JSON files present.
+- Lines (printed in one command, before the verdicts; cm unless stated):
+  REFERENCE LINES (by jq from output/referee/<dir>/summary.json; all solver only; on the twin "the well" is the twin's truth):
+    dor_own_mar24_s0  hydrostatic, step 1.0 h: cost 0.129754 (data only), from the well/truth 5.41 cm rms, bias 0.14 cm, max 12.26 cm, on bound [], 3 it, 88 solves, sensor misfit 0.0018, sd median 1.32 cm, steps not converged (worst solve) 0 %, 638 s
+    dor_own_mar24_mp_s0  hydrostatic, step 1.0 h: cost 0.147765 (data 0.132622, path term 0.015143, largest step 1.16 sd), from the well/truth 5.46 cm rms, bias 0.11 cm, max 11.99 cm, on bound [], 6 it, 179 solves, sensor misfit 0.00182, sd median 1.26 cm, steps not converged (worst solve) 0 %, 1471 s
+    nc2_own_sep23c_s1  hydrostatic_flat, step null h: cost 0.09178 (data only), from the well/truth 1.11 cm rms, bias 0.11 cm, max 3.13 cm, on bound [], 5 it, 149 solves, sensor misfit 0.00151, sd median 1.11 cm, steps not converged (worst solve) 0 %, 747 s
+    nc2_own_sep23c_mp_s1  hydrostatic_flat, step 1.0 h: cost 0.110684 (data 0.096874, path term 0.01381, largest step 1.32 sd), from the well/truth 1.15 cm rms, bias 0.13 cm, max 3.5 cm, on bound [], 6 it, 184 solves, sensor misfit 0.00156, sd median 1.03 cm, steps not converged (worst solve) 0 %, 1107 s
+    nor_own_dec19_s0  hydrostatic, step 1.0 h: cost 0.332434 (data only), from the well/truth 4.35 cm rms, bias 0.26 cm, max 16.92 cm, on bound [0], 7 it, 217 solves, sensor misfit 0.00288, sd median 0.46 cm, steps not converged (worst solve) 61.1 %, 13659 s
+    nor_own_dec19_mp_s0  hydrostatic, step 1.0 h: cost 0.379927 (data 0.364474, path term 0.015453, largest step 1.55 sd), from the well/truth 1.93 cm rms, bias -0.34 cm, max 5.14 cm, on bound [], 14 it, 410 solves, sensor misfit 0.00302, sd median 0.45 cm, steps not converged (worst solve) 55.1 %, 15421 s
+    nor_own_dec19_s2  constant:1.0, step 1.0 h: cost 0.337049 (data only), from the well/truth 9.53 cm rms, bias 1.62 cm, max 66.01 cm, on bound [0,1], 30 it, 887 solves, sensor misfit 0.0029, sd median 0.46 cm, steps not converged (worst solve) 58.9 %, 39563 s
+    nor_own_dec19_mp_s2  constant:1.0, step 1.0 h: cost 0.379927 (data 0.364553, path term 0.015373, largest step 1.55 sd), from the well/truth 1.93 cm rms, bias -0.33 cm, max 5.15 cm, on bound [], 26 it, 771 solves, sensor misfit 0.00302, sd median 0.45 cm, steps not converged (worst solve) 60.8 %, 32614 s
+    nor_own_oct23_s0  hydrostatic, step 1.0 h: cost 0.547641 (data only), from the well/truth 11.48 cm rms, bias 0.08 cm, max 26.34 cm, on bound [0,1,2,13], 10 it, 298 solves, sensor misfit 0.0037, sd median 3.37 cm, steps not converged (worst solve) 12.1 %, 10271 s
+    nor_own_oct23_mp_s0  hydrostatic, step 1.0 h: cost 0.701758 (data 0.59818, path term 0.103579, largest step 3.37 sd), from the well/truth 9.79 cm rms, bias -4.22 cm, max 21.84 cm, on bound [], 8 it, 233 solves, sensor misfit 0.00387, sd median 2.74 cm, steps not converged (worst solve) 10.6 %, 6151 s
+    bil_own_dec20_s0  hydrostatic, step 1.0 h: cost 0.249335 (data only), from the well/truth 7.75 cm rms, bias 2.63 cm, max 30.49 cm, on bound [13], 11 it, 345 solves, sensor misfit 0.0025, sd median 0.38 cm, steps not converged (worst solve) 39.2 %, 20630 s
+    bil_own_dec20_mp_s0  hydrostatic, step 1.0 h: cost 0.256102 (data 0.252387, path term 0.003716, largest step 0.51 sd), from the well/truth 4.2 cm rms, bias 1.37 cm, max 9.46 cm, on bound [], 10 it, 308 solves, sensor misfit 0.00251, sd median 0.37 cm, steps not converged (worst solve) 36.2 %, 15371 s
+    twin_nor_dec19_p_n0  hydrostatic, step 1.0 h: cost 0.982922 (data only), from the well/truth 1.54 cm rms, bias -0.05 cm, max 6.18 cm, on bound [0], 9 it, 275 solves, sensor misfit 0.00496, sd median 0.59 cm, steps not converged (worst solve) 47.2 %, 13894 s
+    twin_nor_dec19_mp_n0  hydrostatic, step 1.0 h: cost 1.004306 (data 0.996566, path term 0.00774, largest step 1.01 sd), from the well/truth 1.16 cm rms, bias -0.43 cm, max 3.77 cm, on bound [], 11 it, 333 solves, sensor misfit 0.00499, sd median 0.57 cm, steps not converged (worst solve) 51.3 %, 15886 s
+    twin_nor_dec19_p_n1  hydrostatic, step 1.0 h: cost 0.802575 (data only), from the well/truth 1.1 cm rms, bias 0.3 cm, max 3.05 cm, on bound [0], 6 it, 178 solves, sensor misfit 0.00448, sd median 0.63 cm, steps not converged (worst solve) 49.1 %, 7088 s
+    twin_nor_dec19_mp_n1  hydrostatic, step 1.0 h: cost 0.809995 (data 0.806936, path term 0.003059, largest step 0.49 sd), from the well/truth 1.52 cm rms, bias 0.27 cm, max 5.77 cm, on bound [], 6 it, 186 solves, sensor misfit 0.00449, sd median 0.61 cm, steps not converged (worst solve) 49.8 %, 10188 s
+  BY DAY, output/real_dor_mar24_own/inversion_mp.json:
+    from the well/truth and posterior sd by day (cm):
+      dor_own_mar24_s0 (hydrostatic): from the well/truth 5.41, bias 0.14, max 12.26, r 0.9129; by day [0.98,3.73,6.23,5.95,3.33,7.55,6.87,8.59,5.33,2.8,2.86]; sd by day [0.98,0.81,0.87,1.11,1.41,1.24,1.2,1.46,1.6,1.78,2.51]
+      dor_own_mar24_mp_s0 (hydrostatic): from the well/truth 5.46, bias 0.11, max 11.99, r 0.9108; by day [0.99,3.79,6.15,5.94,3.59,7.85,7.05,8.36,5.4,2.77,2.98]; sd by day [0.79,0.74,0.83,1.06,1.33,1.19,1.15,1.36,1.47,1.55,1.75]
+    pairs, a minus b (cm):
+      dor_own_mar24_s0 minus dor_own_mar24_mp_s0: rms 0.29, bias 0.03, largest 1.08 at day 0, by day [0.4,0.18,0.13,0.09,0.41,0.39,0.36,0.3,0.21,0.24,0.28]
+  BY DAY, output/real_nc2_sep23c_own/inversion_mp.json:
+    from the well/truth and posterior sd by day (cm):
+      nc2_own_sep23c_s1 (hydrostatic_flat): from the well/truth 1.11, bias 0.11, max 3.13, r 0.9904; by day [0.31,1.84,1.66,1.67,0.98,0.43,1.09,0.72,1.01,0.55,0.66]; sd by day [1.58,1.15,1.24,1.44,1.22,1.05,0.95,0.9,0.89,0.92,1.29]
+      nc2_own_sep23c_mp_s1 (hydrostatic_flat): from the well/truth 1.15, bias 0.13, max 3.5, r 0.9899; by day [0.62,1.49,1.72,2.14,0.98,0.34,1.03,0.73,0.96,0.6,0.67]; sd by day [1.13,1.02,1.17,1.35,1.17,1.01,0.92,0.87,0.83,0.81,0.88]
+    pairs, a minus b (cm):
+      nc2_own_sep23c_s1 minus nc2_own_sep23c_mp_s1: rms 0.43, bias -0.02, largest 1.82 at day 0, by day [0.84,0.63,0.63,0.66,0.19,0.11,0.1,0.09,0.07,0.05,0.15]
+  BY DAY, output/real_nor_dec19_own/inversion_mp.json:
+    from the well/truth and posterior sd by day (cm):
+      nor_own_dec19_s0 (hydrostatic): from the well/truth 4.35, bias 0.26, max 16.92, r 0.8926; by day [10.07,5.72,7.05,2.63,2.19,0.83,1.07,1.24,1.2,0.72,2.71]; sd by day [19.06,2.85,3.41,0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32]
+      nor_own_dec19_s2 (constant:1.0): from the well/truth 9.53, bias 1.62, max 66.01, r 0.8171; by day [29.78,5.85,7.51,2.65,2.18,0.84,1.07,1.24,1.2,0.72,2.71]; sd by day [75.81,2.97,3.57,0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32]
+      nor_own_dec19_mp_s0 (hydrostatic): from the well/truth 1.93, bias -0.34, max 5.14, r 0.9667; by day [3.27,1.87,2.05,2.04,2.43,0.75,1.06,1.26,1.19,0.73,2.71]; sd by day [4.47,2.88,1.59,0.65,0.49,0.45,0.34,0.3,0.26,0.25,0.3]
+      nor_own_dec19_mp_s2 (constant:1.0): from the well/truth 1.93, bias -0.33, max 5.15, r 0.9667; by day [3.25,1.89,2.06,2.04,2.43,0.75,1.06,1.26,1.19,0.73,2.71]; sd by day [4.48,2.89,1.59,0.65,0.49,0.45,0.34,0.3,0.26,0.25,0.3]
+    pairs, a minus b (cm):
+      nor_own_dec19_s0 minus nor_own_dec19_s2: rms 6.26, bias -1.36, largest 49.35 at day 0, by day [20.79,0.23,0.47,0.03,0.02,0.01,0,0,0,0,0]
+      nor_own_dec19_s0 minus nor_own_dec19_mp_s0: rms 3.3, bias 0.59, largest 13.06 at day 0.13, by day [8.12,4.91,5.43,0.8,0.28,0.15,0.06,0.03,0.01,0.01,0.01]
+      nor_own_dec19_s0 minus nor_own_dec19_mp_s2: rms 3.3, bias 0.59, largest 13.05 at day 0.13, by day [8.12,4.93,5.43,0.8,0.28,0.15,0.06,0.03,0.01,0.01,0.01]
+      nor_own_dec19_s2 minus nor_own_dec19_mp_s0: rms 8.83, bias 1.96, largest 60.87 at day 0, by day [28.28,5.05,5.9,0.83,0.29,0.16,0.07,0.03,0.01,0.01,0.01]
+      nor_own_dec19_s2 minus nor_own_dec19_mp_s2: rms 8.83, bias 1.95, largest 60.87 at day 0, by day [28.28,5.07,5.9,0.83,0.29,0.16,0.07,0.03,0.01,0.01,0.01]
+      nor_own_dec19_mp_s0 minus nor_own_dec19_mp_s2: rms 0.01, bias -0.01, largest 0.04 at day 1, by day [0.03,0.03,0,0,0,0,0,0,0,0,0]
+  BY DAY, output/real_nor_oct23_own/inversion_mp.json:
+    from the well/truth and posterior sd by day (cm):
+      nor_own_oct23_s0 (hydrostatic): from the well/truth 11.48, bias 0.08, max 26.34, r 0.9197; by day [23.11,14.87,14.32,8.59,13.91,2.88,8.12,9.29,4.13,4.27,5.55]; sd by day [441.98,21.41,2.76,3.66,3.27,2.72,3.05,4.13,2.82,2.55,3.26]
+      nor_own_oct23_mp_s0 (hydrostatic): from the well/truth 9.79, bias -4.22, max 21.84, r 0.9103; by day [11.75,18.51,12.37,10.65,11.27,3.42,7.46,6.91,2.93,3.94,6.51]; sd by day [9.74,4.33,2.31,2.73,2.96,2.37,2.6,3.09,2.51,2.14,2.33]
+    pairs, a minus b (cm):
+      nor_own_oct23_s0 minus nor_own_oct23_mp_s0: rms 11.74, bias 4.29, largest 39.51 at day 0.75, by day [33.68,18.12,3.96,4.84,2.71,0.61,0.84,2.5,1.54,1.38,1.45]
+  BY DAY, output/real_bil_dec20_own/inversion_mp.json:
+    from the well/truth and posterior sd by day (cm):
+      bil_own_dec20_s0 (hydrostatic): from the well/truth 7.75, bias 2.63, max 30.49, r 0.8789; by day [1.39,0.35,1.85,0.76,2.32,3.31,2.6,2.43,7.5,6.36,22.58]; sd by day [0.27,0.25,0.22,0.2,0.25,0.35,0.62,1.77,5.73,4.44,228.81]
+      bil_own_dec20_mp_s0 (hydrostatic): from the well/truth 4.2, bias 1.37, max 9.46, r 0.9387; by day [1.39,0.36,1.85,0.76,2.32,3.32,2.57,2.15,5.73,7.52,8.32]; sd by day [0.26,0.25,0.22,0.2,0.25,0.35,0.57,1.36,2.84,3.14,5.35]
+    pairs, a minus b (cm):
+      bil_own_dec20_s0 minus bil_own_dec20_mp_s0: rms 4.62, bias 1.26, largest 21.24 at day 10.79, by day [0.02,0.01,0.01,0.01,0,0,0.03,0.37,1.88,1.99,14.79]
+  BY DAY, output/twin_site_nor_dec19/inversion_mp_n0.json:
+    from the well/truth and posterior sd by day (cm):
+      twin_nor_dec19_p_n0 (hydrostatic): from the well/truth 1.54, bias -0.05, max 6.18, r 0.9813; by day [3.95,2.35,2.03,0.41,0.24,0.27,0.26,0.18,0.18,0.4,0.61]; sd by day [39.27,2.13,1.4,1.02,0.65,0.49,0.32,0.24,0.21,0.26,0.49]
+      twin_nor_dec19_mp_n0 (hydrostatic): from the well/truth 1.16, bias -0.43, max 3.77, r 0.9923; by day [2.25,1.93,2.38,0.29,0.2,0.23,0.23,0.14,0.13,0.26,0.23]; sd by day [4.13,1.89,1.23,0.92,0.63,0.49,0.31,0.24,0.21,0.23,0.42]
+    pairs, a minus b (cm):
+      twin_nor_dec19_p_n0 minus twin_nor_dec19_mp_n0: rms 1.58, bias 0.38, largest 7.41 at day 0.29, by day [5.13,0.73,0.4,0.26,0.06,0.04,0.04,0.04,0.06,0.15,0.63]
+  BY DAY, output/twin_site_nor_dec19/inversion_mp_n1.json:
+    from the well/truth and posterior sd by day (cm):
+      twin_nor_dec19_p_n1 (hydrostatic): from the well/truth 1.1, bias 0.3, max 3.05, r 0.9897; by day [2.25,1.83,1.94,0.2,0.16,0.54,0.32,0.1,0.11,0.43,0.71]; sd by day [15.69,3.56,2.31,1.13,0.69,0.53,0.32,0.23,0.22,0.26,0.55]
+      twin_nor_dec19_mp_n1 (hydrostatic): from the well/truth 1.52, bias 0.27, max 5.77, r 0.9794; by day [3.88,2.79,1.23,0.45,0.15,0.55,0.3,0.1,0.14,0.36,0.54]; sd by day [4.1,3.24,1.71,0.99,0.66,0.52,0.32,0.23,0.22,0.24,0.46]
+    pairs, a minus b (cm):
+      twin_nor_dec19_p_n1 minus twin_nor_dec19_mp_n1: rms 0.78, bias 0.03, largest 2.94 at day 0.33, by day [1.86,1.57,0.77,0.28,0.06,0.03,0.02,0.02,0.04,0.08,0.39]
+- The five expectations, figures (a second command):
+  E1 by window (by jq; limit 0.2 cm on days with plain sd <= 1 cm):
+    dor_own_mar24_s0 / dor_own_mar24_mp_s0: days with plain sd <= 1 cm: [0,1,2]; MAP minus plain on them (cm): [0.4,0.18,0.13]; plain sd on them (cm): [0.98,0.81,0.87]; days over 0.2 cm: [0]; largest 0.4 cm; whole window rms 0.29 cm -> E1 FAILS here
+    nc2_own_sep23c_s1 / nc2_own_sep23c_mp_s1: days with plain sd <= 1 cm: [6,7,8,9]; MAP minus plain on them (cm): [0.1,0.09,0.07,0.05]; plain sd on them (cm): [0.95,0.9,0.89,0.92]; days over 0.2 cm: []; largest 0.1 cm; whole window rms 0.43 cm -> E1 holds here
+    nor_own_dec19_s0 / nor_own_dec19_mp_s0: days with plain sd <= 1 cm: [3,4,5,6,7,8,9,10]; MAP minus plain on them (cm): [0.8,0.28,0.15,0.06,0.03,0.01,0.01,0.01]; plain sd on them (cm): [0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32]; days over 0.2 cm: [3,4]; largest 0.8 cm; whole window rms 3.3 cm -> E1 FAILS here
+    nor_own_dec19_s2 / nor_own_dec19_mp_s2: days with plain sd <= 1 cm: [3,4,5,6,7,8,9,10]; MAP minus plain on them (cm): [0.83,0.29,0.16,0.07,0.03,0.01,0.01,0.01]; plain sd on them (cm): [0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32]; days over 0.2 cm: [3,4]; largest 0.83 cm; whole window rms 8.83 cm -> E1 FAILS here
+    nor_own_oct23_s0 / nor_own_oct23_mp_s0: days with plain sd <= 1 cm: []; MAP minus plain on them (cm): []; plain sd on them (cm): []; days over 0.2 cm: []; no such day; whole window rms 11.74 cm -> E1 says nothing here
+    bil_own_dec20_s0 / bil_own_dec20_mp_s0: days with plain sd <= 1 cm: [0,1,2,3,4,5,6]; MAP minus plain on them (cm): [0.02,0.01,0.01,0.01,0,0,0.03]; plain sd on them (cm): [0.27,0.25,0.22,0.2,0.25,0.35,0.62]; days over 0.2 cm: []; largest 0.03 cm; whole window rms 4.62 cm -> E1 holds here
+    twin_nor_dec19_p_n0 / twin_nor_dec19_mp_n0: days with plain sd <= 1 cm: [4,5,6,7,8,9,10]; MAP minus plain on them (cm): [0.06,0.04,0.04,0.04,0.06,0.15,0.63]; plain sd on them (cm): [0.65,0.49,0.32,0.24,0.21,0.26,0.49]; days over 0.2 cm: [10]; largest 0.63 cm; whole window rms 1.58 cm -> E1 FAILS here
+    twin_nor_dec19_p_n1 / twin_nor_dec19_mp_n1: days with plain sd <= 1 cm: [4,5,6,7,8,9,10]; MAP minus plain on them (cm): [0.06,0.03,0.02,0.02,0.04,0.08,0.39]; plain sd on them (cm): [0.69,0.53,0.32,0.23,0.22,0.26,0.55]; days over 0.2 cm: [10]; largest 0.39 cm; whole window rms 0.78 cm -> E1 FAILS here
+  E2: largest step of the MAP path at SE-Nor Dec 2019 (sd): 1.55326055473423 (start hydrostatic), 1.548064419218597 (start constant:1.0); limit 3
+  E3: MAP s0 minus MAP s2 over the window (m): 0.0001320769588538212; limit 0.002. Plain s0 minus plain s2: 0.06260048279025666
+  E4: zb_rmse (m) seed 0: plain 0.015403040824814992, MAP 0.011592769147027563; seed 1: plain 0.011007289193347754, MAP 0.015167113078993256
+  E5: MAP minus plain over the window (m): BE-Dor 0.0029122572540713604, US-NC2 0.004288937318245704; limit 0.002
+- VERDICTS (limits as fixed at 00:18, none changed; every number below written by jq from the files named above):
+  E1 NOT MET. On days on which the plain run's sd is <= 1 cm the term moves the estimate by more than 0.2 cm at
+     BE-Dor: day 0 (0.4 cm; plain sd 0.98 cm; 0.41 of that sd);
+     SE-Nor Dec 2019: day 3 (0.8 cm; plain sd 0.65 cm; 1.23 of that sd), day 4 (0.28 cm; plain sd 0.52 cm; 0.53 of that sd)
+       (the same from the second start: day 3 (0.83 cm; plain sd 0.65 cm; 1.28 of that sd), day 4 (0.29 cm; plain sd 0.52 cm; 0.56 of that sd));
+     twin seed 0: day 10 (0.63 cm; plain sd 0.49 cm; 1.28 of that sd);
+     twin seed 1: day 10 (0.39 cm; plain sd 0.55 cm; 0.7 of that sd).
+     It holds at US-NC2 (days [6,7,8,9], largest 0.1 cm) and FR-Bil Dec 2020 (days [0,1,2,3,4,5,6], largest 0.03 cm).
+     SE-Nor Oct 2023: no day with plain sd <= 1 cm, so E1 says nothing there.
+  E2 HOLDS (reported): largest step of the control depths 1.55 sd (0.23 m) from the hydrostatic start, 1.55 sd
+     from the 1.0 m start; limit 3 sd.
+  E3 HOLDS: the two starts with the term end 0.013 cm apart over the window (limit 0.2 cm), at costs 0.379927 and
+     0.379927, coefficients on the bound [] and []. Without the term the same two starts end 6.26 cm apart.
+  E4 NOT MET: distance from the twin's truth, plain -> with the term: seed 0 1.54 -> 1.16 cm (holds),
+     seed 1 1.1 -> 1.52 cm (fails).
+  E5 NOT MET: with the term minus plain over the window: BE-Dor 0.29 cm, US-NC2 0.43 cm; limit 0.2 cm.
+- RULE applied: (b) "E1 or E5 fails (the term moves what the sensor determines) -> not used as it stands; reported;
+  no PINN run with it." Both fail (and E4 on one of two seeds). So: `--path_prior` stays in the code, default off;
+  no PINN run is launched with it; no row of the README changes; the start of SE-Nor Dec 2019 stays "not
+  determined by the sensor".
+- Reported, not expectations (as listed at 00:18). Distance from the well over the window, plain -> with the term:
+  BE-Dor 5.41 -> 5.46 cm; US-NC2 1.11 -> 1.15 cm; SE-Nor Dec 2019 4.35 (hydrostatic start) and
+  9.53 (1.0 m start) -> 1.93 and 1.93 cm; SE-Nor Oct 2023 11.48 -> 9.79 cm; FR-Bil Dec 2020 7.75 -> 4.2 cm.
+  Steps of the solver not converged in its worst solve, plain -> with the term: SE-Nor Dec 2019 61.1 -> 55.1 %
+  (1.0 m start 58.9 -> 60.8 %); SE-Nor Oct 2023 12.1 -> 10.6 %; FR-Bil 39.2 -> 36.2 %; twins 47.2 -> 51.3 %
+  and 49.1 -> 49.8 %; BE-Dor 0 -> 0 %, US-NC2 0 -> 0 %. This field is the worst solve of a run, not its final path:
+  it shows no sign that the term brings the search into the solver's tolerance at SE-Nor or FR-Bil, and it does
+  not say what the share is on the final path with the term (not in summary.json; not read from elsewhere).
+  Coefficients on the bound, plain -> with the term: SE-Nor Dec 2019 [0] and [0,1] -> [] and []; SE-Nor Oct 2023
+  [0,1,2,13] -> []; FR-Bil [13] -> []; twins [0] and [0] -> [] and [].
+- Descriptive (read after the numbers; no verdict rests on it and no limit is touched):
+  * Every day that fails E1 is at an end of the window or follows days the sensor does not determine: BE-Dor
+    day 0 is the first day, the twins' day 10 the last; at SE-Nor Dec 2019 days 3 - 4 follow days 0 - 2, whose
+    plain sd is 19.06, 2.85 and 3.41 cm and which the term moves by 8.12, 4.91 and 5.43 cm.
+  * On the twins the day-10 move goes towards the truth in both seeds (distance from the truth on day 10,
+    plain -> with the term: seed 0 0.61 -> 0.23 cm, seed 1 0.71 -> 0.54 cm). Seed 1 is farther from the truth over the
+    window because of days 0 - 1 (2.25 -> 3.88 and 1.83 -> 2.79 cm), where the plain sd is 15.69 and 3.56 cm; seed 0
+    is nearer there (3.95 -> 2.25 and 2.35 -> 1.93 cm). Two seeds: no statement on which is typical.
+  * The moves that fail E1 are 0.41 - 1.28 of the plain sd of their day. Why a prior with a 15 cm sd per step
+    moves a day whose own sd is 0.5 - 1 cm by that much was not examined (coupling with the neighbouring
+    coefficients, or a linearised sd that is too small where coefficients sit on the bound, are both open).
+- What follows for the work: the numerical reference and the PINN keep the cost they have (data misfit alone). The
+  term does what it was meant to do where the sensor is silent (one estimate from both starts, no coefficient on
+  the bound), but by the rule that is not enough. A changed proposal would need its own plan and expectations
+  before any run; re-reading these ten runs with other limits is not one.

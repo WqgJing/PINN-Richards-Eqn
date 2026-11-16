@@ -742,6 +742,36 @@ them are, and any use of them must cite:
 ("et al." stands for the same author list as the entry above it; the full strings are in the open metadata of
 each object.)
 
+## Tried and not adopted: a smoothness term in the cost of the inversion
+
+Where the sensor says nothing about the water table (the first days at SE-Nor, 6 Dec 2019), the inversion is
+free and its end point depends on the start. One remedy without a new number was tested, in the numerical
+inversion only: add to the cost the density of the paths the networks are trained on (independent steps of the
+control depths of the path, sd 0.15 m per knot), so that the estimate is the most probable path given the sensor
+and that prior. The expectations and the rule were written before the runs (`tasks/todo.md`, "PLAN (00:18)"):
+the term is taken into both inversions only if it leaves alone what the sensor determines (at most 0.2 cm on
+days whose sd without the term is 1 cm or less, and at most 0.2 cm over the window at the two control sites),
+gives one estimate from both starts at SE-Nor, and is not farther from a known truth on either seed.
+
+Sixteen solver runs are compared (16 Nov; ten of them new): five windows without and with the term, a second start at SE-Nor,
+and a twin with known truth (forcing, soil and sensor of SE-Nor, 6 Dec 2019) in two noise seeds.
+
+- Where the sensor is silent the term does what it is meant to do. At SE-Nor, 6 Dec 2019, the two starts that
+  end 6.26 cm apart without the term end 0.013 cm apart with it, 1.93 cm from the well (4.35 and 9.53 cm
+  without). From the hydrostatic start FR-Bil, 12 Dec 2020, goes from 7.75 to 4.2 cm from the well and SE-Nor,
+  30 Oct 2023, from 11.48 to 9.79 cm. No run with the term ends with a coefficient on its bound.
+- Where the sensor decides, the term moves the estimate by more than allowed: on days whose sd without the term
+  is 1 cm or less by 0.4 cm at BE-Dor (day 0), by 0.8 and 0.28 cm at SE-Nor, 6 Dec 2019 (days 3 and 4), and by
+  0.63 and 0.39 cm on the twins (day 10); over the window by 0.29 cm at BE-Dor and 0.43 cm at US-NC2. Distance
+  from the well there: BE-Dor 5.41 -> 5.46 cm, US-NC2 1.11 -> 1.15 cm.
+- With known truth one seed ends nearer (1.54 -> 1.16 cm) and one farther (1.1 -> 1.52 cm).
+
+By the rule the term is not used: every row of this file is without it, no PINN run was made with it, and the
+first days at SE-Nor, 6 Dec 2019, stay as described above (the estimate there depends on the start). The switch
+(`--path_prior` in `scripts/param_invert.py` and `scripts/fem_referee.py`) stays in the code, off by default;
+its unit tests are `tests/test_path_prior.py`. All lines and verdicts: `tasks/todo.md`, "Step 3 ended (10:04,
+16 Nov)".
+
 ## Not yet in this set (running)
 
 - ICOS, first selection: nothing is running any more. The 1/4 h repeats of the numerical inversion at IT-SR2
