@@ -8785,3 +8785,80 @@ runs/rfbil2c_inv0: refinement sd per coefficient 1.81 0.50 0.47 0.36 0.48 0.42 0
             what is written above: F4 against s0 (1 cm rms over the window; starts within 0.2 cm, R1 as written),
             F5 (4 - 5 cm from the well, bias under 1 cm; R3 = 3 cm, |bias| 2 cm, r 0.98). Days 0 - 3 are the named
             risk and are reported by day whatever they show.
+        (19:33) SCORE rfnor2e (jobs sc_nor2e 15695400, chk_nor2e 15695401: exit=0 lines 1 and 1, Traceback lines 0 and 0; every line below by jq on output/real_nor_dec19_own/inversion_pinn_rfnor2e.json or output/real_nor_dec19_own/result_rfnor2e.json in this command; cm)
+          REFERENCE LINES (solver only):
+            nor_own_dec19_s0  hydrostatic, step 1.0 h: cost 0.332434, from the well 4.35, bias 0.26, max 16.92, r 0.8926, by day [10.07,5.72,7.05,2.63,2.19,0.83,1.07,1.24,1.2,0.72,2.71]; sd by day [19.06,2.85,3.41,0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32]
+            nor_own_dec19_s1  hydrostatic_flat, step 1.0 h: cost 0.332434, from the well 4.36, bias 0.26, max 16.96, r 0.8924, by day [10.1,5.73,7.07,2.63,2.19,0.83,1.07,1.24,1.2,0.72,2.71]; sd by day [19.06,2.85,3.42,0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32]
+            nor_own_dec19_s2  constant:1.0, step 1.0 h: cost 0.337049, from the well 9.53, bias 1.62, max 66.01, r 0.8171, by day [29.78,5.85,7.51,2.65,2.18,0.84,1.07,1.24,1.2,0.72,2.71]; sd by day [75.81,2.97,3.57,0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32]
+            nor_own_dec19_s3  constant:0.3, step 1.0 h: cost 0.332434, from the well 4.35, bias 0.26, max 16.94, r 0.8924, by day [10.09,5.72,7.07,2.63,2.19,0.83,1.07,1.24,1.2,0.72,2.71]; sd by day [19.06,2.85,3.42,0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32]
+            nor_own_dec19_dt025_s0  file:nor_own_dec19_s0/predictions.npz, step 0.25 h: cost 0.33114, from the well 4.35, bias 0.25, max 17.58, r 0.8943, by day [10.38,5.54,6.75,2.63,2.19,0.83,1.07,1.25,1.2,0.72,2.71]; sd by day [19.27,2.8,3.2,0.65,0.52,0.45,0.35,0.3,0.26,0.26,0.32]
+          PINN LINES (runs/rfnor2edc_it2):
+            from the well: rmse 6.87, bias 1.24, max 25.1, r 0.8305, by day [13.98,10.23,13.96,3,2.01,0.91,1.1,1.28,1.26,0.73,2.63]; sd median 0.43, sd by day [18.14,3.79,7.1,0.56,0.52,0.43,0.34,0.29,0.26,0.25,0.31]
+            starts spread (largest, m) 1.1952517728864867, sensor misfit PINN 0.00258, solver 0.00288, model with the observed well 0.00506; hydrostatic reading from the well 6.77 (r 0.8196); hours 265, sensor below saturation 265; well range (m) [0.15,0.41]
+            score_real.py: PINN from the well 6.87, bias 1.24, r 0.8305; solver (nor_own_dec19_s3) 4.35, bias 0.26, r 0.8924; PINN minus solver rmse 2.88, bias 0.98, max 10.88
+            PINN minus nor_own_dec19_s0 (1.0 h): rms 2.88, bias 0.99, largest 10.91 at day 2.04, days 3 - 10 0.19, by day [4,5.17,6.99,0.46,0.2,0.1,0.03,0.03,0.07,0.09,0.09]
+            PINN minus nor_own_dec19_s1 (1.0 h): rms 2.87, bias 0.98, largest 10.87 at day 2.04, days 3 - 10 0.19, by day [3.97,5.15,6.97,0.46,0.2,0.1,0.03,0.03,0.07,0.09,0.09]
+            PINN minus nor_own_dec19_s2 (1.0 h): rms 5.71, bias -0.38, largest 40.91 at day 0, days 3 - 10 0.18, by day [17.09,5.03,6.52,0.43,0.19,0.09,0.03,0.03,0.07,0.09,0.09]
+            PINN minus nor_own_dec19_s3 (1.0 h): rms 2.88, bias 0.98, largest 10.88 at day 2.04, days 3 - 10 0.19, by day [3.98,5.15,6.97,0.46,0.2,0.1,0.03,0.03,0.07,0.09,0.09]
+            PINN minus nor_own_dec19_dt025_s0 (0.25 h): rms 2.95, bias 0.99, largest 11.38 at day 2.04, days 3 - 10 0.19, by day [3.66,5.42,7.3,0.47,0.21,0.1,0.03,0.03,0.07,0.09,0.09]
+            it2 minus rfnor2edc_it1: rms 0.09, bias 0.01, largest 0.33 at day 2.08, by day [0.12,0.14,0.23,0.01,0,0,0,0,0,0,0]
+            it2 minus rfnor2e_inv4: rms 2.03, bias -0.61, largest 8.09 at day 2.04, by day [1.08,4.16,5.21,0.14,0.06,0.02,0.01,0,0,0,0]
+          PINN STARTS (jq on runs/rfnor2edc_it2/summary.json in this command; cost, iterations, from the well in cm):
+            previous: cost 0.267108, 6 it, from the well 6.87
+            hydrostatic: cost 0.267108, 11 it, from the well 6.87
+            hydrostatic_flat: cost 0.267108, 11 it, from the well 6.87
+            constant:1.0: cost 0.280394, 16 it, from the well 40.8
+            constant:0.3: cost 0.267108, 11 it, from the well 6.87
+            best start previous; spread of the starts rms 39.41 cm; coefficients on the bound [0,1] (previous iteration [0]); box [-2.971,1.183]
+            coefficients of the estimate: [-2.97,1.18,-2.78,0.4,-2.14,-1.75,-1.84,-1.93,-2.06,-2.07,-2.2,-2.15,-2.2,-2.03]
+          SOLVER STARTS for comparison (jq on output/referee/nor_own_dec19_s*/summary.json): hydrostatic cost 0.332434, on bound [0]; hydrostatic_flat cost 0.332434, on bound [0]; constant:1.0 cost 0.337049, on bound [0,1]; constant:0.3 cost 0.332434, on bound [0]
+          DAYS 0 - 2 AND 3 - 10 APART (rms of the by-day values, jq on output/real_nor_dec19_own/inversion_pinn_rfnor2e.json in this command; cm):
+            PINN from the well: days 0 - 2 12.85, days 3 - 10 1.79; PINN posterior sd (median by day): days 0 - 2 [18.14,3.79,7.1], days 3 - 10 [0.56,0.52,0.43,0.34,0.29,0.26,0.25,0.31]
+            solver nor_own_dec19_s0 from the well: days 0 - 2 7.83, days 3 - 10 1.75
+            solver nor_own_dec19_dt025_s0 from the well: days 0 - 2 7.83, days 3 - 10 1.75
+            PINN minus nor_own_dec19_s0: days 0 - 2 5.52, days 3 - 10 0.19
+            PINN minus nor_own_dec19_dt025_s0: days 0 - 2 5.66, days 3 - 10 0.19
+          VERDICTS rfnor2e (from the lines above; the criteria are the ones written before launch):
+            F4 = N2, part 1 ("within 1 cm rms of the numerical one over the window", reference s0): NOT MET.
+              2.88 cm against s0 (2.95 cm against the 1/4 h repeat). By day 4, 5.17, 6.99 cm on days 0 - 2 and
+              0.03 - 0.46 cm on days 3 - 10 (0.19 cm rms over those eight days). The named risk (days 0 - 3) is
+              where it is: days 0 - 2.
+            F4, part 2 ("the same from its starts within 0.2 cm", R1 as written): NOT MET. Four of the five starts
+              end on one estimate (cost 0.267108 each, 6.87 cm from the well each); the 1.0 m start ends on a
+              second point at a cost 5.0 % higher (0.280394), 40.8 cm from the well. Beside it, not as an excuse:
+              the solver's 1.0 m start also ends on a second point (cost 0.337049 against 0.332434).
+            F4, part 3 ("correction loop stops by its rule within four iterations"): HOLDS (iteration 2, 0.03 sd).
+            F5 = N3 ("4 - 5 cm from the well, bias under 1 cm; R3 not met"): NOT MET in its first part: 6.87 cm,
+              bias 1.24 cm, r 0.8305 (solver 4.35 cm, 0.26 cm, 0.8926). R3 not met, as written. The hydrostatic
+              reading of the sensor scores 6.77 cm (r 0.8196) over the window: the PINN is not nearer the well
+              than that reading here.
+            WHERE: days 3 - 10 the PINN is 1.79 cm from the well (solver 1.75 cm), each day 0.73 - 3 cm, and its
+              own posterior sd is 0.25 - 0.56 cm; days 0 - 2 it is 12.85 cm from the well (solver 7.83 cm) with a
+              posterior sd of 18.14, 3.79 and 7.1 cm. The split into days 0 - 2 and 3 - 10 was made after the
+              by-day numbers were read; it describes, it is not a criterion.
+            FIGURE (output/real_nor_dec19_own/result_rfnor2e.png, looked at): from day 3 the well is nearly flat
+              (0.15 - 0.22 m) and the PINN, the solver and the hydrostatic reading lie on it; the well moves on
+              days 0 - 3 (0.41 -> 0.22 m), and there both inversions swing about it (PINN 0.66 -> 0.24 -> 0.51 m,
+              solver 0.58 -> 0.24 -> 0.40 m). The model run with the observed well does not follow the sensor
+              after day 6 (sensor stays at 0.211 while the model falls to 0.199).
+            The estimate has coefficients 0 and 1 on the bounds of the path range (0 on the shallow, 1 on the
+              deep one), the solver's lowest-cost estimate only coefficient 0; the PINN's sensor misfit at its
+              estimate is 0.00258, the solver's at its own 0.00288.
+          READ: this window is inside the gate and the row does not meet (ii) by the written criterion, nor (i)
+            over the window. What it adds: eight days in which the PINN returns the solver's estimate to 0.2 cm,
+            and the correction loop stopping by its rule. No method change on these scores.
+          WHOSE ERROR on days 0 - 2, as at the first SE-Nor window (solver only; plan before the run):
+            the 1 h numerical inversion is started on the PINN's path (runs/rfnor2edc_it2/predictions.npz) ->
+            output/referee/nor_own_dec19_spinn; event num5_nor2_1h.
+            EXPECTED:
+              K1 the solver's cost of the PINN's path (cost of iteration 0) is above 0.332434; guess 0.34 - 0.37
+                 (a move of about 2 solver sd on days 1 - 2 in a record of 265 hours).
+              K2 started there, the search ends on s0's estimate (within 0.2 cm rms over the window): my odds
+                 55 %. On the second point of the solver's 1.0 m start (s2, which has the PINN's two coefficients
+                 on the bound): 30 %. Elsewhere: 15 %.
+            RULE: ends on s0's estimate -> the 4 - 7 cm of days 0 - 2 are the PINN's own error and the row says
+              so; ends on s2's point or a third one -> the row says the sensor admits more than one water table
+              on those days in the solver, and names the end points. In no case is the method changed on these
+              scores.
+            COST: 1 h searches here took 1277 - 1951 s per iteration (wall_s / iterations in output/referee/
+              nor_own_dec19_s{0..3}/summary.json, by jq); 40 iterations at most -> up to 21.7 h; limit 24 h, 2 CPUs, 8G.
