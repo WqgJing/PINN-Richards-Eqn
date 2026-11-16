@@ -8862,3 +8862,63 @@ runs/rfbil2c_inv0: refinement sd per coefficient 1.81 0.50 0.47 0.36 0.48 0.42 0
               scores.
             COST: 1 h searches here took 1277 - 1951 s per iteration (wall_s / iterations in output/referee/
               nor_own_dec19_s{0..3}/summary.json, by jq); 40 iterations at most -> up to 21.7 h; limit 24 h, 2 CPUs, 8G.
+        (20:17) EVENT stepq_sor (20:12): the 1/4 h repeat of the numerical inversion at DK-Sor, 8 Dec 2024 (plan of 02:48,
+          QS1 / QS2 and the 1 cm rule). Solver only.
+          JOB CHECK: 15661881 rfq_sor_dt025_s0 COMPLETED 17:24:07 ; exit=0 lines 1, Traceback lines 0 (logs/cpu_15661881.out)
+          REFERENCE LINES (by jq from output/referee/<dir>/summary.json):
+            sor_own_dec24_s0  hydrostatic, step 1.0 h: cost 0.22829, from the well 40.84 cm rms, bias 10.89 cm, max 80.24 cm, on bound [0,4,5,6,7,12,13], 31 it, 924 solves, sensor misfit 0.00239, sd median 16.05 cm, steps not converged (worst solve) 9.4 %, 15552 s
+            sor_own_dec24_s1  hydrostatic_flat, step 1.0 h: cost 0.228292, from the well 40.83 cm rms, bias 10.88 cm, max 80.24 cm, on bound [0,4,5,6,7,12,13], 35 it, 1043 solves, sensor misfit 0.00239, sd median 16.05 cm, steps not converged (worst solve) 9.8 %, 16903 s
+            sor_own_dec24_s2  constant:1.0, step 1.0 h: cost 0.22829, from the well 40.88 cm rms, bias 10.93 cm, max 80.24 cm, on bound [0,4,5,6,7,12,13], 40 it, 1193 solves, sensor misfit 0.00239, sd median 16.04 cm, steps not converged (worst solve) 9.4 %, 19824 s
+            sor_own_dec24_s3  constant:0.3, step 1.0 h: cost 0.228291, from the well 40.83 cm rms, bias 10.89 cm, max 80.24 cm, on bound [0,4,5,6,7,12,13], 40 it, 1192 solves, sensor misfit 0.00239, sd median 16.05 cm, steps not converged (worst solve) 9.8 %, 19721 s
+            sor_own_dec24_spinn  verse/runs/rfsor1cdc_it4/predictions.npz, step 1.0 h: cost 0.228289, from the well 40.86 cm rms, bias 10.92 cm, max 80.24 cm, on bound [0,4,5,6,7,12,13], 9 it, 278 solves, sensor misfit 0.00239, sd median 16.04 cm, steps not converged (worst solve) 11.3 %, 5517 s
+            sor_own_dec24_dt025_s0  hydrostatic, step 0.25 h: cost 0.227128, from the well 40.82 cm rms, bias 10.83 cm, max 80.17 cm, on bound [0,4,5,6,7,12,13], 33 it, 984 solves, sensor misfit 0.00238, sd median 15.79 cm, steps not converged (worst solve) 7.9 %, 62320 s
+          COST HISTORY of the 1/4 h run (history.json: iteration, cost, from the well cm):
+            0:0.327/30.81  1:0.2374/39.76  2:0.2354/39.2  3:0.2302/42.1  4:0.2283/40.29  5:0.2277/41.35  6:0.2276/40.44  7:0.2275/41.24  8:0.2273/40.6  
+            9:0.2273/41.06  10:0.2272/40.64  11:0.2272/41.04  12:0.2272/40.69  13:0.2272/40.97  14:0.2272/40.71  15:0.2272/40.93  16:0.2271/40.75  
+            17:0.2271/40.91  18:0.2271/40.75  19:0.2271/40.9  20:0.2271/40.77  21:0.2271/40.87  22:0.2271/40.79  23:0.2271/40.87  24:0.2271/40.79  
+            25:0.2271/40.86  26:0.2271/40.81  27:0.2271/40.85  28:0.2271/40.81  29:0.2271/40.85  30:0.2271/40.81  31:0.2271/40.84  32:0.2271/40.82
+          BY DAY (job 15697227 chk_sorq: exit=0 lines 1, Traceback lines 0; by jq from output/real_sor_dec24_own/inversion_num_q.json):
+            each 1 h estimate minus the 1/4 h estimate (cm):
+              sor_own_dec24_s0 (hydrostatic) minus dt025_s0: rms 0.11, bias 0.07, largest 0.28 at day 6.83, by day [0.09,0.19,0.08,0.01,0,0.03,0.22,0.15,0.02,0.06,0.02]
+              sor_own_dec24_s1 (hydrostatic_flat) minus dt025_s0: rms 0.09, bias 0.05, largest 0.22 at day 1.29, by day [0.09,0.19,0.07,0.01,0,0.02,0.13,0.09,0.02,0.06,0.02]
+              sor_own_dec24_s2 (constant:1.0) minus dt025_s0: rms 0.2, bias 0.11, largest 0.67 at day 6.83, by day [0.09,0.19,0.07,0.01,0,0.07,0.53,0.35,0.05,0.08,0.01]
+              sor_own_dec24_s3 (constant:0.3) minus dt025_s0: rms 0.1, bias 0.06, largest 0.23 at day 6.83, by day [0.09,0.19,0.08,0.01,0,0.03,0.18,0.12,0.02,0.06,0.02]
+              sor_own_dec24_spinn (/rfsor1cdc_it4/predictions.npz) minus dt025_s0: rms 0.16, bias 0.09, largest 0.49 at day 6.83, by day [0.09,0.19,0.07,0.01,0,0.05,0.39,0.25,0.03,0.07,0.02]
+            1 h starts among themselves (cm):
+              sor_own_dec24_s0 minus sor_own_dec24_s1: rms 0.03, largest 0.12
+              sor_own_dec24_s0 minus sor_own_dec24_s2: rms 0.11, largest 0.39
+              sor_own_dec24_s0 minus sor_own_dec24_s3: rms 0.01, largest 0.05
+              sor_own_dec24_s0 minus sor_own_dec24_spinn: rms 0.06, largest 0.21
+              sor_own_dec24_s1 minus sor_own_dec24_s2: rms 0.14, largest 0.51
+              sor_own_dec24_s1 minus sor_own_dec24_s3: rms 0.02, largest 0.07
+              sor_own_dec24_s1 minus sor_own_dec24_spinn: rms 0.09, largest 0.33
+              sor_own_dec24_s2 minus sor_own_dec24_s3: rms 0.13, largest 0.44
+              sor_own_dec24_s2 minus sor_own_dec24_spinn: rms 0.05, largest 0.18
+              sor_own_dec24_s3 minus sor_own_dec24_spinn: rms 0.07, largest 0.26
+            from the well and posterior sd by day (cm):
+              sor_own_dec24_s0, step 1.0 h: from the well 40.84, bias 10.89, max 80.24, r 0.3255; by day [57.29,13.53,27.34,53.29,58.49,62.5,49.6,16.7,25.3,9.88,23.17]; sd by day [9.95,15.55,22.34,36.45,40.13,38.21,30.94,9.05,5.6,6.93,5.48]
+              sor_own_dec24_dt025_s0, step 0.25 h: from the well 40.82, bias 10.83, max 80.17, r 0.3253; by day [57.3,13.67,27.3,53.29,58.49,62.48,49.4,16.65,25.31,9.94,23.18]; sd by day [9.79,15.16,22.01,35.79,39.44,37.51,30.29,8.92,5.57,6.87,5.46]
+          PINN LINES (after the reference lines; runs/rfsor1cdc_it4, the run already scored at 07:2x; same file):
+            PINN minus sor_own_dec24_s2 (step 1.0 h): rms 9.64, bias 4.2, largest 30.19 at day 2, by day [3.01,22.33,22.49,3.17,0,0.1,0.57,1.09,0.86,0.64,0.06]
+            PINN minus sor_own_dec24_dt025_s0 (step 0.25 h): rms 9.69, bias 4.3, largest 30.32 at day 2, by day [3.09,22.5,22.56,3.17,0,0.03,0.15,1.25,0.81,0.56,0.05]
+          VERDICTS (expectations of 02:48, lines 6902 - 6906):
+            QS1 NOT MET: with 1/4 h steps the worst solve still has 7.9 % of its steps not converged (1 h: 9.4 -
+                11.3 %); I expected under 1 %. Refining the step four times hardly changes that count here.
+            QS2 first part NOT MET, in the favourable direction: the 1/4 h estimate is 0.11 cm rms from the 1 h
+                estimate of the same start (largest 0.28 cm; 0.09 - 0.20 cm from the other 1 h starts), not 1 -
+                8 cm. Second part HOLDS: 40.82 cm from the well (more than 30 cm).
+            RULE applied (differ by less than 1 cm rms): the 1 h lines stand as the numerical reference of the
+                DK-Sor row, and the row says so. No 1/16 h run. The cost is 0.5 % lower with 1/4 h steps
+                (0.227128 against 0.22829), the same seven coefficients are on the bound, the posterior sd by
+                day is the same to 0.7 cm.
+            What this does and does not settle: the estimate of the numerical inversion at DK-Sor does not
+                depend on the step (0.1 cm) nor on the start (five starts, 0.01 - 0.14 cm), so the 40 cm from
+                the well are not a solver artefact; they are what model + sensor give in this window. The count
+                of non-converged steps stays at 8 % and is reported as such, not explained.
+            The PINN row, from the two PINN LINES above: PINN minus the 1/4 h reference is 9.69 cm over the
+                window against 9.64 cm for the 1 h one; days 1 - 2 are 22.5 and 22.6 cm (22.3 and 22.5), days
+                4 - 10 are 0.0 - 1.25 cm by day (0.0 - 1.09). The row's text (9.64 cm; 0.0 - 1.2 cm on days
+                4 - 10) stays, read against the 1 h reference.
+            CORRECTION: this last item first read "the same ... to the digits printed above"; it was typed in
+                the command that printed the PINN lines, before they were on the screen, and they differ in
+                the second digit (9.64 / 9.69). Replaced by the numbers. Lesson entry added.

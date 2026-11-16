@@ -418,7 +418,7 @@ accepted range, and both of its candidate windows start with the well at that de
 (the four stations taken stay at least 0.5 m above the end of their wells). The screen and the plots of the four
 test windows are in `output/site_icos/<station>/`.
 
-State (15 Nov, 19:55). Six of the new windows have a finished PINN run: all four of the first selection and
+State (15 Nov, 20:17). Six of the new windows have a finished PINN run: all four of the first selection and
 two of the second (BE-Dor, and SE-Nor 6 Dec 2019, the one window inside the 5 cm gate); SE-Nor's first window
 has two (without and with `sampling.local_box`, see below). They are
 reported here as run and are not yet in the counts above. All rows are in-sample (soil fitted on the same
@@ -489,7 +489,13 @@ window with the well).
   own estimate, not only the search. Started on the PINN's path, the solver goes back to its own estimate in
   nine iterations (0.05 - 0.09 cm from each of its four starts, cost 0.228): the solver has one estimate from
   five starts, and the 22 cm on days 1 - 2 are the PINN's. This row shows neither statement over the whole
-  window.
+  window. Step check of the reference: 9 - 11 % of the solver's 1 h steps do not converge in its worst solve,
+  so the numerical inversion was repeated with 1/4 h steps from the hydrostatic start. It ends 0.11 cm from
+  the 1 h estimate of the same start (largest 0.28 cm; 0.09 - 0.20 cm from the other 1 h starts), 40.82 cm
+  from the well, with the same seven coefficients on the bound; the 1 h reference stands, and the PINN is as
+  far from the 1/4 h estimate (9.69 cm) as from the 1 h one (9.64 cm). The 40 cm from the well are therefore
+  not an effect of the solver's step or start. With 1/4 h steps 7.9 % of the steps still do not converge in
+  the worst solve (expected: under 1 %); that count is reported as it is, not explained.
 - FR-Bil: neither statement, and the weakest training of all runs. The sensor does not determine the water table
   in this window: the well rises steadily from 1.375 to 0.35 m while the sensor (0.14 - 0.25, against a fitted
   theta_s of 0.56) follows the rain. The model run with the measured well fits the sensor to 0.0072; the
@@ -642,9 +648,9 @@ each object.)
 
 ## Not yet in this set (running)
 
-- ICOS, first selection: the 1/4 h repeats of the numerical inversion at DK-Sor and IT-SR2; a repeat of the
-  DK-Sor PINN run with `sampling.local_box` from the same first stage (started 15 Nov, 16:01; it can test
-  statement (i) there, not (ii)).
+- ICOS, first selection: the 1/4 h repeat of the numerical inversion at IT-SR2 (DK-Sor's is finished, see its
+  item above); a repeat of the DK-Sor PINN run with `sampling.local_box` from the same first stage (started
+  15 Nov, 16:01; it can test statement (i) there, not (ii)).
 - ICOS, second selection: the PINN run at FR-Bil (12 Dec 2020; outside the gate, see above), started 15 Nov,
   10:29 (the 1/4 h check of its numerical reference is finished, see above). Its first training stage ended with 17.4 - 18.8 % of
   the surface-flux error left (expected 15 - 25 %); refinement is running. As at SE-Nor (next item), its
