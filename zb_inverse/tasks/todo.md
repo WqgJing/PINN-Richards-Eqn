@@ -9804,3 +9804,13 @@ written 04:16) and was restarted. Of the ten checks, 15712049 mp_nor2, 15712050 
                 the path range. This is the statement already in the README for this window; the check does not
                 alter it.
           README: the IT-SR2 note gets the step check; the open item "1/4 h repeat at IT-SR2" is closed.
+
+Contributors lists read once (05:22, 16 Nov; public page data and public API, no login):
+  - PINN-Richards-Eqn: the list of the page box now names WqgJing only (the old "claude" entry is gone, one day
+    after the rewrite); the number next to the heading still reads 2. API: WqgJing only.
+  - NOAH-s-: API now WqgJing only (12 commits); the page box still names "claude" and WqgJing, number 2.
+  - SMAP-Recharge-Flux: WqgJing only in both.
+  GitHub's stored lists are being refreshed on their own, so nothing further is done on NOAH-s- for now; a second
+  watcher (/tmp/wait_contrib2.sh NOAH-s-) reads its box every 10 minutes.
+Solver checks (05:22): nine of ten final (exit code 0:0); 15712050 mp_nor2b still RUNNING (4 h 43 min of 24 h).
+Nothing of the ten read. No ICOS job is left in the queue; the ICOS waiter is not restarted.
