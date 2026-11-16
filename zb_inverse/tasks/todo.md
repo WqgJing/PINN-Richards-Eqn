@@ -9666,3 +9666,43 @@ RULE (fixed now)
   nor_own_oct23_mp_s0, bil_own_dec20_mp_s0, twin_nor_dec19_p_n0/_p_n1 (plain), twin_nor_dec19_mp_n0/_mp_n1 (with the term).
   Twin runs: obs.noise_sigma=0.005, obs.noise_seed=0|1, prior.clip_m=[0.10,1.5], --box, start hydrostatic.
   Nothing is read from these before every job shows a final state, exit=0 and its summary.json.
+
+### PLAN (00:58, 16 Nov): commits of NOAH-s- and SMAP-Recharge-Flux carry the GitHub identity of WqgJing (user request)
+Request: "change contributer form claude to wqjing" (NOAH-s-), "add contributor wqjing" (SMAP-Recharge-Flux).
+Found before any change (public API, contributors?anon=1, and the page box):
+  - NOAH-s-: no Claude line is left in any commit (removed 15 Nov). All 12 published commits carry the address of the
+    cluster login node, which GitHub cannot link to an account (API: type=Anonymous). The page box still lists
+    "claude" (count 1) from before 15 Nov; with no linked author there is nobody to replace it.
+  - SMAP-Recharge-Flux: 107 commits on 7 branches, 0 Claude lines. 104 carry personal or machine addresses that
+    are not linked to the account (API on main: 25 commits, all Anonymous; page box: 0 contributors); 3 web commits
+    carry the noreply identity of WqgJing already.
+Steps:
+  1. Backups as git bundles in git_backups/ (remote state of both, local clone of NOAH-s-), each verified.
+  2. In scratch copies only: author and committer e-mail of the user's own commits -> the noreply identity of
+     WqgJing (the one GitHub links in PINN-Richards-Eqn). Names, dates, messages and trees are not touched.
+  3. Verify per commit: tree, author name, author date, committer name, committer date, message identical to
+     before, same number of commits per branch, no old address left.
+  4. Push with a lease pinned to each old tip (NOAH-s-: main, the 12 published commits only; SMAP: all 7 branches,
+     atomic). Local clone of NOAH-s-: fetch + reset --soft (working files not touched), 6 commits stay unpushed;
+     its user.email is set to the noreply identity so that later commits are linked as well.
+  5. Verify on GitHub: ls-remote tips, API contributors, page box.
+Done when: the API lists WqgJing (type=User) with all default-branch commits in both repositories.
+Undo: push the refs of the bundle back.
+
+#### Steps 1-3 done (00:59), step 4 NOT done: the pushes wait for the user's go-ahead
+Backups (verified with git bundle verify): git_backups/NOAH-s-_before-author-rewrite_20261116.bundle,
+  NOAH-s-_local-clone_before-author-rewrite_20261116.bundle, SMAP-Recharge-Flux_before-author-rewrite_20261116.bundle.
+Filter: git_backups/authorfilter.sh (e-mail only, exact match on the listed addresses; names and dates stay).
+Scratch copies (git_backups/work_20261116/), nothing on GitHub or in the local clone is changed yet:
+  - noah_rewrite.git: 18/18 commits, tree | author name | author date | committer name | committer date | message
+    identical for every commit; all 18 now carry the noreply identity. Published tip 4cfa6a3 -> daad5b3 (same tree
+    b9b4b43), local tip 4aab137 -> 0c24249.
+  - SMAP-Recharge-Flux.git: 5 addresses replaced, 107 unique commits before and after, per branch the same record
+    and the same number of parents per commit:
+      Resample-interp 401f796 -> 873143a (39), SM-as-BC 5d4ecd8 -> fe0835e (88), add-complementary-logs 1ecd948 ->
+      b7fe686 (31), main 8aea728 -> ea256a3 (25), normalization dd745d5 -> d8a456a (66), sinusoidal-bc 6be71d3 ->
+      bce8446 (24), spike-treatement 044cb9c -> 05aba4b (43). The 3 web commits lose their "Verified" mark
+      (their parents change).
+The force-push of NOAH-s- (lease pinned to 4cfa6a3) was stopped by the permission check of this session before
+anything ran: remote main is still 4cfa6a3, the local clone is still at 4aab137 with its old user.email.
+Open: the user's yes for the pushes; then step 4 (push, resync of the local clone, user.email) and step 5.
