@@ -10045,3 +10045,34 @@ Nothing of the ten read. No ICOS job is left in the queue; the ICOS waiter is no
 - My guess, not a criterion: T3 holds (as E3 did); T1 holds through the two SE-Nor windows and FR-Bil; T2 is open.
 - Done when: 27 jobs final with exit=0 and no Traceback; ten by-day JSONs; verdict lines by jq; rule applied;
   todo, README, lessons (if a mistake shows) and push.
+
+#### Step 1 of the known-answer test (00:57, 18 Nov): twins made, 23 inversions submitted
+
+- Twin jobs (all COMPLETED, exit=0, no Traceback; lines of the logs):
+  * kt_mk_dor 15808293 (00:01:18): 0 coefficient(s) of the fit clipped to the box; output/twin_site_dor_mar24: 
+    water table 0.190-0.642 m, rms of the fit minus the record 0.0245 m;  theta at the sensor rms of twin minus 
+    observed 0.0047;  steps not converged 0.000
+  * kt_mk_nc2 15808294 (00:01:00): 0 coefficient(s) of the fit clipped to the box; output/twin_site_nc2_sep23c: 
+    water table 0.487-0.765 m, rms of the fit minus the record 0.0081 m;  theta at the sensor rms of twin minus 
+    observed 0.0017;  steps not converged 0.000
+  * kt_mk_nor1 15808295 (00:03:40): 2 coefficient(s) of the fit clipped to the box; output/twin_site_nor_oct23: 
+    water table 0.378-1.250 m, rms of the fit minus the record 0.0197 m;  theta at the sensor rms of twin minus 
+    observed 0.0047;  steps not converged 0.042
+  * kt_mk_bil2 15808296 (00:05:49): 1 coefficient(s) of the fit clipped to the box; output/twin_site_bil_dec20: 
+    water table 0.159-0.374 m, rms of the fit minus the record 0.0095 m;  theta at the sensor rms of twin minus 
+    observed 0.0050;  steps not converged 0.268
+  The twin of SE-Nor Dec 2019 is the one of 16 Nov (1 coefficient clipped). Where a coefficient of the fit was
+  clipped, the truth of that twin has this coefficient on the edge of the box the inversion searches in.
+- Inversions submitted (name, job id; arguments by the rule of the plan, checked in the job logs of the 15 that
+  had started: seed, start, obs.depth_m, prior.clip_m and --path_prior as planned; all 23 are compared with the
+  plan mechanically at the job check):
+      kt_nor2_p2 15808297   kt_nor2_m2 15808298   kt_nor2_p3 15808299   kt_nor2_m3 15808300   kt_nor2_m2b 15808302
+      kt_dor_p2 15808456   kt_dor_m2 15808457   kt_dor_p3 15808458   kt_dor_m3 15808459   kt_nc2_p2 15808460
+      kt_nc2_m2 15808461   kt_nc2_p3 15808462   kt_nc2_m3 15808463   kt_nor1_p2 15808464   kt_nor1_m2 15808465
+      kt_nor1_p3 15808466   kt_nor1_m3 15808467   kt_nor1_m2b 15808469   kt_bil2_p2 15808470   kt_bil2_m2 15808471
+      kt_bil2_p3 15808472   kt_bil2_m3 15808473   kt_bil2_m2b 15808474  
+- Scoring scripts written before any result exists: scripts/twin_test_lines.jq (lines per case) and scripts/twin_test_verdict.jq (T1,
+  T2, T3 and the coverage, over the ten by-day JSONs). Syntax-tested on the two by-day JSONs of 16 Nov with the
+  output discarded.
+- Next: wait until all 23 are final (sacct), check state / exit=0 / Traceback / files, then the by-day
+  comparisons via sbatch, lines first, verdicts in a later command.
