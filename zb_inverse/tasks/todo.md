@@ -9967,3 +9967,81 @@ Nothing of the ten read. No ICOS job is left in the queue; the ICOS waiter is no
   term does what it was meant to do where the sensor is silent (one estimate from both starts, no coefficient on
   the bound), but by the rule that is not enough. A changed proposal would need its own plan and expectations
   before any run; re-reading these ten runs with other limits is not one.
+
+### PLAN (00:49, 18 Nov): known-answer test of the path term on ten new cases (user: "Yes, test it")
+
+- Why. The check of 16 Nov ("Step 3 ended (10:04, 16 Nov)") ended with rule (b): the term is not used, because it
+  moves the estimate on days the sensor determines by more than 0.2 cm (E1, E5). That verdict stays as recorded.
+  Whether such a move is harm could not be read at a real window (the well is not the model's truth there), and on
+  the two known-answer cases one estimate was nearer the truth and one farther (E4). Two cases are too few to say
+  which is typical. This test measures harm directly, against a known truth, on ten new cases. It is a new test with
+  its own criteria on new runs; none of the sixteen runs read on 16 Nov enters a criterion.
+- Cases. A twin of each of the five windows of the first check: truth = the daily-knot spline fit of that window's
+  well, clipped to the window's box (`--twin_out`); theta at the sensor = the solver on that path with the window's
+  flux, soil and settings; noise sd 0.005 added on reading (`obs.noise_sigma=0.005`), seeds 2 and 3
+  (`obs.noise_seed`). 5 windows x 2 seeds = 10 cases. Seeds 0 and 1 of the SE-Nor Dec 2019 twin were read on
+  16 Nov: reported alongside, labelled, in no criterion.
+
+      window         data set (output/)     obs.depth_m   prior.clip_m     start (stored run)   twin (output/)
+      BE-Dor Mar 24  real_dor_mar24_own     [0.05,0.05]   [0.10,1.5]       hydrostatic          twin_site_dor_mar24   new
+      US-NC2 Sep 23c real_nc2_sep23c_own    [0.0,0.30]    config default   hydrostatic_flat     twin_site_nc2_sep23c  new
+      SE-Nor Dec 19  real_nor_dec19_own     [0.05,0.05]   [0.10,1.5]       hydrostatic          twin_site_nor_dec19   of 16 Nov
+      SE-Nor Oct 23  real_nor_oct23_own     [0.05,0.05]   config default   hydrostatic          twin_site_nor_oct23   new
+      FR-Bil Dec 20  real_bil_dec20_own     [0.05,0.05]   [0.10,1.5]       hydrostatic          twin_site_bil_dec20   new
+
+  Well ranges (real_summary.json): 0.18 - 0.65, 0.47 - 0.77, 0.15 - 0.41, 0.36 - 1.27, 0.15 - 0.38 m.
+- Runs (solver only; cpu-small, 2 cpus, 8G, /tmp/sub_retry.sh; settings per window as in the table, the same as the
+  stored runs of that window; W = the window's short name, A = absolute path of zb_inverse):
+  * twin (4 jobs `kt_mk_W`, limit 01:00:00), as mk_twin of 16 Nov:
+    `scripts/fem_referee.py --config configs/p1_param_synth_v3.yaml --set twin_npz=A/output/real_W_own/real.npz
+     --set obs.depth_m=.. --set obs.noise_sigma=0.0 --set obs.q_noise_frac=0.0 [--set prior.clip_m=[0.10,1.5]] --box
+     --twin_out A/output/twin_site_W --out A/output/referee/twin_site_W_make`
+  * plain (10 jobs `kt_W_pS`), as tw_p0 of 16 Nov:
+    `... --set twin_npz=A/output/twin_site_W/real.npz --set obs.depth_m=.. --set obs.noise_sigma=0.005
+     --set obs.noise_seed=S --set obs.q_noise_frac=0.0 [--set prior.clip_m=[0.10,1.5]] --box --start <start>
+     --out A/output/referee/twin_W_p_nS`
+  * with the term (10 jobs `kt_W_mS`): the same plus `--path_prior`, out `twin_W_mp_nS`
+  * with the term from a second start (3 jobs `kt_W_m2b`; seed 2; SE-Nor Dec 19, SE-Nor Oct 23, FR-Bil Dec 20, the
+    windows where the plain estimate of the real data had coefficients on the bound): `--start constant:1.0
+    --path_prior`, out `twin_W_mp_n2_s2`
+  * 23 inversions + 4 twins = 27 jobs. Limits: BE-Dor and US-NC2 04:00:00; the three others 1-00:00:00; second
+    starts 1-12:00:00 (stored runs of these windows took up to 0.5 h, 5.7 h and 11 h; the job writes its result
+    only at the end).
+  * A job ended by its time limit or a node failure is resubmitted unchanged with a longer limit; that is not a
+    changed test. A window whose twin cannot be made (the solver fails on the truth path) is left out and named;
+    with fewer than four windows the test is not judged.
+- Scoring. Per case, via sbatch: `scripts/referee_step_check.py --data output/twin_site_W --referee <plain>
+  <with the term> [<second start>] --out output/twin_site_W/inversion_kt_nS`. `zb_true` of a twin is its truth, so
+  the JSON's "vs_well" fields are distances from the truth. Lines are printed first; verdicts by jq in a later
+  command; no number retyped.
+- Criteria (fixed now).
+  * T1, accuracy over the window: d = `vs_well.rmse_m` with the term minus plain, per case; the mean of d over the
+    ten cases is <= +0.1 cm.
+  * T2, where the sensor determines the water table: all (case, day) pairs whose plain `sigma_by_day_m` is <= 1 cm;
+    pooled over them (root of the mean of the squares of `vs_well_rms_by_day_m`), the distance from the truth with
+    the term is <= the plain one + 0.1 cm. Fewer than 10 such pairs: T2 counts as not met.
+  * T3, one estimate from two starts: at each of the three windows with a second start, the rms over the window of
+    (term, stored start) minus (term, constant:1.0) is <= 0.2 cm (the limit of E3).
+  * The 0.1 cm: a tenth of the sd that defines a "determined" day, and below what a well resolves; set now as the
+    size of harm that would not matter.
+- RULE.
+  (A) T1, T2 and T3 hold -> the term goes into the cost of the inversion, numerical reference and PINN alike (the
+      switch exists in both). Then, with its own plan before any run: PINN runs with the term (a twin first, then
+      real windows); README rows change only from those runs; the README section "Tried and not adopted" is
+      rewritten to tell both tests, the first verdict included.
+  (B) any of them not met -> the term is dropped for good: no third test of it, the switch stays off, the README
+      states this test with its numbers.
+  No limit is changed after the numbers are in. Splits made after reading are labelled descriptive.
+- Reported, not criteria.
+  * Per case: d, cost, coefficients on the bound, the worst-solve share of non-converged steps, distances by day;
+    means per window.
+  * Coverage: the share of (case, day) pairs with `vs_well_rms_by_day_m` <= 2 x the run's own `sigma_by_day_m`,
+    with and without the term. Consequence fixed now: with the term >= 90 % -> if (A) holds, that sd may be quoted
+    as the uncertainty of the estimate; lower -> it is not quoted as an error bar.
+  * Seeds 0 and 1 (seen on 16 Nov), labelled.
+  * What this test cannot show: a twin has no model error (the same soil and solver make and invert it). At a real
+    window the term can still pull a determined day away from the well; the numbers of the first check for that
+    (up to 0.80 cm) stay in the README whatever the outcome.
+- My guess, not a criterion: T3 holds (as E3 did); T1 holds through the two SE-Nor windows and FR-Bil; T2 is open.
+- Done when: 27 jobs final with exit=0 and no Traceback; ten by-day JSONs; verdict lines by jq; rule applied;
+  todo, README, lessons (if a mistake shows) and push.
