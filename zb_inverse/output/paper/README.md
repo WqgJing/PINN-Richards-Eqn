@@ -772,6 +772,36 @@ first days at SE-Nor, 6 Dec 2019, stay as described above (the estimate there de
 its unit tests are `tests/test_path_prior.py`. All lines and verdicts: `tasks/todo.md`, "Step 3 ended (10:04,
 16 Nov)".
 
+### Second test, with known truth at every window (18 - 19 Nov): dropped for good
+
+The first check had two cases with known truth, one nearer and one farther. The term was therefore tested once
+more where the truth is known at all five windows, with the cases, the three criteria and the rule written and
+pushed before any run (`tasks/todo.md`, "PLAN (00:49, 18 Nov)"; the scoring scripts
+`scripts/twin_test_lines.jq` and `scripts/twin_test_verdict.jq` were committed before a result existed). For
+each window a twin was made: the truth is the daily-knot fit of that window's well record, the sensor series is
+the solver's on that path plus noise of sd 0.005, in two noise seeds not used before. Every case was inverted
+without and with the term, and three of them from a second start with the term (23 solver runs). The twins have
+no model error: the solver that makes them is the solver that inverts them.
+
+- Distance from the truth over the window, with the term minus without (cm; the two seeds): BE-Dor +0.023,
+  +0.128; US-NC2 +0.05, +0.011; SE-Nor, 6 Dec 2019, +0.53, -0.565; SE-Nor, 30 Oct 2023, +3.788, -2.142; FR-Bil
+  -0.387, -0.262. With the term nearer the truth in 4 of 10 cases; mean +0.117 cm, limit +0.1 cm: **not met**.
+- On the days the sensor determines (sd without the term 1 cm or less; 42 case-days) the term changes nothing
+  on balance: 0.614 cm from the truth without it, 0.609 cm with it (limit: not more than 0.1 cm farther):
+  **met**.
+- One estimate from two starts with the term: 0.001 cm apart at SE-Nor, 30 Oct 2023, and 0.002 cm at FR-Bil,
+  but 77.604 cm at SE-Nor, 6 Dec 2019 (limit 0.2 cm at each): **not met**. There the search started from a
+  constant 1.0 m stopped after 7 iterations near its start, at a cost of 11.47 against 0.99 from the other
+  start. On the real record of that window (first check) the same start had reached the other start's estimate.
+- Reported, not a criterion: the truth lies within 2 sd of the estimate on 109 of 110 case-days without the
+  term and on 105 of 110 with it.
+
+All three had to hold. By the rule the term is dropped for good: no third test, the switch stays off, no PINN
+run is made with it and no row of this file changes. Read after the verdicts and in no criterion: the mean in
+the first item is decided by one case (SE-Nor, 30 Oct 2023, first seed); without that window it is -0.059 cm,
+with the single cases between -0.565 and +0.53 cm. All lines and verdicts:
+`tasks/todo.md`, "Step 3 of the known-answer test".
+
 ## Not yet in this set (running)
 
 - ICOS, first selection: nothing is running any more. The 1/4 h repeats of the numerical inversion at IT-SR2

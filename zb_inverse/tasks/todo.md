@@ -10116,3 +10116,127 @@ Nothing of the ten read. No ICOS job is left in the queue; the ICOS waiter is no
       chk_kt_nc2_sep23c_n3 15867430  chk_kt_nor_dec19_n2 15867431   chk_kt_nor_dec19_n3 15867432
       chk_kt_nor_oct23_n2 15867433   chk_kt_nor_oct23_n3 15867434   chk_kt_bil_dec20_n2 15867435
       chk_kt_bil_dec20_n3 15867436
+
+#### Step 3 of the known-answer test (09:57, 19 Nov): lines, verdicts, rule (B) — the term is dropped
+
+- JOB CHECK of the comparisons (sacct, logs; before any number was read): chk_kt_* 15867427 - 15867436 all
+  COMPLETED 0:0, one exit=0 line and no Traceback line in each log, the ten JSON files present
+  (output/twin_site_W/inversion_kt_nS.json). The background wait confirmed the final states afterwards.
+- LINES, printed in one command before the verdicts (output of `jq -r -f scripts/twin_test_lines.jq`, unchanged):
+
+```
+dor_mar24 seed 2
+  truth distance over the window (cm): plain 1.159, with the term 1.182, d = 0.023
+  start hydrostatic / hydrostatic; cost 0.9835711351153067 / 1.0338413127322694; coefficients on the bound [] / []; worst-solve share not converged 0.0 / 0.0
+  plain sd by day (cm):            0.94 0.884 1.009 1.279 1.492 1.155 1.005 1.256 1.45 1.7 2.822
+  with-term sd by day (cm):        0.783 0.806 0.964 1.211 1.416 1.11 0.98 1.184 1.346 1.504 1.939
+  plain distance by day (cm):      0.372 0.42 0.612 0.671 0.296 0.265 0.53 0.427 0.779 0.8 3.37
+  with-term distance by day (cm):  0.48 0.474 0.335 0.931 1.329 1.22 0.984 0.19 0.812 1.034 2.773
+dor_mar24 seed 3
+  truth distance over the window (cm): plain 1.488, with the term 1.616, d = 0.128
+  start hydrostatic / hydrostatic; cost 0.9779887781489675 / 1.0140772370800462; coefficients on the bound [] / []; worst-solve share not converged 0.0 / 0.0
+  plain sd by day (cm):            0.973 0.877 1.062 1.269 1.475 1.137 0.992 1.185 1.443 1.798 2.502
+  with-term sd by day (cm):        0.775 0.797 1.003 1.21 1.391 1.098 0.961 1.123 1.353 1.565 1.759
+  plain distance by day (cm):      0.549 0.596 1.002 0.437 1.512 1.169 0.74 2.116 1.317 2.551 2.334
+  with-term distance by day (cm):  0.599 0.732 0.991 0.728 2.264 1.92 1.034 2.274 1.147 2.063 2.363
+nc2_sep23c seed 2
+  truth distance over the window (cm): plain 0.698, with the term 0.748, d = 0.05
+  start hydrostatic_flat / hydrostatic_flat; cost 0.9830697085651103 / 0.9938347085554132; coefficients on the bound [] / []; worst-solve share not converged 0.0 / 0.0
+  plain sd by day (cm):            1.57 1.174 1.286 1.454 1.233 1.041 0.931 0.889 0.878 0.921 1.306
+  with-term sd by day (cm):        1.133 1.042 1.213 1.373 1.18 1.001 0.898 0.852 0.821 0.809 0.882
+  plain distance by day (cm):      0.511 0.536 0.642 0.672 0.241 0.294 0.477 0.229 0.553 0.646 1.646
+  with-term distance by day (cm):  0.707 0.825 0.976 1.104 0.295 0.305 0.488 0.187 0.463 0.532 1.344
+nc2_sep23c seed 3
+  truth distance over the window (cm): plain 1.078, with the term 1.09, d = 0.011
+  start hydrostatic_flat / hydrostatic_flat; cost 0.9758633903679816 / 0.9926036552706948; coefficients on the bound [] / []; worst-solve share not converged 0.0 / 0.0
+  plain sd by day (cm):            1.538 1.17 1.256 1.456 1.266 1.058 0.949 0.91 0.881 0.908 1.299
+  with-term sd by day (cm):        1.123 1.037 1.184 1.373 1.213 1.018 0.914 0.872 0.823 0.798 0.881
+  plain distance by day (cm):      0.973 0.55 1.102 0.773 1.281 1.036 0.896 1.691 0.864 1.082 1.193
+  with-term distance by day (cm):  1.094 0.109 1.202 1.321 1.334 0.939 0.842 1.649 0.911 1 0.874
+nor_dec19 seed 2
+  truth distance over the window (cm): plain 0.605, with the term 1.135, d = 0.53
+  start hydrostatic / hydrostatic; cost 0.9857206525348685 / 0.9896015448251919; coefficients on the bound [] / []; worst-solve share not converged 0.49433962264150944 / 0.46037735849056605
+  plain sd by day (cm):            20.663 2.401 1.682 1.162 0.643 0.486 0.313 0.237 0.213 0.242 0.594
+  with-term sd by day (cm):        3.76 2.168 1.474 1.017 0.626 0.477 0.31 0.235 0.209 0.227 0.48
+  plain distance by day (cm):      1.041 1.151 0.782 0.616 0.185 0.136 0.182 0.073 0.084 0.098 0.715
+  with-term distance by day (cm):  3.366 0.827 1.038 0.713 0.196 0.135 0.182 0.074 0.08 0.096 0.701
+  second start constant:1.0 with the term: truth distance 77.411 cm, cost 11.471476265299675, on the bound []; first minus second start: rms 77.604 cm, largest 85.172 cm
+nor_dec19 seed 3
+  truth distance over the window (cm): plain 1.667, with the term 1.102, d = -0.565
+  start hydrostatic / hydrostatic; cost 0.9717508767303316 / 0.9809218377766264; coefficients on the bound [] / []; worst-solve share not converged 0.49056603773584906 / 0.5056603773584906
+  plain sd by day (cm):            11.772 3.266 2.6 1.213 0.6 0.479 0.307 0.219 0.216 0.26 0.478
+  with-term sd by day (cm):        4.673 3.049 1.803 1.111 0.58 0.471 0.303 0.217 0.213 0.243 0.399
+  plain distance by day (cm):      3.848 2.241 3.026 0.587 0.623 0.548 0.262 0.424 0.157 0.388 0.469
+  with-term distance by day (cm):  1.66 2.261 1.59 1.324 0.679 0.485 0.228 0.423 0.188 0.334 0.421
+nor_oct23 seed 2
+  truth distance over the window (cm): plain 3.139, with the term 6.926, d = 3.788
+  start hydrostatic / hydrostatic; cost 0.9846189972515671 / 1.045262102842962; coefficients on the bound [1,13] / []; worst-solve share not converged 0.09433962264150941 / 0.08328840970350404
+  plain sd by day (cm):            124.081 19.434 4.401 5.633 5.521 2.515 2.624 3.24 3.14 3.06 3.232
+  with-term sd by day (cm):        8.737 5.9 3.242 3.508 3.753 2.267 2.179 2.619 2.716 2.458 2.28
+  plain distance by day (cm):      4.476 7.363 2.977 2.793 1.399 0.464 1.248 1.019 1.458 1.428 2.931
+  with-term distance by day (cm):  20.431 7.454 2.192 3.983 3.628 2.018 1.151 1.442 1.337 0.907 3.51
+  second start constant:1.0 with the term: truth distance 6.926 cm, cost 1.045262107548361, on the bound []; first minus second start: rms 0.001 cm, largest 0.003 cm
+nor_oct23 seed 3
+  truth distance over the window (cm): plain 7.687, with the term 5.544, d = -2.142
+  start hydrostatic / hydrostatic; cost 0.9735494846249336 / 1.0493350575857165; coefficients on the bound [0,1,13] / []; worst-solve share not converged 0.08301886792452828 / 0.08301886792452828
+  plain sd by day (cm):            49.414 15.491 4.539 4.953 5.075 2.35 2.497 2.646 3.758 3.305 2.587
+  with-term sd by day (cm):        9.799 7.038 3.528 3.333 3.184 2.088 2.094 2.312 2.963 2.576 1.949
+  plain distance by day (cm):      18.888 13.371 5.243 0.806 3.785 3.17 2.416 5.286 3.424 4.151 1.231
+  with-term distance by day (cm):  12.135 4.514 6.785 5.258 6.473 0.673 1.647 4.733 3.842 3.692 1.463
+bil_dec20 seed 2
+  truth distance over the window (cm): plain 1.434, with the term 1.047, d = -0.387
+  start hydrostatic / hydrostatic; cost 0.984785022554479 / 0.9903634574732729; coefficients on the bound [] / []; worst-solve share not converged 0.36603773584905663 / 0.36603773584905663
+  plain sd by day (cm):            0.226 0.245 0.212 0.194 0.346 0.506 0.824 1.243 1.536 1.977 5.504
+  with-term sd by day (cm):        0.223 0.242 0.21 0.194 0.342 0.498 0.78 1.154 1.35 1.589 3.127
+  plain distance by day (cm):      0.08 0.133 0.157 0.103 0.094 0.132 0.465 0.378 0.271 0.627 4.574
+  with-term distance by day (cm):  0.099 0.145 0.177 0.108 0.099 0.14 0.43 0.35 0.263 0.8 3.246
+  second start constant:1.0 with the term: truth distance 1.048 cm, cost 0.9903639470028183, on the bound []; first minus second start: rms 0.002 cm, largest 0.015 cm
+bil_dec20 seed 3
+  truth distance over the window (cm): plain 1.472, with the term 1.21, d = -0.262
+  start hydrostatic / hydrostatic; cost 0.9778058786029987 / 0.9882728776991139; coefficients on the bound [0,13] / [0]; worst-solve share not converged 0.3509433962264151 / 0.3735849056603774
+  plain sd by day (cm):            0.232 0.241 0.223 0.194 0.331 0.484 0.737 0.982 1.828 2.13 2.21
+  with-term sd by day (cm):        0.229 0.238 0.222 0.193 0.327 0.477 0.704 0.925 1.438 1.66 1.512
+  plain distance by day (cm):      0.157 0.165 0.231 0.059 0.407 0.355 0.56 2.181 2.228 2.854 2.267
+  with-term distance by day (cm):  0.147 0.15 0.216 0.064 0.415 0.345 0.646 2.041 1.696 2.06 1.98
+```
+
+- VERDICTS, printed in a later command (output of `jq -r -s -f scripts/twin_test_verdict.jq` over the ten JSONs,
+  unchanged):
+
+```
+cases read: 10; d by case (cm): 0.023 0.128 0.05 0.011 0.53 -0.565 3.788 -2.142 -0.387 -0.262; with the term nearer the truth in 4 of 10
+T1  mean of d over the cases: 0.117 cm (limit +0.1) -> NOT MET
+T2  days with plain sd <= 1 cm: 42 (case, day) pairs; pooled distance from the truth plain 0.614 cm, with the term 0.609 cm, difference -0.005 cm (limit +0.1) -> HOLDS
+T3  two starts with the term, rms of the difference (cm): nor_dec19 77.604; nor_oct23 0.001; bil_dec20 0.002 (limit 0.2 each, three windows) -> NOT MET
+coverage (reported): share of (case, day) pairs within 2 sd of the truth: plain 109 of 110, with the term 105 of 110 (95.5 %)
+```
+
+- RULE APPLIED: T1 not met, T2 holds, T3 not met -> (B). The path term is dropped for good: no third test, the
+  switch `--path_prior` stays off (code and unit tests stay), no PINN run is made with it, no row of the README
+  changes. No limit was changed after the numbers were in. My guess before the runs (T3 holds, T1 holds through
+  the SE-Nor windows and FR-Bil, T2 open) was wrong on T1 and T3 and is recorded as such.
+- Descriptive, read after the verdicts, in no criterion:
+  * mean of d by window (cm, by jq): dor_mar24 0.076; nc2_sep23c 0.031; nor_dec19 -0.017; nor_oct23 0.823; bil_dec20 -0.325;
+    mean of d over the eight cases without SE-Nor Oct 2023 (a split made after reading): -0.059 cm.
+    T1 is decided by one case (SE-Nor Oct 2023, seed 2); this does not change the verdict.
+  * seed 0 at SE-Nor Dec 2019 (seen on 16 Nov, in no criterion): twin_nor_dec19_p_n0 1.54 cm from the truth; twin_nor_dec19_mp_n0 1.159 cm from the truth
+  * seed 1 at SE-Nor Dec 2019 (seen on 16 Nov, in no criterion): twin_nor_dec19_p_n1 1.101 cm from the truth; twin_nor_dec19_mp_n1 1.517 cm from the truth
+  * the second start at SE-Nor Dec 2019 (constant:1.0, with the term), summary.json: {"iterations":7,"member_solves":215,"cost":11.471476265299675,"fem_not_converged_max":0.5811320754716981,"theta_rmse_vs_obs":0.016934548137005432}
+    Its log shows the cost at 11.47 from the first iteration on, the steps shrinking (6.5e-2 -> 2.2e-4) and the
+    damping rising (0.053 -> 19): the search stopped by its own rule near the start (about 1 m; the truth is
+    0.15 - 0.41 m), not at a second fit of the sensor. On the real record of this window (16 Nov) the same start
+    with the term had reached the estimate of the other start (26 iterations). Whether the plain inversion leaves
+    this start on the twin was not run and is not needed for the rule. Either way the claim "the term makes the
+    estimate independent of the start" does not stand.
+  * coverage is reported by the verdict script; with (B) it has no consequence.
+  * the twins have no model error (the solver that made them is the solver that inverts them).
+- Written: output/paper/README.md, new subsection "Second test, with known truth at every window (18 - 19 Nov):
+  dropped for good" under "Tried and not adopted" (the first verdict and its real-window numbers stay as they
+  were); each of its 24 numbers was found by grep in the output of the two scoring scripts (0 not found).
+  Lessons (outside the repository): helper files in /tmp of one login node; a bookkeeping print that showed
+  result numbers.
+- DONE-WHEN of the plan: 27 jobs final with exit=0 and no Traceback (4 twins, 23 inversions) - yes; ten by-day
+  JSONs - yes; verdict lines by jq - yes; rule applied - (B); todo, README, lessons, push - this commit.
+- State of the method after this: unchanged. Every row of the README is without the term; the days on which
+  the sensor says nothing about the water table (first days at SE-Nor, 6 Dec 2019) stay reported as depending
+  on the start, with their sd.
