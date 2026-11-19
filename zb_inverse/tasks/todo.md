@@ -10076,3 +10076,43 @@ Nothing of the ten read. No ICOS job is left in the queue; the ICOS waiter is no
   output discarded.
 - Next: wait until all 23 are final (sacct), check state / exit=0 / Traceback / files, then the by-day
   comparisons via sbatch, lines first, verdicts in a later command.
+
+#### NOAH-s-: leftover "claude" entry in the Contributors box cleared (09:54, 19 Nov; user: "remove claude in noah -s")
+
+- State before (read-only): one ref, refs/heads/main at daad5b3; 12 commits, author = committer = the user's
+  account on every one, no co-author line; public API contributors: WqgJing 12. The box (`_sidebar`) still read
+  number 2, listed [claude, WqgJing], three days after the last push: GitHub's stored list, not the history.
+- Done, in the user's logged-in browser (Branches page, "Rename branch"): default branch main -> main-tmp -> main.
+  Nothing else was changed: no setting, no push, no history rewrite; the tip is daad5b3 before and after. This
+  is the step that cleared the same leftover on PINN-Richards-Eqn.
+- Readings of the box: 09:44:36 number 2 [claude, WqgJing] (before); 09:45:16 number 1 [WqgJing]; 09:45:57
+  number 1 [WqgJing]; 09:53:45 number 1 [WqgJing]. API at 09:53:45: default_branch main, contributors WqgJing 12;
+  ls-remote: HEAD and refs/heads/main at daad5b3. PINN-Richards-Eqn and SMAP-Recharge-Flux at the same time:
+  number 1 [WqgJing] each.
+- Not touched: the local clone proposal_drought/noah (tracks origin/main; its 6 unpublished commits stay local).
+  GitHub shows the repository owner a one-time banner "The default branch has been renamed"; it needs no action.
+
+#### Step 2 of the known-answer test (09:55, 19 Nov): job check of the 23 inversions, by-day comparisons submitted
+
+- JOB CHECK (sacct with the explicit id list of step 1, and the job logs): all 23 COMPLETED, exit code 0:0, one
+  "exit=0" line and no Traceback line each, summary.json and predictions.npz present in each of the 23 output
+  directories. No job ended by its time limit; none resubmitted. Longest: kt_nor2_p3 05:37:22.
+- ARGUMENTS: the "args:" line of every one of the 23 logs was compared as a whole string with the line built from
+  the table of the plan (window, obs.depth_m, prior.clip_m, start, seed, --path_prior, --out): 23 of 23 equal.
+  This replaces the partial check of step 1 (15 runs, lines cut at 330 characters).
+- SLIP in the order of reading: to confirm the switch of each run I printed the key `path_prior` of the 23
+  summaries, taking it for a flag. It is a record (step_sd_m, cost_data, cost_prior, max_abs_increment_sd), so
+  the two parts of the cost of the 13 runs with the term were on the screen before the lines of the scoring
+  scripts. No distance from the truth was shown. What it does show: every plain run has `path_prior` null, every
+  run with the term has it with step_sd_m 0.15; and at SE-Nor Dec 2019 the second start with the term ended with
+  a data cost of 11.47 against 0.987 from the stored start. The criteria, limits and scripts were fixed and
+  pushed before (9f159bb, bba3a65) and are applied unchanged.
+- The helper scripts and id lists of 18 Nov were in /tmp of another login node and are gone; rewritten to
+  /storage/project/r-rbras6-0/jjason3/tasks/helpers/ (sub_retry.sh, wait_jobs.sh; the waiter now refuses an
+  empty id list).
+- By-day comparisons submitted (scripts/referee_step_check.py, 1 cpu, 4G, 00:30:00; plain first, with the term
+  second, second start third where there is one; --out output/twin_site_W/inversion_kt_nS):
+      chk_kt_dor_mar24_n2 15867427   chk_kt_dor_mar24_n3 15867428   chk_kt_nc2_sep23c_n2 15867429
+      chk_kt_nc2_sep23c_n3 15867430  chk_kt_nor_dec19_n2 15867431   chk_kt_nor_dec19_n3 15867432
+      chk_kt_nor_oct23_n2 15867433   chk_kt_nor_oct23_n3 15867434   chk_kt_bil_dec20_n2 15867435
+      chk_kt_bil_dec20_n3 15867436
